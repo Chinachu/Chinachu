@@ -1,0 +1,22 @@
+[
+    {
+      "category": "anime",
+      "hour": {
+        "start": 23,
+        "end"  : 4
+      },
+      "duration": {
+        "min": 600,
+        "max": 10801
+      },
+      "ignore_titles": [
+        "非公認戦隊アキバレンジャー", "戦国コレクション"
+      ],
+      "ignore_flags": [
+        "再"
+      ]
+    },
+    {
+      "reserve_titles": ["ピカルの定理", "笑点"]
+    }
+]
