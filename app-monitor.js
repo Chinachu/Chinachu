@@ -232,6 +232,7 @@ function ioServer(socket) {
 	
 	socket.on('disconnect', function _socketOnDisconnect() {
 		--status.connectedCount;
+		io.sockets.emit('status', status);
 	});
 	
 	// broadcast
