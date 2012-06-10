@@ -52,7 +52,7 @@ fs.watch(config.scheduleData, function _watchSchedule() {
 
 // auth
 var basic = auth({
-	authRealm: 'Hello Chinachu. (' + (new Date().getTime() + Math.random()) + ')',
+	authRealm: 'Hello Chinachu.',
 	authList : config.wuiUsers
 });
 
