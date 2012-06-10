@@ -1,0 +1,35 @@
+#!/bin/bash
+
+LOGPATH="/home/chinachu/chinachu/log/recording.log"
+
+if [ "$1" = "autoconf" ]; then
+		if [ -r $LOGPATH ]; then
+				echo yes
+				exit 0
+		else
+				echo no
+				exit 1
+		fi
+fi
+
+if [ "$1" = "config" ]; then
+		echo "graph_title Quality"
+		echo "graph_args --base 1000 --upper-limit 100 -l 0"
+		echo "graph_vlabel %"
+		echo "graph_category chinachu"
+		
+		echo "quality.label Quality"
+		echo "quality.draw AREA"
+
+		exit 0
+fi
+
+echo -n "quality.value "
+
+VALUE=$(tail -n 1 $LOGPATH | sed -e "s/^.*Quality = \([0-9.]*\)\,.*$/\1/" | grep ^[0-9.]*$)
+
+if [ "$VALUE" != "" ]; then
+		echo $VALUE
+else
+		echo "0"
+fi

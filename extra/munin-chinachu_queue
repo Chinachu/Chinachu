@@ -1,0 +1,35 @@
+#!/bin/bash
+
+RECOM="recfsusb2n"
+
+if [ "$1" = "autoconf" ]; then
+		echo yes
+		exit 0
+fi
+
+if [ "$1" = "config" ]; then
+		echo "graph_title Queue"
+		echo "graph_args --base 1000 -l 0"
+		echo "graph_vlabel Number of job"
+		echo "graph_category chinachu"
+		
+		echo "wait.label Waiting"
+		echo "wait.draw AREA"
+		echo "wait.type GAUGE"
+
+		exit 0
+fi
+
+echo -n "wait.value "
+
+ATQ=$(atq | sed -e "s/^\([0-9]\+\).\+$/\1/")
+ATS=0
+
+for QID in $ATQ; do
+		ATC=$(at -c $QID 2>&1 | grep $RECOM)
+		if [ "$ATC" != "" ]; then
+				ATS=$(($ATS + 1))
+		fi
+done
+
+echo $ATS

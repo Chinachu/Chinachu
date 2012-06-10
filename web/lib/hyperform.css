@@ -1,0 +1,662 @@
+/**
+ * Hyperform/[:version] for Prototype.js
+ *
+ * Copyright (c) 2012 Yuki KAN
+ * Licensed under the MIT-License.
+ *
+ * http://akkar.in/projects/hyperform/
+**/
+.hyperform {
+	background      : #fff;
+	border-collapse : collapse;
+	table-layout    : fixed;
+	line-height     : 18px; }
+	
+	/*- button -*/
+	
+	.hyperform button {
+		display         : inline-block;
+		cursor          : pointer;
+		
+		margin          : 0 0 0 4px;
+		padding         : 0;
+		border          : 1px solid #ccc;
+		border          : 1px solid rgba(0, 0, 0, 0.2);
+		border-radius   : 3px;
+		box-shadow      : inset 0 1px 0 rgba(255, 255, 255, 0.4),
+		                  inset 1px 0 0 rgba(255, 255, 255, 0.25),
+		                  inset -1px 0 0 rgba(255, 255, 255, 0.25);
+		background-color: #eee;
+		background-color: rgba(255, 255, 255, 1);
+		background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.05));
+		background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.05));
+		background-image: -ms-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.05));
+		background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.05));
+		background-image: linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.05));
+		
+		-webkit-transition: border-color 0.25s ease;
+		-moz-transition   : border-color 0.25s ease;
+		-ms-transition    : border-color 0.25s ease;
+		-o-transition     : border-color 0.25s ease;
+		transition        : border-color 0.25s ease; }
+		
+		.hyperform button > label {
+			display    : inline-block;
+			cursor     : pointer;
+			padding    : 3px 7px 2px 7px;
+			font-size  : 12px;
+			line-height: 18px;
+			color      : #222;
+			color      : rgba(0, 0, 0, 0.8);
+			text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+			white-space: nowrap; }
+		
+		.hyperform button > label.hyperform-icon {
+			padding-left       : 25px;
+			background-repeat  : no-repeat;
+			background-position: 5px center; }
+	
+	.hyperform button:first-child {
+		margin-left: 0; }
+	
+	.hyperform button:hover,
+	.hyperform button.selecting {
+		border-color    : #777 !important;
+		border-color    : rgba(0, 0, 0, 0.5) !important;
+		background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.10), rgba(0, 0, 0, 0.15));
+		background-image: -moz-linear-gradient(top, rgba(0, 0, 0, 0.10), rgba(0, 0, 0, 0.15));
+		background-image: -ms-linear-gradient(top, rgba(0, 0, 0, 0.10), rgba(0, 0, 0, 0.15));
+		background-image: -o-linear-gradient(top, rgba(0, 0, 0, 0.10), rgba(0, 0, 0, 0.15));
+		background-image: linear-gradient(top, rgba(0, 0, 0, 0.10), rgba(0, 0, 0, 0.15)); }
+		
+		.hyperform button:hover > label,
+		.hyperform button.selecting > label {
+			color: #000; }
+	
+	.hyperform button:active {
+		border-color    : #000;
+		background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.20));
+		background-image: -moz-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.20));
+		background-image: -ms-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.20));
+		background-image: -o-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.20));
+		background-image: linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.20)); }
+	
+	.hyperform button.selected {
+		border-color    : #000 !important;
+		border-color    : rgba(0, 0, 0, 0.8) !important;
+		box-shadow      : 0 0 5px #cce1ff,
+		                  inset 0 0 3px #1e7aff;
+		background-color: #cce1ff !important;
+		background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.05));
+		background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.05));
+		background-image: -ms-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.05));
+		background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.05));
+		background-image: linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.05)); }
+		
+		.hyperform button.selected > label {
+			color: #00327a; }
+	
+	.hyperform > tbody > tr {
+		background-color: #fff; }
+	
+	.hyperform > tbody > tr.hyperform-odd {
+		background-color: #f7f7f7; }
+	
+	.hyperform > tbody > tr {
+		background-color: #fff; }
+	
+		table.hyperform > tbody > tr > th, table.hyperform > tbody > tr > td {
+			/* border          : 1px solid #ccc; */
+			background-color: transparent;
+			background-image: none;
+			padding         : 6px 10px;
+			font-weight     : normal;
+			font-size       : 12px; }
+		
+		table.hyperform > tbody > tr > th {
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			-o-user-select: none;
+			user-select: none; }
+		
+			table.hyperform > tbody > tr > th > label {
+				font-size          : 13px;
+				color              : #444; }
+		
+			table.hyperform > tbody > tr > th > label.hyperform-icon {
+				padding-left       : 20px;
+				padding-top        : 2px;
+				padding-bottom     : 2px;
+				background-repeat  : no-repeat;
+				background-position: left center; }
+			
+			/*- ul -*/
+			table.hyperform > tbody > tr > td > div ul {
+				margin             : 0 0 0 5px;
+				padding            : 0;
+				list-style-position: inside;
+				list-style-type    : none; }
+				
+			table.hyperform > tbody > tr > td > div ul:last-child {
+				margin             : 0; }
+				
+				table.hyperform > tbody > tr > td > div ul > ul {
+					padding        : 0 0 0 10px;
+					margin         : 0;
+					list-style-type: square;}
+			
+			/*- pre -*/
+			table.hyperform > tbody > tr > td > div pre {
+				margin : 0; }
+			
+			/*- text -*/
+			
+			table.hyperform > tbody > tr > td > div.text {
+				font-size : 12px;
+				margin    : 2px 0 0 0;
+				color     : #555;
+				-webkit-user-select: text;
+				-moz-user-select: text;
+				-ms-user-select: text;
+				-o-user-select: text;
+				user-select: text; }
+				
+			table.hyperform > tbody > tr > td > div.text:first-child {
+				margin-top: 0; }
+			
+			/*- input -*/
+			
+			table.hyperform > tbody > tr > td > div.input {
+				margin: 0; }
+			
+				table.hyperform > tbody > tr > td > div.input > input {
+					display    : inline-block;
+					border     : 1px solid #b6b7d1;
+					padding    : 5px;
+					margin     : 0;
+					font-size  : 13px;
+					line-height: 13px;
+					height     : 16px;
+					box-shadow : inset 0 0 2px #ddd;
+					vertical-align: middle; }
+				
+				table.hyperform > tbody > tr > td > div.input > input[type='password'] {
+					margin       : 5px 0 0 0;
+					display      : block;
+					border-radius: 3px; }
+				
+				table.hyperform > tbody > tr > td > div.input > input[type='password']:first-child {
+					margin-top: 0; }
+				
+				table.hyperform > tbody > tr > td > div.input > *:first-child {
+					border-top-left-radius   : 3px;
+					border-bottom-left-radius: 3px; }
+				
+				table.hyperform > tbody > tr > td > div.input > *:last-child {
+					border-top-right-radius   : 3px;
+					border-bottom-right-radius: 3px; }
+				
+				table.hyperform > tbody > tr > td > div.input > input:hover,
+				table.hyperform > tbody > tr > td > div.input > input:focus {
+					outline-offset: -2px;
+					outline: 0;
+					outline: thin dotted 9;
+					
+					border    : 1px solid #9e9fc1;
+					box-shadow: 0 0 5px #ccc; }
+				
+				table.hyperform > tbody > tr.valid > td > div.input > input {
+					background-color: #ebffe5;
+					border-color    : #78a969; }
+				
+				table.hyperform > tbody > tr.invalid > td > div.input > input {
+					background-color: #ffe5e7;
+					border-color    : #ad6f72; }
+				
+				table.hyperform > tbody > tr > td > div.input > span.append,
+				table.hyperform > tbody > tr > td > div.input > span.prepend {
+					display    : inline-block;
+					border     : 1px solid #b6b7d1;
+					margin     : 0;
+					padding    : 7px 5px 3px 5px;
+					font-size  : 12px;
+					height     : 16px;
+					line-height: 13px;
+					color      : #555;
+					text-shadow: 0 1px 0 #fff;
+					background-color: #eee;
+					vertical-align: middle; }
+				
+				table.hyperform > tbody > tr > td > div.input > span.append {
+					border-left: none; }
+				
+				table.hyperform > tbody > tr > td > div.input > span.prepend {
+					border-right: none; }
+			
+			/*- select -*/
+			
+			table.hyperform > tbody > tr > td > select {
+				display    : block;
+				margin     : 0;
+				padding    : 4px;
+				line-height: 28px;
+				border       : 1px solid #b6b7d1;
+				border-radius: 3px; }
+				
+			/*- textarea -*/
+			
+			table.hyperform > tbody > tr > td > textarea {
+				display: block;
+				border : 1px solid #b6b7d1;
+				margin : 0;
+				padding: 4px;
+				font   : 13px monospace;
+				
+				border-radius: 3px;
+				box-shadow   : inset 0 0 1px #ddd; }
+				
+			table.hyperform > tbody > tr > td > textarea:hover,
+			table.hyperform > tbody > tr > td > textarea:focus {
+				outline-offset: -2px;
+				outline: 0;
+				outline: thin dotted 9;
+				
+				border    : 1px solid #9e9fc1;
+				box-shadow: 0 0 5px #ccc; }
+			
+			table.hyperform > tbody > tr.valid  > td > textarea{
+				background-color: #ebffe5;
+				border-color    : #78a969; }
+			
+			table.hyperform > tbody > tr.invalid > td > textarea {
+				background-color: #ffe5e7;
+				border-color    : #ad6f72; }
+			
+			/*- radio -*/
+			
+			table.hyperform > tbody > tr > td > div.radio {}
+				
+				table.hyperform > tbody > tr > td > div.radio > button {
+					margin-left  : 0;
+					border       : 1px solid #ccc;
+					border       : 1px solid rgba(0, 0, 0, 0.2);
+					border-right : none;
+					border-radius: 0; }
+				
+				table.hyperform > tbody > tr > td > div.radio > button:first-child {
+					border-top-left-radius   : 3px;
+					border-bottom-left-radius: 3px; }
+				
+				table.hyperform > tbody > tr > td > div.radio > button:last-child {
+					border-right: 1px solid #ccc;
+					border-right: 1px solid rgba(0, 0, 0, 0.2);
+					border-top-right-radius   : 3px;
+					border-bottom-right-radius: 3px; }
+				
+				table.hyperform > tbody > tr > td > div.radio > button:hover {
+					border-color: #777;
+					border-color: rgba(0, 0, 0, 0.5); }
+				
+				table.hyperform > tbody > tr > td > div.radio > button:hover + button:not(.selected) {
+					border-left-color: #777;
+					border-left-color: rgba(0, 0, 0, 0.5); }
+				
+				table.hyperform > tbody > tr > td > div.radio > button.active,
+				table.hyperform > tbody > tr > td > div.radio > button.selected {
+					border-right: 1px solid; }
+				
+				table.hyperform > tbody > tr > td > div.radio > button.active + button,
+				table.hyperform > tbody > tr > td > div.radio > button.selected + button {
+					border-left: none; }
+				
+				table.hyperform > tbody > tr > td > div.radio-block > button {
+					display   : block;
+					margin    : 0;
+					width     : 100%;
+					text-align: left;
+					border    : 1px solid #ccc;
+					border    : 1px solid rgba(0, 0, 0, 0.2);
+					border-bottom: none;
+					border-radius: 0; }
+				
+				table.hyperform > tbody > tr > td > div.radio-block > button:first-child {
+					border-top-left-radius   : 3px;
+					border-top-right-radius  : 3px;
+					border-bottom-left-radius: 0; }
+				
+				table.hyperform > tbody > tr > td > div.radio-block > button:last-child {
+					border-bottom             : 1px solid #ccc;
+					border-bottom             : 1px solid rgba(0, 0, 0, 0.2);
+					border-bottom-right-radius: 3px;
+					border-bottom-left-radius : 3px;
+					border-top-right-radius   : 0; }
+				
+				table.hyperform > tbody > tr > td > div.radio-block > button:hover {
+					border-color: #777;
+					border-color: rgba(0, 0, 0, 0.5); }
+				
+				table.hyperform > tbody > tr > td > div.radio-block > button:hover + button:not(.selected) {
+					border-top-color: #777;
+					border-top-color: rgba(0, 0, 0, 0.5);
+					border-left: 1px solid #ccc;
+					border-left: 1px solid rgba(0, 0, 0, 0.2); }
+				
+				table.hyperform > tbody > tr > td > div.radio-block > button.active,
+				table.hyperform > tbody > tr > td > div.radio-block > button.selected {
+					border-bottom: 1px solid; }
+				
+				table.hyperform > tbody > tr > td > div.radio-block > button.active + button,
+				table.hyperform > tbody > tr > td > div.radio-block > button.selected + button {
+					border-top : none;
+					border-left: 1px solid #ccc;
+					border-left: 1px solid rgba(0, 0, 0, 0.2); }
+					
+				table.hyperform > tbody > tr.invalid > td > div.radio > button {
+					background-color: #ffe5e7;
+					border-color    : #ad6f72; }
+			
+			/*- checkbox-block -*/
+			
+			table.hyperform > tbody > tr > td > div.checkbox {}
+				
+				table.hyperform > tbody > tr > td > div.checkbox-block > button {
+					display   : block;
+					margin    : 3px 0 0 0;
+					width     : 100%;
+					text-align: left; }
+				
+				table.hyperform > tbody > tr > td > div.checkbox-block > button:first-child {
+					margin-top: 0; }
+				
+				table.hyperform > tbody > tr.invalid > td > div.checkbox > button {
+					background-color: #ffe5e7;
+					border-color    : #ad6f72; }
+			
+			/*- pulldown -*/
+			
+			table.hyperform > tbody > tr > td > div.pulldown {
+				position: relative;
+				margin  : 0; }
+			
+				table.hyperform > tbody > tr > td > div.pulldown > div.pulldown-list {
+					position: absolute;
+					top     : 27px;
+					z-index : 5;
+					padding : 5px 0;
+					margin-top: 0;
+					border  : 1px solid #999;
+					box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+					width     : auto;
+					height    : auto;
+					max-height: 150px;
+					overflow  : auto;
+					overflow-x: hidden;
+					overflow-y: auto;
+					line-height: 18px;
+					border-radius: 3px;
+					background-color: #fff;
+					background-color: rgba(255, 255, 255, 0.9); }
+			
+				table.hyperform > tbody > tr > td > div.pulldown > div.pulldown-list.pulldown-list-upper {
+					top   : auto;
+					bottom: 27px; }
+			
+				table.hyperform > tbody > tr > td > div.pulldown > div.pulldown-list.pulldown-list-put {
+					position     : relative;
+					top          : 2px;
+					margin-bottom: 5px; }
+				
+				table.hyperform > tbody > tr > td > div.pulldown > button > label:after {
+					content       : "\25bc";
+					color         : #999;
+					font-size     : 10px;
+					margin        : 0 0 0 7px;
+					line-height   : 17px;
+					vertical-align: bottom; }
+					
+				table.hyperform > tbody > tr.invalid > td > div.pulldown > button {
+					background-color: #ffe5e7;
+					border-color    : #ad6f72; }
+				
+				table.hyperform > tbody > tr > td > div.pulldown > button:hover > label:after,
+				table.hyperform > tbody > tr > td > div.pulldown > button.selecting > label:after {
+					color  : #000; }
+					
+					table.hyperform > tbody > tr > td > div.pulldown > div.pulldown-list > div {
+						padding: 2px 25px 1px 10px;
+						white-space: nowrap;
+						cursor : pointer;
+						color: #555; }
+					
+					table.hyperform > tbody > tr > td > div.pulldown > div.pulldown-list > div.hyperform-icon {
+						padding-left: 30px;
+						background-repeat  : no-repeat;
+						background-position: 10px center;}
+					
+					table.hyperform > tbody > tr > td > div.pulldown > div.pulldown-list > div:hover {
+						color: #00327a;
+						background-color: #cce1ff; }
+			
+			/*- slider -*/
+			
+			table.hyperform > tbody > tr > td > div.slider {
+				margin : 0;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				-o-user-select: none;
+				user-select: none; }
+				
+				table.hyperform > tbody > tr > td > div.slider > div.slider-base {
+					position     : relative;
+					margin-top   : 5px;
+					height       : 4px;
+					border       : 1px solid #bbb;
+					border-color : rgba(0,0,0,0.4);
+					border-radius: 2px;
+					box-shadow   : inset 0 0 2px #bbb;
+					overflow     : visible;
+					background-color: #f5f5f5; }
+					
+					table.hyperform > tbody > tr > td > div.slider > div.slider-base >  div.slider-fill {
+						position     : relative;
+						height       : 4px;
+						border-radius: 2px;
+						border-top-right-radius: 0;
+						border-bottom-right-radius: 0;
+						box-shadow   : 0 0 4px #1e7aff, inset 0 0 3px rgba(255,255,255,0.5);
+						background-color: #1e7aff; }
+						
+						table.hyperform > tbody > tr > td > div.slider > div.slider-base >  div.slider-fill > div.slider-handle {
+							position     : absolute;
+							z-index      : 2;
+							top          : -6px;
+							right        : -8px;
+							width        : 8px;
+							height       : 8px;
+							cursor       : default;
+							border       : 4px solid #fff;
+							border-radius: 8px;
+							box-shadow   : inset 0 0 3px #ccc,
+							               0 0 5px #777;
+							background-color: #ddd; }
+						
+						table.hyperform > tbody > tr > td > div.slider > div.slider-base >  div.slider-fill > div.slider-handle:hover {
+							box-shadow   : 0 0 4px #1e7aff;
+							background-color: #bbb; }
+					
+					table.hyperform > tbody > tr > td > div.slider > div.slider-base >  div.slider-scale {
+						position     : absolute;
+						z-index      : 1;
+						top          : 0;
+						width        : 1px;
+						height       : 4px;
+						background-color: #ccc; }
+				
+				table.hyperform > tbody > tr > td > div.slider > div.slider-display {
+					margin-top: 5px;
+					color     : #00327a; }
+			
+			/*- tag -*/
+			
+			table.hyperform > tbody > tr > td > div.tag {
+				margin : 0;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				-o-user-select: none;
+				user-select: none; }
+				
+				table.hyperform > tbody > tr > td > div.tag > input {
+					display    : inline-block;
+					border     : 1px solid #b6b7d1;
+					padding    : 5px;
+					margin     : 0;
+					font-size  : 13px;
+					line-height: 13px;
+					height     : 16px;
+					box-shadow : inset 0 0 2px #ddd;
+					vertical-align: middle;
+					border-top-left-radius   : 3px;
+					border-bottom-left-radius: 3px; }
+				
+				table.hyperform > tbody > tr > td > div.tag > input:hover,
+				table.hyperform > tbody > tr > td > div.tag > input:focus {
+					outline-offset: -2px;
+					outline: 0;
+					outline: thin dotted 9;
+					
+					border    : 1px solid #9e9fc1;
+					box-shadow: 0 0 5px #ccc; }
+				
+				table.hyperform > tbody > tr > td > div.tag > button {
+					display    : inline-block;
+					border     : 1px solid #b6b7d1;
+					border-left: none;
+					margin     : 0;
+					padding    : 2px 5px 2px 5px;
+					font-size  : 10px;
+					height     : 28px;
+					line-height: 10px;
+					color      : #555;
+					text-shadow: 0 1px 0 #fff;
+					vertical-align: middle;
+					border-top-left-radius   : 0;
+					border-bottom-left-radius: 0; }
+				
+				table.hyperform > tbody > tr > td > div.tag > div {
+					display: block;
+					margin : 5px 5px 0 0;
+					padding: 0 5px 5px 5px;
+					border : 1px solid #ccc;
+					box-shadow: inset 0 0 3px #c7c7c7;
+					border-radius: 3px;
+					background-color: #eee; }
+					
+					table.hyperform > tbody > tr > td > div.tag > div > span {
+						display  : inline-block;
+						padding  : 2px 5px 1px;
+						margin   : 5px 3px 0 0;
+						color    : #fff;
+						font-size: 11px;
+						line-height: 17px;
+						vertical-align: middle;
+						white-space: nowrap;
+						text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+						border-radius: 2px;
+						background-color: #0043a3; }
+						
+						table.hyperform > tbody > tr > td > div.tag > div > span > button {
+							border          : none;
+							border-radius   : 7px;
+							padding         : 0;
+							color           : #777;
+							color           : rgba(255, 255, 255, 0.3);
+							margin          : 1px 0 0 4px;
+							width           : 14px;
+							height          : 14px;
+							line-height     : 14px;
+							font-size       : 11px;
+							vertical-align  : top;
+							box-shadow      : none;
+							background-image: none;
+							background-color: transparent; }
+						
+						table.hyperform > tbody > tr > td > div.tag > div > span > button:hover {
+							color           : #fff;
+							background-color: #555;
+							background-color: rgba(0, 0, 0, 0.2); }
+			
+			/*- warn -*/
+			
+			table.hyperform > tbody > tr > td > ul.warn {
+				margin      : 0;
+				padding     : 0;
+				list-style  : none;
+				color       : #ff0f21;
+				font-size   : 11px; }
+				
+				table.hyperform > tbody > tr > td > ul.warn > li {
+					padding   : 3px 0 2px 0; }
+				
+				table.hyperform > tbody > tr > td > ul.warn > li:first-child {
+					padding-top: 0; }
+		
+		/*- submit -*/
+		
+		table.hyperform > tbody > tr > td.submit {
+			background: #f5f5f5;
+			border-top: 1px solid #cacaca;
+			text-align: right; }
+		
+			table.hyperform > tbody > tr > td.submit > button {
+				display         : inline-block;
+				cursor          : pointer;
+				
+				margin-top      : 0px;
+				margin-left     : 2px;
+				padding         : 3px 7px 2px 7px;
+				line-height     : 20px;
+				font-size       : 14px;
+				border          : 1px solid rgba(0, 0, 0, 0.5);
+				border-radius   : 2px;
+				color           : #ddd;
+				color           : rgba(255, 255, 255, 0.8);
+				text-shadow     : 0 1px 0 rgba(0, 0, 0, 0.25);
+				box-shadow      : inset 0 1px 0 rgba(255, 255, 255, 0.3),
+								  inset 1px 0 0 rgba(255, 255, 255, 0.15),
+								  inset -1px 0 0 rgba(255, 255, 255, 0.15);
+				background-color: #555;
+				background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.05));
+				background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.05));
+				background-image: -ms-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.05));
+				background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.05));
+				background-image: linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.05));
+				
+				-webkit-transition: all 0.5s ease;
+				-moz-transition   : all 0.5s ease;
+				-ms-transition    : all 0.5s ease;
+				-o-transition     : all 0.5s ease;
+				transition        : all 0.5s ease; }
+			
+			table.hyperform > tbody > tr > td.submit > button:hover {
+				border-color    : rgba(0, 0, 0, 0.3);
+				color           : #fff;
+				background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.15));
+				background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.15));
+				background-image: -ms-linear-gradient(top, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.15));
+				background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.15));
+				background-image: linear-gradient(top, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.15)); }
+			
+			table.hyperform > tbody > tr > td.submit > button:active {
+
+				border-color    : #000;
+				background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.20));
+				background-image: -moz-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.20));
+				background-image: -ms-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.20));
+				background-image: -o-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.20));
+				background-image: linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.20)); }
+			
+			table.hyperform > tbody > tr > td.submit > button:last-child {
+				background-color: #04f; }

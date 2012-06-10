@@ -1,0 +1,649 @@
+/*!
+ * chinachu
+**/
+
+/* Override some defaults */
+html, body {
+	padding         : 0;
+	margin          : 0;
+	top             : 0;
+	right           : 0;
+	bottom          : 0;
+	left            : 0;
+	background-color: #fff; }
+
+body, input {
+	font-family     : "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", Meiryo, Osaka, "ＭＳ Ｐゴシック", "MS PGothic", sans-serif; }
+
+div#loading {
+	position           : absolute;
+	top                : 0;
+	right              : 0;
+	bottom             : 0;
+	left               : 0;
+	z-index            : 200;
+	background-color   : #000;
+	background-color   : rgba(0,0,0,0.5);
+	background-repeat  : no-repeat;
+	background-position: center center;
+	background-image   : url(loading.gif); }
+
+header {
+	position: absolute;
+	top     : 0;
+	right   : 0;
+	left    : 0;
+	height  : 40px;
+	padding : 0;
+	overflow: hidden;
+	z-index : 100; }
+	
+	header > div {
+		position        : absolute;
+		top             : 0;
+		right           : 0;
+		bottom          : 0;
+		left            : 0;
+		background-color: #d67fae;
+		padding         : 0 10px;
+		border-bottom   : 1px solid #c24186; }
+		
+		header > div > h1 {
+			vertical-align: top;
+			display       : inline-block;
+			margin        : 0;
+			line-height   : 40px;
+			font-size     : 19px;
+			font-weight   : normal;
+			color         : #fff;
+			text-shadow   : 0 -1px 0 #ad3777; }
+			
+			header > div > h1 > span {
+				font-size : 10px;
+				color     : rgba(255,255,255,0.8); }
+		
+		header > div > ul {
+			display    : inline-block;
+			margin     : 0 10px;
+			padding    : 0;
+			line-height: 40px;
+			font-weight: normal;
+			color      : #fff;
+			text-shadow: 0 -1px 0 #ad3777;
+			list-style : none; }
+		
+		header > div > ul.right {
+			float: right; }
+			
+			header > div > ul > li {
+				float      : left;
+				margin-left: 10px;
+				font-size  : 12px; }
+			
+			header > div > ul > li:first-child {
+				margin-left: 0; }
+			
+				header > div > ul > li > a {
+					cursor: pointer;
+					color : #eee;
+					color : rgba(255,255,255,0.85); }
+			
+				header > div > ul > li > a:hover {
+					color : #fff; }
+
+section {
+	position: absolute;
+	padding : 0;
+	margin  : 0;
+	z-index : 50; }
+	
+section.hide {
+	display: none; }
+
+section.split#monitor {
+	top             : 40px;
+	left            : 0;
+	bottom          : 20px;
+	width           : 210px;
+	background-color: #222; }
+	
+	section#monitor > div > div.toolbar {
+		background-color: #444; }
+	
+		section#monitor > div > div.toolbar > ul > li {
+			color: #f4d6e7; }
+	
+	section#monitor > div > div#monitor-recording-progress-container {
+		margin-top      : 30px;
+		height          : 4px;
+		background-color: #ccc; }
+		
+		section#monitor > div > div#monitor-recording-progress-container > div {
+			background-color: #ba0040;
+			height          : 4px;
+			width           : 0%; }
+	
+	section#monitor > div > img#monitor-preview-img {
+		width           : 210px;
+		height          : 118px;
+		background-color: #555;
+		border          : none; }
+	
+	section#monitor > div > div#monitor-recording-title {
+		color           : #fff;
+		padding         : 5px;
+		font-size       : 14px; }
+	
+	section#monitor > div > div#monitor-recording-detail {
+		color           : #aaa;
+		padding         : 5px;
+		font-size       : 12px; }
+	
+	section#monitor > div > div#monitor-recording-info {
+		color           : #ccc;
+		padding         : 5px;
+		font-size       : 10px; }
+
+section.split#schedule {
+	top     : 40px;
+	right   : 0;
+	bottom  : 20px;
+	left    : 210px; }
+
+section.full {
+	top     : 40px;
+	right   : 0;
+	bottom  : 20px;
+	left    : 0; }
+	
+	section > div {
+		position: absolute;
+		top     : 0;
+		right   : 0;
+		bottom  : 0;
+		left    : 0;
+		padding : 0;
+		overflow: hidden; }
+		
+		section > div > div.toolbar {
+			position        : absolute;
+			top             : 0;
+			right           : 0;
+			left            : 0;
+			height          : 30px;
+			background-color: #dfbdd0;
+			padding         : 0;
+			overflow        : hidden;
+			box-shadow      : 0 0 5px #9c1560;
+			z-index         : 100; }
+			
+			section > div > div.toolbar > ul {
+				display    : inline-block;
+				font-size  : 12px;
+				margin     : 0 10px;
+				padding    : 0;
+				line-height: 30px; 
+				list-style : none; }
+			
+			section > div > div.toolbar > ul.right {
+				float: right; }
+			
+				section > div > div.toolbar > ul > li {
+					float      : left;
+					margin-left: 5px; }
+				
+				section > div > div.toolbar > ul > li:first-child {
+					margin-left: 0; }
+				
+				section > div > div.toolbar > ul > li.selected {
+					text-shadow: 0 -1px 0 rgba(255,255,255,0.5);
+					
+					background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIwIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlZmUwZTkiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+					background: -moz-linear-gradient(top,  rgba(255,255,255,0) 0%, rgba(239,224,233,1) 100%);
+					background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,0)), color-stop(100%,rgba(239,224,233,1)));
+					background: -webkit-linear-gradient(top,  rgba(255,255,255,0) 0%,rgba(239,224,233,1) 100%);
+					background: -o-linear-gradient(top,  rgba(255,255,255,0) 0%,rgba(239,224,233,1) 100%);
+					background: -ms-linear-gradient(top,  rgba(255,255,255,0) 0%,rgba(239,224,233,1) 100%);
+					background: linear-gradient(top,  rgba(255,255,255,0) 0%,rgba(239,224,233,1) 100%);
+					filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#efe0e9',GradientType=0 ); }
+					
+					section > div > div.toolbar > ul > li > a {
+						display    : inline-block;
+						color      : #ac3475;
+						height     : 30px;
+						padding    : 0 10px;
+						cursor     : pointer; }
+					
+					section > div > div.toolbar > ul > li > a:hover {
+						background-color: #e9d2df; }
+					
+					section > div > div.toolbar > ul > li.selected > a:hover {
+						cursor          : default;
+						background-color: inherit; }
+						
+						section > div > div.toolbar > ul > li > a > span.sat {
+							color: #2939ab; }
+						
+						section > div > div.toolbar > ul > li > a > span.sun {
+							color: #eb0028; }
+					
+					section > div > div.toolbar > ul > li > input[type="text"] {
+						padding      : 0 5px;
+						margin       : 4px;
+						width        : 150px;
+						height       : 20px;
+						border       : 1px solid #ac3475;
+						border-radius: 2px;
+						font-size    : 11px;
+						color        : #555;
+						box-shadow   : inset 0 0 5px #f3e6ed; }
+		
+		section > div > div.chbar {
+			position        : absolute;
+			top             : 30px;
+			left            : 0;
+			width           : 100%;
+			height          : 40px;
+			color           : #fff;
+			background-color: #777;
+			background-color: rgba(0,0,0,0.5);
+			padding         : 0;
+			overflow        : hidden;
+			box-shadow      : 0 0 10px rgba(0,0,0,0.5);
+			z-index         : 90; }
+			
+			section > div > div.chbar > ul {
+				display    : inline-block;
+				font-size  : 12px;
+				margin     : 0 10px 0 25px;
+				padding    : 0;
+				line-height: 20px; 
+				list-style : none;
+				white-space: nowrap; }
+			
+				section > div > div.chbar > ul > li {
+					float           : left;
+					margin-left     : 5px;
+					width           : 160px;
+					background-color: #555;
+					background-color: rgba(0,0,0,0.1); }
+				
+				section > div > div.chbar > ul > li:first-child {
+					margin-left: 0; }
+				
+					section > div > div.chbar > ul > li > * {
+						display   : block;
+						text-align: center; }
+				
+					section > div > div.chbar > ul > li > b {
+						line-height: 25px; }
+				
+					section > div > div.chbar > ul > li > small {
+						line-height: 15px; }
+		
+		section > div > div.timeband {
+			position        : absolute;
+			top             : 30px;
+			left            : 0;
+			width           : 17px;
+			color           : #555;
+			background-color: #eee;
+			border-right    : 1px solid #aaa;
+			padding         : 45px 1px 0 1px;
+			overflow        : hidden;
+			z-index         : 50; }
+			
+			section > div > div.timeband > div {
+				height     : 96px;
+				border-top : 2px solid #aaa;
+				padding-top: 2px;
+				color      : #aaa;
+				font-size  : 12px;
+				font-weight: bold; }
+			
+			section > div > div.timeband > div.darkblue {
+				border-color: #003b93;
+				color       : #003b93; }
+			
+			section > div > div.timeband > div.purple {
+				border-color: #6b00a6;
+				color       : #6b00a6; }
+			
+			section > div > div.timeband > div.lightblue {
+				border-color: #0071b7;
+				color       : #0071b7; }
+			
+			section > div > div.timeband > div.orange {
+				border-color: #f77500;
+				color       : #f77500; }
+		
+		section > div > div.timeline {
+			position        : absolute;
+			top             : 30px;
+			right           : 0;
+			left            : 0;
+			padding         : 45px 1px 0 1px;
+			overflow        : hidden;
+			z-index         : 0;
+			opacity         : 0.2; }
+			
+			section > div > div.timeline > div {
+				height     : 98px;
+				border-top : 2px dashed #aaa; }
+			
+			section > div > div.timeline > div.darkblue {
+				border-color: #003b93; }
+			
+			section > div > div.timeline > div.purple {
+				border-color: #6b00a6; }
+			
+			section > div > div.timeline > div.lightblue {
+				border-color: #0071b7; }
+			
+			section > div > div.timeline > div.orange {
+				border-color: #f77500; }
+		
+		/* scrollbar */
+		
+		section > div > div.scrollbar {
+			z-index         : 15;
+			position        : absolute;
+			background-color: #eee;
+			background-color: rgba(0,0,0,0.1); }
+			
+			section > div > div.scrollbar > div {
+				position        : absolute;
+				background-color: #ccc;
+				background-color: rgba(0,0,0,0.1); }
+			
+			section > div > div.scrollbar > div:hover {
+				background-color: #aaa;
+				background-color: rgba(0,0,0,0.2); }
+		
+		section > div > div.scrollbar.x {
+			right           : 0;
+			bottom          : 0;
+			left            : 20px;
+			height          : 15px; }
+			
+			section > div > div.scrollbar.x > div {
+				top             : 0;
+				bottom          : 0;
+				width           : 100px; }
+		
+		section > div > div.scrollbar.y {
+			top             : 70px;
+			right           : 0;
+			bottom          : 0;
+			width           : 15px; }
+			
+			section > div > div.scrollbar.y > div {
+				right           : 0;
+				left            : 0;
+				height          : 100px; }
+		
+		/* timetable */
+		
+		section > div > div.timetable {
+			position        : absolute;
+			top             : 30px;
+			right           : 0;
+			bottom          : 0;
+			left            : 20px;
+			z-index         : 5;
+			padding-top     : 45px;
+			cursor          : url(pointer.cur), move; }
+			
+			section > div > div.timetable > ul {
+				display    : inline-block;
+				font-size  : 12px;
+				margin     : 0 10px 0 0;
+				padding    : 0;
+				line-height: 20px; 
+				list-style : none;
+				white-space: nowrap; }
+				
+				/* lane of channel */
+				
+				section > div > div.timetable > ul > li {
+					float           : left;
+					margin-left     : 5px;
+					width           : 160px;
+					background-color: #fff;
+					white-space     : normal; }
+					
+					/* block of program */
+					
+					section > div > div.timetable > ul > li > div {
+						position        : absolute;
+						padding         : 2px 2px 0 2px;
+						font-size       : 11px;
+						line-height     : 15px;
+						width           : 156px;
+						height          : 50px;
+						background-color: #fff;
+						overflow        : hidden; }
+					
+					section > div > div.timetable > ul > li > div.done {
+						opacity: 0.5; }
+					
+					section > div > div.timetable > ul > li > div.news {
+						background-color: #faffd9; }
+					
+					section > div > div.timetable > ul > li > div.information {
+						background-color: #edf6de; }
+					
+					section > div > div.timetable > ul > li > div.anime {
+						background-color: #ffe0f5; }
+					
+					section > div > div.timetable > ul > li > div.drama {
+						background-color: #ebdef6; }
+					
+					section > div > div.timetable > ul > li > div.variety {
+						background-color: #f6dedf; }
+					
+					section > div > div.timetable > ul > li > div.sports {
+						background-color: #d6e9f4; }
+					
+					section > div > div.timetable > ul > li > div.music {
+						background-color: #c7c8f0; }
+					
+					section > div > div.timetable > ul > li > div.cinema {
+						background-color: #e6e6e6; }
+					
+					section > div > div.timetable > ul > li > div.etc {
+						background-color: #eef9fa; }
+						
+						section > div > div.timetable > ul > li > div > span.title {
+							display    : block;
+							font-size  : 12px;
+							color      : #333;
+							text-shadow: 0 1px 0 #fff; }
+						
+						section > div > div.timetable > ul > li > div.conflict > span.title {
+							color           : #c49a02; }
+						
+						section > div > div.timetable > ul > li > div.reserved > span.title {
+							color           : #b7282e; }
+						
+						section > div > div.timetable > ul > li > div.during > span.title {
+							font-weight     : bold; }
+							
+							section > div > div.timetable > ul > li > div > span.title > span.time,
+							section > div > div.timetable > ul > li > div > span.title > span.flag {
+								display         : inline-block;
+								font-size       : 10px;
+								background-color: #777;
+								color           : #fff;
+								margin-right    : 2px;
+								text-shadow     : none;
+								padding         : 0 1px; }
+							
+							section > div > div.timetable > ul > li > div > span.title > span.flag {
+								background-color: #888;
+								color           : #fff; }
+							
+							section > div > div.timetable > ul > li > div > span.title > span.flag-新 {
+								background-color: #b20009; }
+							
+							section > div > div.timetable > ul > li > div > span.title > span.flag-終 {
+								background-color: #2e00a3; }
+							
+							section > div > div.timetable > ul > li > div > span.title > span.flag-再 {
+								background-color: #00a32a; }
+							
+							section > div > div.timetable > ul > li > div > span.title > span.time.h19,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h20,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h21,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h22,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h23,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h0 {
+								background-color: #003b93; }
+							
+							section > div > div.timetable > ul > li > div > span.title > span.time.h1,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h2,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h3,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h4 {
+								background-color: #6b00a6; }
+							
+							section > div > div.timetable > ul > li > div > span.title > span.time.h5,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h6,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h7,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h8,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h9,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h10,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h11 {
+								background-color: #0071b7; }
+							
+							section > div > div.timetable > ul > li > div > span.title > span.time.h12,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h13,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h14,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h15,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h16,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h17,
+							section > div > div.timetable > ul > li > div > span.title > span.time.h18 {
+								background-color: #f77500; }
+						
+						section > div > div.timetable > ul > li > div > span.detail {
+							display         : inline-block;
+							color           : #777;
+							margin-top      : 2px; }
+
+footer {
+	position: absolute;
+	right   : 0;
+	bottom  : 0;
+	left    : 0;
+	height  : 20px;
+	padding : 0;
+	margin  : 0;
+	overflow: hidden;
+	z-index : 100; }
+	
+	footer > div {
+		position        : absolute;
+		top             : 0;
+		right           : 0;
+		bottom          : 0;
+		left            : 0;
+		background-color: #ddd;
+		padding         : 0 10px;
+		border-top      : 1px solid #bbb; }
+		
+		footer > div > p {
+			margin     : 0;
+			line-height: 20px;
+			font-size  : 12px;
+			font-weight: normal;
+			color      : #555;
+			text-shadow: 0 1px 0 #eee; }
+		
+		footer > div > p.right {
+			float: right; }
+			
+			footer > div > p > a {
+				text-decoration: none;
+				color          : #4a66d9; }
+			
+			footer > div > p > a:hover {
+				color          : #2745bd; }
+		
+				footer > div > p > span > span.recording {
+					color: #eb0028; }
+		
+				footer > div > p > span > span.standby {
+					color: #2939ab; }
+
+/* hypermodal */
+.hypermodal-button-close {
+	color: #fff !important; }
+
+.hypermodal-button-color-pink {
+	background-color: #d67fae !important; }
+
+div.hypermodal > div {
+	right: 10px;
+	left : 10px; }
+
+div.hypermodal div.hypermodal-header {
+	background-color: #d67fae;
+	color           : #fff;
+	border-top-left-radius : 2px;
+	border-top-right-radius: 2px; }
+	
+	div.hypermodal div.hypermodal-header > h3 > span.title > span.time {
+		display: none; }
+	
+	div.hypermodal div.hypermodal-header > h3 > span.title > span.flag {
+		display         : inline-block;
+		font-size       : 12px;
+		background-color: rgba(0,0,0,0.2);
+		margin-right    : 2px;
+		padding         : 1px 3px 0 3px;
+		line-height     : 18px;
+		vertical-align  : top; }
+	
+	div.hypermodal div.hypermodal-header > p {
+		color           : rgba(255,255,255,0.7); }
+	
+		div.hypermodal div.hypermodal-header > p > span {
+			display         : inline-block;
+			line-height     : 16px;
+			padding         : 0 2px;
+			color           : #fff; }
+	
+		div.hypermodal div.hypermodal-header > p > span.reserved {
+			background-color: #ba0040; }
+	
+		div.hypermodal div.hypermodal-header > p > span.conflict {
+			background-color: #a86100; }
+
+div.hypermodal div.hypermodal-content {
+	border-color: #c24186 !important; }
+	
+	div.hypermodal div.hypermodal-content > div.command-result {
+		background-color: #2b2b2b;
+		color           : #fff;
+		padding         : 5px 10px;
+		font-size       : 10px;
+		font-family     : monospace;
+		line-height     : 14px; }
+
+	div.hypermodal div.hypermodal-content > div.reserved-info {
+		margin-top      : 5px;
+		background-color: #eee;
+		font-size       : 11px; }
+
+		div.hypermodal div.hypermodal-content > div.reserved-info > div {
+			padding         : 2px 4px;
+			color           : #fff;
+			background-color: #ba0040; }
+
+		div.hypermodal div.hypermodal-content > div.reserved-info > p {
+			padding         : 6px 12px;
+			font-family     : monospace; }
+
+div.hypergrid-container > table.hypergrid > tbody > tr > td > div > span.title > span.flag {
+		font-size       : 10px;
+		margin-right    : 2px;
+		color           : #999; }

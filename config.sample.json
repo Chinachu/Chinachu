@@ -1,0 +1,32 @@
+{
+  "recordedDir": "/recorded/",
+  
+  "wuiUsers": [
+    "akari:bakuhatsu"
+  ],
+  
+  "wuiControlKey": "kuuki",
+  "wuiPort"      : 10772,
+  "wuiIpv6"      : "::",
+  
+  "recordProgram": "recfsusb2n",
+  "recordCommand": "recfsusb2n -bv [channel] - -",
+  "streamCommand": "cvlc - --sout \"#standard{access=http,mux=ts,dst=:20772/dtvts}\"",
+  
+  "scheduleData" : "/schedule.json",
+  "recordingLog" : "/log/recording.log",
+  "schedulerLog" : "/log/scheduler.log",
+  
+  "nodejsPath"   : "~/.nave/installed/0.6.18/bin/node",
+  
+  "checkHours"   : 6,
+  
+  "channels": [
+    { "channel" : 20, "callsign": "JOMX-DTV" },
+    { "channel" : 21, "callsign": "JOCX-DTV" },
+    { "channel" : 22, "callsign": "JORX-DTV" },
+    { "channel" : 23, "callsign": "JOTX-DTV" },
+    { "channel" : 24, "callsign": "JOEX-DTV" },
+    { "channel" : 25, "callsign": "JOAX-DTV" }
+  ]
+}
