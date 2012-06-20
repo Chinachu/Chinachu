@@ -33,9 +33,9 @@ var rules = JSON.parse( fs.readFileSync(RULES_FILE, 'ascii') || '[]' );
 
 var reserves = JSON.parse( fs.readFileSync(RESERVES_FILE, 'ascii') || '[]' );
 
-config.recordedDir  = __dirname + config.recordedDir;
-config.scheduleData = __dirname + config.scheduleData;
-config.recordingLog = __dirname + config.recordingLog;
+config.recordedDir  = (config.recordedDir.match('{full}') === null) ? __dirname + config.recordedDir : config.recordedDir.replace('{full}', '');
+config.scheduleData = (config.scheduleData.match('{full}') === null) ? __dirname + config.scheduleData : config.scheduleData.replace('{full}', '');
+config.recordingLog = (config.recordingLog.match('{full}') === null) ? __dirname + config.recordingLog : config.recordingLog.replace('{full}', '');
 
 var reserveCtpl = fs.readFileSync( __dirname + '/reserve.ctpl', 'ascii' );
 

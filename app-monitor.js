@@ -7,7 +7,6 @@ var RULES_FILE     = __dirname + '/rules.json';
 var RESERVES_FILE  = __dirname + '/reserves.json';
 
 // load modules
-var http     = require('http');
 var auth     = require('http-auth');
 var util     = require('util');
 var exec     = require('child_process').exec;
@@ -18,10 +17,26 @@ var socketio = require('socket.io');
 // configuration
 var config = JSON.parse( fs.readFileSync(CONFIG_FILE, 'ascii') );
 
-config.scheduleData = __dirname + config.scheduleData;
-config.recordingLog = __dirname + config.recordingLog;
-config.schedulerLog = __dirname + config.schedulerLog;
-config.webDir       = __dirname + '/web';
+config.scheduleData = (config.scheduleData.match('{full}') === null) ? __dirname + config.scheduleData : config.scheduleData.replace('{full}', '');
+config.recordingLog = (config.recordingLog.match('{full}') === null) ? __dirname + config.recordingLog : config.recordingLog.replace('{full}', '');
+config.schedulerLog = (config.schedulerLog.match('{full}') === null) ? __dirname + config.schedulerLog : config.schedulerLog.replace('{full}', '');
+
+config.webDir = __dirname + '/web';
+
+// https or http
+if (config.wuiTlsKey && config.wuiTlsCert) {
+	var https = require('https');
+	
+	config.wuiTlsKey  = (config.wuiTlsKey.match('{full}') === null) ? __dirname + config.wuiTlsKey : config.wuiTlsKey.replace('{full}', '');
+	config.wuiTlsCert = (config.wuiTlsCert.match('{full}') === null) ? __dirname + config.wuiTlsCert : config.wuiTlsCert.replace('{full}', '');
+	
+	var tlsOption = {
+		key : fs.readFileSync(config.wuiTlsKey),
+		cert: fs.readFileSync(config.wuiTlsCert)
+	};
+} else {
+	var http = require('http');
+}
 
 // watch
 var rules = JSON.parse( fs.readFileSync(RULES_FILE, 'ascii') );
@@ -139,21 +154,13 @@ function log(messages) {
 	}
 })();
 
-
-//
-// listen server
-//
-var app  = http.createServer(httpServer);
-var io   = socketio.listen(app);
-io.enable('browser client minification');
-io.sockets.on('connection', ioServer);
-io.set('log level', 1);
-io.set('transports', ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
-app.listen(config.wuiPort, (config.wuiIpv6 !== null) ? config.wuiIpv6 : null);
-
 //
 // http server
 //
+if (http)  var app = http.createServer(httpServer);
+if (https) var app = https.createServer(tlsOption, httpServer);
+app.listen(config.wuiPort, (config.wuiIpv6 !== null) ? config.wuiIpv6 : null);
+
 function httpServer(req, res) {
 	// http request logging
 	var log = function(statusCode) {
@@ -227,6 +234,12 @@ function httpServer(req, res) {
 //
 // socket.io server
 //
+var io   = socketio.listen(app);
+io.enable('browser client minification');
+io.set('log level', 1);
+io.set('transports', ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
+io.sockets.on('connection', ioServer);
+
 function ioServer(socket) {
 	++status.connectedCount;
 	
