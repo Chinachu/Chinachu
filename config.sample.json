@@ -8,6 +8,8 @@
   "wuiControlKey": "kuuki",
   "wuiPort"      : 10772,
   "wuiIpv6"      : "::",
+  "wuiTlsKey"    : null,
+  "wuiTlsCert"   : null,
   
   "recordProgram": "recfsusb2n",
   "recordCommand": "recfsusb2n -bv [channel] - -",

@@ -11,7 +11,7 @@ var fs       = require('fs');
 // configuration
 var config = JSON.parse( fs.readFileSync(CONFIG_FILE, 'ascii') );
 
-config.schedulerLog = __dirname + config.schedulerLog;
+config.schedulerLog = (config.schedulerLog.match('{full}') === null) ? __dirname + config.schedulerLog : config.schedulerLog.replace('{full}', '');
 
 // date
 var isExecutable = true;
