@@ -234,6 +234,8 @@ function convertPrograms(p, ch) {
 	for (var i = 0; i < p.length; i++) {
 		var c = p[i];
 		
+		if (!c.title['#']) continue;
+		
 		var callsign = c['@'].channel;
 		
 		var tcRegex   = /^(.{4})(.{2})(.{2})(.{2})(.{2})(.{2}).+$/;
