@@ -1,34 +1,129 @@
 {
-  "recordedDir": "/recorded/",
+  "recordedDir" : "./recorded/",
+  "temporaryDir": "/tmp/",
   
   "wuiUsers": [
     "akari:bakuhatsu"
   ],
   
-  "wuiControlKey": "kuuki",
-  "wuiPort"      : 10772,
-  "wuiIpv6"      : "::",
-  "wuiTlsKey"    : null,
-  "wuiTlsCert"   : null,
+  "wuiControlKey" : "kuuki",
+  "wuiPort"       : 10772,
+  "wuiIpv6"       : "::",
+  "wuiTlsKeyPath" : null,
+  "wuiTlsCertPath": null,
   
-  "recordProgram": "recfsusb2n",
-  "recordCommand": "recfsusb2n -bv [channel] - -",
-  "streamCommand": "cvlc - --sout \"#standard{access=http,mux=ts,dst=:20772/dtvts}\"",
+  "recordingLog" : "./log/recording.log",
+  "schedulerLog" : "./log/scheduler.log",
   
-  "scheduleData" : "/schedule.json",
-  "recordingLog" : "/log/recording.log",
-  "schedulerLog" : "/log/scheduler.log",
-  
-  "nodejsPath"   : "~/.nave/installed/0.6.18/bin/node",
+  "nodejsPath"   : "./node",
   
   "checkHours"   : 6,
   
+  "tuners": [
+    {
+      "isEnabled"   : false,
+      "isB25Decoded": true,
+      "name"        : "FSUSB2",
+      "types"       : [ "GR" ],
+      "command"     : "recfsusb2n -bv <channel> - -"
+    },
+    {
+      "isEnabled"   : false,
+      "isB25Decoded": true,
+      "name"        : "PT2-0",
+      "types"       : [ "BS", "CS" ],
+      "command"     : "recpt1 --device /dev/pt1video0 --b25 --strip --sid <sid> <channel> - -"
+    },
+    {
+      "isEnabled"   : false,
+      "isB25Decoded": true,
+      "name"        : "PT2-1",
+      "types"       : [ "BS", "CS" ],
+      "command"     : "recpt1 --device /dev/pt1video1 --b25 --strip --sid <sid> <channel> - -"
+    },
+    {
+      "isEnabled"   : false,
+      "isB25Decoded": true,
+      "name"        : "PT2-2",
+      "types"       : [ "GR" ],
+      "command"     : "recpt1 --device /dev/pt1video2 --b25 --strip --sid hd <channel> - -"
+    },
+    {
+      "isEnabled"   : false,
+      "isB25Decoded": true,
+      "name"        : "PT2-3",
+      "types"       : [ "GR" ],
+      "command"     : "recpt1 --device /dev/pt1video3 --b25 --strip --sid hd <channel> - -"
+    }
+  ],
+  
+  "streamers": [
+    {
+      "isEnabled": false,
+      "protocol" : "http",
+      "container": "mpeg2ts",
+      "transcode": null,
+      "url"      : "http://localhost:10773/recording.m2ts",
+      "command"  : "cvlc - --sout \"#standard{access=http,mux=ts,dst=:10773/recording.m2ts}\""
+    }
+  ],
+  
   "channels": [
-    { "channel" : 20, "callsign": "JOMX-DTV" },
-    { "channel" : 21, "callsign": "JOCX-DTV" },
-    { "channel" : 22, "callsign": "JORX-DTV" },
-    { "channel" : 23, "callsign": "JOTX-DTV" },
-    { "channel" : 24, "callsign": "JOEX-DTV" },
-    { "channel" : 25, "callsign": "JOAX-DTV" }
+    { "type": "GR", "channel": "18" },
+    { "type": "GR", "channel": "20" },
+    { "type": "GR", "channel": "21" },
+    { "type": "GR", "channel": "22" },
+    { "type": "GR", "channel": "23" },
+    { "type": "GR", "channel": "24" },
+    { "type": "GR", "channel": "25" },
+    { "type": "GR", "channel": "26" },
+    { "type": "GR", "channel": "27" },
+    { "type": "GR", "channel": "28" },
+    { "type": "GR", "channel": "29" },
+    { "type": "GR", "channel": "30" },
+    { "type": "GR", "channel": "32" },
+    
+    { "type": "BS", "channel": "101" },
+    { "type": "BS", "channel": "103" },
+    { "type": "BS", "channel": "141" },
+    { "type": "BS", "channel": "151" },
+    { "type": "BS", "channel": "161" },
+    { "type": "BS", "channel": "171" },
+    { "type": "BS", "channel": "181" },
+    { "type": "BS", "channel": "191" },
+    { "type": "BS", "channel": "192" },
+    { "type": "BS", "channel": "193" },
+    { "type": "BS", "channel": "200" },
+    { "type": "BS", "channel": "201" },
+    { "type": "BS", "channel": "202" },
+    { "type": "BS", "channel": "211" },
+    { "type": "BS", "channel": "222" },
+    { "type": "BS", "channel": "231" },
+    { "type": "BS", "channel": "232" },
+    { "type": "BS", "channel": "233" },
+    { "type": "BS", "channel": "234" },
+    { "type": "BS", "channel": "236" },
+    { "type": "BS", "channel": "238" },
+    { "type": "BS", "channel": "241" },
+    { "type": "BS", "channel": "242" },
+    { "type": "BS", "channel": "243" },
+    { "type": "BS", "channel": "244" },
+    { "type": "BS", "channel": "245" },
+    { "type": "BS", "channel": "251" },
+    { "type": "BS", "channel": "252" },
+    { "type": "BS", "channel": "255" },
+    { "type": "BS", "channel": "256" },
+    { "type": "BS", "channel": "258" },
+    { "type": "BS", "channel": "291" },
+    { "type": "BS", "channel": "292" },
+    { "type": "BS", "channel": "294" },
+    { "type": "BS", "channel": "295" },
+    { "type": "BS", "channel": "296" },
+    { "type": "BS", "channel": "297" },
+    { "type": "BS", "channel": "298" },
+    { "type": "BS", "channel": "531" },
+    
+    { "type": "CS", "channel": "CS4",  "sid": "100" },
+    { "type": "CS", "channel": "CS16", "sid": "333" }
   ]
 }
