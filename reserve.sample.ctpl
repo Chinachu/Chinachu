@@ -1,1 +1,0 @@
-echo ' echo "[filepath]" > [logfile]; sleep 50; `timeout -s KILL [seconds] [rec-command] 2>> [logfile] | tee "[filepath]" | timeout -s KILL [seconds] [str-command] > /dev/null 2>&1` > /dev/null 2>&1' | [atd-command]
