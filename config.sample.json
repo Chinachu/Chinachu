@@ -65,6 +65,38 @@
       "transcode": null,
       "url"      : "http://localhost:10773/recording.m2ts",
       "command"  : "cvlc - --sout \"#standard{access=http,mux=ts,dst=:10773/recording.m2ts}\""
+    },
+    {
+      "isEnabled": false,
+      "protocol" : "http",
+      "container": "mpeg2ts",
+      "transcode": null,
+      "url"      : "http://localhost:10774/recording.m2ts",
+      "command"  : "cvlc - --sout \"#standard{access=http,mux=ts,dst=:10774/recording.m2ts}\""
+    },
+    {
+      "isEnabled": false,
+      "protocol" : "http",
+      "container": "mpeg2ts",
+      "transcode": null,
+      "url"      : "http://localhost:10775/recording.m2ts",
+      "command"  : "cvlc - --sout \"#standard{access=http,mux=ts,dst=:10775/recording.m2ts}\""
+    },
+    {
+      "isEnabled": false,
+      "protocol" : "http",
+      "container": "mpeg2ts",
+      "transcode": null,
+      "url"      : "http://localhost:10776/recording.m2ts",
+      "command"  : "cvlc - --sout \"#standard{access=http,mux=ts,dst=:10776/recording.m2ts}\""
+    },
+    {
+      "isEnabled": false,
+      "protocol" : "http",
+      "container": "mpeg2ts",
+      "transcode": null,
+      "url"      : "http://localhost:10777/recording.m2ts",
+      "command"  : "cvlc - --sout \"#standard{access=http,mux=ts,dst=:10777/recording.m2ts}\""
     }
   ],
   
