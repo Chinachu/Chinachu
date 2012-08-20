@@ -30,7 +30,7 @@
       "command"     : "recfsusb2n -bv <channel> - -"
     },
     {
-      "name"        : "PT3-T1",
+      "name"        : "PT3-S1",
       "isB25Decoded": true,
       "types"       : [ "BS", "CS" ],
       "command"     : "recpt1 --device /dev/pt3video0 --b25 --strip --sid <sid> <channel> - -"
