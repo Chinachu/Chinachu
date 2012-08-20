@@ -19,84 +19,48 @@
   
   "checkHours"   : 6,
   
+  "recordedFormat": "[<date:Ymd-Hi>][<type><channel>][<tuner>]<title>.m2ts",
+  
   "tuners": [
     {
-      "isEnabled"   : false,
-      "isB25Decoded": true,
+      "isDisabled"  : true,
       "name"        : "FSUSB2",
+      "isB25Decoded": true,
       "types"       : [ "GR" ],
       "command"     : "recfsusb2n -bv <channel> - -"
     },
     {
-      "isEnabled"   : false,
+      "name"        : "PT3-T1",
       "isB25Decoded": true,
-      "name"        : "PT2-0",
       "types"       : [ "BS", "CS" ],
-      "command"     : "recpt1 --device /dev/pt1video0 --b25 --strip --sid <sid> <channel> - -"
+      "command"     : "recpt1 --device /dev/pt3video0 --b25 --strip --sid <sid> <channel> - -"
     },
     {
-      "isEnabled"   : false,
+      "name"        : "PT3-S2",
       "isB25Decoded": true,
-      "name"        : "PT2-1",
       "types"       : [ "BS", "CS" ],
-      "command"     : "recpt1 --device /dev/pt1video1 --b25 --strip --sid <sid> <channel> - -"
+      "command"     : "recpt1 --device /dev/pt3video1 --b25 --strip --sid <sid> <channel> - -"
     },
     {
-      "isEnabled"   : false,
+      "name"        : "PT3-T1",
       "isB25Decoded": true,
-      "name"        : "PT2-2",
       "types"       : [ "GR" ],
-      "command"     : "recpt1 --device /dev/pt1video2 --b25 --strip --sid hd <channel> - -"
+      "command"     : "recpt1 --device /dev/pt3video2 --b25 --strip --sid hd <channel> - -"
     },
     {
-      "isEnabled"   : false,
+      "name"        : "PT3-T2",
       "isB25Decoded": true,
-      "name"        : "PT2-3",
       "types"       : [ "GR" ],
-      "command"     : "recpt1 --device /dev/pt1video3 --b25 --strip --sid hd <channel> - -"
+      "command"     : "recpt1 --device /dev/pt3video3 --b25 --strip --sid hd <channel> - -"
     }
   ],
   
   "streamers": [
     {
-      "isEnabled": false,
-      "protocol" : "http",
-      "container": "mpeg2ts",
-      "transcode": null,
-      "url"      : "http://localhost:10773/recording.m2ts",
-      "command"  : "cvlc - --sout \"#standard{access=http,mux=ts,dst=:10773/recording.m2ts}\""
-    },
-    {
-      "isEnabled": false,
-      "protocol" : "http",
-      "container": "mpeg2ts",
-      "transcode": null,
-      "url"      : "http://localhost:10774/recording.m2ts",
-      "command"  : "cvlc - --sout \"#standard{access=http,mux=ts,dst=:10774/recording.m2ts}\""
-    },
-    {
-      "isEnabled": false,
-      "protocol" : "http",
-      "container": "mpeg2ts",
-      "transcode": null,
-      "url"      : "http://localhost:10775/recording.m2ts",
-      "command"  : "cvlc - --sout \"#standard{access=http,mux=ts,dst=:10775/recording.m2ts}\""
-    },
-    {
-      "isEnabled": false,
-      "protocol" : "http",
-      "container": "mpeg2ts",
-      "transcode": null,
-      "url"      : "http://localhost:10776/recording.m2ts",
-      "command"  : "cvlc - --sout \"#standard{access=http,mux=ts,dst=:10776/recording.m2ts}\""
-    },
-    {
-      "isEnabled": false,
-      "protocol" : "http",
-      "container": "mpeg2ts",
-      "transcode": null,
-      "url"      : "http://localhost:10777/recording.m2ts",
-      "command"  : "cvlc - --sout \"#standard{access=http,mux=ts,dst=:10777/recording.m2ts}\""
+      "protocol"   : "http",
+      "container"  : "mpeg2ts",
+      "url"        : "http://<host>:10773/rec.m2ts",
+      "command"    : "cvlc - --sout \"#standard{access=http,mux=ts,dst=:10773/rec.m2ts}\""
     }
   ],
   
