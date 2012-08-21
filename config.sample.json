@@ -52,6 +52,12 @@
       "isB25Decoded": true,
       "types"       : [ "GR" ],
       "command"     : "recfsusb2n -bv <channel> - -"
+    },
+    {
+      "name"        : "PX-TBS6922",
+      "isB25Decoded": false,
+      "types"       : [ "EX-SKYPERFECTVHD" ],
+      "command"     : "szap-s2 -c ./etc/szap-s2.conf -p -r -S 1 -M 5 -C 35 \"<channel>\" > /dev/null && sleep 1 && cat /dev/dvb/adapter0/dvr0"
     }
   ],
   
@@ -81,6 +87,8 @@
     { "type": "BS", "channel": "222" },
     
     { "type": "CS", "channel": "CS4",  "sid": "100" },
-    { "type": "CS", "channel": "CS16", "sid": "333" }
+    { "type": "CS", "channel": "CS16", "sid": "333" },
+    
+    { "type": "EX-SKYPERFECTVHD", "channel": "ATX" }
   ]
 }
