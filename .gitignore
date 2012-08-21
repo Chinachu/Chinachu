@@ -1,9 +1,14 @@
 config.json
 rules.json
-reserve.ctpl
 etc
 etc/*
 recorded
 recorded/*
 data
 data/*
+log
+log/*
+.nave
+.nave/*
+.epgdump
+.epgdump/*
