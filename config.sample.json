@@ -11,6 +11,7 @@
   "wuiIpv6"       : "::",
   "wuiTlsKeyPath" : null,
   "wuiTlsCertPath": null,
+  "wuiStreamer"   : true,
   
   "recordingLog" : "./log/recording.log",
   "schedulerLog" : "./log/scheduler.log",
@@ -22,13 +23,6 @@
   "recordedFormat": "[<date:Ymd-Hi>][<type><channel>][<tuner>]<title>.m2ts",
   
   "tuners": [
-    {
-      "isDisabled"  : true,
-      "name"        : "FSUSB2",
-      "isB25Decoded": true,
-      "types"       : [ "GR" ],
-      "command"     : "recfsusb2n -bv <channel> - -"
-    },
     {
       "name"        : "PT3-S1",
       "isB25Decoded": true,
@@ -52,15 +46,12 @@
       "isB25Decoded": true,
       "types"       : [ "GR" ],
       "command"     : "recpt1 --device /dev/pt3video3 --b25 --strip --sid hd <channel> - -"
-    }
-  ],
-  
-  "streamers": [
+    },
     {
-      "protocol"   : "http",
-      "container"  : "mpeg2ts",
-      "url"        : "http://<host>:10773/rec.m2ts",
-      "command"    : "cvlc - --sout \"#standard{access=http,mux=ts,dst=:10773/rec.m2ts}\""
+      "name"        : "FSUSB2",
+      "isB25Decoded": true,
+      "types"       : [ "GR" ],
+      "command"     : "recfsusb2n -bv <channel> - -"
     }
   ],
   
