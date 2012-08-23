@@ -1,9 +1,270 @@
 #!/bin/bash
 
-# Chinachu CLI
+# Chinachu-CLI
 # ------------
 #
 #   Usage:
 #
 #     ./chinachu <operation> <arguments> ...
 #
+
+if [ -z "$BASH" ]; then
+  echo "Chinachu-CLI only works with bash.  Sorry." >&2
+  exit 1
+fi
+
+shopt -s extglob
+
+# variables
+NODE_VER=0.8.7
+
+main () {
+  local SELF_PATH DIR SYM
+  # get the absolute path of the executable
+  SELF_PATH="$0"
+  if [ "${SELF_PATH:0:1}" != "." ] && [ "${SELF_PATH:0:1}" != "/" ]; then
+    SELF_PATH=./"$SELF_PATH"
+  fi
+  SELF_PATH=$( cd -P -- "$(dirname -- "$SELF_PATH")" \
+            && pwd -P \
+            ) && SELF_PATH=$SELF_PATH/$(basename -- "$0")
+  
+  # resolve symlinks
+  while [ -h "$SELF_PATH" ]; do
+    DIR=$(dirname -- "$SELF_PATH")
+    SYM=$(readlink -- "$SELF_PATH")
+    SELF_PATH=$( cd -- "$DIR" \
+              && cd -- $(dirname -- "$SYM") \
+              && pwd \
+              )/$(basename -- "$SYM")
+  done
+  
+  # path
+  CHINACHU_DIR=$(dirname -- "$SELF_PATH")
+  NAVE_DIR=${CHINACHU_DIR}/.nave
+  NODE_PATH=${NAVE_DIR}/installed/${NODE_VER}/bin/node
+  
+  cd $CHINACHU_DIR
+  
+  export CHINACHU_DIR
+  export NAVE_DIR
+  
+  local cmd="$1"
+  shift
+  case $cmd in
+    installer | service )
+      cmd="chinachu_$cmd"
+      ;;
+    * )
+      cmd="chinachu_help"
+      ;;
+  esac
+  $cmd "$@" && exit 0 || fail "failed somehow"
+}
+
+chinachu_installer () {
+  echo "Chinachu Installer Menu:"
+  echo "[!] These are installed under all ${CHINACHU_DIR}/..."
+  echo "[!] Recommend the Auto installation."
+  
+  local PS3 item cmd
+  PS3="what do you install? > "
+  select item in "Auto" "Node.js" "epgdump"
+  do
+    echo "selected: ${item}"
+    case $item in
+      "Auto" )
+        cmd="chinachu_installer_auto"
+        ;;
+      * )
+        cmd="chinachu_installer"
+        ;;
+    esac
+    $cmd && braek
+  done
+  
+  return 0
+}
+
+chinachu_service () {
+  local cmd name action
+  name="$1"
+  action="$2"
+  case $action in
+    initscript | execute )
+      case $name in
+        operator | wui )
+          cmd="chinachu_service_$action"
+          ;;
+        * )
+          cmd="chinachu_service_help"
+          ;;
+      esac
+      ;;
+    * )
+      cmd="chinachu_service_help"
+      ;;
+  esac
+  $cmd "$name" && return 0
+}
+
+chinachu_service_initscript () {
+  local name="$1"
+  
+  cat <<EOF
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          chinachu-${name}
+# Required-Start:    \$local_fs \$remote_fs \$network \$syslog
+# Required-Stop:     \$local_fs \$remote_fs \$network \$syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts the chinachu-${name}
+# Description:       starts chinachu-${name} using start-stop-daemon
+### END INIT INFO
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON=${CHINACHU_DIR}/chinachu
+DAEMON_OPTS="service ${name} execute"
+NAME=chinachu-${name}
+USER=$USER
+PIDFILE=/var/run/\${NAME}.pid
+
+test -x \$DAEMON || exit 0
+
+set -e
+
+. /lib/lsb/init-functions
+
+start () {
+  log_daemon_msg "Starting \${NAME}"
+  
+  if start-stop-daemon -K -q -s 0 -p \$PIDFILE
+  then
+    echo \$?
+    pid=\`cat \${PIDFILE}\`
+    echo "\${NAME} is already running? (pid=\${pid})"
+    exit
+  fi
+  
+  echo \$?
+  start-stop-daemon -S -q -p \$PIDFILE -x \$DAEMON -c \$USER -g \$GROUP -- \$DAEMON_OPTS
+  status=\$?
+  log_end_msg \$status
+}
+
+stop () {
+  log_daemon_msg "Stopping \${NAME}"
+  
+  if start-stop-daemon -K -q -s 0 -p \$PIDFILE
+  then
+    echo \$?
+    start-stop-daemon -K -p \$PIDFILE
+    status=\$?
+    log_end_msg \$status
+  else
+    echo \$?
+    echo "\${NAME} is not running? (\${PIDFILE})."
+  fi
+}
+
+case "\$1" in
+  start )
+    start "\$@"
+    ;;
+  stop )
+    stop "\$@"
+    ;;
+  restart )
+    stop "\$@"
+    start "\$@"
+    ;;
+  status )
+    status_of_proc -p \$PIDFILE "\$DAEMON" \$NAME && exit 0 || exit \$?
+    ;;
+  *)
+    echo "Usage: \$NAME {start|stop|restart|status}" >&2
+    exit 1
+    ;;
+esac
+
+exit 0
+
+EOF
+  
+  return 0
+}
+
+chinachu_service_execute () {
+  local name="$1"
+  
+  ./node app-${name}.js
+  
+  return 0
+}
+
+chinachu_service_help () {
+  cat <<EOF
+
+Usage: ./chinachu service <name> <action>
+
+Names:
+
+operator    Chinachu Operator Daemon
+wui         Chinachu WebUI Server Daemon
+
+Actions:
+
+initscript  Output a LSB init script
+execute     Execute
+
+Examples:
+
+# Create a LSB init script and Install to system
+./chinachu service operator initscript > /tmp/chinachu-operator
+./chinachu service wui initscript > /tmp/chinachu-wui
+sudo chown root:root /tmp/chinachu-operator /tmp/chinachu-wui
+sudo chmod +x /tmp/chinachu-operator /tmp/chinachu-wui
+sudo mv /tmp/chinachu-operator /tmp/chinachu-wui /etc/init.d/
+
+EOF
+
+  return 0
+}
+
+chinachu_help () {
+  cat <<EOF
+
+Usage: ./chinachu <cmd>
+
+Commands:
+
+installer               Run a Installer.
+service <name> <action> Service-utility.
+service help            Output help of Service-utility.
+help                    Output this information.
+
+EOF
+
+  return 0
+}
+
+ensure_dir () {
+  if ! [ -d "$1" ]; then
+    mkdir -p -- "$1" || fail "couldn't create $1"
+  fi
+}
+
+remove_dir () {
+  if ! [ -d "$1" ]; then
+    rm -rf -- "$1" || fail "Could not remove $1"
+  fi
+}
+
+fail () {
+  echo "$@" >&2
+  exit 1
+}
+
+main "$@"
