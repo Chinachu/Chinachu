@@ -5,7 +5,7 @@
 #
 #   Usage:
 #
-#     ./chinachu <operation> <arguments> ...
+#     ./chinachu <cmd> ...
 #
 
 if [ -z "$BASH" ]; then
@@ -76,12 +76,25 @@ chinachu_installer () {
       "Auto" )
         cmd="chinachu_installer_auto"
         ;;
+      "Node.js" )
+        cmd="chinachu_installer_node"
+        ;;
+      "epgdump" )
+        cmd="chinachu_installer_epgdump"
+        ;;
       * )
         cmd="chinachu_installer"
         ;;
     esac
     $cmd && braek
   done
+  
+  return 0
+}
+
+chinachu_installer_auto () {
+  chinachu_installer_node
+  chinachu_installer_epgdump
   
   return 0
 }
@@ -113,6 +126,7 @@ chinachu_service_initscript () {
   
   cat <<EOF
 #!/bin/sh
+# /etc/
 
 ### BEGIN INIT INFO
 # Provides:          chinachu-${name}
@@ -133,39 +147,56 @@ PIDFILE=/var/run/\${NAME}.pid
 
 test -x \$DAEMON || exit 0
 
-set -e
-
-. /lib/lsb/init-functions
+# set -e
 
 start () {
-  log_daemon_msg "Starting \${NAME}"
+  echo -n "Starting \${NAME}: "
   
-  if start-stop-daemon -K -q -s 0 -p \$PIDFILE
-  then
-    echo \$?
-    pid=\`cat \${PIDFILE}\`
-    echo "\${NAME} is already running? (pid=\${pid})"
-    exit
+  if [ -f \$PIDFILE ]; then
+    PID=\`cat \$PIDFILE\`
+    if [ -z "\`ps axf | grep \${PID} | grep -v grep\`" ]; then
+      rm -f \$PIDFILE
+    else
+      echo "\${NAME} is already running? (pid=\${PID})"
+      exit
+    fi
   fi
   
-  echo \$?
-  start-stop-daemon -S -q -p \$PIDFILE -x \$DAEMON -c \$USER -g \$GROUP -- \$DAEMON_OPTS
-  status=\$?
-  log_end_msg \$status
+  PID=\`\$DAEMON \$DAEMON_OPTS > /dev/null 2>&1 & echo \$!\`
+  
+  if [ -z \$PID ]; then
+    echo "Failed!"
+    exit
+  else
+    echo \$PID > \$PIDFILE
+  fi
+  
+  echo "OK."
 }
 
 stop () {
-  log_daemon_msg "Stopping \${NAME}"
+  echo -n "Stopping \${NAME}: "
   
-  if start-stop-daemon -K -q -s 0 -p \$PIDFILE
-  then
-    echo \$?
-    start-stop-daemon -K -p \$PIDFILE
-    status=\$?
-    log_end_msg \$status
+  PID=\`cat \$PIDFILE\`
+  if [ -f \$PIDFILE ]; then
+    kill -HUP \$PID
+    echo "OK."
+    rm -f \$PIDFILE
   else
-    echo \$?
-    echo "\${NAME} is not running? (\${PIDFILE})."
+    echo "\${NAME} is not running? (\${PIDFILE} not found)."
+  fi
+}
+
+status () {
+  if [ -f \$PIDFILE ]; then
+    PID=\`cat \$PIDFILE\`
+    if [ -z "\`ps axf | grep \${PID} | grep -v grep\`" ]; then
+      echo "\${NAME} is dead but \${PIDFILE} exists."
+    else
+      echo "\${NAME} is running."
+    fi
+  else
+    echo "\${NAME} is NOT running."
   fi
 }
 
@@ -181,7 +212,7 @@ case "\$1" in
     start "\$@"
     ;;
   status )
-    status_of_proc -p \$PIDFILE "\$DAEMON" \$NAME && exit 0 || exit \$?
+    status "\$@"
     ;;
   *)
     echo "Usage: \$NAME {start|stop|restart|status}" >&2
@@ -236,7 +267,7 @@ EOF
 chinachu_help () {
   cat <<EOF
 
-Usage: ./chinachu <cmd>
+Usage: ./chinachu <cmd> ...
 
 Commands:
 
