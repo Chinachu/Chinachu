@@ -6,12 +6,14 @@
     "akari:bakuhatsu"
   ],
   
-  "wuiControlKey" : "kuuki",
-  "wuiPort"       : 10772,
-  "wuiIpv6"       : "::",
-  "wuiTlsKeyPath" : null,
-  "wuiTlsCertPath": null,
-  "wuiStreamer"   : true,
+  "wuiPort"        : 10772,
+  "wuiIpv6"        : "::",
+  "wuiTlsKeyPath"  : null,
+  "wuiTlsCertPath" : null,
+  "wuiPreviewer"   : true,
+  "wuiStreamer"    : true,
+  "wuiFiler"       : true,
+  "wuiConfigurator": true,
   
   "recordingLog" : "./log/recording.log",
   "schedulerLog" : "./log/scheduler.log",
