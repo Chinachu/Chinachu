@@ -183,7 +183,7 @@ start () {
     fi
   fi
   
-  PID=\`\$DAEMON \$DAEMON_OPTS > /dev/null 2>&1 & echo \$!\`
+  PID=\`su \$USER -c \"\$DAEMON \$DAEMON_OPTS > /dev/null 2>&1 & echo \$!\"\`
   
   if [ -z \$PID ]; then
     echo "Failed!"
