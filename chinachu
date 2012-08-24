@@ -180,8 +180,6 @@ PIDFILE=/var/run/\${NAME}.pid
 
 test -x \$DAEMON || exit 0
 
-# set -e
-
 start () {
   echo -n "Starting \${NAME}: "
   
@@ -195,7 +193,7 @@ start () {
     fi
   fi
   
-  PID=\`su \$USER -c \"\$DAEMON \$DAEMON_OPTS > /dev/null 2>&1 & echo \$!\"\`
+  PID=\$(su \$USER -c "exec \$DAEMON \$DAEMON_OPTS < /dev/null > /dev/null 2>&1 & echo \\\$!")
   
   if [ -z \$PID ]; then
     echo "Failed!"
@@ -212,7 +210,8 @@ stop () {
   
   PID=\`cat \$PIDFILE\`
   if [ -f \$PIDFILE ]; then
-    kill -HUP \$PID
+    PGID=\`ps -p \$PID -o pgrp | grep -v PGRP\`
+    kill -TERM -\$PGID
     echo "OK."
     rm -f \$PIDFILE
   else
