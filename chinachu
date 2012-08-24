@@ -262,7 +262,15 @@ EOF
 
 chinachu_service_execute () {
   local name="$1"
-
+  
+  if ! [ -f "config.json" ]; then
+    cp -v config.sample.json config.json
+  fi
+  
+  if ! [ -f "rules.json" ]; then
+    cp -v rules.sample.json rules.json
+  fi
+  
   ensure_dir log
   ensure_dir data
   
