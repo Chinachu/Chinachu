@@ -18,9 +18,9 @@
   "recordingLog" : "./log/recording.log",
   "schedulerLog" : "./log/scheduler.log",
   
-  "nodejsPath"   : "./node",
+  "nodejsPath"   : "./.nave/node",
   
-  "checkHours"   : 6,
+  "epgCheckSchedule": "auto",
   
   "recordedFormat": "[<date:Ymd-Hi>][<type><channel>][<tuner>]<title>.m2ts",
   
