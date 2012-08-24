@@ -15,9 +15,6 @@
   "wuiFiler"       : true,
   "wuiConfigurator": true,
   
-  "recordingLog" : "./log/recording.log",
-  "schedulerLog" : "./log/scheduler.log",
-  
   "nodejsPath"   : "./.nave/node",
   
   "epgCheckSchedule": "auto",
