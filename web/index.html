@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<meta http-equiv="Content-Language" content="en">
+	<meta http-equiv="Content-Language" content="ja">
 	<meta http-equiv="X-UA-Compatible" content="chrome=1; IE=edge">
 	<meta name="robots" content="noindex,nofollow">
 	<meta name="robots" content="noarchive">
@@ -18,6 +18,7 @@
 	
 	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 	<script type="text/javascript" src="./lib/prototype.js"></script>
+	<script type="text/javascript" src="./lib/yui/build/yui/yui-min.js"></script>
 	
 	<script type="text/javascript" src="./lib/hypergrid.js"></script>
 	<link rel="stylesheet" type="text/css" href="./lib/hypergrid.css">
@@ -25,10 +26,12 @@
 	<link rel="stylesheet" type="text/css" href="./lib/hyperform.css">
 	<script type="text/javascript" src="./lib/hypermodal.js"></script>
 	<link rel="stylesheet" type="text/css" href="./lib/hypermodal.css">
+	<script type="text/javascript" src="./lib/hypernotifier.js"></script>
+	<link rel="stylesheet" type="text/css" href="./lib/hypernotifier.css">
 	
 	<link rel="shortcut icon" href="/favicon.ico" type="image/vnd.microsoft.icon">
-	<link rel="stylesheet" type="text/css" href="./chinachu.css">
-	<script type="text/javascript" src="./chinachu.js"></script>
+	<link rel="stylesheet" type="text/css" href="./miraclun.css">
+	<script type="text/javascript" src="./miraclun.js"></script>
 </head>
 <body>
 	<!-- loading
@@ -38,136 +41,30 @@
 	<!-- header
 	================================================== -->
 	<header>
-		<div>
-			<h1>Chinachu<span>/alpha</span></h1>
-			
-			<ul class="left">
-				<li>
-					<a id="button-view-reserved">予約一覧</a>
-				</li>
-				<li>
-					<a id="button-view-rules">ルール一覧</a>
-				</li>
+		<div><ul class="left">
+				<li><a href="#/overview">概要</a></li>
+				<li><a href="#/program-schedule">番組表</a></li>
+				<li><a href="#/reserved-list">予約済<span>45</span></a></li>
+				<li><a href="#/rule-list">ルール<span>2</span></a></li>
+				<li><a href="#/recorded-list">録画済<span>0</span></a></li>
 			</ul>
 			
 			<ul class="right">
-				<li>
-					<!-- <a id="button-view-log">ログ表示</a> -->
-				</li>
+				<li><a href="#/config">設定</a></li>
 			</ul>
 		</div><!-- /div -->
 	</header><!-- /header -->
 	
-	<!-- section#monitor
+	<!-- section#content
 	================================================== -->
-	<section id="monitor" class="hide">
-		<div>
-			<div class="toolbar">
-				<ul>
-					<li>録画モニター</li>
-				</ul>
-			</div>
-			<div id="monitor-recording-progress-container"><div id="monitor-recording-progress-bar"></div></div>
-			<img id="monitor-preview-img">
-			<div id="monitor-recording-title"></div>
-			<div id="monitor-recording-detail"></div>
-			<div id="monitor-recording-info"></div>
-		</div>
-	</section><!-- /section#schedule -->
-	
-	<!-- section#schedule
-	================================================== -->
-	<section id="schedule" class="full">
-		<div>
-			<div class="toolbar">
-				<ul class="left" id="schedule-list-day"></ul>
-				
-				<ul class="right">
-					<li>
-						<input id="schedule-input-search" type="text" placeholder="番組を検索">
-					</li>
-				</ul>
-			</div>
-			
-			<div class="chbar" id="chbar-container">
-				<ul id="schedule-list-ch"></ul>
-			</div>
-			
-			<div class="timeband" id="timeband-container">
-				<div class="darkblue">00</div>
-				<div class="purple">01</div>
-				<div class="purple">02</div>
-				<div class="purple">03</div>
-				<div class="purple">04</div>
-				<div class="lightblue">05</div>
-				<div class="lightblue">06</div>
-				<div class="lightblue">07</div>
-				<div class="lightblue">08</div>
-				<div class="lightblue">09</div>
-				<div class="lightblue">10</div>
-				<div class="lightblue">11</div>
-				<div class="orange">12</div>
-				<div class="orange">13</div>
-				<div class="orange">14</div>
-				<div class="orange">15</div>
-				<div class="orange">16</div>
-				<div class="orange">17</div>
-				<div class="orange">18</div>
-				<div class="darkblue">19</div>
-				<div class="darkblue">20</div>
-				<div class="darkblue">21</div>
-				<div class="darkblue">22</div>
-				<div class="darkblue">23</div>
-				<div class="darkblue">24</div>
-			</div>
-			
-			<div class="timeline" id="timeline-container">
-				<div class="darkblue"></div>
-				<div class="purple"></div>
-				<div class="purple"></div>
-				<div class="purple"></div>
-				<div class="purple"></div>
-				<div class="lightblue"></div>
-				<div class="lightblue"></div>
-				<div class="lightblue"></div>
-				<div class="lightblue"></div>
-				<div class="lightblue"></div>
-				<div class="lightblue"></div>
-				<div class="lightblue"></div>
-				<div class="orange"></div>
-				<div class="orange"></div>
-				<div class="orange"></div>
-				<div class="orange"></div>
-				<div class="orange"></div>
-				<div class="orange"></div>
-				<div class="orange"></div>
-				<div class="darkblue"></div>
-				<div class="darkblue"></div>
-				<div class="darkblue"></div>
-				<div class="darkblue"></div>
-				<div class="darkblue"></div>
-				<div class="darkblue"></div>
-			</div>
-			
-			
-			<div class="scrollbar x" id="scrollbar-x-container">
-				<div id="scrollbar-x"></div>
-			</div>
-			
-			<div class="scrollbar y" id="scrollbar-y-container">
-				<div id="scrollbar-y"></div>
-			</div>
-			
-			<div class="timetable" id="schedule-list-pg"></div>
-		</div>
-	</section><!-- /section#schedule -->
+	<section id="content"></section><!-- /section#content -->
 	
 	<!-- footer
 	================================================== -->
 	<footer>
 		<div>
-			<p class="right"><a href="http://akkar.in/projects/chinachu/">Chinachu/alpha</a></p>
-			<p>状態: <span id="footer-status">N/A</span></p>
+			<p class="right"><a href="http://akkar.in/projects/chinachu/">Chinachu/beta</a></p>
+			<p id="footer-status"></p>
 		</div><!-- /div.container -->
 	</footer>
 </body>
