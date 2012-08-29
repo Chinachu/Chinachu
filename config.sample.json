@@ -16,6 +16,7 @@
   "wuiConfigurator": true,
   
   "nodejsPath"   : "./.nave/node",
+  "epgdumpPath"  : "./.epgdump/epgdump",
   
   "epgCheckSchedule": "auto",
   
@@ -24,37 +25,37 @@
   "tuners": [
     {
       "name"        : "PT3-S1",
-      "isB25Decoded": true,
+      "isScrambling": false,
       "types"       : [ "BS", "CS" ],
       "command"     : "recpt1 --device /dev/pt3video0 --b25 --strip --sid <sid> <channel> - -"
     },
     {
       "name"        : "PT3-S2",
-      "isB25Decoded": true,
+      "isScrambling": false,
       "types"       : [ "BS", "CS" ],
       "command"     : "recpt1 --device /dev/pt3video1 --b25 --strip --sid <sid> <channel> - -"
     },
     {
       "name"        : "PT3-T1",
-      "isB25Decoded": true,
+      "isScrambling": false,
       "types"       : [ "GR" ],
-      "command"     : "recpt1 --device /dev/pt3video2 --b25 --strip --sid hd <channel> - -"
+      "command"     : "recpt1 --device /dev/pt3video2 --b25 --strip --sid <sid> <channel> - -"
     },
     {
       "name"        : "PT3-T2",
-      "isB25Decoded": true,
+      "isScrambling": false,
       "types"       : [ "GR" ],
-      "command"     : "recpt1 --device /dev/pt3video3 --b25 --strip --sid hd <channel> - -"
+      "command"     : "recpt1 --device /dev/pt3video3 --b25 --strip --sid <sid> <channel> - -"
     },
     {
       "name"        : "FSUSB2",
-      "isB25Decoded": true,
+      "isScrambling": false,
       "types"       : [ "GR" ],
       "command"     : "recfsusb2n -bv <channel> - -"
     },
     {
       "name"        : "PX-TBS6922",
-      "isB25Decoded": false,
+      "isScrambling": true,
       "types"       : [ "EX-SKYPERFECTVHD" ],
       "command"     : "szap-s2 -c ./etc/szap-s2.conf -p -r -S 1 -M 5 -C 35 \"<channel>\" > /dev/null && sleep 1 && cat /dev/dvb/adapter0/dvr0"
     }
