@@ -237,8 +237,6 @@ function getEpg() {
 						return;
 					}
 					
-					fs.writeFileSync('./data/test.json', JSON.stringify(result, null, '  '));
-					
 					switch (channel.type) {
 						case 'GR':
 							result.channel.forEach(function(a) {
