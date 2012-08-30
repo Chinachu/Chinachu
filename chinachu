@@ -211,7 +211,7 @@ stop () {
   PID=\`cat \$PIDFILE\`
   if [ -f \$PIDFILE ]; then
     PGID=\`ps -p \$PID -o pgrp | grep -v PGRP\`
-    kill -TERM -\$PGID
+    kill -TERM -\`echo \$PGID\`
     echo "OK."
     rm -f \$PIDFILE
   else
