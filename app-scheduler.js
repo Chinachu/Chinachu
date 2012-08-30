@@ -364,6 +364,8 @@ function scheduler() {
 		});
 	});
 	
+	util.log('TUNERS: ' + JSON.stringify(typeNum));
+	
 	// matching
 	var matches = [];
 	
@@ -386,7 +388,20 @@ function scheduler() {
 	for (var i = 0; i < matches.length; i++) {
 		var a = matches[i];
 		
-		var tik = typeNum[a.channel.type];
+		var k = 0;
+		
+		while (k < config.tuners.length) {
+			if (config.tuners[k].types.indexOf(a.channel.type) === -1) {
+				++k;
+				continue;
+			} else {
+				break;
+			}
+		}
+		if (k >= config.tuners.length) {
+			util.log('WARNING: ' + a.channel.type + ' tuner is not found.');
+			//continue;
+		}
 		
 		for (var j = 0; j < matches.length; j++) {
 			var b = matches[j];
@@ -396,13 +411,27 @@ function scheduler() {
 			if (a.id === b.id) continue;
 			
 			if (a.end <= b.start) continue;
-			
 			if (a.start >= b.end) continue;
 			
-			if (a.channel.type !== b.channel.type) continue;
+			if ((a.channel.type === 'BS') || (a.channel.type === 'CS')) {
+				// todo
+				if ((b.channel.type === 'BS') || (b.channel.type === 'CS')) {
+					continue;
+				}
+			} else if (a.channel.type !== b.channel.type) {
+				continue;
+			}
 			
-			if (tik > 1) {
-				tik--;
+			while (k < config.tuners.length) {
+				if (config.tuners[k].types.indexOf(b.channel.type) === -1) {
+					++k;
+					continue;
+				} else {
+					++k;
+					break;
+				}
+			}
+			if (k < config.tuners.length) {
 				continue;
 			}
 			
@@ -410,6 +439,8 @@ function scheduler() {
 			a.isConflict = true;
 			
 			++conflictCount;
+			
+			break;
 		}
 	}
 	
