@@ -18,9 +18,7 @@
   "nodejsPath"   : "./.nave/node",
   "epgdumpPath"  : "./.epgdump/epgdump",
   
-  "epgCheckSchedule": "auto",
-  
-  "recordedFormat": "[<date:Ymd-Hi>][<type><channel>][<tuner>]<title>.m2ts",
+  "recordedFormat": "[<date:yymmdd-HHMM>][<type><channel>][<tuner>]<title>.m2ts",
   
   "tuners": [
     {
@@ -51,13 +49,7 @@
       "name"        : "FSUSB2",
       "isScrambling": false,
       "types"       : [ "GR" ],
-      "command"     : "recfsusb2n -bv <channel> - -"
-    },
-    {
-      "name"        : "PX-TBS6922",
-      "isScrambling": true,
-      "types"       : [ "EX-SKYPERFECTVHD" ],
-      "command"     : "szap-s2 -c ./etc/szap-s2.conf -p -r -S 1 -M 5 -C 35 \"<channel>\" > /dev/null && sleep 1 && cat /dev/dvb/adapter0/dvr0"
+      "command"     : "recfsusb2n -b <channel> - -"
     }
   ],
   
@@ -87,8 +79,6 @@
     { "type": "BS", "channel": "222" },
     
     { "type": "CS", "channel": "CS4",  "sid": "100" },
-    { "type": "CS", "channel": "CS16", "sid": "333" },
-    
-    { "type": "EX-SKYPERFECTVHD", "channel": "ATX" }
+    { "type": "CS", "channel": "CS16", "sid": "333" }
   ]
 }
