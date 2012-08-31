@@ -85,7 +85,7 @@ function getEpg() {
 		
 		function end() {
 			if (!opts.get('s')) {
-				fs.writeFileSync(SCHEDULE_DATA_FILE, JSON.stringify(schedule, null, '  '));
+				fs.writeFileSync(SCHEDULE_DATA_FILE, JSON.stringify(schedule));
 				util.log('WRITE: ' + SCHEDULE_DATA_FILE);
 			}
 			
