@@ -107,14 +107,14 @@ function prepRecord(program) {
 	
 	recording.push(program);
 	
-	var timeout = (program.start - clock) - offsetStart;
+	var timeout = program.start - clock - offsetStart;
 	if (timeout < 0) { timeout = 0; }
 	
 	setTimeout(function() {
 		doRecord(program);
 	}, timeout);
 	
-	fs.writeFile(RECORDING_DATA_FILE, JSON.stringify(recording, null, '  '));
+	fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));
 	util.log('WRITE: ' + RECORDING_DATA_FILE);
 }
 
@@ -125,10 +125,10 @@ function doRecord(program) {
 		' [' + program.channel.name + '] ' + program.title
 	);
 	
-	var timeout = (program.end - new Date().getTime()) + offsetStart + offsetEnd;
+	var timeout = program.end - new Date().getTime() + offsetEnd;
 	
 	if (timeout < 0) {
-		util.log('FATAL: タイムアウトによる録画失敗');
+		util.log('FATAL: 時間超過による録画中止');
 		return;
 	}
 	
@@ -165,19 +165,6 @@ function doRecord(program) {
 	program.tuner = tuner;
 	program.tuner.lock = tunerLockFile;
 	
-	function unlockTuner() {
-		// チューナーのロックを解除
-		fs.unlinkSync(tunerLockFile);
-		util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n.toString(10) + ')');
-		
-		process.removeListener('SIGINT', unlockTuner);
-		process.removeListener('SIGQUIT', unlockTuner);
-		process.removeListener('SIGTERM', unlockTuner);
-	}
-	process.on('SIGINT', unlockTuner);
-	process.on('SIGQUIT', unlockTuner);
-	process.on('SIGTERM', unlockTuner);
-	
 	// 保存先パス
 	var recPath = config.recordedDir + formatRecordedName(program);
 	program.recorded = recPath;
@@ -195,7 +182,7 @@ function doRecord(program) {
 	setTimeout(function() { recProc.kill('SIGKILL'); }, timeout);
 	
 	// 状態保存
-	fs.writeFile(RECORDING_DATA_FILE, JSON.stringify(recording, null, '  '));
+	fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));
 	util.log('WRITE: ' + RECORDING_DATA_FILE);
 	
 	// 書き込みストリームを作成
@@ -212,22 +199,34 @@ function doRecord(program) {
 		util.log('#' + (recCmd.split(' ')[0] + ': ' + data + '').replace(/\n/g, ' ').trim());
 	});
 	
-	// プロセス終了時処理
-	recProc.on('exit', function(code) {
+	// お片付け
+	function finalize() {
+		process.removeListener('SIGINT', finalize);
+		process.removeListener('SIGQUIT', finalize);
+		process.removeListener('SIGTERM', finalize);
+		
 		// 書き込みストリームを閉じる
 		recFile.end();
 		
 		// チューナーのロックを解除
-		unlockTuner();
+		fs.unlinkSync(tunerLockFile);
+		util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n.toString(10) + ')');
 		
 		// 状態を更新
 		recorded.push(program);
 		recording.splice(recording.indexOf(program), 1);
-		fs.writeFile(RECORDED_DATA_FILE, JSON.stringify(recorded, null, '  '));
-		fs.writeFile(RECORDING_DATA_FILE, JSON.stringify(recording, null, '  '));
+		fs.writeFileSync(RECORDED_DATA_FILE, JSON.stringify(recorded));
+		fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));
 		util.log('WRITE: ' + RECORDED_DATA_FILE);
 		util.log('WRITE: ' + RECORDING_DATA_FILE);
-	});
+	}
+	// 録画プロセス終了時処理
+	recProc.on('exit', finalize);
+	
+	// 終了シグナル時処理
+	process.on('SIGINT', finalize);
+	process.on('SIGQUIT', finalize);
+	process.on('SIGTERM', finalize);
 }
 
 // 録画ファイル名
@@ -243,7 +242,7 @@ function formatRecordedName(program) {
 	name = name.replace('<type>', program.channel.type);
 	
 	// <channel>
-	name = name.replace('<channel>', program.channel.channel);
+	name = name.replace('<channel>', (program.channel.type === 'CS') ? program.channel.sid : program.channel.channel);
 	
 	// <tuner>
 	name = name.replace('<tuner>', program.tuner.name);

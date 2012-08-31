@@ -614,5 +614,5 @@ function outputReserves() {
 		array.push(reserve);
 	});
 	
-	fs.writeFileSync( RESERVES_DATA_FILE, JSON.stringify(array, null, '  ') );
+	fs.writeFileSync( RESERVES_DATA_FILE, JSON.stringify(array) );
 }
