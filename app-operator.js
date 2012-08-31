@@ -251,5 +251,9 @@ function formatRecordedName(program) {
 	// <title>
 	name = name.replace('<title>', program.title);
 	
+	// strip
+	name = name.replace('/', '／').replace('\\', '＼').replace(':', '：').replace('*', '＊').replace('?', '？');
+	name = name.replace('"', '”').replace('<', '＜').replace('>', '＞').replace('|', '｜');
+	
 	return name;
 }
