@@ -179,7 +179,7 @@ function getEpg() {
 		
 		// 一時ファイルへの書き込みストリームを作成
 		var recFile = fs.createWriteStream(recPath);
-		util.log('WRITE: ' + recPath);
+		util.log('STREAM: ' + recPath);
 		
 		// ts出力
 		recProc.stdout.on('data', function(data) {
@@ -224,7 +224,7 @@ function getEpg() {
 				util.log('UNLINK: ' + recPath);
 				
 				if (err !== null) {
-					util.log('EPG: Unknown error.');
+					util.log('EPG: 不明なエラー');
 					retry();
 					return;
 				}
@@ -232,7 +232,7 @@ function getEpg() {
 				// epgdumpのXMLをパース
 				xmlParser.parseString(stdout, function(err, result) {
 					if (result === null) {
-						util.log('EPG: Failed to parse. (result=null)');
+						util.log('EPG: パースに失敗 (result=null)');
 						retry();
 						return;
 					}
@@ -399,7 +399,7 @@ function scheduler() {
 			}
 		}
 		if (k >= config.tuners.length) {
-			util.log('WARNING: ' + a.channel.type + ' tuner is not found.');
+			util.log('WARNING: ' + a.channel.type + ' チューナーは存在しません');
 			//continue;
 		}
 		
