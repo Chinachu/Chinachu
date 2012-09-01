@@ -163,6 +163,25 @@ function getEpg() {
 		fs.writeFileSync('./data/tuner.' + tuner.n.toString(10) + '.lock', '');
 		util.log('LOCK: ' + tuner.name + ' (n=' + tuner.n.toString(10) + ')');
 		
+		function unlockTuner() {
+			// チューナーのロックを解除
+			try {
+				fs.unlinkSync('./data/tuner.' + tuner.n.toString(10) + '.lock');
+				util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n.toString(10) + ')');
+			} catch(e) { }
+		}
+		
+		function removeSignalListener() {
+			process.removeListener('SIGINT', onCancel);
+			process.removeListener('SIGQUIT', onCancel);
+			process.removeListener('SIGTERM', onCancel);
+		}
+		
+		// 終了シグナル時処理
+		process.on('SIGINT', onCancel);
+		process.on('SIGQUIT', onCancel);
+		process.on('SIGTERM', onCancel);
+		
 		var recPath = config.temporaryDir + 'chinachu-tmp-' + new Date().getTime().toString(36) + '.m2ts';
 		
 		var recCmd = tuner.command.replace('<channel>', channel.channel);
@@ -191,14 +210,39 @@ function getEpg() {
 			util.log('#' + (recCmd.split(' ')[0] + ': ' + data + '').replace(/\n/g, ' ').trim());
 		});
 		
-		// プロセス終了時
-		recProc.on('exit', function(code) {
+		// キャンセル時
+		function onCancel() {
+			// シグナルリスナー解除
+			removeSignalListener();
+			
+			// 録画プロセスを終了
+			recProc.removeAllListeners('exit');
+			recProc.kill('SIGKILL');
+			
 			// 書き込みストリームを閉じる
 			recFile.end();
 			
 			// チューナーのロックを解除
-			fs.unlinkSync('./data/tuner.' + tuner.n.toString(10) + '.lock');
-			util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n.toString(10) + ')');
+			unlockTuner();
+			
+			// 一時録画ファイル削除
+			fs.unlinkSync(recPath);
+			util.log('UNLINK: ' + recPath);
+			
+			// 終了
+			process.exit();
+		}
+		
+		// プロセス終了時
+		recProc.on('exit', function(code) {
+			// シグナルリスナー解除
+			removeSignalListener();
+			
+			// 書き込みストリームを閉じる
+			recFile.end();
+			
+			// チューナーのロックを解除
+			unlockTuner();
 			
 			// epgdump
 			var epgdumpCmd = [
