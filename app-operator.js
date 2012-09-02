@@ -47,17 +47,33 @@ if (!fs.existsSync(RECORDED_DATA_FILE)) fs.writeFileSync(RECORDED_DATA_FILE, '[]
 var recorded = JSON.parse( fs.readFileSync(RECORDED_DATA_FILE, 'ascii') );
 
 //
-var prepTime    = config.operRecPrepTime || 1000 * 60 * 1;
+var schedulerProcessTime  = config.operSchedulerProcessTime  || 1000 * 60 * 30;
+var schedulerIntervalTime = config.operSchedulerIntervalTime || 1000 * 60 * 60 * 2;
+var prepTime    = config.operRecPrepTime    || 1000 * 60 * 1;
 var offsetStart = config.operRecOffsetStart || 1000 * 5;
-var offsetEnd   = config.operRecOffsetEnd || -(1000 * 8);
-var clock       = new Date().getTime();
-var recording   = [];
+var offsetEnd   = config.operRecOffsetEnd   || -(1000 * 8);
+
+var clock     = new Date().getTime();
+var recording = [];
+var scheduler = null;
+var scheduled = 0;
 
 var mainInterval = setInterval(main, 5000); 
 function main() {
 	clock = new Date().getTime();
 	
+	if (reserves.length === 0) { return; }
+	
 	reserves.forEach(reservesChecker);
+	
+	if (
+		(scheduler === null) &&
+		(clock - scheduled > schedulerIntervalTime) &&
+		(reserves[0].start - clock > schedulerProcessTime)
+	) {
+		startScheduler();
+		scheduled = clock;
+	}
 }
 
 // 予約時間チェック
@@ -98,6 +114,45 @@ function isRecorded(program) {
 	return false;
 }
 
+// スケジューラーを開始
+function startScheduler() {
+	if ((scheduler !== null) || (recording.length !== 0)) { return; }
+	
+	scheduler = child_process.spawn(config.nodejsPath, [ 'app-scheduler.js', '-f' ]);
+	util.log('SPAWN: ' + config.nodejsPath + ' app-scheduler.js -f (pid=' + scheduler.pid + ')');
+	
+	// ログ用
+	var output = fs.createWriteStream('./log/scheduler');
+	util.log('STREAM: ./log/scheduler');
+	
+	scheduler.stdout.on('data', function(data) {
+		output.write(data);
+	});
+	
+	function finalize() {
+		process.removeListener('SIGINT', finalize);
+		process.removeListener('SIGQUIT', finalize);
+		process.removeListener('SIGTERM', finalize);
+		
+		output.end();
+		
+		scheduler = null;
+	}
+	
+	scheduler.on('exit', finalize);
+	
+	process.on('SIGINT', finalize);
+	process.on('SIGQUIT', finalize);
+	process.on('SIGTERM', finalize);
+}
+
+// スケジューラーを停止
+function stopScheduler() {
+	if (scheduler === null) { return; }
+	
+	scheduler.kill('SIGTERM');
+}
+
 // 録画準備
 function prepRecord(program) {
 	util.log(
@@ -116,6 +171,10 @@ function prepRecord(program) {
 	
 	fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));
 	util.log('WRITE: ' + RECORDING_DATA_FILE);
+	
+	if (scheduler !== null) {
+		stopScheduler();
+	}
 }
 
 // 録画実行
@@ -209,7 +268,7 @@ function doRecord(program) {
 		recFile.end();
 		
 		// チューナーのロックを解除
-		fs.unlinkSync(tunerLockFile);
+		try { fs.unlinkSync(tunerLockFile); } catch(e) {}
 		util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n.toString(10) + ')');
 		
 		// 状態を更新
@@ -251,8 +310,8 @@ function formatRecordedName(program) {
 	name = name.replace('<title>', program.title);
 	
 	// strip
-	name = name.replace('/', '／').replace('\\', '＼').replace(':', '：').replace('*', '＊').replace('?', '？');
-	name = name.replace('"', '”').replace('<', '＜').replace('>', '＞').replace('|', '｜');
+	name = name.replace(/\//g, '／').replace(/\\/g, '＼').replace(/:/g, '：').replace(/\*/g, '＊').replace(/\?/g, '？');
+	name = name.replace(/"/g, '”').replace(/</g, '＜').replace(/>/g, '＞').replace(/\|/g, '｜');
 	
 	return name;
 }
