@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -165,4 +165,4 @@ AccentFold = {
 Text.AccentFold = AccentFold;
 
 
-}, '3.5.1' ,{requires:['array-extras', 'text-data-accentfold']});
+}, '3.6.0' ,{requires:['array-extras', 'text-data-accentfold']});

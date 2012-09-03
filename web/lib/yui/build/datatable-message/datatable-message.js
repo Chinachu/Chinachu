@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -98,7 +98,7 @@ Y.mix(Message.prototype, {
             if (content) {
                 this._messageNode.one(
                     '.' + this.getClassName('message', 'content'))
-                    .setContent(content);
+                    .setHTML(content);
 
                 this.get('boundingBox').addClass(
                     this.getClassName('message','visible'));
@@ -131,6 +131,8 @@ Y.mix(Message.prototype, {
                 '.' + this.getClassName('message', 'content'));
 
             if (contentNode) {
+                // FIXME: This needs to become a class extension plus a view or
+                // plugin for the table view.
                 contentNode.set('colSpan', this._displayColumns.length);
             }
         }
@@ -291,4 +293,4 @@ if (Y.Lang.isFunction(Y.DataTable)) {
 }
 
 
-}, '3.5.1' ,{requires:['datatable-base'], skinnable:true, lang:['en']});
+}, '3.6.0' ,{skinnable:true, requires:['datatable-base'], lang:['en']});

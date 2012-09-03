@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -556,4 +556,4 @@ Y.namespace("Plugin").ScrollViewScrollbars = Y.extend(ScrollbarsPlugin, Y.Plugin
 });
 
 
-}, '3.5.1' ,{requires:['classnamemanager', 'transition', 'plugin'], skinnable:true});
+}, '3.6.0' ,{skinnable:true, requires:['classnamemanager', 'transition', 'plugin']});

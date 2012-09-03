@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -162,4 +162,4 @@ QueryString.unescape = function (s) {
 
 
 
-}, '3.5.1' ,{requires:['array-extras', 'yui-base'], supersedes:['querystring-parse-simple']});
+}, '3.6.0' ,{requires:['array-extras', 'yui-base'], supersedes:['querystring-parse-simple']});

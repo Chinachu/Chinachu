@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -25,7 +25,7 @@ YUI.add('swf', function(Y) {
         FLASH_VER = "10.0.22",
         EXPRESS_INSTALL_URL = "http://fpdownload.macromedia.com/pub/flashplayer/update/current/swf/autoUpdater.swf?" + Math.random(),
         EVENT_HANDLER = "SWF.eventHandler",
-        possibleAttributes = {align:"", allowFullScreen:"", allowNetworking:"", allowScriptAccess:"", base:"", bgcolor:"", menu:"", name:"", quality:"", salign:"", scale:"", tabindex:"", wmode:""};
+        possibleAttributes = {align:"", allowFullScreen:"", allowNetworking:"", allowScriptAccess:"", base:"", bgcolor:"", loop:"", menu:"", name:"", play: "", quality:"", salign:"", scale:"", tabindex:"", wmode:""};
 
         /**
          * The SWF utility is a tool for embedding Flash applications in HTML pages.
@@ -112,8 +112,9 @@ function SWF (p_oElement /*:String*/, swfURL /*:String*/, p_oAttributes /*:Objec
         }
 
         objstring += "</object>";
-        oElement.setContent(objstring);
-
+        //using innerHTML as setHTML/setContent causes some issues with ExternalInterface for IE versions of the player
+        oElement.set("innerHTML", objstring);
+        
         this._swf = Node.one("#" + _id);
     } else {
         /**
@@ -204,4 +205,4 @@ Y.augment(SWF, Y.EventTarget);
 Y.SWF = SWF;
 
 
-}, '3.5.1' ,{requires:['event-custom','node','swfdetect','escape']});
+}, '3.6.0' ,{requires:['event-custom','node','swfdetect','escape']});

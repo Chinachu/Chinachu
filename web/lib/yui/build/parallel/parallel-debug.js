@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -77,7 +77,9 @@ Y.Parallel.prototype = {
         self.total += 1;
         return function () {
             self.finished++;
-            self.results.push(fn && fn.apply(self.context, arguments));
+            self.results.push(
+                (fn && fn.apply(self.context, arguments)) ||
+                (arguments.length === 1 ? arguments[0] : Y.Array(arguments)));
             self.test();
         };
     },
@@ -107,4 +109,4 @@ Y.Parallel.prototype = {
 };
 
 
-}, '3.5.1' ,{requires:['yui-base']});
+}, '3.6.0' ,{requires:['yui-base']});

@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -47,4 +47,4 @@ YUI.add('dd-drop-plugin', function(Y) {
 
 
 
-}, '3.5.1' ,{skinnable:false, requires:['dd-drop']});
+}, '3.6.0' ,{skinnable:false, requires:['dd-drop']});

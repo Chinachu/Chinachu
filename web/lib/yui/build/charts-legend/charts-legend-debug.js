@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -1117,7 +1117,6 @@ Y.ChartLegend = Y.Base.create("chartlegend", Y.Widget, [Y.Renderer], {
                 items.push(item);
             }
         }
-        this.set("items", items);
         this._drawing = false;
         if(this._callLater)
         {
@@ -1167,30 +1166,33 @@ Y.ChartLegend = Y.Base.create("chartlegend", Y.Widget, [Y.Renderer], {
      */
     _getStylesBySeriesType: function(series)
     {
-        var styles = series.get("styles");
+        var styles = series.get("styles"),
+            color;
         if(series instanceof Y.LineSeries || series instanceof Y.StackedLineSeries)
         {
             styles = series.get("styles").line;
+            color = styles.color || series._getDefaultColor(series.get("graphOrder"), "line");
             return {
                 border: {
                     weight: 1,
-                    color: styles.color
+                    color: color
                 },
                 fill: {
-                    color: styles.color
+                    color: color
                 }
             };
         }
         else if(series instanceof Y.AreaSeries || series instanceof Y.StackedAreaSeries)
         {
-            series = series.get("styles").fill;
+            styles = series.get("styles").area;
+            color = styles.color || series._getDefaultColor(series.get("graphOrder"), "slice");
             return {
                 border: {
                     weight: 1,
-                    color: styles.color
+                    color: color
                 },
                 fill: {
-                    color: styles.color
+                    color: color
                 }
             };
         }
@@ -1316,7 +1318,8 @@ Y.ChartLegend = Y.Base.create("chartlegend", Y.Widget, [Y.Renderer], {
                 vSpacing: 5,
                 label: {
                     color:"#808080",
-                    fontSize:"85%"
+                    fontSize:"85%",
+                    whiteSpace: "nowrap"
                 }
             },
             background: {
@@ -1366,7 +1369,8 @@ Y.ChartLegend = Y.Base.create("chartlegend", Y.Widget, [Y.Renderer], {
                 item = this._items.shift();
                 item.shape.get("graphic").destroy();
                 item.node.empty();
-                item.node.remove(true);
+                item.node.destroy(true);
+                item.node = null;
                 item = null;
             }
         }
@@ -1392,12 +1396,22 @@ Y.ChartLegend = Y.Base.create("chartlegend", Y.Widget, [Y.Renderer], {
      */
     destructor: function()
     {
-        var graphic = this.get("graphic");
+        var background = this.get("background"),
+            backgroundGraphic;
         this._destroyLegendItems();
-        if(graphic)
+        if(background)
         {
-            graphic.destroy();
+            backgroundGraphic = background.get("graphic");
+            if(backgroundGraphic)
+            {
+                backgroundGraphic.destroy();
+            }
+            else
+            {
+                background.destroy();
+            }
         }
+
     }
 }, {
     ATTRS: {
@@ -1590,6 +1604,25 @@ Y.ChartLegend = Y.Base.create("chartlegend", Y.Widget, [Y.Renderer], {
         },
 
         /**
+         * Array of items contained in the legend. Each item is an object containing the following properties:
+         *
+         * <dl>
+         *      <dt>node</dt><dd>Node containing text for the legend item.</dd>
+         *      <dt>marker</dt><dd>Shape for the legend item.</dd>
+         * </dl>
+         *
+         * @attribute items
+         * @type Array
+         * @readOnly
+         */
+        items: {
+            getter: function()
+            {
+                return this._items;
+            }
+        },
+
+        /**
          * Background for the legend.
          *
          * @attribute background
@@ -1665,4 +1698,4 @@ function Chart(cfg)
 Y.Chart = Chart;
 
 
-}, '3.5.1' ,{requires:['charts-base']});
+}, '3.6.0' ,{requires:['charts-base']});

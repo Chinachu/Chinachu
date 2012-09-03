@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -84,18 +84,21 @@ YUI.add('dd-delegate', function(Y) {
         */
         _delMouseDown: function(e) {
             var tar = e.currentTarget,
-                dd = this.dd;
+                dd = this.dd,
+                dNode = tar,
+                config = this.get('dragConfig');
             
             if (tar.test(this.get(NODES)) && !tar.test(this.get('invalid'))) {
                 this._shimState = Y.DD.DDM._noShim;
                 Y.DD.DDM._noShim = true;
                 this.set('currentNode', tar);
                 dd.set('node', tar);
-                if (dd.proxy) {
-                    dd.set('dragNode', Y.DD.DDM._proxy);
-                } else {
-                    dd.set('dragNode', tar);
+                if (config && config.dragNode) {
+                    dNode = config.dragNode;
+                } else if (dd.proxy) {
+                    dNode = Y.DD.DDM._proxy;
                 }
+                dd.set('dragNode', dNode);
                 dd._prep();
                 
                 dd.fire('drag:mouseDown', { ev: e });
@@ -338,4 +341,4 @@ YUI.add('dd-delegate', function(Y) {
 
 
 
-}, '3.5.1' ,{skinnable:false, requires:['dd-drag', 'event-mouseenter', 'dd-drop-plugin']});
+}, '3.6.0' ,{skinnable:false, requires:['dd-drag', 'event-mouseenter', 'dd-drop-plugin']});

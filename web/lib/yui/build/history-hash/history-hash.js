@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -409,26 +409,29 @@ oldHash = HistoryHash.getHash();
 oldUrl  = HistoryHash.getUrl();
 
 if (HistoryBase.nativeHashChange) {
-    // Wrap the browser's native hashchange event.
-    Y.Event.attach('hashchange', function (e) {
-        var newHash = HistoryHash.getHash(),
-            newUrl  = HistoryHash.getUrl();
+    // Wrap the browser's native hashchange event if there's not already a
+    // global listener.
+    if (!GlobalEnv._hashHandle) {
+        GlobalEnv._hashHandle = Y.Event.attach('hashchange', function (e) {
+            var newHash = HistoryHash.getHash(),
+                newUrl  = HistoryHash.getUrl();
 
-        // Iterate over a copy of the hashNotifiers array since a subscriber
-        // could detach during iteration and cause the array to be re-indexed.
-        YArray.each(hashNotifiers.concat(), function (notifier) {
-            notifier.fire({
-                _event : e,
-                oldHash: oldHash,
-                oldUrl : oldUrl,
-                newHash: newHash,
-                newUrl : newUrl
+            // Iterate over a copy of the hashNotifiers array since a subscriber
+            // could detach during iteration and cause the array to be re-indexed.
+            YArray.each(hashNotifiers.concat(), function (notifier) {
+                notifier.fire({
+                    _event : e,
+                    oldHash: oldHash,
+                    oldUrl : oldUrl,
+                    newHash: newHash,
+                    newUrl : newUrl
+                });
             });
-        });
 
-        oldHash = newHash;
-        oldUrl  = newUrl;
-    }, win);
+            oldHash = newHash;
+            oldUrl  = newUrl;
+        }, win);
+    }
 } else {
     // Begin polling for location hash changes if there's not already a global
     // poll running.
@@ -467,4 +470,4 @@ if (useHistoryHTML5 === false || (!Y.History && useHistoryHTML5 !== true &&
 }
 
 
-}, '3.5.1' ,{requires:['event-synthetic', 'history-base', 'yui-later']});
+}, '3.6.0' ,{requires:['event-synthetic', 'history-base', 'yui-later']});

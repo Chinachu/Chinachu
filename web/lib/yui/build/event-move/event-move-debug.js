@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -520,4 +520,4 @@ define(GESTURE_MOVE_END, {
 });
 
 
-}, '3.5.1' ,{requires:['node-base','event-touch','event-synthetic']});
+}, '3.6.0' ,{requires:['node-base','event-touch','event-synthetic']});

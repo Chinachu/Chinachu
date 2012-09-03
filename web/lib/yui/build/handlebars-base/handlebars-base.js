@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -252,6 +252,7 @@ This is a YUI port of the original Handlebars project, which can be found at
 
 @module handlebars
 @main handlebars
+@since 3.5.0
 */
 
 /**
@@ -269,6 +270,7 @@ This is a YUI port of the original Handlebars project, which can be found at
 <https://github.com/wycats/handlebars.js>.
 
 @class Handlebars
+@since 3.5.0
 */
 Y.Handlebars = Handlebars;
 
@@ -290,7 +292,7 @@ can also receive arguments passed by the template.
             Y.Escape.html(this.text) + '</a>';
     });
 
-    var source = '<ul>{{#each links}}<li>{{linkify}}</li>{{/each}}</ul>';
+    var source = '<ul>{{#links}}<li>{{{linkify}}}</li>{{/links}}</ul>';
 
     Y.Handlebars.render(source, {
         links: [
@@ -356,4 +358,4 @@ Converts a precompiled template into a renderable template function.
 */
 
 
-}, '3.5.1' ,{requires:['escape']});
+}, '3.6.0' ,{requires:['escape']});

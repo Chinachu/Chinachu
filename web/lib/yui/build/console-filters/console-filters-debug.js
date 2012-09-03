@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -367,7 +367,7 @@ Y.namespace('Plugin').ConsoleFilters = Y.extend(ConsoleFilters, Y.Plugin.Base,
                 }
             }
 
-            body.setContent(EMPTY);
+            body.setHTML(EMPTY);
             host.buffer = buffer;
             host.printBuffer();
         }
@@ -726,4 +726,4 @@ Y.namespace('Plugin').ConsoleFilters = Y.extend(ConsoleFilters, Y.Plugin.Base,
 });
 
 
-}, '3.5.1' ,{requires:['console','plugin']});
+}, '3.6.0' ,{requires:['console','plugin']});

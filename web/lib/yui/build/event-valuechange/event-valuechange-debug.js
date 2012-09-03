@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -7,14 +7,14 @@ http://yuilibrary.com/license/
 YUI.add('event-valuechange', function(Y) {
 
 /**
-Adds a synthetic `valueChange` event that fires when the `value` property of an
+Adds a synthetic `valuechange` event that fires when the `value` property of an
 `<input>` or `<textarea>` node changes as a result of a keystroke, mouse
 operation, or input method editor (IME) input event.
 
 Usage:
 
     YUI().use('event-valuechange', function (Y) {
-        Y.one('#my-input').on('valueChange', function (e) {
+        Y.one('#my-input').on('valuechange', function (e) {
             Y.log('previous value: ' + e.prevVal);
             Y.log('new value: ' + e.newVal);
         });
@@ -24,13 +24,13 @@ Usage:
 **/
 
 /**
-Provides the implementation for the synthetic `valueChange` event. This class
+Provides the implementation for the synthetic `valuechange` event. This class
 isn't meant to be used directly, but is public to make monkeypatching possible.
 
 Usage:
 
     YUI().use('event-valuechange', function (Y) {
-        Y.one('#my-input').on('valueChange', function (e) {
+        Y.one('#my-input').on('valuechange', function (e) {
             Y.log('previous value: ' + e.prevVal);
             Y.log('new value: ' + e.newVal);
         });
@@ -51,7 +51,7 @@ VC = {
 
     /**
     Interval (in milliseconds) at which to poll for changes to the value of an
-    element with one or more `valueChange` subscribers when the user is likely
+    element with one or more `valuechange` subscribers when the user is likely
     to be interacting with it.
 
     @property POLL_INTERVAL
@@ -448,7 +448,7 @@ programmatic value changes on nodes that don't have focus won't be detected.
 @example
 
     YUI().use('event-valuechange', function (Y) {
-        Y.one('#my-input').on('valueChange', function (e) {
+        Y.one('#my-input').on('valuechange', function (e) {
             Y.log('previous value: ' + e.prevVal);
             Y.log('new value: ' + e.newVal);
         });
@@ -478,4 +478,4 @@ Y.Event.define('valueChange', config); // deprecated, but supported for backcomp
 Y.ValueChange = VC;
 
 
-}, '3.5.1' ,{requires:['event-focus', 'event-synthetic']});
+}, '3.6.0' ,{requires:['event-focus', 'event-synthetic']});

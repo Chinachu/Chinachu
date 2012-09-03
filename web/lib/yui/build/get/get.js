@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -1100,8 +1100,8 @@ Transaction.prototype = {
         }
 
         // Inject the node.
-        if (isScript && ua.ie && ua.ie < 9) {
-            // Script on IE6, 7, and 8.
+        if (isScript && ua.ie && (ua.ie < 9 || (document.documentMode && document.documentMode < 9))) {
+            // Script on IE < 9, and IE 9+ when in IE 8 or older modes, including quirks mode.
             node.onreadystatechange = function () {
                 if (/loaded|complete/.test(node.readyState)) {
                     node.onreadystatechange = null;
@@ -1254,4 +1254,4 @@ Transaction.prototype = {
 };
 
 
-}, '3.5.1' ,{requires:['yui-base']});
+}, '3.6.0' ,{requires:['yui-base']});

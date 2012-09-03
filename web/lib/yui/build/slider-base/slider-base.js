@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -127,7 +127,7 @@ Y.SliderBase = Y.extend( SliderBase, Y.Widget, {
         this.thumb = this.renderThumb();
 
         this.rail.appendChild( this.thumb );
-        // @TODO: insert( contentBox, 'replace' ) or setContent?
+        // @TODO: insert( contentBox, 'replace' ) or setHTML?
         contentBox.appendChild( this.rail );
 
         // <span class="yui3-slider-x">
@@ -559,6 +559,8 @@ Y.SliderBase = Y.extend( SliderBase, Y.Widget, {
         //this.get('boundingBox').toggleClass('');
         this.thumb.set('aria-valuemin', this.get('min'));
         this.thumb.set('aria-valuemax', this.get('max'));
+
+        this._dd.set('lock', this.get('disabled'));
     },
 
     /**
@@ -761,5 +763,4 @@ Y.SliderBase = Y.extend( SliderBase, Y.Widget, {
 });
 
 
-
-}, '3.5.1' ,{requires:['widget', 'substitute', 'dd-constrain', 'event-key']});
+}, '3.6.0' ,{requires:['widget', 'substitute', 'dd-constrain', 'event-key']});

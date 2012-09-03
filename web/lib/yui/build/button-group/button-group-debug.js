@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -14,7 +14,6 @@ YUI.add('button-group', function(Y) {
 */
 
 var CONTENT_BOX = "contentBox",
-    SELECTOR    = "button, input[type=button], input[type=reset], input[type=submit]",
     CLICK_EVENT = "click",
     CLASS_NAMES = Y.ButtonCore.CLASS_NAMES;
 
@@ -51,7 +50,7 @@ Y.ButtonGroup = Y.extend(ButtonGroup, Y.Widget, {
         var group = this,
             cb = group.get(CONTENT_BOX);
 
-        cb.delegate(CLICK_EVENT, group._handleClick, SELECTOR, group);
+        cb.delegate(CLICK_EVENT, group._handleClick, Y.ButtonGroup.BUTTON_SELECTOR, group);
     },
 
     /**
@@ -62,7 +61,7 @@ Y.ButtonGroup = Y.extend(ButtonGroup, Y.Widget, {
     getButtons: function() {
         var cb = this.get(CONTENT_BOX);
 
-        return cb.all(SELECTOR);
+        return cb.all(Y.ButtonGroup.BUTTON_SELECTOR);
     },
 
     /**
@@ -114,17 +113,23 @@ Y.ButtonGroup = Y.extend(ButtonGroup, Y.Widget, {
     * @private
     */
     _handleClick: function(e){
-        var buttons,
-            clickedNode = e.target,
-            group = this,
+        var group = this,
+            clickedNode = e.target.ancestor('.' + ButtonGroup.CLASS_NAMES.BUTTON, true),
             type = group.get('type'),
             selectedClass = ButtonGroup.CLASS_NAMES.SELECTED,
-            isSelected = clickedNode.hasClass(selectedClass);
+            isSelected = clickedNode.hasClass(selectedClass),
+            buttons;
 
         // TODO: Anything for 'push' groups?
 
         if (type === 'checkbox') {
             clickedNode.toggleClass(selectedClass, !isSelected);
+            /**
+             * @event selectionChange
+             * @description fires when any button in the group changes its checked status
+             * @param {Event} the event object. It contains an "originEvent" property
+             * linking to the original DOM event that triggered the selection change
+             */
             group.fire('selectionChange', {originEvent: e});
         }
         else if (type === 'radio') {
@@ -175,8 +180,14 @@ Y.ButtonGroup = Y.extend(ButtonGroup, Y.Widget, {
      * @type {Object}
      * @static
      */
-    CLASS_NAMES: CLASS_NAMES
+    CLASS_NAMES: CLASS_NAMES,
+    
+    /**
+     * Selector used to find buttons inside a ButtonGroup
+     * @type {String}
+     */
+    BUTTON_SELECTOR: "button, input[type=button], input[type=reset], input[type=submit], input[type=radio], input[type=checkbox]"
 });
 
 
-}, '3.5.1' ,{requires:['button-plugin', 'cssbutton', 'widget']});
+}, '3.6.0' ,{requires:['button-plugin', 'cssbutton', 'widget']});

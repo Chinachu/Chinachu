@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -25,6 +25,7 @@ When this module is used, `Y.App.TransitionsNative` will automatically mix
 itself in to `Y.App`.
 
 @class App.TransitionsNative
+@extensionfor App
 @since 3.5.0
 **/
 function AppTransitionsNative() {}
@@ -228,7 +229,7 @@ AppTransitionsNative.prototype = {
         this._transitioning = true;
 
         container     = this.get('container');
-        transitioning = AppTransitions.CLASS_NAMES.transitioning;
+        transitioning = Y.App.CLASS_NAMES.transitioning;
 
         container.addClass(transitioning);
 
@@ -355,4 +356,4 @@ Y.App.TransitionsNative = AppTransitionsNative;
 Y.Base.mix(Y.App, [AppTransitionsNative]);
 
 
-}, '3.5.1' ,{requires:['app-transitions', 'app-transitions-css', 'parallel', 'transition']});
+}, '3.6.0' ,{requires:['app-transitions', 'app-transitions-css', 'parallel', 'transition']});

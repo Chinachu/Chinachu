@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -16,7 +16,8 @@ var SHAPE = "svgShape",
 	SVGPath,
 	SVGEllipse,
     SVGPieSlice,
-    DOCUMENT = Y.config.doc;
+    DOCUMENT = Y.config.doc,
+    _getClassName = Y.ClassNameManager.getClassName;
 
 function SVGDrawing(){}
 
@@ -31,6 +32,24 @@ function SVGDrawing(){}
  * @constructor
  */
 SVGDrawing.prototype = {
+    /**
+     * Current x position of the drawing.
+     *
+     * @property _currentX
+     * @type Number
+     * @private
+     */
+    _currentX: 0,
+
+    /**
+     * Current y position of the drqwing.
+     *
+     * @property _currentY
+     * @type Number
+     * @private
+     */
+    _currentY: 0,
+    
     /**
      * Indicates the type of shape
      *
@@ -55,10 +74,14 @@ SVGDrawing.prototype = {
     curveTo: function(cp1x, cp1y, cp2x, cp2y, x, y) {
         var pathArrayLen,
             currentArray,
-            hiX,
-            loX,
-            hiY,
-            loY;
+            w,
+            h,
+            pts,
+            right,
+            left,
+            bottom,
+            top;
+        this._pathArray = this._pathArray || [];
         if(this._pathType !== "C")
         {
             this._pathType = "C";
@@ -76,12 +99,16 @@ SVGDrawing.prototype = {
         }
         pathArrayLen = this._pathArray.length - 1;
         this._pathArray[pathArrayLen] = this._pathArray[pathArrayLen].concat([Math.round(cp1x), Math.round(cp1y), Math.round(cp2x) , Math.round(cp2y), x, y]);
-        hiX = Math.max(x, Math.max(cp1x, cp2x));
-        hiY = Math.max(y, Math.max(cp1y, cp2y));
-        loX = Math.min(x, Math.min(cp1x, cp2x));
-        loY = Math.min(y, Math.min(cp1y, cp2y));
-        this._trackSize(hiX, hiY);
-        this._trackSize(loX, loY);
+        right = Math.max(x, Math.max(cp1x, cp2x));
+        bottom = Math.max(y, Math.max(cp1y, cp2y));
+        left = Math.min(x, Math.min(cp1x, cp2x));
+        top = Math.min(y, Math.min(cp1y, cp2y));
+        w = Math.abs(right - left);
+        h = Math.abs(bottom - top);
+        pts = [[this._currentX, this._currentY] , [cp1x, cp1y], [cp2x, cp2y], [x, y]]; 
+        this._setCurveBoundingBox(pts, w, h);
+        this._currentX = x;
+        this._currentY = y;
     },
 
     /**
@@ -96,10 +123,13 @@ SVGDrawing.prototype = {
     quadraticCurveTo: function(cpx, cpy, x, y) {
         var pathArrayLen,
             currentArray,
-            hiX,
-            loX,
-            hiY,
-            loY;
+            w,
+            h,
+            pts,
+            right,
+            left,
+            bottom,
+            top;
         if(this._pathType !== "Q")
         {
             this._pathType = "Q";
@@ -117,12 +147,16 @@ SVGDrawing.prototype = {
         }
         pathArrayLen = this._pathArray.length - 1;
         this._pathArray[pathArrayLen] = this._pathArray[pathArrayLen].concat([Math.round(cpx), Math.round(cpy), Math.round(x), Math.round(y)]);
-        hiX = Math.max(x, cpx);
-        hiY = Math.max(y, cpy);
-        loX = Math.min(x, cpx);
-        loY = Math.min(y, cpy);
-        this._trackSize(hiX, hiY);
-        this._trackSize(loX, loY);
+        right = Math.max(x, cpx);
+        bottom = Math.max(y, cpy);
+        left = Math.min(x, cpx);
+        top = Math.min(y, cpy);
+        w = Math.abs(right - left);
+        h = Math.abs(bottom - top);
+        pts = [[this._currentX, this._currentY] , [cpx, cpy], [x, y]]; 
+        this._setCurveBoundingBox(pts, w, h);
+        this._currentX = x;
+        this._currentY = y;
     },
 
     /**
@@ -183,6 +217,8 @@ SVGDrawing.prototype = {
         this._pathArray.push(["M", x + radius, y]);
         this._pathArray.push(["A",  radius, radius, 0, 1, 0, x + radius, y + circum]);
         this._pathArray.push(["A",  radius, radius, 0, 1, 0, x + radius, y]);
+        this._currentX = x;
+        this._currentY = y;
         return this;
     },
    
@@ -206,6 +242,8 @@ SVGDrawing.prototype = {
         this._pathArray.push(["M", x + radius, y]);
         this._pathArray.push(["A",  radius, yRadius, 0, 1, 0, x + radius, y + h]);
         this._pathArray.push(["A",  radius, yRadius, 0, 1, 0, x + radius, y]);
+        this._currentX = x;
+        this._currentY = y;
         return this;
     },
 
@@ -321,6 +359,8 @@ SVGDrawing.prototype = {
                 this._pathArray[pathArrayLen].push(Math.round(by));
             }
         }
+        this._currentX = x;
+        this._currentY = y;
         this._trackSize(diameter, diameter); 
         return this;
     },
@@ -358,19 +398,10 @@ SVGDrawing.prototype = {
         for (i = 0; i < len; ++i) {
             this._pathArray[pathArrayLen].push(args[i][0]);
             this._pathArray[pathArrayLen].push(args[i][1]);
+            this._currentX = args[i][0];
+            this._currentY = args[i][1];
             this._trackSize.apply(this, args[i]);
         }
-    },
-
-    _getCurrentArray: function()
-    {
-        var currentArray = this._pathArray[Math.max(0, this._pathArray.length - 1)];
-        if(!currentArray)
-        {
-            currentArray = [];
-            this._pathArray.push(currentArray);
-        }
-        return currentArray;
     },
 
     /**
@@ -389,6 +420,8 @@ SVGDrawing.prototype = {
         this._pathArray.push(currentArray);
         pathArrayLen = this._pathArray.length - 1;
         this._pathArray[pathArrayLen] = this._pathArray[pathArrayLen].concat([x, y]);
+        this._currentX = x;
+        this._currentY = y;
         this._trackSize(x, y);
     },
  
@@ -410,6 +443,8 @@ SVGDrawing.prototype = {
      */
     clear: function()
     {
+        this._currentX = 0;
+        this._currentY = 0;
         this._width = 0;
         this._height = 0;
         this._left = 0;
@@ -514,6 +549,87 @@ SVGDrawing.prototype = {
     {
         this._pathArray.push(["z"]);
     },
+
+    /**
+     * Returns the current array of drawing commands.
+     *
+     * @method _getCurrentArray
+     * @return Array
+     * @private
+     */
+    _getCurrentArray: function()
+    {
+        var currentArray = this._pathArray[Math.max(0, this._pathArray.length - 1)];
+        if(!currentArray)
+        {
+            currentArray = [];
+            this._pathArray.push(currentArray);
+        }
+        return currentArray;
+    },
+    
+    /**
+     * Returns the points on a curve
+     *
+     * @method getBezierData
+     * @param Array points Array containing the begin, end and control points of a curve.
+     * @param Number t The value for incrementing the next set of points.
+     * @return Array
+     * @private
+     */
+    getBezierData: function(points, t) {  
+        var n = points.length,
+            tmp = [],
+            i,
+            j;
+
+        for (i = 0; i < n; ++i){
+            tmp[i] = [points[i][0], points[i][1]]; // save input
+        }
+        
+        for (j = 1; j < n; ++j) {
+            for (i = 0; i < n - j; ++i) {
+                tmp[i][0] = (1 - t) * tmp[i][0] + t * tmp[parseInt(i + 1, 10)][0];
+                tmp[i][1] = (1 - t) * tmp[i][1] + t * tmp[parseInt(i + 1, 10)][1]; 
+            }
+        }
+        return [ tmp[0][0], tmp[0][1] ]; 
+    },
+  
+    /**
+     * Calculates the bounding box for a curve
+     *
+     * @method _setCurveBoundingBox
+     * @param Array pts Array containing points for start, end and control points of a curve.
+     * @param Number w Width used to calculate the number of points to describe the curve.
+     * @param Number h Height used to calculate the number of points to describe the curve.
+     * @private
+     */
+    _setCurveBoundingBox: function(pts, w, h)
+    {
+        var i = 0,
+            left = this._currentX,
+            right = left,
+            top = this._currentY,
+            bottom = top,
+            len = Math.round(Math.sqrt((w * w) + (h * h))),
+            t = 1/len,
+            xy;
+        for(; i < len; ++i)
+        {
+            xy = this.getBezierData(pts, t * i);
+            left = isNaN(left) ? xy[0] : Math.min(xy[0], left);
+            right = isNaN(right) ? xy[0] : Math.max(xy[0], right);
+            top = isNaN(top) ? xy[1] : Math.min(xy[1], top);
+            bottom = isNaN(bottom) ? xy[1] : Math.max(xy[1], bottom);
+        }
+        left = Math.round(left * 10)/10;
+        right = Math.round(right * 10)/10;
+        top = Math.round(top * 10)/10;
+        bottom = Math.round(bottom * 10)/10;
+        this._trackSize(right, bottom);
+        this._trackSize(left, top);
+    },
     
     /**
      * Updates the size of the graphics object
@@ -566,6 +682,22 @@ SVGShape = function(cfg)
 SVGShape.NAME = "svgShape";
 
 Y.extend(SVGShape, Y.GraphicBase, Y.mix({
+    /**
+     * Storage for x attribute.
+     *
+     * @property _x
+     * @protected
+     */
+    _x: 0,
+
+    /**
+     * Storage for y attribute.
+     *
+     * @property _y
+     * @protected
+     */
+    _y: 0,
+    
     /**
      * Init method, invoked during construction.
      * Calls `initializer` method.
@@ -658,8 +790,8 @@ Y.extend(SVGShape, Y.GraphicBase, Y.mix({
 	{
 		var graphic = this._graphic,
 			parentXY = graphic.getXY(),
-			x = this.get("x"),
-			y = this.get("y");
+			x = this._x,
+			y = this._y;
 		return [parentXY[0] + x, parentXY[1] + y];
 	},
 
@@ -673,8 +805,9 @@ Y.extend(SVGShape, Y.GraphicBase, Y.mix({
 	{
 		var graphic = this._graphic,
 			parentXY = graphic.getXY();
-		this.set("x", xy[0] - parentXY[0]);
-		this.set("y", xy[1] - parentXY[1]);
+		this._x = xy[0] - parentXY[0];
+		this._y = xy[1] - parentXY[1];
+        this.set("transform", this.get("transform"));
 	},
 
 	/**
@@ -763,7 +896,7 @@ Y.extend(SVGShape, Y.GraphicBase, Y.mix({
 			id = this.get("id"),
 			pointerEvents = this.get("pointerEvents");
 		this.node = node;
-		this.addClass("yui3-" + SHAPE + " yui3-" + this.name);
+		this.addClass(_getClassName(SHAPE) + " " + _getClassName(this.name)); 
         if(id)
 		{
 			node.setAttribute("id", id);
@@ -955,13 +1088,25 @@ Y.extend(SVGShape, Y.GraphicBase, Y.mix({
                 y1 = ((tanRadians * (cx - x1)) - cy) * -1;
                 y2 = ((tanRadians * (cx - x2)) - cy) * -1;
             }
+
+            x1 = Math.round(100 * x1/w);
+            x2 = Math.round(100 * x2/w);
+            y1 = Math.round(100 * y1/h);
+            y2 = Math.round(100 * y2/h);
+            
+            //Set default value if not valid 
+            x1 = isNumber(x1) ? x1 : 0;
+            x2 = isNumber(x2) ? x2 : 100;
+            y1 = isNumber(y1) ? y1 : 0;
+            y2 = isNumber(y2) ? y2 : 0;
+            
             gradientNode.setAttribute("spreadMethod", "pad");
 			gradientNode.setAttribute("width", w);
 			gradientNode.setAttribute("height", h);
-            gradientNode.setAttribute("x1", Math.round(100 * x1/w) + "%");
-            gradientNode.setAttribute("y1", Math.round(100 * y1/h) + "%");
-            gradientNode.setAttribute("x2", Math.round(100 * x2/w) + "%");
-            gradientNode.setAttribute("y2", Math.round(100 * y2/h) + "%");
+            gradientNode.setAttribute("x1", x1 + "%");
+            gradientNode.setAttribute("x2", x2 + "%");
+            gradientNode.setAttribute("y1", y1 + "%");
+            gradientNode.setAttribute("y2", y2 + "%");
 		}
 		else
 		{
@@ -1167,8 +1312,8 @@ Y.extend(SVGShape, Y.GraphicBase, Y.mix({
 
         if(isPath || (this._transforms && this._transforms.length > 0))
 		{
-            x = this.get("x");
-            y = this.get("y");
+            x = this._x;
+            y = this._y;
             transformOrigin = this.get("transformOrigin");
             tx = x + (transformOrigin[0] * this.get("width"));
             ty = y + (transformOrigin[1] * this.get("height")); 
@@ -1227,10 +1372,10 @@ Y.extend(SVGShape, Y.GraphicBase, Y.mix({
 		var node = this.node;
 		node.setAttribute("width", this.get("width"));
 		node.setAttribute("height", this.get("height"));
-		node.setAttribute("x", this.get("x"));
-		node.setAttribute("y", this.get("y"));
-		node.style.left = this.get("x") + "px";
-		node.style.top = this.get("y") + "px";
+		node.setAttribute("x", this._x);
+		node.setAttribute("y", this._y);
+		node.style.left = this._x + "px";
+		node.style.top = this._y + "px";
 		this._fillChangeHandler();
 		this._strokeChangeHandler();
 		this._updateTransform();
@@ -1271,8 +1416,8 @@ Y.extend(SVGShape, Y.GraphicBase, Y.mix({
             stroke = this.get("stroke"),
 			w = this.get("width"),
 			h = this.get("height"),
-			x = type == "path" ? 0 : this.get("x"),
-			y = type == "path" ? 0 : this.get("y"),
+			x = type == "path" ? 0 : this._x,
+			y = type == "path" ? 0 : this._y,
             wt = 0;
         if(stroke && stroke.weight)
 		{
@@ -1413,7 +1558,20 @@ SVGShape.ATTRS = {
 	 * @type Number
 	 */
 	x: {
-		value: 0
+	    getter: function()
+        {
+            return this._x;
+        },
+
+        setter: function(val)
+        {
+            var transform = this.get("transform");
+            this._x = val;
+            if(transform) 
+            {
+                this.set("transform", transform);
+            }
+        }
 	},
 
 	/**
@@ -1423,7 +1581,20 @@ SVGShape.ATTRS = {
 	 * @type Number
 	 */
 	y: {
-		value: 0
+	    getter: function()
+        {
+            return this._y;
+        },
+
+        setter: function(val)
+        {
+            var transform = this.get("transform");
+            this._y = val;
+            if(transform) 
+            {
+                this.set("transform", transform);
+            }
+        }
 	},
 
 	/**
@@ -1572,11 +1743,6 @@ SVGShape.ATTRS = {
 		}
 	},
 	
-	//Not used. Remove in future.
-    autoSize: {
-		value: false
-	},
-
 	// Only implemented in SVG
 	// Determines whether the instance will receive mouse events.
 	// 
@@ -1603,32 +1769,6 @@ SVGShape.ATTRS = {
 				node.setAttribute("pointer-events", val);
 			}
 			return val;
-		}
-	},
-
-	/**
-	 * The node used for gradient fills.
-	 *
-	 * @config gradientNode
-	 * @type HTMLElement
-     * @private
-	 */
-	gradientNode: {
-		setter: function(val)
-		{
-			if(Y_LANG.isString(val))
-			{
-				val = this._graphic.getGradientNode("linear", val);
-			}
-			return val;
-		}
-	},
-
-	//Not used. Remove in future.
-    autoDraw: {
-		getter: function()
-		{
-			return this._graphic.autoDraw;
 		}
 	},
 
@@ -1866,18 +2006,16 @@ Y.extend(SVGEllipse, SVGShape, {
 });
 
 SVGEllipse.ATTRS = Y.merge(SVGShape.ATTRS, {
-	//
-	// Horizontal radius for the ellipse. This attribute is not implemented in Canvas.
-    // Will add in 3.4.1.
-	//
-	// @config xRadius
-	// @type Number
-	// @readOnly
-	//
+	/**
+	 * Horizontal radius for the ellipse. 
+	 *
+	 * @config xRadius
+	 * @type Number
+	 */
 	xRadius: {
 		setter: function(val)
 		{
-			this.set("width", val/2);
+			this.set("width", val * 2);
 		},
 
 		getter: function()
@@ -1891,18 +2029,17 @@ SVGEllipse.ATTRS = Y.merge(SVGShape.ATTRS, {
 		}
 	},
 
-	//
-	// Vertical radius for the ellipse. This attribute is not implemented in Canvas. 
-    // Will add in 3.4.1.
-	//
-	// @config yRadius
-	// @type Number
-	// @readOnly
-	//
+	/**
+	 * Vertical radius for the ellipse. 
+	 *
+	 * @config yRadius
+	 * @type Number
+	 * @readOnly
+	 */
 	yRadius: {
 		setter: function(val)
 		{
-			this.set("height", val/2);
+			this.set("height", val * 2);
 		},
 
 		getter: function()
@@ -2393,7 +2530,8 @@ Y.extend(SVGGraphic, Y.GraphicBase, {
      * @private
      */
     initializer: function() {
-        var render = this.get("render");
+        var render = this.get("render"),
+            visibility = this.get("visible") ? "visible" : "hidden";
         this._shapes = {};
 		this._contentBounds = {
             left: 0,
@@ -2406,7 +2544,9 @@ Y.extend(SVGGraphic, Y.GraphicBase, {
         this._node.style.position = "absolute";
         this._node.style.left = this.get("x") + "px";
         this._node.style.top = this.get("y") + "px";
+        this._node.style.visibility = visibility;
         this._contentNode = this._createGraphics();
+        this._contentNode.style.visibility = visibility;
         this._contentNode.setAttribute("id", this.get("id"));
         this._node.appendChild(this._contentNode);
         if(render)
@@ -2468,6 +2608,10 @@ Y.extend(SVGGraphic, Y.GraphicBase, {
     addShape: function(cfg)
     {
         cfg.graphic = this;
+        if(!this.get("visible"))
+        {
+            cfg.visible = false;
+        }
         var shapeClass = this._getShapeClass(cfg.type),
             shape = new shapeClass(cfg);
         this._appendShape(shape);
@@ -2593,8 +2737,14 @@ Y.extend(SVGGraphic, Y.GraphicBase, {
                 }
             }
         }
-        this._contentNode.style.visibility = visibility;
-        this._node.style.visibility = visibility;
+        if(this._contentNode)
+        {
+            this._contentNode.style.visibility = visibility;
+        }
+        if(this._node)
+        {
+            this._node.style.visibility = visibility;
+        }
     },
 
     /**
@@ -2858,4 +3008,4 @@ Y.SVGGraphic = SVGGraphic;
 
 
 
-}, '3.5.1' ,{skinnable:false, requires:['graphics']});
+}, '3.6.0' ,{requires:['graphics'], skinnable:false});

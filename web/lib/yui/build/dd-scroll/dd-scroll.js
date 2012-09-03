@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -241,7 +241,15 @@ YUI.add('dd-scroll', function(Y) {
             if (nl < 0) {
                 nl = xy[0];
             }
+            if (ho.con) {
+                if (!ho.con.inRegion([nl + sl, nt + st])) {
+                    move = false;
+                }
+            }
             if (move) {
+                ho.actXY = [nl, nt];
+                ho._alignNode([nl, nt], true); //We are srolling..
+                xy = ho.actXY;
                 ho.actXY = [nl, nt];
                 ho._moveNode({ node: win, top: st, left: sl});
                 if (!st && !sl) {
@@ -422,4 +430,4 @@ YUI.add('dd-scroll', function(Y) {
 
 
 
-}, '3.5.1' ,{skinnable:false, optional:['dd-proxy'], requires:['dd-drag']});
+}, '3.6.0' ,{skinnable:false, optional:['dd-proxy'], requires:['dd-drag']});

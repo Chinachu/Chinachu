@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -122,8 +122,8 @@ Y.extend(ResizeProxy, Y.Plugin.Base, {
 	},
 
     /**
-      * Render the <a href="ResizeProxy.html#config_proxyNode">proxyNode</a> element and
-      * make it sibling of the <a href="Resize.html#config_node">node</a>.
+      * Render the <a href="ResizeProxy.html#attr_proxyNode">proxyNode</a> element and
+      * make it sibling of the <a href="Resize.html#attr_node">node</a>.
       *
       * @method _renderProxy
       * @protected
@@ -169,4 +169,4 @@ Y.namespace('Plugin');
 Y.Plugin.ResizeProxy = ResizeProxy;
 
 
-}, '3.5.1' ,{requires:['resize-base', 'plugin'], skinnable:false});
+}, '3.6.0' ,{requires:['resize-base', 'plugin'], skinnable:false});

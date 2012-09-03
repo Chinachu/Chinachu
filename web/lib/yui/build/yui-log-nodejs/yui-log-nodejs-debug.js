@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -25,7 +25,7 @@ Y.consoleColor = function(str, num) {
     if (!num) {
         num = '32';
     }
-    return "\033[" + num +"m" + str + "\033[0m"
+    return "\u001b[" + num +"m" + str + "\u001b[0m";
 };
 
 
@@ -83,4 +83,4 @@ if (!Y.config.logFn) {
 
 
 
-}, '3.5.1' ,{requires:['yui-log']});
+}, '3.6.0' ,{requires:['yui-log']});

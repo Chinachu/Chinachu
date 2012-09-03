@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -337,4 +337,4 @@ Y.Pjax = Y.Base.create('pjax', Y.Router, [Y.PjaxBase], {
 });
 
 
-}, '3.5.1' ,{requires:['pjax-base', 'io-base']});
+}, '3.6.0' ,{requires:['pjax-base', 'io-base']});

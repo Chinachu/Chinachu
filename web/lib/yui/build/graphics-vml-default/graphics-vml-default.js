@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -15,4 +15,4 @@ Y.Path = Y.VMLPath;
 Y.Drawing = Y.VMLDrawing;
 
 
-}, '3.5.1' ,{skinnable:false});
+}, '3.6.0' ,{skinnable:false});

@@ -1,14 +1,16 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
 */
 YUI.add('graphics-vml', function(Y) {
 
-var Y_LANG = Y.Lang,
+var SHAPE = "vmlShape",
+    Y_LANG = Y.Lang,
     IS_NUM = Y_LANG.isNumber,
     IS_ARRAY = Y_LANG.isArray,
+    IS_STRING = Y_LANG.isString,
     Y_DOM = Y.DOM,
     Y_SELECTOR = Y.Selector,
     DOCUMENT = Y.config.doc,
@@ -19,7 +21,8 @@ var Y_LANG = Y.Lang,
 	VMLRect,
 	VMLEllipse,
 	VMLGraphic,
-    VMLPieSlice;
+    VMLPieSlice,
+    _getClassName = Y.ClassNameManager.getClassName;
 
 function VMLDrawing() {}
 
@@ -35,7 +38,47 @@ function VMLDrawing() {}
  */
 VMLDrawing.prototype = {
     /**
-     * Current x position of the drqwing.
+     * Value for rounding up to coordsize
+     *
+     * @property _coordSpaceMultiplier
+     * @type Number
+     * @private
+     */
+    _coordSpaceMultiplier: 100,
+
+    /**
+     * Rounds dimensions and position values based on the coordinate space.
+     *
+     * @method _round
+     * @param {Number} The value for rounding
+     * @return Number
+     * @private
+     */
+    _round:function(val)
+    {
+        return Math.round(val * this._coordSpaceMultiplier);
+    },
+
+    /**
+     * Concatanates the path.
+     *
+     * @method _addToPath
+     * @param {String} val The value to add to the path string.
+     * @private
+     */
+    _addToPath: function(val)
+    {
+        this._path = this._path || "";
+        if(this._movePath)
+        {
+            this._path += this._movePath;
+            this._movePath = null;
+        }
+        this._path += val;
+    },
+
+    /**
+     * Current x position of the drawing.
      *
      * @property _currentX
      * @type Number
@@ -64,21 +107,24 @@ VMLDrawing.prototype = {
      * @param {Number} y y-coordinate for the end point.
      */
     curveTo: function(cp1x, cp1y, cp2x, cp2y, x, y) {
-        var hiX,
-            loX,
-            hiY,
-            loY;
-        x = Math.round(x);
-        y = Math.round(y);
-        this._path += ' c ' + Math.round(cp1x) + ", " + Math.round(cp1y) + ", " + Math.round(cp2x) + ", " + Math.round(cp2y) + ", " + x + ", " + y;
+        var w,
+            h,
+            pts,
+            right,
+            left,
+            bottom,
+            top;
+        this._addToPath(" c " + this._round(cp1x) + ", " + this._round(cp1y) + ", " + this._round(cp2x) + ", " + this._round(cp2y) + ", " + this._round(x) + ", " + this._round(y));
+        right = Math.max(x, Math.max(cp1x, cp2x));
+        bottom = Math.max(y, Math.max(cp1y, cp2y));
+        left = Math.min(x, Math.min(cp1x, cp2x));
+        top = Math.min(y, Math.min(cp1y, cp2y));
+        w = Math.abs(right - left);
+        h = Math.abs(bottom - top);
+        pts = [[this._currentX, this._currentY] , [cp1x, cp1y], [cp2x, cp2y], [x, y]]; 
+        this._setCurveBoundingBox(pts, w, h);
         this._currentX = x;
         this._currentY = y;
-        hiX = Math.max(x, Math.max(cp1x, cp2x));
-        hiY = Math.max(y, Math.max(cp1y, cp2y));
-        loX = Math.min(x, Math.min(cp1x, cp2x));
-        loY = Math.min(y, Math.min(cp1y, cp2y));
-        this._trackSize(hiX, hiY);
-        this._trackSize(loX, loY);
     },
 
     /**
@@ -157,10 +203,12 @@ VMLDrawing.prototype = {
         var startAngle = 0,
             endAngle = 360,
             circum = radius * 2;
+
         endAngle *= 65535;
         this._drawingComplete = false;
         this._trackSize(x + circum, y + circum);
-        this._path += " m " + (x + circum) + " " + (y + radius) + " ae " + (x + radius) + " " + (y + radius) + " " + radius + " " + radius + " " + startAngle + " " + endAngle;
+        this.moveTo((x + circum), (y + radius));
+        this._addToPath(" ae " + this._round(x + radius) + ", " + this._round(y + radius) + ", " + this._round(radius) + ", " + this._round(radius) + ", " + startAngle + ", " + endAngle);
         return this;
     },
     
@@ -182,7 +230,8 @@ VMLDrawing.prototype = {
         endAngle *= 65535;
         this._drawingComplete = false;
         this._trackSize(x + w, y + h);
-        this._path += " m " + (x + w) + " " + (y + yRadius) + " ae " + (x + radius) + " " + (y + yRadius) + " " + radius + " " + yRadius + " " + startAngle + " " + endAngle;
+        this.moveTo((x + w), (y + yRadius));
+        this._addToPath(" ae " + this._round(x + radius) + ", " + this._round(x + radius) + ", " + this._round(y + yRadius) + ", " + this._round(radius) + ", " + this._round(yRadius) + ", " + startAngle + ", " + endAngle);
         return this;
     },
     
@@ -220,24 +269,22 @@ VMLDrawing.prototype = {
      * @param {Number} yRadius [optional] y radius for wedge.
      * @private
      */
-    drawWedge: function(x, y, startAngle, arc, radius, yRadius)
+    drawWedge: function(x, y, startAngle, arc, radius)
     {
         var diameter = radius * 2;
-        x = Math.round(x);
-        y = Math.round(y);
-        yRadius = yRadius || radius;
-        radius = Math.round(radius);
-        yRadius = Math.round(yRadius);
         if(Math.abs(arc) > 360)
         {
             arc = 360;
         }
-        startAngle *= -65535;
-        arc *= 65536;
-        this._path += " m " + x + " " + y + " ae " + x + " " + y + " " + radius + " " + yRadius + " " + startAngle + " " + arc;
-        this._trackSize(diameter, diameter); 
         this._currentX = x;
         this._currentY = y;
+        startAngle *= -65535;
+        arc *= 65536;
+        startAngle = Math.round(startAngle);
+        arc = Math.round(arc);
+        this.moveTo(x, y);
+        this._addToPath(" ae " + this._round(x) + ", " + this._round(y) + ", " + this._round(radius) + " " + this._round(radius) + ", " +  startAngle + ", " + arc);
+        this._trackSize(diameter, diameter); 
         return this;
     },
 
@@ -251,22 +298,19 @@ VMLDrawing.prototype = {
     lineTo: function(point1, point2, etc) {
         var args = arguments,
             i,
-            len;
+            len,
+            path = ' l ';
         if (typeof point1 === 'string' || typeof point1 === 'number') {
             args = [[point1, point2]];
         }
         len = args.length;
-        if(!this._path)
-        {
-            this._path = "";
-        }
-        this._path += ' l ';
         for (i = 0; i < len; ++i) {
-            this._path += ' ' + Math.round(args[i][0]) + ', ' + Math.round(args[i][1]);
+            path += ' ' + this._round(args[i][0]) + ', ' + this._round(args[i][1]);
             this._trackSize.apply(this, args[i]);
             this._currentX = args[i][0];
             this._currentY = args[i][1];
         }
+        this._addToPath(path);
         return this;
     },
 
@@ -278,11 +322,7 @@ VMLDrawing.prototype = {
      * @param {Number} y y-coordinate for the end point.
      */
     moveTo: function(x, y) {
-        if(!this._path)
-        {
-            this._path = "";
-        }
-        this._path += ' m ' + Math.round(x) + ', ' + Math.round(y);
+        this._movePath = " m " + this._round(x) + ", " + this._round(y);
         this._trackSize(x, y);
         this._currentX = x;
         this._currentY = y;
@@ -302,7 +342,8 @@ VMLDrawing.prototype = {
             w = this.get("width"),
             h = this.get("height"),
             path = this._path,
-            pathEnd = "";
+            pathEnd = "",
+            multiplier = this._coordSpaceMultiplier;
         this._fillChangeHandler();
         this._strokeChangeHandler();
         if(path)
@@ -322,12 +363,14 @@ VMLDrawing.prototype = {
         }
         if(!isNaN(w) && !isNaN(h))
         {
-            node.coordSize =  w + ', ' + h;
+            node.coordOrigin = this._left + ", " + this._top;
+            node.coordSize = (w * multiplier) + ", " + (h * multiplier);
             node.style.position = "absolute";
-            node.style.width = w + "px";
-            node.style.height = h + "px";
+            node.style.width =  w + "px";
+            node.style.height =  h + "px";
         }
         this._path = path;
+        this._movePath = null;
         this._updateTransform();
     },
 
@@ -348,7 +391,7 @@ VMLDrawing.prototype = {
      */
     closePath: function()
     {
-        this._path += ' x e ';
+        this._addToPath(" x e");
     },
 
     /**
@@ -365,6 +408,70 @@ VMLDrawing.prototype = {
         this._left = 0;
         this._top = 0;
         this._path = "";
+        this._movePath = null;
+    },
+    
+    /**
+     * Returns the points on a curve
+     *
+     * @method getBezierData
+     * @param Array points Array containing the begin, end and control points of a curve.
+     * @param Number t The value for incrementing the next set of points.
+     * @return Array
+     * @private
+     */
+    getBezierData: function(points, t) {  
+        var n = points.length,
+            tmp = [],
+            i,
+            j;
+
+        for (i = 0; i < n; ++i){
+            tmp[i] = [points[i][0], points[i][1]]; // save input
+        }
+        
+        for (j = 1; j < n; ++j) {
+            for (i = 0; i < n - j; ++i) {
+                tmp[i][0] = (1 - t) * tmp[i][0] + t * tmp[parseInt(i + 1, 10)][0];
+                tmp[i][1] = (1 - t) * tmp[i][1] + t * tmp[parseInt(i + 1, 10)][1]; 
+            }
+        }
+        return [ tmp[0][0], tmp[0][1] ]; 
+    },
+  
+    /**
+     * Calculates the bounding box for a curve
+     *
+     * @method _setCurveBoundingBox
+     * @param Array pts Array containing points for start, end and control points of a curve.
+     * @param Number w Width used to calculate the number of points to describe the curve.
+     * @param Number h Height used to calculate the number of points to describe the curve.
+     * @private
+     */
+    _setCurveBoundingBox: function(pts, w, h)
+    {
+        var i = 0,
+            left = this._currentX,
+            right = left,
+            top = this._currentY,
+            bottom = top,
+            len = Math.round(Math.sqrt((w * w) + (h * h))),
+            t = 1/len,
+            xy;
+        for(; i < len; ++i)
+        {
+            xy = this.getBezierData(pts, t * i);
+            left = isNaN(left) ? xy[0] : Math.min(xy[0], left);
+            right = isNaN(right) ? xy[0] : Math.max(xy[0], right);
+            top = isNaN(top) ? xy[1] : Math.min(xy[1], top);
+            bottom = isNaN(bottom) ? xy[1] : Math.max(xy[1], bottom);
+        }
+        left = Math.round(left * 10)/10;
+        right = Math.round(right * 10)/10;
+        top = Math.round(top * 10)/10;
+        bottom = Math.round(bottom * 10)/10;
+        this._trackSize(right, bottom);
+        this._trackSize(left, top);
     },
 
     /**
@@ -525,7 +632,7 @@ Y.extend(VMLShape, Y.GraphicBase, Y.mix({
 			fillstring;
 			id = this.get("id");
 			type = this._type == "path" ? "shape" : this._type;
-			classString = 'vml' + type + ' yui3-vmlShape yui3-' + this.constructor.NAME; 
+			classString = 'vml' + type + ' ' + _getClassName(SHAPE) + " " + _getClassName(this.constructor.NAME); 
 			stroke = this._getStrokeProps();
 			fill = this._getFillProps();
 			
@@ -1028,7 +1135,6 @@ Y.extend(VMLShape, Y.GraphicBase, Y.mix({
 			fx = fill.fx,
 			fy = fill.fy,
 			r = fill.r,
-			actualPct,
             pct,
 			rotation = fill.rotation || 0;
 		if(type === "linear")
@@ -1958,14 +2064,12 @@ Y.extend(VMLEllipse, Y.VMLShape, {
 	_type: "oval"
 });
 VMLEllipse.ATTRS = Y.merge(Y.VMLShape.ATTRS, {
-	//
-	// Horizontal radius for the ellipse. This attribute is not implemented in Canvas.
-    // Will add in 3.4.1.
-	//
-	// @config xRadius
-	// @type Number
-	// @readOnly
-	//
+	/**
+	 * Horizontal radius for the ellipse. 
+	 *
+	 * @config xRadius
+	 * @type Number
+	 */
 	xRadius: {
 		lazyAdd: false,
 
@@ -1984,14 +2088,13 @@ VMLEllipse.ATTRS = Y.merge(Y.VMLShape.ATTRS, {
 		}
 	},
 
-	//
-	// Vertical radius for the ellipse. This attribute is not implemented in Canvas. 
-    // Will add in 3.4.1.
-	//
-	// @config yRadius
-	// @type Number
-	// @readOnly
-	//
+	/**
+	 * Vertical radius for the ellipse. 
+	 *
+	 * @config yRadius
+	 * @type Number
+	 * @readOnly
+	 */
 	yRadius: {
 		lazyAdd: false,
 		
@@ -2435,11 +2538,19 @@ Y.extend(VMLGraphic, Y.GraphicBase, {
      */
     getXY: function()
     {
-        var node = Y.one(this._node),
+        var node = this.parentNode,
+            x = this.get("x"),
+            y = this.get("y"),
             xy;
         if(node)
         {
-            xy = node.getXY();
+            xy = Y.one(node).getXY();
+            xy[0] += x;
+            xy[1] += y;
+        }
+        else
+        {
+            xy = Y.DOM._getOffset(this._node);
         }
         return xy;
     },
@@ -2458,7 +2569,8 @@ Y.extend(VMLGraphic, Y.GraphicBase, {
      * @private
      */
     initializer: function(config) {
-        var render = this.get("render");
+        var render = this.get("render"),
+            visibility = this.get("visible") ? "visible" : "hidden";
         this._shapes = {};
 		this._contentBounds = {
             left: 0,
@@ -2467,6 +2579,7 @@ Y.extend(VMLGraphic, Y.GraphicBase, {
             bottom: 0
         };
         this._node = this._createGraphic();
+        this._node.style.visibility = visibility;
         this._node.setAttribute("id", this.get("id"));
         if(render)
         {
@@ -2514,6 +2627,10 @@ Y.extend(VMLGraphic, Y.GraphicBase, {
     addShape: function(cfg)
     {
         cfg.graphic = this;
+        if(!this.get("visible"))
+        {
+            cfg.visible = false;
+        }
         var shapeClass = this._getShapeClass(cfg.type),
             shape = new shapeClass(cfg);
         this._appendShape(shape);
@@ -2549,14 +2666,14 @@ Y.extend(VMLGraphic, Y.GraphicBase, {
      */
     removeShape: function(shape)
     {
-        if(!shape instanceof VMLShape)
+        if(!(shape instanceof VMLShape))
         {
             if(Y_LANG.isString(shape))
             {
                 shape = this._shapes[shape];
             }
         }
-        if(shape && shape instanceof VMLShape)
+        if(shape && (shape instanceof VMLShape))
         {
             shape._destroy();
             this._shapes[shape.get("id")] = null;
@@ -2640,7 +2757,10 @@ Y.extend(VMLGraphic, Y.GraphicBase, {
                 }
             }
         }
-        this._node.style.visibility = visibility;
+        if(this._node)
+        {
+            this._node.style.visibility = visibility;
+        }
     },
 
     /**
@@ -2680,9 +2800,7 @@ Y.extend(VMLGraphic, Y.GraphicBase, {
      * @private
      */
     _createGraphic: function() {
-        var group = DOCUMENT.createElement('<group xmlns="urn:schemas-microsft.com:vml" style="behavior:url(#default#VML);display:block;zoom:1;" />');
-		group.style.display = "block";
-        group.style.position = 'absolute';
+        var group = DOCUMENT.createElement('<group xmlns="urn:schemas-microsft.com:vml" style="behavior:url(#default#VML);display:block;position:absolute;top:0px;left:0px;zoom:1;" />');
         return group;
     },
 
@@ -2868,4 +2986,4 @@ Y.VMLGraphic = VMLGraphic;
 
 
 
-}, '3.5.1' ,{skinnable:false, requires:['graphics']});
+}, '3.6.0' ,{requires:['graphics'], skinnable:false});

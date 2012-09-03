@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -118,7 +118,7 @@ Y.mix(Y.namespace("DataType.Date"), {
 		newMonth = (newMonth % 12 + 12) % 12;
 		
 		var newDate = new Date (oDate.getTime());
-		newDate.setYear(newYear);
+		newDate.setFullYear(newYear);
 		newDate.setMonth(newMonth);
 		
 		return newDate;
@@ -137,7 +137,7 @@ Y.mix(Y.namespace("DataType.Date"), {
 		var newYear = oDate.getFullYear() + numYears;
 		var newDate = new Date(oDate.getTime());
 		
-		newDate.setYear(newYear);
+		newDate.setFullYear(newYear);
 		return newDate;
 	},
 
@@ -208,4 +208,4 @@ Y.mix(Y.namespace("DataType.Date"), {
 });
 
 
-}, '3.5.1' ,{requires:['yui-base']});
+}, '3.6.0' ,{requires:['yui-base']});

@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -15,7 +15,8 @@ YUI.add('get', function(Y) {
     var path = require('path'),
         vm = require('vm'),
         fs = require('fs'),
-        request = require('request');
+        request = require('request'),
+        existsSync = fs.existsSync || path.existsSync;
 
 
     Y.Get = function() {
@@ -101,7 +102,7 @@ YUI.add('get', function(Y) {
         } else {
             if (Y.config.useSync) {
                 //Needs to be in useSync
-                if (path.existsSync(url)) {
+                if (existsSync(url)) {
                     var mod = fs.readFileSync(url,'utf8');
                     Y.Get._exec(mod, url, cb);
                 } else {
@@ -131,6 +132,7 @@ YUI.add('get', function(Y) {
         }
         end(cb, 'success', 'success');
     }, fail = function(cb, er) {
+        er.errors = [er];
         if (Y.Lang.isFunction(cb.onFailure)) {
             cb.onFailure.call(Y, er, cb);
         }
@@ -195,4 +197,4 @@ YUI.add('get', function(Y) {
 
 
 
-}, '3.5.1' ,{requires:['yui-base']});
+}, '3.6.0' ,{requires:['yui-base']});

@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -39,6 +39,7 @@ transition between `activeView` changes using the following effects:
 
 @class App.Transitions
 @uses App.TransitionsNative
+@extensionfor App
 @since 3.5.0
 **/
 function AppTransitions() {}
@@ -61,21 +62,6 @@ AppTransitions.ATTRS = {
         setter: '_setTransitions',
         value : false
     }
-};
-
-/**
-CSS classes used by `App.Transitions`.
-
-When an app is transitioning between `activeView`s, its `container` node will
-have the "yui3-app-transitioning" CSS class added.
-
-@property CLASS_NAMES
-@type Object
-@static
-@since 3.5.0
-**/
-AppTransitions.CLASS_NAMES = {
-    transitioning: Y.ClassNameManager.getClassName('app', 'transitioning')
 };
 
 /**
@@ -253,5 +239,9 @@ AppTransitions.prototype = {
 Y.App.Transitions = AppTransitions;
 Y.Base.mix(Y.App, [AppTransitions]);
 
+Y.mix(Y.App.CLASS_NAMES, {
+    transitioning: Y.ClassNameManager.getClassName('app', 'transitioning')
+});
 
-}, '3.5.1' ,{requires:['app-base']});
+
+}, '3.6.0' ,{requires:['app-base']});

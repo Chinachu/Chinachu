@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -112,25 +112,27 @@ function define(type, proxy, directEvent) {
             // ancestors() returns the Nodes from top to bottom
             axisNodes._nodes.reverse();
 
-            // Store the count for step 2
-            tmp = count;
-            axisNodes.some(function (node) {
-                var yuid      = Y.stamp(node),
-                    notifiers = notifierData[yuid],
-                    i, len;
+            if (count) {
+                // Store the count for step 2
+                tmp = count;
+                axisNodes.some(function (node) {
+                    var yuid      = Y.stamp(node),
+                        notifiers = notifierData[yuid],
+                        i, len;
 
-                if (notifiers) {
-                    count--;
-                    for (i = 0, len = notifiers.length; i < len; ++i) {
-                        if (notifiers[i].handle.sub.filter) {
-                            delegates.push(notifiers[i]);
+                    if (notifiers) {
+                        count--;
+                        for (i = 0, len = notifiers.length; i < len; ++i) {
+                            if (notifiers[i].handle.sub.filter) {
+                                delegates.push(notifiers[i]);
+                            }
                         }
                     }
-                }
 
-                return !count;
-            });
-            count = tmp;
+                    return !count;
+                });
+                count = tmp;
+            }
 
             // Walk up the parent axis, notifying direct subscriptions and
             // testing delegate filters.
@@ -243,4 +245,4 @@ if (useActivate) {
 }
 
 
-}, '3.5.1' ,{requires:['event-synthetic']});
+}, '3.6.0' ,{requires:['event-synthetic']});

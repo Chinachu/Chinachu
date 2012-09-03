@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -314,5 +314,4 @@ event is fired, this value will be set to 0.
 Y.io.xdr = { delay : 100 };
 
 
-
-}, '3.5.1' ,{requires:['io-base','datatype-xml-parse']});
+}, '3.6.0' ,{requires:['io-base','datatype-xml-parse']});

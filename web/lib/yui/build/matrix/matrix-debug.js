@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -787,6 +787,29 @@ Matrix.prototype = {
         this.multiply(1, 0, 0, 1, x, y);
         return this;
     },
+    
+    /**
+     * Applies a translate to the x-coordinate
+     *
+     * @method translateX
+     * @param {Number} x x-coordinate
+     */
+    translateX: function(x) {
+        this.translate(x);
+        return this;
+    },
+
+    /**
+     * Applies a translate to the y-coordinate
+     *
+     * @method translateY
+     * @param {Number} y y-coordinate
+     */
+    translateY: function(y) {
+        this.translate(null, y);
+        return this;
+    },
+
 
     /**
      * Returns an identity matrix.
@@ -921,4 +944,4 @@ Matrix.prototype = {
 Y.Matrix = Matrix;
 
 
-}, '3.5.1' ,{requires:['yui-base']});
+}, '3.6.0' ,{requires:['yui-base']});

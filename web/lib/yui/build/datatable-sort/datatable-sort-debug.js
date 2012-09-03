@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -366,11 +366,16 @@ Y.mix(Sortable.prototype, {
     @since 3.5.0
     **/
     _bindSortUI: function () {
-        this.after(['sortableChange', 'sortByChange', 'columnsChange'],
-            Y.bind('_uiSetSortable', this));
+        var handles = this._eventHandles;
+        
+        if (!handles.sortAttrs) {
+            handles.sortAttrs = this.after(
+                ['sortableChange', 'sortByChange', 'columnsChange'],
+                Y.bind('_uiSetSortable', this));
+        }
 
-        if (this._theadNode) {
-            this._sortHandle = this.delegate(['click','keydown'],
+        if (!handles.sortUITrigger && this._theadNode) {
+            handles.sortUITrigger = this.delegate(['click','keydown'],
                 Y.rbind('_onUITriggerSort', this),
                 '.' + this.getClassName('sortable', 'column'));
         }
@@ -386,19 +391,6 @@ Y.mix(Sortable.prototype, {
     **/
     _defSortFn: function (e) {
         this.set.apply(this, ['sortBy', e.sortBy].concat(e.details));
-    },
-
-    /**
-    Removes the click subscription from the header for sorting.
-
-    @method destructor
-    @protected
-    @since 3.5.0
-    **/
-    destructor: function () {
-        if (this._sortHandle) {
-            this._sortHandle.detach();
-        }
     },
 
     /**
@@ -475,14 +467,16 @@ Y.mix(Sortable.prototype, {
         this._initSortStrings();
 
         this.after({
-            renderHeader  : Y.bind('_renderSortable', this),
-            dataChange    : Y.bind('_afterSortDataChange', this),
-            sortByChange  : Y.bind('_afterSortByChange', this),
-            sortableChange: boundParseSortable,
-            columnsChange : boundParseSortable,
-            "*:change"    : Y.bind('_afterSortRecordChange', this)
+            'table:renderHeader': Y.bind('_renderSortable', this),
+            dataChange          : Y.bind('_afterSortDataChange', this),
+            sortByChange        : Y.bind('_afterSortByChange', this),
+            sortableChange      : boundParseSortable,
+            columnsChange       : boundParseSortable
         });
+        this.data.after(this.data.model.NAME + ":change",
+            Y.bind('_afterSortRecordChange', this));
 
+        // TODO: this event needs magic, allowing async remote sorting
         this.publish('sort', {
             defaultFn: Y.bind('_defSortFn', this)
         });
@@ -901,4 +895,4 @@ Y.DataTable.Sortable = Sortable;
 Y.Base.mix(Y.DataTable, [Sortable]);
 
 
-}, '3.5.1' ,{requires:['datatable-base'], lang:['en']});
+}, '3.6.0' ,{requires:['datatable-base'], lang:['en']});

@@ -1,5 +1,5 @@
 /*
-YUI 3.5.1 (build 22)
+YUI 3.6.0 (build 5521)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
@@ -54,12 +54,12 @@ YUI.add('base-base', function(Y) {
      * A base class which objects requiring attributes and custom event support can 
      * extend. Base also handles the chaining of initializer and destructor methods across 
      * the hierarchy as part of object construction and destruction. Additionally, attributes configured 
-     * through the static <a href="#property_Base.ATTRS">ATTRS</a> property for each class 
+     * through the static <a href="#property_ATTRS">ATTRS</a> property for each class 
      * in the hierarchy will be initialized by Base.
      * </p>
      *
      * <p>
-     * The static <a href="#property_Base.NAME">NAME</a> property of each class extending 
+     * The static <a href="#property_NAME">NAME</a> property of each class extending 
      * from Base will be used as the identifier for the class, and is used by Base to prefix 
      * all events fired by instances of that class.
      * </p>
@@ -349,4 +349,4 @@ YUI.add('base-base', function(Y) {
     Y.Base = Base;
 
 
-}, '3.5.1' ,{requires:['base-core', 'attribute-base']});
+}, '3.6.0' ,{requires:['base-core', 'attribute-base']});
