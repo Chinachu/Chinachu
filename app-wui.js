@@ -1,175 +1,156 @@
 /*!
- * chinachu-monitor
+ *  Chinachu WebUI Server Service (chinachu-wui)
+ *
+ *  Copyright (c) 2012 Yuki KAN and Chinachu Project Contributors
+ *  http://akkar.in/projects/chinachu/
 **/
 
-var CONFIG_FILE    = __dirname + '/config.json';
-var RULES_FILE     = __dirname + '/rules.json';
-var RESERVES_FILE  = __dirname + '/reserves.json';
+var CONFIG_FILE         = __dirname + '/config.json';
+var RULES_FILE          = __dirname + '/rules.json';
+var RESERVES_DATA_FILE  = __dirname + '/data/reserves.json';
+var SCHEDULE_DATA_FILE  = __dirname + '/data/schedule.json';
+var RECORDING_DATA_FILE = __dirname + '/data/recording.json';
+var RECORDED_DATA_FILE  = __dirname + '/data/recorded.json';
 
-// load modules
+// 標準モジュールのロード
+var path          = require('path');
+var fs            = require('fs');
+var util          = require('util');
+var child_process = require('child_process');
+
+// ディレクトリチェック
+if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
+	util.error('必要なディレクトリが存在しないか、カレントワーキングディレクトリが不正です。');
+	process.exit(1);
+}
+
+// 追加モジュールのロード
 var auth     = require('http-auth');
-var util     = require('util');
-var exec     = require('child_process').exec;
-var fs       = require('fs');
-var path     = require('path');
 var socketio = require('socket.io');
 
-// configuration
+// 設定の読み込み
 var config = JSON.parse( fs.readFileSync(CONFIG_FILE, 'ascii') );
 
-config.scheduleData = (config.scheduleData.match('{full}') === null) ? __dirname + config.scheduleData : config.scheduleData.replace('{full}', '');
-config.recordingLog = (config.recordingLog.match('{full}') === null) ? __dirname + config.recordingLog : config.recordingLog.replace('{full}', '');
-config.schedulerLog = (config.schedulerLog.match('{full}') === null) ? __dirname + config.schedulerLog : config.schedulerLog.replace('{full}', '');
-
-config.webDir = __dirname + '/web';
-
 // https or http
-if (config.wuiTlsKey && config.wuiTlsCert) {
+if (config.wuiTlsKeyPath && config.wuiTlsCertPath) {
 	var https = require('https');
 	
-	config.wuiTlsKey  = (config.wuiTlsKey.match('{full}') === null) ? __dirname + config.wuiTlsKey : config.wuiTlsKey.replace('{full}', '');
-	config.wuiTlsCert = (config.wuiTlsCert.match('{full}') === null) ? __dirname + config.wuiTlsCert : config.wuiTlsCert.replace('{full}', '');
-	
 	var tlsOption = {
-		key : fs.readFileSync(config.wuiTlsKey),
-		cert: fs.readFileSync(config.wuiTlsCert)
+		key : fs.readFileSync(config.wuiTlsKeyPath),
+		cert: fs.readFileSync(config.wuiTlsCertPath)
 	};
 } else {
 	var http = require('http');
 }
 
-// watch
+// ファイル更新監視: ./data/rules.json
+if (!fs.existsSync(RULES_FILE)) fs.writeFileSync(RULES_FILE, '[]');
 var rules = JSON.parse( fs.readFileSync(RULES_FILE, 'ascii') );
 var rulesTimer;
-fs.watch(RULES_FILE, function _watchRules() {
+function rulesOnUpdated() {
 	clearTimeout(rulesTimer);
 	rulesTimer = setTimeout(function() {
-		log(['UPDATED', RULES_FILE]);
+		util.log('UPDATED: ' + RULES_FILE);
 		
 		rules = JSON.parse( fs.readFileSync(RULES_FILE, 'ascii') );
-		
 		io.sockets.emit('rules', rules);
-	}, 100);
-});
+	}, 500);
+}
+fs.watch(RULES_FILE, rulesOnUpdated);
 
-var schedule = JSON.parse( fs.readFileSync(config.scheduleData, 'ascii') );
+// ファイル更新監視: ./data/schedule.json
+if (!fs.existsSync(SCHEDULE_DATA_FILE)) fs.writeFileSync(SCHEDULE_DATA_FILE, '[]');
+var schedule = JSON.parse( fs.readFileSync(SCHEDULE_DATA_FILE, 'ascii') );
 var scheduleTimer;
-fs.watch(config.scheduleData, function _watchSchedule() {
+function scheduleOnUpdated() {
 	clearTimeout(scheduleTimer);
 	scheduleTimer = setTimeout(function() {
-		log(['UPDATED', config.scheduleData]);
+		util.log('UPDATED: ' + SCHEDULE_DATA_FILE);
 		
-		schedule = JSON.parse( fs.readFileSync(config.scheduleData, 'ascii') );
-		
+		schedule = JSON.parse( fs.readFileSync(SCHEDULE_DATA_FILE, 'ascii') );
 		io.sockets.emit('schedule', schedule);
-	}, 100);
-});
+	}, 500);
+}
+fs.watch(SCHEDULE_DATA_FILE, scheduleOnUpdated);
 
-// auth
-var basic = auth({
-	authRealm: 'Hello Chinachu.',
-	authList : config.wuiUsers
-});
+// ファイル更新監視: ./data/reserves.json
+if (!fs.existsSync(RESERVES_DATA_FILE)) fs.writeFileSync(RESERVES_DATA_FILE, '[]');
+var reserves = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE, 'ascii') );
+var reservesTimer;
+function reservesOnUpdated() {
+	clearTimeout(reservesTimer);
+	reservesTimer = setTimeout(function() {
+		util.log('UPDATED: ' + RESERVES_DATA_FILE);
+		
+		reserves = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE, 'ascii') );
+		io.sockets.emit('reserves', reserves);
+	}, 500);
+}
+fs.watch(RESERVES_DATA_FILE, reservesOnUpdated);
+
+// ファイル更新監視: ./data/recording.json
+if (!fs.existsSync(RECORDING_DATA_FILE)) fs.writeFileSync(RECORDING_DATA_FILE, '[]');
+var recording = JSON.parse( fs.readFileSync(RECORDING_DATA_FILE, 'ascii') );
+var recordingTimer;
+function recordingOnUpdated() {
+	clearTimeout(recordingTimer);
+	recordingTimer = setTimeout(function() {
+		util.log('UPDATED: ' + RECORDING_DATA_FILE);
+		
+		recording = JSON.parse( fs.readFileSync(RECORDING_DATA_FILE, 'ascii') );
+		io.sockets.emit('recording', recording);
+	}, 500);
+}
+fs.watch(RECORDING_DATA_FILE, recordingOnUpdated);
+
+// ファイル更新監視: ./data/recorded.json
+if (!fs.existsSync(RECORDED_DATA_FILE)) fs.writeFileSync(RECORDED_DATA_FILE, '[]');
+var recorded = JSON.parse( fs.readFileSync(RECORDED_DATA_FILE, 'ascii') );
+var recordedTimer;
+function recordedOnUpdated() {
+	clearTimeout(recordedTimer);
+	recordedTimer = setTimeout(function() {
+		util.log('UPDATED: ' + RECORDED_DATA_FILE);
+		
+		recorded = JSON.parse( fs.readFileSync(RECORDED_DATA_FILE, 'ascii') );
+		io.sockets.emit('recorded', recorded);
+	}, 500);
+}
+fs.watch(RECORDED_DATA_FILE, recordedOnUpdated);
+
+// BASIC認証
+if (config.wuiUsers && (config.wuiUsers.length > 0)) {
+	var basic = auth({
+		authRealm: 'Authentication.',
+		authList : config.wuiUsers
+	});
+}
 
 var status = {
 	connectedCount: 0,
-	isRecording   : false,
-	recording     : {
-		process: '',
-		program: {}
+	feature: {
+		previewer   : !!config.wuiPreviewer,
+		streamer    : !!config.wuiStreamer,
+		filer       : !!config.wuiFiler,
+		configurator: !!config.wuiConfigurator
 	}
 };
-
-function log(messages) {
-	util.puts( new Date().getTime() + ' ' + messages.join(' ') );
-}
-
-// watch recording process
-(function _watchRecording() {
-	// process
-	exec('ps cx | grep ' + config.recordProgram, function _exec(err, stdout, stderr) {
-		status.recording.process = stdout.trim() || '';
-		
-		if (status.recording.process.match(config.recordProgram) === null) {
-			status.isRecording = false;
-		} else {
-			status.isRecording = true;
-		}
-	});
-	
-	//schedule
-	status.recording.program = {};
-	
-	if (status.isRecording) {
-		status.isRecording = false;
-		
-		var cDateTime = new Date().getTime();
-		schedule.forEach(function(ch) {
-			ch.programs.forEach(function(p) {
-				if (!p.isReserved) return;
-				if (p.start > cDateTime) return;
-				if (p.end   < cDateTime) return;
-				
-				status.isRecording       = true;
-				status.recording.program = p;
-			});
-		});
-	}
-	
-	if (
-		(status._isRecording !== status.isRecording) ||
-		(status.recording.program && (status._lastRecordTime !== status.recording.program.start))
-	) {
-		status._isRecording    = status.isRecording;
-		status._lastRecordTime = status.recording.program.start;
-		
-		if (io) io.sockets.emit('status', status);
-	}
-	
-	setTimeout(arguments.callee, 1000 * 3);// 3 seconds
-})();
-
-(function _snapshotRecording() {
-	if (status.isRecording) {
-		var recfile = status.recording.program.filepath || null;
-		
-		var tmptail = '/tmp/chinachu-monitor_recording-snapshot.m2ts';
-		var tmpimg  = '/tmp/chinachu-monitor_recording-snapshot.png';
-		
-		if (path.existsSync(recfile) === true) {
-			exec('tail -c 3200000 "' + recfile + '" > ' + tmptail, function() {
-				exec('timeout -s KILL 5 ffmpeg -i "' + tmptail + '" -ss 1.3 -vframes 1 -f image2 -vcodec png -s 210x118 -map 0.0 -y "' + tmpimg + '" > /dev/null 2>&1', function() {
-					
-					io.sockets.emit('snapshot', 'data:image/png;base64,' + new Buffer( fs.readFileSync(tmpimg) ).toString('base64'));
-					
-				});
-			});
-			
-			setTimeout(arguments.callee, 1000 * 5);// 5 seconds
-		} else {
-			setTimeout(arguments.callee, 1000 * 3);// 3 seconds
-		}
-	} else {
-		setTimeout(arguments.callee, 1000 * 3);// 3 seconds
-	}
-})();
 
 //
 // http server
 //
-if (http)  var app = http.createServer(httpServer);
-if (https) var app = https.createServer(tlsOption, httpServer);
+if (http)  { var app = http.createServer(httpServer); }
+if (https) { var app = https.createServer(tlsOption, httpServer); }
 app.listen(config.wuiPort, (config.wuiIpv6 !== null) ? config.wuiIpv6 : null);
 
 function httpServer(req, res) {
 	// http request logging
 	var log = function(statusCode) {
-		util.puts([
-			/*dateTime  */ new Date().getTime(),
-			/*remoteAddr*/ req.headers['x-forwarded-for'] || req.client.remoteAddress,
-			/*method+url*/ '"' + req.method + ' ' + req.url + '"',
+		util.log([
 			/*statusCode*/ statusCode,
-			/*referer   */ req.headers.referer || '-',
+			/*method+url*/ req.method + ':' + req.url,
+			/*remoteAddr*/ req.headers['x-forwarded-for'] || req.client.remoteAddress,
+			/*referer   */ /* req.headers.referer || '-', */
 			/*userAgent */ req.headers['user-agent'].split(' ').pop() || '-'
 		].join(' '));
 	};
@@ -177,57 +158,151 @@ function httpServer(req, res) {
 	// serve static file
 	if (req.url.match(/\/$/) !== null) req.url += 'index.html';
 	if (req.url.match(/(\?.*)$/) !== null) req.url = req.url.match(/^(.+)\?.*$/)[1];
-	var filename = path.join(config.webDir, req.url);
+	var filename = path.join('./web/', req.url);
 	
-	if (path.existsSync(filename) === false) {
+	var ext= filename.split('.').pop();
+	
+	function err400() {
+		res.writeHead(400, {'Content-Type': 'text/plain'});
+		res.write('400 Bad Request\n');
+		res.end();
+		log(400);
+	}
+	
+	function err404() {
 		res.writeHead(404, {'Content-Type': 'text/plain'});
 		res.write('404 Not Found\n');
 		res.end();
 		log(404);
-		return;
 	}
 	
-	var ext    = filename.split('.').pop();
+	function err500() {
+		res.writeHead(500, {'Content-Type': 'text/plain'});
+		res.write('500 Internal Server Error\n');
+		res.end();
+		log(500);
+	}
 	
-	function response() {
+	function responseStatic() {
 		fs.readFile(filename, function(err, data) {
 			if (err) {
-				res.writeHead(500, {'Content-Type': 'text/plain'});
-				res.write(err + '\n');
-				res.end();
-				log(500);
+				err500();
 				return;
 			}
 			
-			var status = 200;
-			var type   = 'text/plain';
+			var statusCode = 200;
+			var type       = 'text/plain';
 			
-			if (ext === 'html') type = 'text/html';
-			if (ext === 'js')   type = 'text/javascript';
-			if (ext === 'css')  type = 'text/css';
-			if (ext === 'ico')  type = 'image/vnd.microsoft.icon';
-			if (ext === 'cur')  type = 'image/vnd.microsoft.icon';
-			if (ext === 'png')  type = 'image/png';
-			if (ext === 'gif')  type = 'image/gif';
-			if (ext === 'xspf') type = 'application/xspf+xml';
+			if (ext === 'html') { type = 'text/html'; }
+			if (ext === 'js')   { type = 'text/javascript'; }
+			if (ext === 'css')  { type = 'text/css'; }
+			if (ext === 'ico')  { type = 'image/vnd.microsoft.icon'; }
+			if (ext === 'cur')  { type = 'image/vnd.microsoft.icon'; }
+			if (ext === 'png')  { type = 'image/png'; }
+			if (ext === 'gif')  { type = 'image/gif'; }
+			if (ext === 'xspf') { type = 'application/xspf+xml'; }
 			
-			res.writeHead(status, {
+			res.writeHead(statusCode, {
 				'Content-Type': type,
-				'Server'      : 'chinachu-monitor'
+				'Server'      : 'chinachu-wui'
 			});
 			res.write(data, 'binary');
 			res.end();
-			log(status);
+			log(statusCode);
 			return;
 		});
 	}
 	
+	function responseApi() {
+		var map = req.url.replace('/api/', '').split('/');
+		
+		var statusCode = 200;
+		var type       = 'text/plain';
+		
+		if (ext === 'png')  { type = 'image/png'; }
+		if (ext === 'gif')  { type = 'image/gif'; }
+		if (ext === 'json') { type = 'application/json'; }
+		
+		switch (map[0]) {
+			case 'recording':
+				if (map.length === 3) {
+					var program = (function() {
+						var x = null;
+						
+						recording.forEach(function(a) {
+							if (a.id === map[1]) { x = a; }
+						});
+						
+						return x;
+					})();
+					
+					if (program === null) {
+						err404();
+						return;
+					}
+					
+					switch (map[2]) {
+						case 'preview':
+							if ((!status.feature.previewer) || (program.tuner && program.tuner.isScrambling)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {'Content-Type': type});
+							
+							var ffmpeg = child_process.exec(
+								'tail -c 3200000 "' + program.recorded + '" | ' +
+								'ffmpeg -i pipe:0 -ss 1.3 -vframes 1 -f image2 -vcodec png -s 320x180 -map 0.0 -y pipe:1'
+							, {
+								encoding: 'binary',
+								maxBuffer: 3200000
+							},
+							function(err, stdout, stderr) {
+								res.write('data:image/png;base64,' + new Buffer(stdout, 'binary').toString('base64'));
+								res.end();
+								log(statusCode);
+								clearTimeout(timeout);
+							});
+							
+							var timeout = setTimeout(function() {
+								ffmpeg.kill('SIGKILL');
+							}, 3000);
+							
+							return;
+						default:
+							err404();
+							return;
+					}
+				} else {
+					err400();
+					return;
+				}
+				break;
+			default:
+				err404();
+				return;
+		}
+	}
 	
-	
-	if (ext === 'png') {
-		response();
+	if (req.url.match(/^\/api\/.+$/) === null) {
+		if (fs.existsSync(filename) === false) {
+			err404();
+			return;
+		}
+		
+		if ((req.url === '/apple-touch-icon.png') || (req.url === '/apple-touch-startup-image-iphone4.png')) {
+			responseStatic();
+		} else if (basic) {
+			basic.apply(req, res, responseStatic);
+		} else {
+			responseStatic();
+		}
 	} else {
-		basic.apply(req, res, response);
+		if (basic) {
+			basic.apply(req, res, responseApi);
+		} else {
+			responseApi();
+		}
 	}
 }
 
@@ -251,76 +326,9 @@ function ioServer(socket) {
 	// broadcast
 	io.sockets.emit('status', status);
 	
-	// schedule
-	socket.emit('schedule', schedule);
-	
-	// rules
 	socket.emit('rules', rules);
-	
-	// (req) manual-reserve-request
-	socket.on('manual-reserve-request', function(req) {
-		var res = {};
-		
-		if (req.ctrlKey !== config.wuiControlKey) {
-			res.isAuthFailure = true;
-		} else {
-			res.isSuccess = true;
-			
-			var reserves = JSON.parse( fs.readFileSync(RESERVES_FILE, 'ascii') || '[]' );
-			
-			reserves.push({
-				channel: req.channel,
-				start  : req.start
-			});
-			
-			fs.writeFileSync( RESERVES_FILE, JSON.stringify(reserves) );
-		}
-		
-		socket.emit('manual-reserve-result', res);
-	});
-	
-	// (req) manual-reserve-cancel-request
-	socket.on('manual-reserve-cancel-request', function(req) {
-		var res = {};
-		
-		if (req.ctrlKey !== config.wuiControlKey) {
-			res.isAuthFailure = true;
-		} else {
-			res.isSuccess = true;
-			
-			var reserves = JSON.parse( fs.readFileSync(RESERVES_FILE, 'ascii') || '[]' );
-			
-			var array = [];
-			
-			reserves.forEach(function(reserve) {
-				if ((req.channel === reserve.channel) && (req.start === reserve.start)) return;
-				
-				array.push(reserve);
-			});
-			
-			fs.writeFileSync( RESERVES_FILE, JSON.stringify(array) );
-		}
-		
-		socket.emit('manual-reserve-cancel-result', res);
-	});
-	
-	// (req) execute-scheduler-request
-	socket.on('execute-scheduler-request', function(req) {
-		if (req.ctrlKey !== config.wuiControlKey) {
-			socket.emit('execute-scheduler-result', { isAuthFailure: true });
-			return;
-		}
-		
-		exec([
-			config.nodejsPath,
-			__dirname + '/app-scheduler.js',
-			'>',
-			config.schedulerLog
-		].join(' '), function() {
-			socket.emit('execute-scheduler-result', {
-				isSuccess: true,
-				result   : fs.readFileSync( config.schedulerLog, 'ascii' )
-			});
-		});
-	});
+	socket.emit('reserves', reserves);
+	socket.emit('schedule', schedule);
+	socket.emit('recording', recording);
+	socket.emit('recorded', recorded);
 }
