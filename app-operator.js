@@ -54,6 +54,7 @@ var offsetStart = config.operRecOffsetStart || 1000 * 5;
 var offsetEnd   = config.operRecOffsetEnd   || -(1000 * 8);
 
 var clock     = new Date().getTime();
+var next      = 0;
 var recording = [];
 var scheduler = null;
 var scheduled = 0;
@@ -62,14 +63,16 @@ var mainInterval = setInterval(main, 5000);
 function main() {
 	clock = new Date().getTime();
 	
-	if (reserves.length === 0) { return; }
-	
-	reserves.forEach(reservesChecker);
+	if (reserves.length !== 0) {
+		reserves.forEach(reservesChecker);
+	} else {
+		next = 0;
+	}
 	
 	if (
 		(scheduler === null) &&
 		(clock - scheduled > schedulerIntervalTime) &&
-		(reserves[0].start - clock > schedulerProcessTime)
+		((next === 0) || (next - clock > schedulerProcessTime))
 	) {
 		startScheduler();
 		scheduled = clock;
@@ -77,9 +80,12 @@ function main() {
 }
 
 // 予約時間チェック
-function reservesChecker(program) {
+function reservesChecker(program, i) {
 	// 予約時間超過
-	if (clock > program.end) { return; }
+	if (clock > program.end) {
+		next = 0;
+		return;
+	}
 	
 	// 予約準備時間内
 	if (program.start - clock <= prepTime) {
@@ -89,6 +95,11 @@ function reservesChecker(program) {
 		) {
 			prepRecord(program);
 		}
+	}
+	
+	// 次の開始時間
+	if (next === 0) {
+		next = program.start;
 	}
 }
 
