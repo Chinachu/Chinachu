@@ -29,9 +29,9 @@
 	<script type="text/javascript" src="./lib/hypernotifier.js"></script>
 	<link rel="stylesheet" type="text/css" href="./lib/hypernotifier.css">
 	
-	<link rel="shortcut icon" href="/favicon.ico" type="image/vnd.microsoft.icon">
-	<link rel="stylesheet" type="text/css" href="./miraclun.css">
-	<script type="text/javascript" src="./miraclun.js"></script>
+	<link id="favicon" rel="shortcut icon" href="./favicon.ico" type="image/vnd.microsoft.icon">
+	<link rel="stylesheet" type="text/css" href="./chinachu.css">
+	<script type="text/javascript" src="./chinachu.js"></script>
 </head>
 <body>
 	<!-- loading
@@ -42,11 +42,12 @@
 	================================================== -->
 	<header>
 		<div><ul class="left">
-				<li><a href="#/overview">概要</a></li>
-				<li><a href="#/program-schedule">番組表</a></li>
-				<li><a href="#/reserved-list">予約済<span>45</span></a></li>
-				<li><a href="#/rule-list">ルール<span>2</span></a></li>
-				<li><a href="#/recorded-list">録画済<span>0</span></a></li>
+				<li><a href="#/dashboard">ダッシュボード</a></li>
+				<li><a href="#/schedule">番組表</a></li>
+				<li><a href="#/rules">ルール<span id="rules-count">0</span></a></li>
+				<li><a href="#/reserves">予約済<span id="reserves-count">0</span></a></li>
+				<li><a href="#/recording">録画中<span id="recording-count">0</span></a></li>
+				<li><a href="#/recorded">録画済<span id="recorded-count">0</span></a></li>
 			</ul>
 			
 			<ul class="right">
@@ -65,7 +66,7 @@
 		<div>
 			<p class="right"><a href="http://akkar.in/projects/chinachu/">Chinachu/beta</a></p>
 			<p id="footer-status"></p>
-		</div><!-- /div.container -->
-	</footer>
+		</div><!-- /div -->
+	</footer><!-- /footer -->
 </body>
 </html>
