@@ -32,7 +32,7 @@ YUI().use('get', 'node-load', 'router', function _initYUI(Y) {
 					
 					if (path === '/') { path = '/dashboard'; }
 					
-					Event.fire(document.body, 'chinachu:reload');
+					document.fire('chinachu:reload');
 					
 					Y.Node.one('section#content').load('./page' + path + '.html', function() {
 						Y.Get.js('./page' + path + '.js', function(err) {
@@ -75,14 +75,14 @@ Event.observe(window, 'load', function _init() {
 
 function socketOnConnect() {
 	$('loading').hide();
-	Event.fire(document.body, 'chinachu:connect');
+	document.fire('chinachu:connect');
 	
 	app.notify.create({ title: 'Chinachu', message: '接続されました' });
 }
 
 function socketOnDisconnect() {
 	$('loading').show();
-	Event.fire(document.body, 'chinachu:disconnect');
+	document.fire('chinachu:disconnect');
 	
 	$('footer-status').update('<span class="color-red">切断</span>');
 	app.notify.create({ title: 'Chinachu', message: '切断されました' });
@@ -90,33 +90,33 @@ function socketOnDisconnect() {
 
 function socketOnStatus(data) {
 	app.chinachu.status = data;
-	Event.fire(document.body, 'chinachu:status');
+	document.fire('chinachu:status');
 	
 	$('footer-status').update('<span class="color-green">接続済</span>(' + data.connectedCount + ')');
 }
 
 function socketOnRules(data) {
 	app.chinachu.rules = data;
-	Event.fire(document.body, 'chinachu:rules');
+	document.fire('chinachu:rules');
 	
 	$('rules-count').update(data.length.toString(10));
 }
 
 function socketOnReserves(data) {
 	app.chinachu.reserves = data;
-	Event.fire(document.body, 'chinachu:reserves');
+	document.fire('chinachu:reserves');
 	
 	$('reserves-count').update(data.length.toString(10));
 }
 
 function socketOnSchedule(data) {
 	app.chinachu.schedule = data;
-	Event.fire(document.body, 'chinachu:schedule');
+	document.fire('chinachu:schedule');
 }
 
 function socketOnRecording(data) {
 	app.chinachu.recording = data;
-	Event.fire(document.body, 'chinachu:recording');
+	document.fire('chinachu:recording');
 	
 	$('recording-count').update(data.length.toString(10));
 	
@@ -129,7 +129,7 @@ function socketOnRecording(data) {
 
 function socketOnRecorded(data) {
 	app.chinachu.recorded = data;
-	Event.fire(document.body, 'chinachu:recorded');
+	document.fire('chinachu:recorded');
 	
 	$('recorded-count').update(data.length.toString(10));
 }
