@@ -46,6 +46,9 @@ fs.watch(RESERVES_DATA_FILE, reservesOnUpdated);
 if (!fs.existsSync(RECORDED_DATA_FILE)) fs.writeFileSync(RECORDED_DATA_FILE, '[]');
 var recorded = JSON.parse( fs.readFileSync(RECORDED_DATA_FILE, 'ascii') );
 
+// 録画中リストをクリア
+fs.writeFileSync(RECORDING_DATA_FILE, '[]');
+
 //
 var schedulerProcessTime  = config.operSchedulerProcessTime  || 1000 * 60 * 30;
 var schedulerIntervalTime = config.operSchedulerIntervalTime || 1000 * 60 * 60 * 2;
