@@ -273,119 +273,124 @@ function getEpg() {
 					return;
 				}
 				
-				// epgdumpのXMLをパース
-				xmlParser.parseString(stdout, function(err, result) {
-					if (result === null) {
-						util.log('EPG: パースに失敗 (result=null)');
-						retry();
-						return;
-					}
-					
-					switch (channel.type) {
-						case 'GR':
-							result.channel.forEach(function(a) {
-								var ch = {
-									type   : channel.type,
-									channel: channel.channel,
-									name   : a['display-name']['#'],
-									id     : a['@'].id,
-									sid    : a['service_id']
-								};
-								
-								ch.programs = convertPrograms(result.programme, JSON.parse(JSON.stringify(ch)));
-								
-								schedule.push(ch);
-								
-								util.log(
-									'CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' +
-									ch.id + ' (sid=' + ch.sid + ') ' +
-									'(programs=' + ch.programs.length.toString(10) + ')' +
-									' - ' + ch.name
-								);
-							});
-							break;
-						case 'BS':
-							result.channel.forEach(function(a) {
-								var isFound = false;
-								
-								for (var j = 0; channels.length > j; j++) {
-									if (
-										(channels[j].type === 'BS') &&
-										(channels[j].channel === a['service_id'])
-									) {
-										isFound = true;
-										break;
-									} else {
-										continue;
+				try {
+					// epgdumpのXMLをパース
+					xmlParser.parseString(stdout, function(err, result) {
+						if (result === null) {
+							util.log('EPG: パースに失敗 (result=null)');
+							retry();
+							return;
+						}
+						
+						switch (channel.type) {
+							case 'GR':
+								result.channel.forEach(function(a) {
+									var ch = {
+										type   : channel.type,
+										channel: channel.channel,
+										name   : a['display-name']['#'],
+										id     : a['@'].id,
+										sid    : a['service_id']
+									};
+									
+									ch.programs = convertPrograms(result.programme, JSON.parse(JSON.stringify(ch)));
+									
+									schedule.push(ch);
+									
+									util.log(
+										'CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' +
+										ch.id + ' (sid=' + ch.sid + ') ' +
+										'(programs=' + ch.programs.length.toString(10) + ')' +
+										' - ' + ch.name
+									);
+								});
+								break;
+							case 'BS':
+								result.channel.forEach(function(a) {
+									var isFound = false;
+									
+									for (var j = 0; channels.length > j; j++) {
+										if (
+											(channels[j].type === 'BS') &&
+											(channels[j].channel === a['service_id'])
+										) {
+											isFound = true;
+											break;
+										} else {
+											continue;
+										}
 									}
-								}
-								
-								if (isFound === false) { return; }
-								
-								var ch = {
-									type   : channel.type,
-									channel: a['service_id'],
-									name   : a['display-name']['#'],
-									id     : a['@'].id,
-									sid    : a['service_id']
-								};
-								
-								ch.programs = convertPrograms(result.programme, JSON.parse(JSON.stringify(ch)));
-								
-								schedule.push(ch);
-								
-								util.log(
-									'CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' +
-									ch.id + ' (sid=' + ch.sid + ') ' +
-									'(programs=' + ch.programs.length.toString(10) + ')' +
-									' - ' + ch.name
-								);
-							});
-							break;
-						case 'CS':
-							result.channel.forEach(function(a) {
-								var isFound = false;
-								
-								for (var j = 0; channels.length > j; j++) {
-									if (
-										(channels[j].type === 'CS') &&
-										(channels[j].sid === a['service_id'])
-									) {
-										isFound = true;
-										break;
-									} else {
-										continue;
+									
+									if (isFound === false) { return; }
+									
+									var ch = {
+										type   : channel.type,
+										channel: a['service_id'],
+										name   : a['display-name']['#'],
+										id     : a['@'].id,
+										sid    : a['service_id']
+									};
+									
+									ch.programs = convertPrograms(result.programme, JSON.parse(JSON.stringify(ch)));
+									
+									schedule.push(ch);
+									
+									util.log(
+										'CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' +
+										ch.id + ' (sid=' + ch.sid + ') ' +
+										'(programs=' + ch.programs.length.toString(10) + ')' +
+										' - ' + ch.name
+									);
+								});
+								break;
+							case 'CS':
+								result.channel.forEach(function(a) {
+									var isFound = false;
+									
+									for (var j = 0; channels.length > j; j++) {
+										if (
+											(channels[j].type === 'CS') &&
+											(channels[j].sid === a['service_id'])
+										) {
+											isFound = true;
+											break;
+										} else {
+											continue;
+										}
 									}
-								}
-								
-								if (isFound === false) { return; }
-								
-								var ch = {
-									type   : channel.type,
-									channel: channels[j].channel,
-									name   : a['display-name']['#'],
-									id     : a['@'].id,
-									sid    : a['service_id']
-								};
-								
-								ch.programs = convertPrograms(result.programme, JSON.parse(JSON.stringify(ch)));
-								
-								schedule.push(ch);
-								
-								util.log(
-									'CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' +
-									ch.id + ' (sid=' + ch.sid + ') ' +
-									'(programs=' + ch.programs.length.toString(10) + ')' +
-									' - ' + ch.name
-								);
-							});
-							break;
-						default:
-							// todo
-					}//<-- switch
-					
-					turn();
-				});
+									
+									if (isFound === false) { return; }
+									
+									var ch = {
+										type   : channel.type,
+										channel: channels[j].channel,
+										name   : a['display-name']['#'],
+										id     : a['@'].id,
+										sid    : a['service_id']
+									};
+									
+									ch.programs = convertPrograms(result.programme, JSON.parse(JSON.stringify(ch)));
+									
+									schedule.push(ch);
+									
+									util.log(
+										'CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' +
+										ch.id + ' (sid=' + ch.sid + ') ' +
+										'(programs=' + ch.programs.length.toString(10) + ')' +
+										' - ' + ch.name
+									);
+								});
+								break;
+							default:
+								// todo
+						}//<-- switch
+						
+						turn();
+					});
+				} catch (e) {
+					util.log('EPG: エラー (' + e + ')');
+					retry();
+				}
 			});
 			util.log('EXEC: ' + config.epgdumpPath + ' (pid=' + epgdumpProc.pid + ')');
 		});//<-- recProc.on(exit, ...)
