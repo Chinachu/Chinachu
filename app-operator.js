@@ -286,6 +286,7 @@ function doRecord(program) {
 		util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n.toString(10) + ')');
 		
 		// 状態を更新
+		delete program.pid;
 		recorded.push(program);
 		recording.splice(recording.indexOf(program), 1);
 		fs.writeFileSync(RECORDED_DATA_FILE, JSON.stringify(recorded));

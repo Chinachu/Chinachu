@@ -11,12 +11,17 @@ var RESERVES_DATA_FILE  = __dirname + '/data/reserves.json';
 var SCHEDULE_DATA_FILE  = __dirname + '/data/schedule.json';
 var RECORDING_DATA_FILE = __dirname + '/data/recording.json';
 var RECORDED_DATA_FILE  = __dirname + '/data/recorded.json';
+var OPERATOR_LOG_FILE   = __dirname + '/log/operator';
+var WUI_LOG_FILE        = __dirname + '/log/wui';
+var SCHEDULER_LOG_FILE  = __dirname + '/log/scheduler';
+
 
 // 標準モジュールのロード
 var path          = require('path');
 var fs            = require('fs');
 var util          = require('util');
 var child_process = require('child_process');
+var url           = require('url');
 
 // ディレクトリチェック
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
@@ -52,8 +57,12 @@ function rulesOnUpdated() {
 	rulesTimer = setTimeout(function() {
 		util.log('UPDATED: ' + RULES_FILE);
 		
-		rules = JSON.parse( fs.readFileSync(RULES_FILE, 'ascii') );
-		io.sockets.emit('rules', rules);
+		try {
+			rules = JSON.parse( fs.readFileSync(RULES_FILE, 'ascii') );
+			io.sockets.emit('rules', rules);
+		} catch (e) {
+			util.log('WARNING: RULES_FILE が不正です');
+		}
 	}, 500);
 }
 fs.watch(RULES_FILE, rulesOnUpdated);
@@ -133,8 +142,15 @@ var status = {
 		streamer    : !!config.wuiStreamer,
 		filer       : !!config.wuiFiler,
 		configurator: !!config.wuiConfigurator
+	},
+	system: {
+		core: 1
 	}
 };
+
+child_process.exec('cat /proc/cpuinfo | grep "core id" | sort -i | uniq | wc -l', function(err, stdout) {
+	status.system.core = parseInt(stdout.trim(), 10);
+});
 
 //
 // http server
@@ -156,11 +172,18 @@ function httpServer(req, res) {
 	};
 	
 	// serve static file
-	if (req.url.match(/\/$/) !== null) req.url += 'index.html';
-	if (req.url.match(/(\?.*)$/) !== null) req.url = req.url.match(/^(.+)\?.*$/)[1];
-	var filename = path.join('./web/', req.url);
+	var location = req.url;
+	if (location.match(/\/$/) !== null)     { location += 'index.html'; }
+	if (location.match(/(\?.*)$/) !== null) { location = location.match(/^(.+)\?.*$/)[1]; }
 	
-	var ext= filename.split('.').pop();
+	var query = url.parse(req.url, true).query;
+	
+	var filename = path.join('./web/', location);
+	
+	var ext = null;
+	if (filename.match(/[^\/]+\..+$/) !== null) {
+		ext = filename.split('.').pop();
+	}
 	
 	function err400() {
 		res.writeHead(400, {'Content-Type': 'text/plain'});
@@ -214,16 +237,68 @@ function httpServer(req, res) {
 	}
 	
 	function responseApi() {
-		var map = req.url.replace('/api/', '').split('/');
+		var map = location.replace('/api/', '').split('/');
 		
 		var statusCode = 200;
 		var type       = 'text/plain';
 		
 		if (ext === 'png')  { type = 'image/png'; }
 		if (ext === 'gif')  { type = 'image/gif'; }
+		if (ext === 'jpg')  { type = 'image/jpeg'; }
+		if (ext === 'f4v')  { type = 'video/mp4'; }
+		if (ext === 'flv')  { type = 'video/x-flv'; }
+		if (ext === 'm2ts') { type = 'video/MP2T'; }
+		if (ext === 'm3u8') { type = 'video/x-mpegURL'; }
 		if (ext === 'json') { type = 'application/json'; }
 		
 		switch (map[0]) {
+			case 'scheduler.json':
+				var result = {
+					time     : 0,
+					conflicts: [],
+					reserves : []
+				};
+				
+				switch (req.method) {
+					case 'GET':
+						if (!fs.existsSync(SCHEDULER_LOG_FILE)) {
+							err404();
+							return;
+						}
+						
+						result.time = fs.statSync(SCHEDULER_LOG_FILE).mtime.getTime();
+						
+						fs.readFileSync(SCHEDULER_LOG_FILE, 'ascii').split('\n').forEach(function(line) {
+							if ((line.match('CONFLICT:') !== null) || (line.match('RESERVE:') !== null)) {
+								var id = line.match(/(RESERVE|CONFLICT): ([a-z0-9-]+)/)[2];
+								var t  = line.match(/(RESERVE|CONFLICT): ([a-z0-9-]+)/)[1];
+								var f  = null;
+								
+								for (var i = 0; i < schedule.length; i++) {
+									for (var j = 0; j < schedule[i].programs.length; j++) {
+										if (schedule[i].programs[j].id === id) {
+											f = schedule[i].programs[j];
+											break;
+										}
+									}
+									if (f !== null) { break; }
+								}
+								
+								if (t === 'CONFLICT') {
+									result.conflicts.push(f);
+								}
+								if (t === 'RESERVE') {
+									result.reserves.push(f);
+								}
+							}
+						});
+						
+						res.writeHead(statusCode, {'Content-Type': type});
+						res.write(JSON.stringify(result));
+						res.end();
+						log(statusCode);
+				}
+				return;//<--case 'scheduler.json'
 			case 'recording':
 				if (map.length === 3) {
 					var program = (function() {
@@ -243,41 +318,183 @@ function httpServer(req, res) {
 					
 					switch (map[2]) {
 						case 'preview':
-							if ((!status.feature.previewer) || (program.tuner && program.tuner.isScrambling)) {
+						case 'preview.png':
+						case 'preview.jpg':
+							if (!status.feature.previewer || !program.pid || (program.tuner && program.tuner.isScrambling)) {
 								err404();
 								return;
 							}
 							
 							res.writeHead(statusCode, {'Content-Type': type});
 							
+							var w = query.width  || '320';
+							var h = query.height || '180';
+							
+							var vcodec = ext || 'mjpeg';
+							if (ext === 'jpg') { vcodec = 'mjpeg'; }
+							
 							var ffmpeg = child_process.exec(
-								'tail -c 3200000 "' + program.recorded + '" | ' +
-								'ffmpeg -i pipe:0 -ss 1.3 -vframes 1 -f image2 -vcodec png -s 320x180 -map 0.0 -y pipe:1'
-							, {
-								encoding: 'binary',
-								maxBuffer: 3200000
-							},
-							function(err, stdout, stderr) {
-								res.write('data:image/png;base64,' + new Buffer(stdout, 'binary').toString('base64'));
-								res.end();
-								log(statusCode);
-								clearTimeout(timeout);
-							});
+								(
+									'tail -c 3200000 "' + program.recorded + '" | ' +
+									'ffmpeg -i pipe:0 -ss 1.3 -vframes 1 -f image2 -vcodec ' + vcodec +
+									' -s ' + w + 'x' + h + ' -map 0.0 -y pipe:1'
+								),
+								{
+									encoding: 'binary',
+									maxBuffer: 3200000
+								},
+								function(err, stdout, stderr) {
+									if (ext) {
+										res.write(stdout, 'binary');
+									} else {
+										res.write('data:image/jpeg;base64,' + new Buffer(stdout, 'binary').toString('base64'));
+									}
+									res.end();
+									log(statusCode);
+									clearTimeout(timeout);
+								}
+							);
 							
 							var timeout = setTimeout(function() {
 								ffmpeg.kill('SIGKILL');
 							}, 3000);
 							
 							return;
+						// HTTP Live Streaming (Experimental)
+						case 'watch.m3u8.txt'://for debug
+						case 'watch.m3u8':
+							if (!status.feature.streamer || !program.pid || (program.tuner && program.tuner.isScrambling)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {'Content-Type': type});
+							
+							var current  = (new Date().getTime() - program.start) / 1000;
+							var duration = parseInt(query.duration || 15, 10);
+							var vcodec   = query.vcodec   || 'libx264';
+							var acodec   = query.acodec   || 'libfaac';
+							var bitrate  = query.bitrate  || '1000k';
+							var ar       = query.ar       || '44100';
+							var ab       = query.ab       || '96k';
+							var size     = query.size     || '1024x576';
+							var rate     = query.rate     || '24';
+							
+							res.write('#EXTM3U\n');
+							res.write('#EXT-X-TARGETDURATION:' + duration + '\n');
+							res.write('#EXT-X-MEDIA-SEQUENCE:' + Math.floor(current / duration) + '\n');
+							
+							var target = query.prefix || '';
+							target += 'watch.m2ts?duration=' + duration + '&vcodec=' + vcodec + '&acodec=' + acodec;
+							target += '&bitrate=' + bitrate + '&size=' + size + '&ar=' + ar + '&ab=' + ab + '&rate=' + rate;
+							
+							for (var i = 0; i < current; i += duration) {
+								if (current - i > 50) { continue; }
+								res.write('#EXTINF:' + duration + ',\n');
+								res.write(target + '&start=' + i + '\n');
+							}
+							
+							res.end();
+							log(statusCode);
+							
+							return;
+						case 'watch.m2ts':
+						case 'watch.f4v':
+						case 'watch.flv':
+							if (!status.feature.streamer || !program.pid || (program.tuner && program.tuner.isScrambling)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {'Content-Type': type});
+							util.log('streamer: ' + program.recorded);
+							
+							var start    = query.start    || null;
+							var duration = query.duration || null;
+							var vcodec   = query.vcodec   || 'copy';
+							var acodec   = query.acodec   || 'copy';
+							var bitrate  = query.bitrate  || null;//r:3000k
+							var ar       = query.ar       || '44100';
+							var ab       = query.ab       || '128k';
+							var format   = query.format   || null;
+							var size     = query.size     || null;
+							var rate     = query.rate     || null;
+							
+							if (start && (start === 'live')) {
+								start = Math.round((new Date().getTime() - program.start) / 1000).toString(10);
+							}
+							
+							if (ext === 'm2ts') {
+								format = 'mpegts';
+								
+								if ((vcodec === 'copy') && size) { vcodec = 'mpeg2video'; }
+								
+								/*if (start && duration) {
+									start    = parseInt(start, 10) - 1;
+									duration = parseInt(duration, 10) + 1;
+								}*/
+							} else if (ext === 'f4v') {
+								format = 'flv';
+								
+								if (vcodec === 'copy') { vcodec = 'libx264'; }
+								if (acodec === 'copy') { acodec = 'libfaac'; }
+							} else if (ext === 'flv') {
+								format = 'flv';
+								
+								if (vcodec === 'copy') { vcodec = 'flv'; }
+								if (acodec === 'copy') { acodec = 'libmp3lame'; }
+							}
+							
+							var args = [];
+							
+							args.push('-v', '0');
+							args.push('-threads', status.system.core.toString(10));
+							
+							if (start)    { args.push('-ss', start); }
+							if (duration) { args.push('-t', duration); }
+							
+							args.push(/*'-re', */'-i', program.recorded);
+							args.push('-vcodec', vcodec, '-acodec', acodec);
+							args.push('-map', '0.0', '-map', '0.1');
+							
+							if (size)                 { args.push('-s', size); }
+							if (rate)                 { args.push('-r', rate); }
+							if (bitrate)              { args.push('-b', bitrate); }
+							if (acodec !== 'copy')    { args.push('-ar', ar, '-ab', ab); }
+							if (format === 'mpegts')  { args.push('-copyts'); }
+							if (vcodec === 'libx264') { args.push('-coder', '0', '-bf', '0', '-subq', '1', '-intra'); }
+							
+							args.push('-y', '-f', format, 'pipe:1');
+							
+							var ffmpeg = child_process.spawn('ffmpeg', args);
+							
+							ffmpeg.stdout.on('data', function(data) {
+								res.write(data, 'binary');
+							});
+							
+							ffmpeg.stderr.on('data', function(data) {
+								util.puts(data);
+							});
+							
+							ffmpeg.on('exit', function(code) {
+								res.end();
+								log(statusCode);
+							});
+							
+							req.on('close', function() {
+								ffmpeg.kill('SIGKILL');
+							});
+							
+							return;
 						default:
 							err404();
 							return;
-					}
+					}//<--switch
 				} else {
 					err400();
 					return;
 				}
-				break;
+				return;//<--case 'recording'
 			default:
 				err404();
 				return;

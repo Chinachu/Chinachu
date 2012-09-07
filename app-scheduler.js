@@ -484,7 +484,7 @@ function scheduler() {
 				continue;
 			}
 			
-			util.log('CONFLICT: ' + dateFormat(new Date(a.start), 'isoDateTime') + ' [' + a.channel.name + '] ' + a.title);
+			util.log('CONFLICT: ' + a.id + ' ' + dateFormat(new Date(a.start), 'isoDateTime') + ' [' + a.channel.name + '] ' + a.title);
 			a.isConflict = true;
 			
 			++conflictCount;
@@ -509,7 +509,7 @@ function scheduler() {
 			
 			if (!a.isConflict) {
 				reserves.push(a);
-				util.log('RESERVE: ' + dateFormat(new Date(a.start), 'isoDateTime') + ' [' + a.channel.name + '] ' + a.title);
+				util.log('RESERVE: ' + a.id + ' ' + dateFormat(new Date(a.start), 'isoDateTime') + ' [' + a.channel.name + '] ' + a.title);
 				++reservedCount;
 			}
 		})();
