@@ -389,7 +389,7 @@ function httpServer(req, res) {
 							target += '&bitrate=' + bitrate + '&size=' + size + '&ar=' + ar + '&ab=' + ab + '&rate=' + rate;
 							
 							for (var i = 0; i < current; i += duration) {
-								if (current - i > 50) { continue; }
+								if (current - i > 60) { continue; }
 								res.write('#EXTINF:' + duration + ',\n');
 								res.write(target + '&start=' + i + '\n');
 							}
