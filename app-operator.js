@@ -24,6 +24,7 @@ if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./w
 
 // 追加モジュールのロード
 var dateFormat = require('dateformat');
+var OAuth      = require('oauth').OAuth;
 
 // 設定の読み込み
 var config = JSON.parse( fs.readFileSync(CONFIG_FILE, 'ascii') );
@@ -38,16 +39,53 @@ function reservesOnUpdated() {
 		util.log('UPDATED: ' + RESERVES_DATA_FILE);
 		
 		reserves = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE, 'ascii') );
-	}, 500);
+	}, 1000);
 }
 fs.watch(RESERVES_DATA_FILE, reservesOnUpdated);
  
-// よみこみ: ./data/recorded.json
+// ファイル更新監視: ./data/recorded.json
 if (!fs.existsSync(RECORDED_DATA_FILE)) fs.writeFileSync(RECORDED_DATA_FILE, '[]');
 var recorded = JSON.parse( fs.readFileSync(RECORDED_DATA_FILE, 'ascii') );
+var recordedTimer;
+function recordedOnUpdated() {
+	clearTimeout(recordedTimer);
+	recordedTimer = setTimeout(function() {
+		util.log('UPDATED: ' + RECORDED_DATA_FILE);
+		
+		recorded = JSON.parse( fs.readFileSync(RECORDED_DATA_FILE, 'ascii') );
+	}, 1000);
+}
+fs.watch(RECORDED_DATA_FILE, recordedOnUpdated);
 
 // 録画中リストをクリア
 fs.writeFileSync(RECORDING_DATA_FILE, '[]');
+
+// Tweeter (Experimental)
+if (config.operTweeter && config.operTweeterAuth && config.operTweeterFormat) {
+	var tweeter = new OAuth(
+		'https://api.twitter.com/oauth/request_token',
+		'https://api.twitter.com/oauth/access_token',
+		config.operTweeterAuth.consumerKey,
+		config.operTweeterAuth.consumerSecret,
+		'1.0', null, 'HMAC-SHA1'
+	);
+	
+	var tweeterUpdater = function(status) {
+		tweeter.post(
+			'http://api.twitter.com/1/statuses/update.json',
+			config.operTweeterAuth.accessToken,
+			config.operTweeterAuth.accessTokenSecret,
+			{ status: status }, 'application/json',
+			function _onUpdatedTweeter(err, data, res) {
+				if (err) {
+					util.log('[Tweeter] Error: ' + JSON.stringify(err));
+				} else {
+					util.log('[Tweeter] Updated: ' + status);
+				}
+			}
+		);
+	};
+}
 
 //
 var schedulerProcessTime  = config.operSchedulerProcessTime  || 1000 * 60 * 30;
@@ -189,6 +227,17 @@ function prepRecord(program) {
 	if (scheduler !== null) {
 		stopScheduler();
 	}
+	
+	// Tweeter (Experimental)
+	if ((timeout !== 0) && tweeter && config.operTweeterFormat.prepare) {
+		tweeterUpdater(
+			config.operTweeterFormat.prepare
+			.replace('<id>', program.id)
+			.replace('<type>', program.channel.type)
+			.replace('<channel>', ((program.channel.type === 'CS') ? program.channel.sid : program.channel.channel))
+			.replace('<title>',   program.title)
+		);
+	}
 }
 
 // 録画実行
@@ -301,6 +350,17 @@ function doRecord(program) {
 	process.on('SIGINT', finalize);
 	process.on('SIGQUIT', finalize);
 	process.on('SIGTERM', finalize);
+	
+	// Tweeter (Experimental)
+	if (tweeter && config.operTweeterFormat.start) {
+		tweeterUpdater(
+			config.operTweeterFormat.start
+			.replace('<id>', program.id)
+			.replace('<type>', program.channel.type)
+			.replace('<channel>', ((program.channel.type === 'CS') ? program.channel.sid : program.channel.channel))
+			.replace('<title>',   program.title)
+		);
+	}
 }
 
 // 録画ファイル名
@@ -311,6 +371,9 @@ function formatRecordedName(program) {
 	if (name.match(/<date:[^>]+>/) !== null) {
 		name = name.replace(/<date:[^>]+>/, dateFormat(new Date(program.start), name.match(/<date:([^>]+)>/)[1]));
 	}
+	
+	// <id>
+	name = name.replace('<id>', program.id);
 	
 	// <type>
 	name = name.replace('<type>', program.channel.type);
