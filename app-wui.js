@@ -63,7 +63,7 @@ function rulesOnUpdated() {
 		} catch (e) {
 			util.log('WARNING: RULES_FILE が不正です');
 		}
-	}, 500);
+	}, 1000);
 }
 fs.watch(RULES_FILE, rulesOnUpdated);
 
@@ -78,7 +78,7 @@ function scheduleOnUpdated() {
 		
 		schedule = JSON.parse( fs.readFileSync(SCHEDULE_DATA_FILE, 'ascii') );
 		io.sockets.emit('schedule', schedule);
-	}, 500);
+	}, 1000);
 }
 fs.watch(SCHEDULE_DATA_FILE, scheduleOnUpdated);
 
@@ -93,7 +93,7 @@ function reservesOnUpdated() {
 		
 		reserves = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE, 'ascii') );
 		io.sockets.emit('reserves', reserves);
-	}, 500);
+	}, 1000);
 }
 fs.watch(RESERVES_DATA_FILE, reservesOnUpdated);
 
@@ -108,7 +108,7 @@ function recordingOnUpdated() {
 		
 		recording = JSON.parse( fs.readFileSync(RECORDING_DATA_FILE, 'ascii') );
 		io.sockets.emit('recording', recording);
-	}, 500);
+	}, 1000);
 }
 fs.watch(RECORDING_DATA_FILE, recordingOnUpdated);
 
@@ -123,7 +123,7 @@ function recordedOnUpdated() {
 		
 		recorded = JSON.parse( fs.readFileSync(RECORDED_DATA_FILE, 'ascii') );
 		io.sockets.emit('recorded', recorded);
-	}, 500);
+	}, 1000);
 }
 fs.watch(RECORDED_DATA_FILE, recordedOnUpdated);
 
