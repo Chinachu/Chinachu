@@ -178,7 +178,12 @@ function startScheduler() {
 	util.log('STREAM: ./log/scheduler');
 	
 	scheduler.stdout.on('data', function(data) {
-		output.write(data);
+		try {
+			output.write(data);
+		} catch (e) {
+			util.log('ERROR: スケジューラーを中止 (' + e + ')');
+			finalize();
+		}
 	});
 	
 	function finalize() {
@@ -186,7 +191,7 @@ function startScheduler() {
 		process.removeListener('SIGQUIT', finalize);
 		process.removeListener('SIGTERM', finalize);
 		
-		output.end();
+		try { output.end(); } catch (e) {}
 		
 		scheduler = null;
 	}
