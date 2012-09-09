@@ -22,6 +22,13 @@ if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./w
 	process.exit(1);
 }
 
+// 終了処理
+process.on('SIGQUIT', function() {
+	setTimeout(function() {
+		process.exit(0);
+	}, 0);
+});
+
 // 追加モジュールのロード
 var dateFormat = require('dateformat');
 var OAuth      = require('oauth').OAuth;
