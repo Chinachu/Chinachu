@@ -284,16 +284,16 @@ function getEpg() {
 						
 						switch (channel.type) {
 							case 'GR':
-								result.channel.forEach(function(a) {
+								result.tv.channel.forEach(function(a) {
 									var ch = {
 										type   : channel.type,
 										channel: channel.channel,
-										name   : a['display-name']['#'],
-										id     : a['@'].id,
-										sid    : a['service_id']
+										name   : a['display-name'][0]['_'],
+										id     : a['$'].id,
+										sid    : a['service_id'][0]
 									};
 									
-									ch.programs = convertPrograms(result.programme, JSON.parse(JSON.stringify(ch)));
+									ch.programs = convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
 									
 									schedule.push(ch);
 									
@@ -306,13 +306,13 @@ function getEpg() {
 								});
 								break;
 							case 'BS':
-								result.channel.forEach(function(a) {
+								result.tv.channel.forEach(function(a) {
 									var isFound = false;
 									
 									for (var j = 0; channels.length > j; j++) {
 										if (
 											(channels[j].type === 'BS') &&
-											(channels[j].channel === a['service_id'])
+											(channels[j].channel === a['service_id'][0])
 										) {
 											isFound = true;
 											break;
@@ -325,13 +325,13 @@ function getEpg() {
 									
 									var ch = {
 										type   : channel.type,
-										channel: a['service_id'],
-										name   : a['display-name']['#'],
-										id     : a['@'].id,
-										sid    : a['service_id']
+										channel: a['service_id'][0],
+										name   : a['display-name'][0]['_'],
+										id     : a['$'].id,
+										sid    : a['service_id'][0]
 									};
 									
-									ch.programs = convertPrograms(result.programme, JSON.parse(JSON.stringify(ch)));
+									ch.programs = convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
 									
 									schedule.push(ch);
 									
@@ -344,13 +344,13 @@ function getEpg() {
 								});
 								break;
 							case 'CS':
-								result.channel.forEach(function(a) {
+								result.tv.channel.forEach(function(a) {
 									var isFound = false;
 									
 									for (var j = 0; channels.length > j; j++) {
 										if (
 											(channels[j].type === 'CS') &&
-											(channels[j].sid === a['service_id'])
+											(channels[j].sid === a['service_id'][0])
 										) {
 											isFound = true;
 											break;
@@ -364,12 +364,12 @@ function getEpg() {
 									var ch = {
 										type   : channel.type,
 										channel: channels[j].channel,
-										name   : a['display-name']['#'],
-										id     : a['@'].id,
-										sid    : a['service_id']
+										name   : a['display-name'][0]['_'],
+										id     : a['$'].id,
+										sid    : a['service_id'][0]
 									};
 									
-									ch.programs = convertPrograms(result.programme, JSON.parse(JSON.stringify(ch)));
+									ch.programs = convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
 									
 									schedule.push(ch);
 									
@@ -530,19 +530,19 @@ function convertPrograms(p, ch) {
 		var c = p[i];
 		
 		if (
-			(c['@'].channel !== ch.id) ||
-			(!c.title['#'])
+			(c['$'].channel !== ch.id) ||
+			(!c.title[0]['_'])
 		) {
 			continue;
 		}
 		
 		var tcRegex   = /^(.{4})(.{2})(.{2})(.{2})(.{2})(.{2}).+$/;
-		var startDate = new Date( c['@'].start.replace(tcRegex, '$1/$2/$3 $4:$5:$6') );
-		var endDate   = new Date( c['@'].stop.replace(tcRegex, '$1/$2/$3 $4:$5:$6') );
+		var startDate = new Date( c['$'].start.replace(tcRegex, '$1/$2/$3 $4:$5:$6') );
+		var endDate   = new Date( c['$'].stop.replace(tcRegex, '$1/$2/$3 $4:$5:$6') );
 		var startTime = startDate.getTime();
 		var endTime   = endDate.getTime();
 		
-		var flags = c.title['#'].match(/【(.)】/g);
+		var flags = c.title[0]['_'].match(/【(.)】/g);
 		if (flags === null) {
 			flags = [];
 		} else {
@@ -554,9 +554,9 @@ function convertPrograms(p, ch) {
 		var programData = {
 			id        : ch.id.toLowerCase().replace('_', '') + '-' + (startTime / 1000).toString(32),
 			channel   : ch,
-			category  : c.category[1]['#'],
-			title     : c.title['#'],
-			detail    : c.desc['#'],
+			category  : c.category[1]['_'],
+			title     : c.title[0]['_'],
+			detail    : c.desc[0]['_'],
 			start     : startTime,
 			end       : endTime,
 			seconds   : ((endTime - startTime) / 1000),
