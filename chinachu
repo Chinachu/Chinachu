@@ -16,7 +16,7 @@ fi
 shopt -s extglob
 
 # variables
-NODE_VER=0.8.7
+NODE_VER=0.8.8
 
 main () {
   local SELF_PATH DIR SYM
@@ -53,7 +53,7 @@ main () {
   local cmd="$1"
   shift
   case $cmd in
-    installer | service )
+    installer | service | update )
       cmd="chinachu_$cmd"
       ;;
     * )
@@ -211,7 +211,7 @@ stop () {
   PID=\`cat \$PIDFILE\`
   if [ -f \$PIDFILE ]; then
     PGID=\`ps -p \$PID -o pgrp | grep -v PGRP\`
-    kill -TERM -\`echo \$PGID\`
+    kill -QUIT -\`echo \$PGID\`
     echo "OK."
     rm -f \$PIDFILE
   else
@@ -305,6 +305,10 @@ EOF
   return 0
 }
 
+chinachu_update () {
+  ${NAVE_DIR}/node app-scheduler.js "$@" > /dev/stdout 2>&1 | tee ./log/scheduler && return 0
+}
+
 chinachu_help () {
   cat <<EOF
 
@@ -314,7 +318,17 @@ Commands:
 
 installer               Run a Installer.
 service <name> <action> Service-utility.
-service help            Output help of Service-utility.
+update                  Run a Scheduler.
+cleanup                 Clean-up the tuner-locks and recorded list.
+search [options]        Search for programs.
+reserve <pgid>          Reserve the program manually.
+unreserve <pgid>        Unreserve the program manually.
+rule [options]          Add a rule for auto reservation.
+unrule <ruleid>         Remove a rule for auto reservation.
+rules                   Show a list of auto reserving rules.
+reserved                Show a list of reserved programs.
+recording               Show a list of recording programs.
+recorded                Show a list of recorded programs.
 help                    Output this information.
 
 EOF
