@@ -741,6 +741,11 @@ app.ui.Streamer = Class.create({
 				label     : 'Flash Video (F4V)',
 				value     : 'f4v'
 			});
+			
+			this.form.fields[1].input.items.push({
+				label     : 'WebM (VP8,Vorbis)',
+				value     : 'webm'
+			});
 		}
 		
 		this.form.render(this.formContainer);
@@ -871,9 +876,9 @@ app.ui.StreamerPlayer = Class.create({
 			var thumb = window.location.protocol + '//' + window.location.host + '/api/recorded/' + this.program.id + '/preview.jpg?width=1280&height=720';
 		}
 		
-		if (this.d.format === 'm3u8') {
+		if ((this.d.format === 'm3u8') || this.d.format === 'webm') {
 			this.entity.content.insert(
-				'<video poster="' + thumb + '" src="' + video + '" width="100%" height="100%" controls></video>'
+				'<video poster="' + thumb + '" src="' + video + '" width="100%" height="100%" controls autoplay></video>'
 			);
 		} else {
 			this.entity.content.insert(

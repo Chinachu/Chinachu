@@ -265,6 +265,7 @@ function httpServer(req, res) {
 		if (ext === 'jpg')  { type = 'image/jpeg'; }
 		if (ext === 'f4v')  { type = 'video/mp4'; }
 		if (ext === 'flv')  { type = 'video/x-flv'; }
+		if (ext === 'webm') { type = 'video/webm'; }
 		if (ext === 'm2ts') { type = 'video/MP2T'; }
 		if (ext === 'm3u8') { type = 'video/x-mpegURL'; }
 		if (ext === 'json') { type = 'application/json'; }
@@ -483,6 +484,7 @@ function httpServer(req, res) {
 						case 'watch.m2ts':
 						case 'watch.f4v':
 						case 'watch.flv':
+						case 'watch.webm':
 							if (!status.feature.streamer || !program.pid || (program.tuner && program.tuner.isScrambling)) {
 								err404();
 								return;
@@ -515,6 +517,11 @@ function httpServer(req, res) {
 								
 								if (vcodec === 'copy') { vcodec = 'libx264'; }
 								if (acodec === 'copy') { acodec = 'libfaac'; }
+							} else if (ext === 'webm') {
+								format = 'matroska';
+								
+								if (vcodec === 'copy') { vcodec = 'libvpx'; }
+								if (acodec === 'copy') { acodec = 'libvorbis'; }
 							}
 							
 							var args = [];
@@ -724,6 +731,7 @@ function httpServer(req, res) {
 						case 'watch.m2ts':
 						case 'watch.f4v':
 						case 'watch.flv':
+						case 'watch.webm':
 							if (!status.feature.streamer || !fs.existsSync(program.recorded) || (program.tuner && program.tuner.isScrambling)) {
 								err404();
 								return;
@@ -756,6 +764,11 @@ function httpServer(req, res) {
 								
 								if (vcodec === 'copy') { vcodec = 'libx264'; }
 								if (acodec === 'copy') { acodec = 'libfaac'; }
+							} else if (ext === 'webm') {
+								format = 'matroska';
+								
+								if (vcodec === 'copy') { vcodec = 'libvpx'; }
+								if (acodec === 'copy') { acodec = 'libvorbis'; }
 							}
 							
 							var args = [];
