@@ -29,12 +29,6 @@ if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./w
 	process.exit(1);
 }
 
-// 終了処理
-process.on('SIGQUIT', function() {
-	setTimeout(function() {
-		process.exit(0);
-	}, 0);
-});
 // 追加モジュールのロード
 var auth     = require('http-auth');
 var socketio = require('socket.io');
@@ -154,7 +148,6 @@ var status = {
 	}
 };
 
-// CPUコア数取得
 child_process.exec('cat /proc/cpuinfo | grep "core id" | sort -i | uniq | wc -l', function(err, stdout) {
 	status.system.core = parseInt(stdout.trim(), 10);
 });
@@ -185,10 +178,6 @@ function httpServer(req, res) {
 	
 	var query = url.parse(req.url, true).query;
 	
-	if (query.method) {
-		req.method = query.method.toUpperCase();
-	}
-	
 	var filename = path.join('./web/', location);
 	
 	var ext = null;
@@ -208,13 +197,6 @@ function httpServer(req, res) {
 		res.write('404 Not Found\n');
 		res.end();
 		log(404);
-	}
-	
-	function err405() {
-		res.writeHead(405, {'Content-Type': 'text/plain'});
-		res.write('405 Method Not Allowed\n');
-		res.end();
-		log(405);
 	}
 	
 	function err500() {
@@ -312,49 +294,13 @@ function httpServer(req, res) {
 						});
 						
 						res.writeHead(statusCode, {'Content-Type': type});
-						res.end(JSON.stringify(result));
+						res.write(JSON.stringify(result));
+						res.end();
 						log(statusCode);
 				}
 				return;//<--case 'scheduler.json'
 			case 'recording':
-				if ((map.length === 2) && (ext === 'json')) {
-					var program = (function() {
-						var x = null;
-						
-						recording.forEach(function(a) {
-							if (a.id === map[1].replace('.json', '')) { x = a; }
-						});
-						
-						return x;
-					})();
-					
-					if (program === null) {
-						err404();
-						return;
-					}
-					
-					switch (req.method) {
-						case 'GET':
-							res.writeHead(statusCode, {'Content-Type': type});
-							res.end(JSON.stringify(program));
-							log(statusCode);
-							return;
-						case 'DELETE':
-							child_process.exec('kill -KILL ' + program.pid, function(err, stdout, stderr) {
-								if (err) {
-									err500();
-									return;
-								}
-								res.writeHead(statusCode, {'Content-Type': type});
-								res.end('{}');
-								log(statusCode);
-							});
-							return;
-						default:
-							err405();
-							return;
-					}//<--switch
-				} else if (map.length === 3) {
+				if (map.length === 3) {
 					var program = (function() {
 						var x = null;
 						
@@ -399,10 +345,11 @@ function httpServer(req, res) {
 								},
 								function(err, stdout, stderr) {
 									if (ext) {
-										res.end(stdout, 'binary');
+										res.write(stdout, 'binary');
 									} else {
-										res.end('data:image/jpeg;base64,' + new Buffer(stdout, 'binary').toString('base64'));
+										res.write('data:image/jpeg;base64,' + new Buffer(stdout, 'binary').toString('base64'));
 									}
+									res.end();
 									log(statusCode);
 									clearTimeout(timeout);
 								}

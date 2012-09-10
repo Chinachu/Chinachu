@@ -95,8 +95,10 @@ if (config.operTweeter && config.operTweeterAuth && config.operTweeterFormat) {
 }
 
 //
-var schedulerProcessTime  = config.operSchedulerProcessTime  || 1000 * 60 * 30;
-var schedulerIntervalTime = config.operSchedulerIntervalTime || 1000 * 60 * 60 * 2;
+var schedulerProcessTime    = config.operSchedulerProcessTime    || 1000 * 60 * 30;
+var schedulerIntervalTime   = config.operSchedulerIntervalTime   || 1000 * 60 * 60 * 2;
+var schedulerSleepStartHour = config.operSchedulerSleepStartHour || 1;
+var schedulerSleepEndHour   = config.operSchedulerSleepEndHour   || 5;
 var prepTime    = config.operRecPrepTime    || 1000 * 60 * 1;
 var offsetStart = config.operRecOffsetStart || 1000 * 5;
 var offsetEnd   = config.operRecOffsetEnd   || -(1000 * 8);
@@ -120,7 +122,8 @@ function main() {
 	if (
 		(scheduler === null) &&
 		(clock - scheduled > schedulerIntervalTime) &&
-		((next === 0) || (next - clock > schedulerProcessTime))
+		((next === 0) || (next - clock > schedulerProcessTime)) &&
+		((schedulerSleepStartHour > new Date().getHours()) || (schedulerSleepEndHour <= new Date().getHours()))
 	) {
 		startScheduler();
 		scheduled = clock;
