@@ -29,6 +29,12 @@ if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./w
 	process.exit(1);
 }
 
+// 終了処理
+process.on('SIGQUIT', function() {
+	setTimeout(function() {
+		process.exit(0);
+	}, 0);
+});
 // 追加モジュールのロード
 var auth     = require('http-auth');
 var socketio = require('socket.io');
@@ -148,6 +154,7 @@ var status = {
 	}
 };
 
+// CPUコア数取得
 child_process.exec('cat /proc/cpuinfo | grep "core id" | sort -i | uniq | wc -l', function(err, stdout) {
 	status.system.core = parseInt(stdout.trim(), 10);
 });
@@ -178,6 +185,10 @@ function httpServer(req, res) {
 	
 	var query = url.parse(req.url, true).query;
 	
+	if (query.method) {
+		req.method = query.method.toUpperCase();
+	}
+	
 	var filename = path.join('./web/', location);
 	
 	var ext = null;
@@ -197,6 +208,13 @@ function httpServer(req, res) {
 		res.write('404 Not Found\n');
 		res.end();
 		log(404);
+	}
+	
+	function err405() {
+		res.writeHead(405, {'Content-Type': 'text/plain'});
+		res.write('405 Method Not Allowed\n');
+		res.end();
+		log(405);
 	}
 	
 	function err500() {
@@ -250,6 +268,7 @@ function httpServer(req, res) {
 		if (ext === 'm2ts') { type = 'video/MP2T'; }
 		if (ext === 'm3u8') { type = 'video/x-mpegURL'; }
 		if (ext === 'json') { type = 'application/json'; }
+		if (ext === 'xspf') { type = 'application/xspf+xml'; }
 		
 		switch (map[0]) {
 			case 'scheduler.json':
@@ -294,13 +313,49 @@ function httpServer(req, res) {
 						});
 						
 						res.writeHead(statusCode, {'Content-Type': type});
-						res.write(JSON.stringify(result));
-						res.end();
+						res.end(JSON.stringify(result));
 						log(statusCode);
 				}
 				return;//<--case 'scheduler.json'
 			case 'recording':
-				if (map.length === 3) {
+				if ((map.length === 2) && (ext === 'json')) {
+					var program = (function() {
+						var x = null;
+						
+						recording.forEach(function(a) {
+							if (a.id === map[1].replace('.json', '')) { x = a; }
+						});
+						
+						return x;
+					})();
+					
+					if (program === null) {
+						err404();
+						return;
+					}
+					
+					switch (req.method) {
+						case 'GET':
+							res.writeHead(statusCode, {'Content-Type': type});
+							res.end(JSON.stringify(program));
+							log(statusCode);
+							return;
+						case 'DELETE':
+							child_process.exec('kill -KILL ' + program.pid, function(err, stdout, stderr) {
+								if (err) {
+									err500();
+									return;
+								}
+								res.writeHead(statusCode, {'Content-Type': type});
+								res.end('{}');
+								log(statusCode);
+							});
+							return;
+						default:
+							err405();
+							return;
+					}//<--switch
+				} else if (map.length === 3) {
 					var program = (function() {
 						var x = null;
 						
@@ -345,11 +400,10 @@ function httpServer(req, res) {
 								},
 								function(err, stdout, stderr) {
 									if (ext) {
-										res.write(stdout, 'binary');
+										res.end(stdout, 'binary');
 									} else {
-										res.write('data:image/jpeg;base64,' + new Buffer(stdout, 'binary').toString('base64'));
+										res.end('data:image/jpeg;base64,' + new Buffer(stdout, 'binary').toString('base64'));
 									}
-									res.end();
 									log(statusCode);
 									clearTimeout(timeout);
 								}
@@ -398,6 +452,34 @@ function httpServer(req, res) {
 							log(statusCode);
 							
 							return;
+						case 'watch.xspf':
+							if (!status.feature.streamer || !program.pid || (program.tuner && program.tuner.isScrambling)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {
+								'Content-Type': type,
+								'Content-Disposition': 'attachment; filename="' + program.id + '.xspf"'
+							});
+							
+							var exte   = query.format || 'm2ts';
+							var prefix = query.prefix || req.headers.referer.replace(/\/$/, '') + location.replace(/\/[^\/]+$/, '/') || '';
+							
+							var target = prefix + 'watch.' + exte + url.parse(req.url).search;
+							
+							res.write('<?xml version="1.0" encoding="UTF-8"?>\n');
+							res.write('<playlist version="1" xmlns="http://xspf.org/ns/0/">\n');
+							res.write('<trackList>\n');
+							res.write('<track>\n<location>' + target.replace(/&/g, '&amp;') + '</location>\n');
+							res.write('<title>' + program.title + '</title>\n</track>\n');
+							res.write('</trackList>\n');
+							res.write('</playlist>\n');
+							
+							res.end();
+							log(statusCode);
+							
+							return;
 						case 'watch.m2ts':
 						case 'watch.f4v':
 						case 'watch.flv':
@@ -409,7 +491,7 @@ function httpServer(req, res) {
 							res.writeHead(statusCode, {'Content-Type': type});
 							util.log('streamer: ' + program.recorded);
 							
-							var start    = query.start    || null;
+							var start    = query.start    || 'live';
 							var duration = query.duration || null;
 							var vcodec   = query.vcodec   || 'copy';
 							var acodec   = query.acodec   || 'copy';
@@ -420,7 +502,7 @@ function httpServer(req, res) {
 							var size     = query.size     || null;
 							var rate     = query.rate     || null;
 							
-							if (start && (start === 'live')) {
+							if (start === 'live') {
 								start = Math.round((new Date().getTime() - program.start) / 1000).toString(10);
 							}
 							
@@ -428,21 +510,11 @@ function httpServer(req, res) {
 								format = 'mpegts';
 								
 								if ((vcodec === 'copy') && size) { vcodec = 'mpeg2video'; }
-								
-								/*if (start && duration) {
-									start    = parseInt(start, 10) - 1;
-									duration = parseInt(duration, 10) + 1;
-								}*/
-							} else if (ext === 'f4v') {
+							} else if ((ext === 'flv') || (ext === 'f4v')) {
 								format = 'flv';
 								
 								if (vcodec === 'copy') { vcodec = 'libx264'; }
 								if (acodec === 'copy') { acodec = 'libfaac'; }
-							} else if (ext === 'flv') {
-								format = 'flv';
-								
-								if (vcodec === 'copy') { vcodec = 'flv'; }
-								if (acodec === 'copy') { acodec = 'libmp3lame'; }
 							}
 							
 							var args = [];
@@ -453,15 +525,16 @@ function httpServer(req, res) {
 							if (start)    { args.push('-ss', start); }
 							if (duration) { args.push('-t', duration); }
 							
-							args.push(/*'-re', */'-i', program.recorded);
+							args.push('-re', '-i', program.recorded);
 							args.push('-vcodec', vcodec, '-acodec', acodec);
-							args.push('-map', '0.0', '-map', '0.1');
+							//args.push('-map', '0.0', '-map', '0.1');
 							
 							if (size)                 { args.push('-s', size); }
 							if (rate)                 { args.push('-r', rate); }
 							if (bitrate)              { args.push('-b', bitrate); }
 							if (acodec !== 'copy')    { args.push('-ar', ar, '-ab', ab); }
 							if (format === 'mpegts')  { args.push('-copyts'); }
+							if (format === 'flv')     { args.push('-vsync', '2'); }
 							if (vcodec === 'libx264') { args.push('-coder', '0', '-bf', '0', '-subq', '1', '-intra'); }
 							
 							args.push('-y', '-f', format, 'pipe:1');
@@ -495,6 +568,247 @@ function httpServer(req, res) {
 					return;
 				}
 				return;//<--case 'recording'
+			case 'recorded':
+				if ((map.length === 2) && (ext === 'json')) {
+					var program = (function() {
+						var x = null;
+						
+						recorded.forEach(function(a) {
+							if (a.id === map[1].replace('.json', '')) { x = a; }
+						});
+						
+						return x;
+					})();
+					
+					if (program === null) {
+						err404();
+						return;
+					}
+					
+					switch (req.method) {
+						case 'GET':
+							res.writeHead(statusCode, {'Content-Type': type});
+							res.end(JSON.stringify(program));
+							log(statusCode);
+							return;
+						case 'DELETE':
+							//todo
+						default:
+							err405();
+							return;
+					}//<--switch
+				} else if (map.length === 3) {
+					var program = (function() { 
+						var x = null;
+						
+						recorded.forEach(function(a) {
+							if (a.id === map[1]) { x = a; }
+						});
+						
+						return x;
+					})();
+					
+					if (program === null) {
+						err404();
+						return;
+					}
+					
+					switch (map[2]) {
+						case 'preview':
+						case 'preview.png':
+						case 'preview.jpg':
+							if (!status.feature.previewer || !fs.existsSync(program.recorded) || (program.tuner && program.tuner.isScrambling)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {'Content-Type': type});
+							
+							var w   = query.width  || '320';
+							var h   = query.height || '180';
+							var pos = query.pos    || '30';
+							
+							var vcodec = ext || 'mjpeg';
+							if (ext === 'jpg') { vcodec = 'mjpeg'; }
+							
+							var ffmpeg = child_process.exec(
+								(
+									'ffmpeg -i "' + program.recorded + '" -ss ' + pos + ' -vframes 1 -f image2 -vcodec ' + vcodec +
+									' -s ' + w + 'x' + h + ' -map 0.0 -y pipe:1'
+								),
+								{
+									encoding: 'binary',
+									maxBuffer: 3200000
+								},
+								function(err, stdout, stderr) {
+									if (ext) {
+										res.end(stdout, 'binary');
+									} else {
+										res.end('data:image/jpeg;base64,' + new Buffer(stdout, 'binary').toString('base64'));
+									}
+									log(statusCode);
+									clearTimeout(timeout);
+								}
+							);
+							
+							var timeout = setTimeout(function() {
+								ffmpeg.kill('SIGKILL');
+							}, 3000);
+							
+							return;
+						// HTTP Live Streaming (Experimental)
+						case 'watch.m3u8.txt'://for debug
+						case 'watch.m3u8':
+							if (!status.feature.streamer || !fs.existsSync(program.recorded) || (program.tuner && program.tuner.isScrambling)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {'Content-Type': type});
+							
+							var current  = (program.end - program.start) / 1000;
+							var duration = parseInt(query.duration || 15, 10);
+							var vcodec   = query.vcodec   || 'libx264';
+							var acodec   = query.acodec   || 'libfaac';
+							var bitrate  = query.bitrate  || '1000k';
+							var ar       = query.ar       || '44100';
+							var ab       = query.ab       || '96k';
+							var size     = query.size     || '1024x576';
+							var rate     = query.rate     || '24';
+							
+							res.write('#EXTM3U\n');
+							res.write('#EXT-X-TARGETDURATION:' + duration + '\n');
+							res.write('#EXT-X-MEDIA-SEQUENCE:0\n');
+							
+							var target = query.prefix || '';
+							target += 'watch.m2ts?duration=' + duration + '&vcodec=' + vcodec + '&acodec=' + acodec;
+							target += '&bitrate=' + bitrate + '&size=' + size + '&ar=' + ar + '&ab=' + ab + '&rate=' + rate;
+							
+							for (var i = 0; i < current; i += duration) {
+								res.write('#EXTINF:' + duration + ',\n');
+								res.write(target + '&start=' + i + '\n');
+							}
+							
+							res.end('#EXT-X-ENDLIST');
+							log(statusCode);
+							
+							return;
+						case 'watch.xspf':
+							if (!status.feature.streamer || !fs.existsSync(program.recorded) || (program.tuner && program.tuner.isScrambling)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {
+								'Content-Type': type,
+								'Content-Disposition': 'attachment; filename="' + program.id + '.xspf"'
+							});
+							
+							var exte   = query.format || 'm2ts';
+							var prefix = query.prefix || req.headers.referer.replace(/\/$/, '') + location.replace(/\/[^\/]+$/, '/') || '';
+							
+							var target = prefix + 'watch.' + exte + url.parse(req.url).search;
+							
+							res.write('<?xml version="1.0" encoding="UTF-8"?>\n');
+							res.write('<playlist version="1" xmlns="http://xspf.org/ns/0/">\n');
+							res.write('<trackList>\n');
+							res.write('<track>\n<location>' + target.replace(/&/g, '&amp;') + '</location>\n');
+							res.write('<title>' + program.title + '</title>\n</track>\n');
+							res.write('</trackList>\n');
+							res.write('</playlist>\n');
+							
+							res.end();
+							log(statusCode);
+							
+							return;
+						case 'watch.m2ts':
+						case 'watch.f4v':
+						case 'watch.flv':
+							if (!status.feature.streamer || !fs.existsSync(program.recorded) || (program.tuner && program.tuner.isScrambling)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {'Content-Type': type});
+							util.log('streamer: ' + program.recorded);
+							
+							var start    = query.start    || '0';
+							var duration = query.duration || null;
+							var vcodec   = query.vcodec   || 'copy';
+							var acodec   = query.acodec   || 'copy';
+							var bitrate  = query.bitrate  || null;//r:3000k
+							var ar       = query.ar       || '44100';
+							var ab       = query.ab       || '128k';
+							var format   = query.format   || null;
+							var size     = query.size     || null;
+							var rate     = query.rate     || null;
+							
+							if (start === 'live') {
+								start = '0';
+							}
+							
+							if (ext === 'm2ts') {
+								format = 'mpegts';
+								
+								if ((vcodec === 'copy') && size) { vcodec = 'mpeg2video'; }
+							} else if ((ext === 'flv') || (ext === 'f4v')) {
+								format = 'flv';
+								
+								if (vcodec === 'copy') { vcodec = 'libx264'; }
+								if (acodec === 'copy') { acodec = 'libfaac'; }
+							}
+							
+							var args = [];
+							
+							args.push('-v', '0');
+							args.push('-threads', status.system.core.toString(10));
+							
+							if (start)    { args.push('-ss', start); }
+							if (duration) { args.push('-t', duration); }
+							
+							args.push('-re', '-i', program.recorded);
+							args.push('-vcodec', vcodec, '-acodec', acodec);
+							//args.push('-map', '0.0', '-map', '0.1');
+							
+							if (size)                 { args.push('-s', size); }
+							if (rate)                 { args.push('-r', rate); }
+							if (bitrate)              { args.push('-b', bitrate); }
+							if (acodec !== 'copy')    { args.push('-ar', ar, '-ab', ab); }
+							if (format === 'mpegts')  { args.push('-copyts'); }
+							if (format === 'flv')     { args.push('-vsync', '2'); }
+							if (vcodec === 'libx264') { args.push('-coder', '0', '-bf', '0', '-subq', '1', '-intra'); }
+							
+							args.push('-y', '-f', format, 'pipe:1');
+							
+							var ffmpeg = child_process.spawn('ffmpeg', args);
+							
+							ffmpeg.stdout.on('data', function(data) {
+								res.write(data, 'binary');
+							});
+							
+							ffmpeg.stderr.on('data', function(data) {
+								util.puts(data);
+							});
+							
+							ffmpeg.on('exit', function(code) {
+								res.end();
+								log(statusCode);
+							});
+							
+							req.on('close', function() {
+								ffmpeg.kill('SIGKILL');
+							});
+							
+							return;
+						default:
+							err404();
+							return;
+					}//<--switch
+				} else {
+					err400();
+					return;
+				}
+				return;//<--case 'recorded'
 			default:
 				err404();
 				return;
