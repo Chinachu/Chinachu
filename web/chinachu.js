@@ -738,7 +738,7 @@ app.ui.Streamer = Class.create({
 			});
 			
 			this.form.fields[1].input.items.push({
-				label     : 'Flash Video (F4V)',
+				label     : 'Flash Video',
 				value     : 'f4v'
 			});
 			
