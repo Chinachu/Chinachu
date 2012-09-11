@@ -465,7 +465,8 @@ function httpServer(req, res) {
 							});
 							
 							var exte   = query.format || 'm2ts';
-							var prefix = query.prefix || req.headers.referer.replace(/\/$/, '') + location.replace(/\/[^\/]+$/, '/') || '';
+							var refer  = req.headers.referer || '';
+							var prefix = query.prefix || refer.replace(/\/$/, '') + location.replace(/\/[^\/]+$/, '/') || '';
 							
 							var target = prefix + 'watch.' + exte + url.parse(req.url).search;
 							
@@ -712,7 +713,8 @@ function httpServer(req, res) {
 							});
 							
 							var exte   = query.format || 'm2ts';
-							var prefix = query.prefix || req.headers.referer.replace(/\/$/, '') + location.replace(/\/[^\/]+$/, '/') || '';
+							var refer  = req.headers.referer || '';
+							var prefix = query.prefix || refer.replace(/\/$/, '') + location.replace(/\/[^\/]+$/, '/') || '';
 							
 							var target = prefix + 'watch.' + exte + url.parse(req.url).search;
 							
