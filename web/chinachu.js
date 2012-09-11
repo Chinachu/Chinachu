@@ -280,6 +280,8 @@ app.ui.StopRecord = Class.create({
 									modal.close();
 								},
 								onSuccess: function() {
+									app.router.save(window.location.hash.replace('#', ''));
+									
 									new Hypermodal({
 										title  : '成功',
 										content: '録画中止に成功しました'
@@ -289,6 +291,140 @@ app.ui.StopRecord = Class.create({
 									new Hypermodal({
 										title  : '失敗',
 										content: '録画中止に失敗しました (' + t.status + ')'
+									}).render();
+								}
+							});
+						}.bind(this)
+					},
+					{
+						label  : 'キャンセル',
+						onClick: function(e, btn, modal) {
+							modal.close();
+						}
+					}
+				]
+			});
+		}
+		
+		return this;
+	},
+	render: function _render() {
+		this.modal.render();
+		
+		return this;
+	}
+});
+
+app.ui.RemoveRecordedProgram = Class.create({
+	initialize: function _init(id) {
+		this.program = app.f.getProgramById(id);
+		
+		this.create();
+		
+		return this;
+	},
+	create: function _create() {
+		if (this.program === null) {
+			this.modal = new Hypermodal({
+				title  : 'エラー',
+				content: '番組が見つかりませんでした'
+			});
+		} else {
+			this.modal = new Hypermodal({
+				title  : '録画履歴の削除',
+				description: this.program.title + ' #' + this.program.id,
+				content: '本当によろしいですか？<br>システムはこの録画ファイルを見失います。',
+				buttons: [
+					{
+						label  : '削除',
+						color  : '@red',
+						onClick: function(e, btn, modal) {
+							btn.disable();
+							
+							new Ajax.Request('./api/recorded/' + this.program.id + '.json', {
+								method    : 'get',
+								parameters: { method: 'DELETE' },
+								onComplete: function() {
+									modal.close();
+								},
+								onSuccess: function() {
+									app.router.save(window.location.hash.replace('#', ''));
+									
+									new Hypermodal({
+										title  : '成功',
+										content: '録画履歴の削除に成功しました'
+									}).render();
+								},
+								onFailure: function(t) {
+									new Hypermodal({
+										title  : '失敗',
+										content: '録画履歴の削除に失敗しました (' + t.status + ')'
+									}).render();
+								}
+							});
+						}.bind(this)
+					},
+					{
+						label  : 'キャンセル',
+						onClick: function(e, btn, modal) {
+							modal.close();
+						}
+					}
+				]
+			});
+		}
+		
+		this.modal.render();
+		
+		return this;
+	}
+});
+
+app.ui.RemoveRecordedFile = Class.create({
+	initialize: function _init(id) {
+		this.program = app.f.getProgramById(id);
+		
+		this.create();
+		this.render();
+		
+		return this;
+	},
+	create: function _create() {
+		if (this.program === null) {
+			this.modal = new Hypermodal({
+				title  : 'エラー',
+				content: '番組が見つかりませんでした'
+			});
+		} else {
+			this.modal = new Hypermodal({
+				title  : '録画ファイルの削除',
+				description: this.program.title + ' #' + this.program.id,
+				content: '本当によろしいですか？<br>一度削除された録画ファイルは復元できません。',
+				buttons: [
+					{
+						label  : '削除',
+						color  : '@red',
+						onClick: function(e, btn, modal) {
+							btn.disable();
+							
+							new Ajax.Request('./api/recorded/' + this.program.id + '/recorded.m2ts', {
+								method    : 'get',
+								parameters: { method: 'DELETE' },
+								onComplete: function() {
+									modal.close();
+								},
+								onSuccess: function() {
+									app.router.save(window.location.hash.replace('#', ''));
+									
+									new Hypermodal({
+										title  : '成功',
+										content: '録画ファイルの削除に成功しました'
+									}).render();
+								},
+								onFailure: function(t) {
+									new Hypermodal({
+										title  : '失敗',
+										content: '録画ファイルの削除に失敗しました (' + t.status + ')'
 									}).render();
 								}
 							});
@@ -360,6 +496,8 @@ app.ui.ProgramViewer = Class.create({
 		);
 		this.entity.content.insert('<p class="detail">' + (this.program.detail || '説明なし') + '</p>');
 		
+		this.entity.control.insert('<a onclick="new app.ui.CreateRuleByProgram(\'' + this.program.id + '\')">ルールを作成</a>');
+		
 		if (this.program._isRecording) {
 			this.entity.content.insert('<h2>この番組は現在録画中です</h2>');
 			this.entity.content.insert(
@@ -371,6 +509,18 @@ app.ui.ProgramViewer = Class.create({
 				'<dt>スクランブル</dt><dd>' + (this.program.tuner.isScrambling ? 'はい' : 'いいえ') + '</dd>' +
 				'</dl>'
 			);
+		}
+		
+		if (this.program._isRecording) {
+			this.entity.control.insert('<a onclick="new app.ui.StopRecord(\'' + this.program.id + '\')">録画中止</a>');
+		}
+		
+		if (!this.program._isReserves && !this.program._isRecorded && !this.program._isRecording) {
+			this.entity.control.insert('<a onclick="new app.ui.Reserve(\'' + this.program.id + '\')">一時予約</a>');
+		}
+		
+		if (this.program._isReserves && !this.program._isRecorded && this.program.isManualReserve) {
+			this.entity.control.insert('<a onclick="new app.ui.Unreserve(\'' + this.program.id + '\')">一時予約の取消</a>');
 		}
 		
 		if (this.program._isReserves) {
@@ -390,43 +540,53 @@ app.ui.ProgramViewer = Class.create({
 			this.entity.content.insert(
 				'<p><small>この番組情報は録画履歴に保存されています。' +
 				'削除するには、<a onclick="new app.ui.Cleanup()">クリーンアップ</a>か' +
-				'個別に<a onclick="new app.ui.RemoveReservedProgram(\'' + this.program.id + '\')">録画履歴の削除</a>' +
+				'個別に<a onclick="new app.ui.RemoveRecordedProgram(\'' + this.program.id + '\')">録画履歴の削除</a>' +
 				'を実行してください。</small></p>'
 			);
 			
-			this.entity.control.insert('<a onclick="new app.ui.RemoveReservedProgram(\'' + this.program.id + '\')">録画履歴の削除</a>');
+			this.entity.control.insert('<a onclick="new app.ui.RemoveRecordedProgram(\'' + this.program.id + '\')">録画履歴の削除</a>');
 		}
 		
-		if (this.program._isRecording) {
-			this.entity.control.insert('<a onclick="new app.ui.StopRecord(\'' + this.program.id + '\')">録画中止</a>');
-		}
-		
-		if (!this.program._isReserves && !this.program._isRecorded && !this.program._isRecording) {
-			this.entity.control.insert('<a onclick="new app.ui.Reserve(\'' + this.program.id + '\')">一時予約</a>');
-		}
-		
-		if (this.program._isReserves && !this.program._isRecorded && this.program.isManualReserve) {
-			this.entity.control.insert('<a onclick="new app.ui.Unreserve(\'' + this.program.id + '\')">一時予約の取消</a>');
-		}
-		
-		if (app.chinachu.status.feature.streamer && (this.program._isRecording || this.program._isRecorded) && !this.program.tuner.isScrambling) {
+		if (app.chinachu.status.feature.streamer && this.program._isRecording && !this.program.tuner.isScrambling) {
 			this.entity.control.insert(
 				'<a onclick="new app.ui.Streamer(\'' + this.program.id + '\')">ストリーミング再生</a>'
 			);
 		}
 		
-		this.entity.control.insert('<a onclick="new app.ui.CreateRuleByProgram(\'' + this.program.id + '\')">ルールを作成</a>');
+		if (this.program._isRecorded) {
+			new Ajax.Request('./api/recorded/' + this.program.id + '.json', {
+				method: 'get',
+				onSuccess: function(t) {
+					if (t.responseJSON.isRemoved) {
+						this.entity.content.insert(
+							'<p class="color-red">※この番組の録画ファイルは移動または削除されています。</p>'
+						);
+					} else {
+						if (app.chinachu.status.feature.filer) {
+							this.entity.control.insert(
+								'<a onclick="new app.ui.RemoveRecordedFile(\'' + this.program.id + '\')">録画ファイルの削除</a>'
+							);
+						}
+						
+						if (app.chinachu.status.feature.streamer && !this.program.tuner.isScrambling) {
+							this.entity.control.insert(
+								'<a onclick="new app.ui.Streamer(\'' + this.program.id + '\')">ストリーミング再生</a>'
+							);
+						}
+					}
+				}.bind(this)
+			});
+		}
 		
 		return this;
 	},
 	render: function _render() {
 		this.target.insert({top: this.entity.container});
 		
-		document.observe('chinachu:reload', this.remove.bind(this));
 		document.observe('chinachu:reload', function() {
 			document.stopObserving('chinachu:reload', arguments.callee);
-			document.stopObserving('chinachu:reload', this.remove);
-		});
+			this.remove();
+		}.bind(this));
 		
 		return this;
 	},
@@ -441,7 +601,6 @@ app.ui.ProgramViewer = Class.create({
 			delete this.program;
 			delete this.entity;
 			delete this.target;
-			delete this;
 		} catch (e) { /* has been removed */ }
 		
 		return true;
@@ -917,7 +1076,6 @@ app.ui.StreamerPlayer = Class.create({
 			delete this.program;
 			delete this.entity;
 			delete this.target;
-			delete this;
 			
 			app.router.save(window.location.hash.replace('#', ''));
 		} catch (e) { /* has been removed */ }

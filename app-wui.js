@@ -373,6 +373,7 @@ function httpServer(req, res) {
 					}
 					
 					switch (map[2]) {
+						// プレビュー(スナップショット画像)
 						case 'preview':
 						case 'preview.png':
 						case 'preview.jpg':
@@ -593,6 +594,8 @@ function httpServer(req, res) {
 						return;
 					}
 					
+					program.isRemoved = !fs.existsSync(program.recorded);
+					
 					switch (req.method) {
 						case 'GET':
 							res.writeHead(statusCode, {'Content-Type': type});
@@ -600,7 +603,23 @@ function httpServer(req, res) {
 							log(statusCode);
 							return;
 						case 'DELETE':
-							//todo
+							recorded = (function() {
+								var array = [];
+								
+								recorded.forEach(function(a) {
+									if (a.id !== program.id) {
+										array.push(a);
+									}
+								});
+								
+								return array;
+							})();
+							fs.writeFileSync(RECORDED_DATA_FILE, JSON.stringify(recorded));
+							
+							res.writeHead(statusCode, {'Content-Type': type});
+							res.end('{}');
+							log(statusCode);
+							return;
 						default:
 							err405();
 							return;
@@ -622,6 +641,48 @@ function httpServer(req, res) {
 					}
 					
 					switch (map[2]) {
+						// 録画ファイル
+						case 'recorded.m2ts':
+							if (!status.feature.filer || !fs.existsSync(program.recorded)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {'Content-Type': type});
+							
+							switch (req.method) {
+								case 'GET':
+									var readStream = fs.createReadStream(program.recorded);
+									
+									readStream.on('data', function(data) {
+										res.write(data, 'binary');
+									});
+									
+									readStream.on('end', function() {
+										readStream.destroy();
+									});
+									
+									readStream.on('close', function() {
+										res.end();
+										log(statusCode);
+									});
+									
+									req.on('close', function() {
+										readStream.destroy();
+									});
+									
+									return;
+								case 'DELETE':
+									fs.unlinkSync(program.recorded);
+									
+									res.end();
+									log(statusCode);
+									
+									return;
+							}//<--switch
+							
+							return;
+						// プレビュー(スナップショット画像)
 						case 'preview':
 						case 'preview.png':
 						case 'preview.jpg':
@@ -634,7 +695,7 @@ function httpServer(req, res) {
 							
 							var w   = query.width  || '320';
 							var h   = query.height || '180';
-							var pos = query.pos    || '30';
+							var pos = query.pos    || '10';
 							
 							var vcodec = ext || 'mjpeg';
 							if (ext === 'jpg') { vcodec = 'mjpeg'; }
