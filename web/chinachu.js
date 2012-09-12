@@ -251,7 +251,6 @@ app.ui.StopRecord = Class.create({
 		this.program = app.f.getProgramById(id);
 		
 		this.create();
-		this.render();
 		
 		return this;
 	},
@@ -306,9 +305,6 @@ app.ui.StopRecord = Class.create({
 			});
 		}
 		
-		return this;
-	},
-	render: function _render() {
 		this.modal.render();
 		
 		return this;
@@ -385,7 +381,6 @@ app.ui.RemoveRecordedFile = Class.create({
 		this.program = app.f.getProgramById(id);
 		
 		this.create();
-		this.render();
 		
 		return this;
 	},
@@ -440,9 +435,61 @@ app.ui.RemoveRecordedFile = Class.create({
 			});
 		}
 		
+		this.modal.render();
+		
+		return this;
+	}
+});
+
+app.ui.Cleanup = Class.create({
+	initialize: function _init() {
+		this.create();
+		
 		return this;
 	},
-	render: function _render() {
+	create: function _create() {
+		this.modal = new Hypermodal({
+			title  : 'クリーンアップ',
+			content: '本当によろしいですか？<br>全ての録画履歴から録画ファイルを見失った項目を削除します。',
+			buttons: [
+				{
+					label  : 'クリーンアップ',
+					color  : '@red',
+					onClick: function(e, btn, modal) {
+						btn.disable();
+						
+						new Ajax.Request('./api/recorded.json', {
+							method    : 'get',
+							parameters: { method: 'PUT' },
+							onComplete: function() {
+								modal.close();
+							},
+							onSuccess: function() {
+								app.router.save(window.location.hash.replace('#', ''));
+								
+								new Hypermodal({
+									title  : '成功',
+									content: 'クリーンアップに成功しました'
+								}).render();
+							},
+							onFailure: function(t) {
+								new Hypermodal({
+									title  : '失敗',
+									content: 'クリーンアップに失敗しました (' + t.status + ')'
+								}).render();
+							}
+						});
+					}.bind(this)
+				},
+				{
+					label  : 'キャンセル',
+					onClick: function(e, btn, modal) {
+						modal.close();
+					}
+				}
+			]
+		});
+		
 		this.modal.render();
 		
 		return this;

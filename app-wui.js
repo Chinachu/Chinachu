@@ -577,6 +577,36 @@ function httpServer(req, res) {
 					return;
 				}
 				return;//<--case 'recording'
+			case 'recorded.json':
+				switch (req.method) {
+					case 'GET':
+						res.writeHead(statusCode, {'Content-Type': type});
+						res.end(JSON.stringify(recorded));
+						log(statusCode);
+						return;
+					case 'PUT':
+						recorded = (function() {
+							var array = [];
+							
+							recorded.forEach(function(a) {
+								if (fs.existsSync(a.recorded)) {
+									array.push(a);
+								}
+							});
+							
+							return array;
+						})();
+						fs.writeFileSync(RECORDED_DATA_FILE, JSON.stringify(recorded));
+						
+						res.writeHead(statusCode, {'Content-Type': type});
+						res.end('{}');
+						log(statusCode);
+						return;
+					default:
+						err405();
+						return;
+				}//<--switch
+				return;//<--case 'recorded.json'
 			case 'recorded':
 				if ((map.length === 2) && (ext === 'json')) {
 					var program = (function() {
