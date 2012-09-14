@@ -342,7 +342,7 @@ function httpServer(req, res) {
 							log(statusCode);
 							return;
 						case 'DELETE':
-							child_process.exec('kill -KILL ' + program.pid, function(err, stdout, stderr) {
+							child_process.exec('kill -TERM ' + program.pid, function(err, stdout, stderr) {
 								if (err) {
 									err500();
 									return;

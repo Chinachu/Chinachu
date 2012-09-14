@@ -341,6 +341,7 @@ function doRecord(program) {
 		process.removeListener('SIGINT', finalize);
 		process.removeListener('SIGQUIT', finalize);
 		process.removeListener('SIGTERM', finalize);
+		recProc.stdout.removeAllListeners();
 		
 		// 書き込みストリームを閉じる
 		recFile.end();
