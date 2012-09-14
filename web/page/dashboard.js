@@ -244,7 +244,7 @@
 						'<a onclick="new app.ui.ProgramViewer(\'' + program.id + '\')">' +
 						'<span class="time">' + dateFormat(new Date(program.start), 'd日 HH:MM') + '</span>' +
 						'<span class="color-red">' + program.title.truncate(16) + '</span>' +
-						'<span class="channel">' + program.channel.name.truncate(8) + '</span>' +
+						'<span class="channel">' + program.channel.name.truncate(7) + '</span>' +
 						'</a>'
 					);
 				});
