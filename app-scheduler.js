@@ -504,7 +504,7 @@ function scheduler() {
 			
 			if ((a.channel.type === 'BS') || (a.channel.type === 'CS')) {
 				// todo
-				if ((b.channel.type === 'BS') || (b.channel.type === 'CS')) {
+				if ((b.channel.type !== 'BS') && (b.channel.type !== 'CS')) {
 					continue;
 				}
 			} else if (a.channel.type !== b.channel.type) {
