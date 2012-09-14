@@ -316,7 +316,7 @@ function doRecord(program) {
 	program.pid = recProc.pid;
 	
 	// タイムアウト
-	setTimeout(function() { recProc.kill('SIGKILL'); }, timeout);
+	setTimeout(function() { recProc.kill('SIGTERM'); }, timeout);
 	
 	// 状態保存
 	fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));

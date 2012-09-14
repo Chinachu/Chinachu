@@ -120,6 +120,7 @@ function getEpg() {
 				}
 				break;
 			case 'CS':
+			case 'EX':
 				for (var j = 0; schedule.length > j; j++) {
 					if (
 						(schedule[j].channel === channel.channel) &&
@@ -194,7 +195,7 @@ function getEpg() {
 		util.log('SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
 		
 		// プロセスタイムアウト
-		setTimeout(function() { recProc.kill('SIGKILL'); }, 1000 * 45);
+		setTimeout(function() { recProc.kill('SIGTERM'); }, 1000 * 45);
 		
 		// 一時ファイルへの書き込みストリームを作成
 		var recFile = fs.createWriteStream(recPath);
@@ -217,7 +218,7 @@ function getEpg() {
 			
 			// 録画プロセスを終了
 			recProc.removeAllListeners('exit');
-			recProc.kill('SIGKILL');
+			recProc.kill('SIGTERM');
 			
 			// 書き込みストリームを閉じる
 			recFile.end();
@@ -254,6 +255,7 @@ function getEpg() {
 						case 'BS':
 							return '/BS';
 						case 'CS':
+						case 'EX':
 						default:
 							return '/CS';
 					}
@@ -262,7 +264,7 @@ function getEpg() {
 				'-'
 			].join(' ');
 			
-			var epgdumpProc = child_process.exec(epgdumpCmd, { maxBuffer: 4096000 }, function(err, stdout, stderr) {
+			var epgdumpProc = child_process.exec(epgdumpCmd, { maxBuffer: 104857600 }, function(err, stdout, stderr) {
 				// 一時録画ファイル削除
 				fs.unlinkSync(recPath);
 				util.log('UNLINK: ' + recPath);
@@ -350,6 +352,44 @@ function getEpg() {
 									for (var j = 0; channels.length > j; j++) {
 										if (
 											(channels[j].type === 'CS') &&
+											(channels[j].sid === a['service_id'][0])
+										) {
+											isFound = true;
+											break;
+										} else {
+											continue;
+										}
+									}
+									
+									if (isFound === false) { return; }
+									
+									var ch = {
+										type   : channel.type,
+										channel: channels[j].channel,
+										name   : a['display-name'][0]['_'],
+										id     : a['$'].id,
+										sid    : a['service_id'][0]
+									};
+									
+									ch.programs = convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
+									
+									schedule.push(ch);
+									
+									util.log(
+										'CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' +
+										ch.id + ' (sid=' + ch.sid + ') ' +
+										'(programs=' + ch.programs.length.toString(10) + ')' +
+										' - ' + ch.name
+									);
+								});
+								break;
+							case 'EX':
+								result.tv.channel.forEach(function(a) {
+									var isFound = false;
+									
+									for (var j = 0; channels.length > j; j++) {
+										if (
+											(channels[j].type === 'EX') &&
 											(channels[j].sid === a['service_id'][0])
 										) {
 											isFound = true;
@@ -630,6 +670,24 @@ function isMatchedProgram(program) {
 			
 			for (var i = 0; i < rule.reserve_titles.length; i++) {
 				if (program.title.match(rule.reserve_titles[i]) !== null) isFound = true;
+			}
+			
+			if (!isFound) return;
+		}
+		
+		// ignore_descriptions
+		if (rule.ignore_descriptions) {
+			for (var i = 0; i < rule.ignore_descriptions.length; i++) {
+				if (program.detail.match(rule.ignore_descriptions[i]) !== null) return;
+			}
+		}
+		
+		// reserve_descriptions
+		if (rule.reserve_descriptions) {
+			var isFound = false;
+			
+			for (var i = 0; i < rule.reserve_descriptions.length; i++) {
+				if (program.detail.match(rule.reserve_descriptions[i]) !== null) isFound = true;
 			}
 			
 			if (!isFound) return;

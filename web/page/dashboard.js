@@ -45,27 +45,29 @@
 			
 			li.insert(new Element('div', {className: 'jump'}).insert(jump));
 			
-			function preview() {
-				if (!$(id)) {
-					delete preview;
-					delete li;
-					return;
-				}
-				
-				new Ajax.Request('./api/recording/' + program.id + '/preview', {
-					method    : 'get',
-					parameters: {width: 320, height: 180, nonce: new Date().getTime()},
-					onSuccess : function(t) {
-						li.style.backgroundImage = 'url(' + t.responseText + ')';
-						
-						delete t.responseText;
-						t = null;
-						
-						setTimeout(preview, 5000);
+			if (program.pid && !program.tuner.isScrambling && app.chinachu.status.feature.streamer) {
+				function preview() {
+					if (!$(id)) {
+						delete preview;
+						delete li;
+						return;
 					}
-				});
+					
+					new Ajax.Request('./api/recording/' + program.id + '/preview', {
+						method    : 'get',
+						parameters: {width: 320, height: 180, nonce: new Date().getTime()},
+						onSuccess : function(t) {
+							li.style.backgroundImage = 'url(' + t.responseText + ')';
+							
+							delete t.responseText;
+							t = null;
+							
+							setTimeout(preview, 5000);
+						}
+					});
+				}
+				preview();
 			}
-			preview();
 		});
 	}
 	viewRecording();
