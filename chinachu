@@ -53,7 +53,7 @@ main () {
   local cmd="$1"
   shift
   case $cmd in
-    installer | service | update )
+    installer | service | update | search )
       cmd="chinachu_$cmd"
       ;;
     * )
@@ -309,6 +309,10 @@ chinachu_update () {
   ${NAVE_DIR}/node app-scheduler.js "$@" > /dev/stdout 2>&1 | tee ./log/scheduler && return 0
 }
 
+chinachu_search () {
+  ${NAVE_DIR}/node app-cli.js -mode search "$@" && return 0
+}
+
 chinachu_help () {
   cat <<EOF
 
@@ -318,17 +322,22 @@ Commands:
 
 installer               Run a Installer.
 service <name> <action> Service-utility.
+
 update                  Run a Scheduler.
-cleanup                 Clean-up the tuner-locks and recorded list.
 search [options]        Search for programs.
+
 reserve <pgid>          Reserve the program manually.
 unreserve <pgid>        Unreserve the program manually.
 rule [options]          Add a rule for auto reservation.
 unrule <ruleid>         Remove a rule for auto reservation.
+
 rules                   Show a list of auto reserving rules.
 reserved                Show a list of reserved programs.
 recording               Show a list of recording programs.
 recorded                Show a list of recorded programs.
+
+cleanup                 Clean-up the recorded list.
+unlock                  Unlock the tuners.
 help                    Output this information.
 
 EOF
