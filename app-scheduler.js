@@ -642,19 +642,23 @@ function isMatchedProgram(program) {
 		}
 		
 		// hour
-		if (rule.hour && rule.hour.start && rule.hour.end) {
+		if (rule.hour && (typeof rule.hour.start !== 'undefined') && (typeof rule.hour.end !== 'undefined')) {
 			var ruleStart = rule.hour.start;
 			var ruleEnd   = rule.hour.end;
 			
 			var progStart = new Date(program.start).getHours();
 			var progEnd   = new Date(program.end).getHours();
 			
-			if ((ruleStart > progStart) && (ruleEnd < progEnd)) return;
+			if (ruleStart > ruleEnd) {
+				if ((ruleStart > progStart) && (ruleEnd < progEnd)) return;
+			} else {
+				if ((ruleStart > progStart) || (ruleEnd < progEnd)) return;
+			}
 		}
 		
 		// duration
-		if (rule.duration && rule.duration.min && rule.duration.max) {
-			if ((rule.duration.min > program.seconds) && (rule.duration.max < program.seconds)) return;
+		if (rule.duration && (typeof rule.duration.min !== 'undefined') && (typeof rule.duration.max !== 'undefined')) {
+			if ((rule.duration.min > program.seconds) || (rule.duration.max < program.seconds)) return;
 		}
 		
 		// ignore_titles
