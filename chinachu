@@ -16,7 +16,7 @@ fi
 shopt -s extglob
 
 # variables
-NODE_VER=0.8.8
+NODE_VER=0.8.9
 
 main () {
   local SELF_PATH DIR SYM
@@ -53,7 +53,7 @@ main () {
   local cmd="$1"
   shift
   case $cmd in
-    installer | service | update | search )
+    installer | service | update | search | ircbot )
       cmd="chinachu_$cmd"
       ;;
     * )
@@ -283,8 +283,8 @@ Usage: ./chinachu service <name> <action>
 
 Names:
 
-operator    Chinachu Operator Daemon
-wui         Chinachu WebUI Server Daemon
+operator    Chinachu Task Operator Service
+wui         Chinachu WebUI Server Service
 
 Actions:
 
@@ -313,6 +313,10 @@ chinachu_search () {
   ${NAVE_DIR}/node app-cli.js -mode search "$@" && return 0
 }
 
+chinachu_ircbot () {
+  ${NAVE_DIR}/node app-cli.js -mode ircbot "$@" && return 0
+}
+
 chinachu_help () {
   cat <<EOF
 
@@ -338,6 +342,9 @@ recorded                Show a list of recorded programs.
 
 cleanup                 Clean-up the recorded list.
 unlock                  Unlock the tuners.
+
+ircbot [options]        Connect to IRC server and run a ircbot.
+
 help                    Output this information.
 
 EOF

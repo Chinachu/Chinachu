@@ -15,6 +15,8 @@ var RECORDED_DATA_FILE  = __dirname + '/data/recorded.json';
 // 標準モジュールのロード
 var fs            = require('fs');
 var util          = require('util');
+var net           = require('net');
+var child_process = require('child_process');
 
 // ディレクトリチェック
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
@@ -32,7 +34,6 @@ opts.parse([
 	{
 		short      : 'mode',
 		long       : 'mode',
-		description: '動作モード',
 		value      : true,
 		required   : true
 	},
@@ -44,7 +45,14 @@ opts.parse([
 		required   : false
 	},
 	{
-		short      : 'd',
+		short      : 'simple',
+		long       : 'simple',
+		description: '簡略表示',
+		value      : false,
+		required   : false
+	},
+	{
+		short      : 'detail',
 		long       : 'detail',
 		description: '詳細',
 		value      : false,
@@ -170,9 +178,37 @@ opts.parse([
 		required   : false
 	},
 	{
+		short      : 'flag',
+		long       : 'flags',
+		description: 'フラグ',
+		value      : true,
+		required   : false
+	},
+	{
 		short      : '^flag',
 		long       : 'ignore-flags',
 		description: '無視フラグ',
+		value      : true,
+		required   : false
+	},
+	{
+		short      : 'host',
+		long       : 'host',
+		description: 'host',
+		value      : true,
+		required   : false
+	},
+	{
+		short      : 'port',
+		long       : 'port',
+		description: 'port',
+		value      : true,
+		required   : false
+	},
+	{
+		short      : 'nick',
+		long       : 'nick',
+		description: 'nick',
 		value      : true,
 		required   : false
 	}
@@ -210,6 +246,7 @@ if (opts.get('title'))  rule.reserve_titles       = opts.get('title').split(',')
 if (opts.get('^title')) rule.ignore_titles        = opts.get('^title').split(',');
 if (opts.get('desc'))   rule.reserve_descriptions = opts.get('desc').split(',');
 if (opts.get('^desc'))  rule.ignore_descriptions  = opts.get('^desc').split(',');
+if (opts.get('flag'))   rule.reserve_flags        = opts.get('flag').split(',');
 if (opts.get('^flag'))  rule.ignore_flags         = opts.get('^flag').split(',');
 
 // 動作モード
@@ -218,11 +255,14 @@ switch (opts.get('mode')) {
 	case 'search':
 		chinachuSearch();
 		break;
+	// IRC bot
+	case 'ircbot':
+		chinachuIrcbot();
+		break;
 	default:
+		process.exit(1);
 		break;
 }
-
-process.exit(0);
 
 // 検索
 function chinachuSearch() {
@@ -248,11 +288,15 @@ function chinachuSearch() {
 	// output
 	matches.forEach(function(a, i) {
 		t.cell('#', i);
-		t.cell('Program ID', a.id);
+		if (!opts.get('simple') || opts.get('detail')) t.cell('Program ID', a.id);
 		t.cell('Type:CH', a.channel.type + ':' + a.channel.channel);
 		if (opts.get('detail')) t.cell('SID', a.channel.sid);
 		t.cell('Cat', a.category);
-		t.cell('Datetime', dateFormat(new Date(a.start), 'yy/mm/dd HH:MM').replace('T', ' '));
+		if (opts.get('simple')) {
+			t.cell('Datetime', dateFormat(new Date(a.start), 'dd HH:MM'));
+		} else {
+			t.cell('Datetime', dateFormat(new Date(a.start), 'yy/mm/dd HH:MM'));
+		}
 		t.cell('Dur', (a.seconds / 60) + 'm');
 		t.cell('Title', a.title);
 		if (opts.get('detail')) t.cell('Description', a.detail);
@@ -263,8 +307,162 @@ function chinachuSearch() {
 	if (matches.length === 0) {
 		util.puts('見つかりません');
 	} else {
-		util.puts(t.toString().trim());
+		if (opts.get('simple')) {
+			util.puts(t.print().trim());
+		} else {
+			util.puts(t.toString().trim());
+		}
 	}
+	
+	process.exit(0);
+}
+
+// IRC bot
+function chinachuIrcbot() {
+	if (!opts.get('host') || !opts.get('ch')) {
+		util.error('require: -host, -ch');
+		util.error('option : -port');
+		process.exit(1);
+	}
+	
+	var irc = {
+		host: opts.get('host'),
+		port: parseInt(opts.get('port') || 6667, 10),
+		ch  : opts.get('ch'),
+		nick: opts.get('nick') || 'chinachu_bot'
+	};
+	
+	irc.socket = new net.Socket();
+	
+	irc.socket.on('connect', function() {
+		util.log('接続されました...');
+		setTimeout(function() {
+			irc.raw('NICK ' + irc.nick);
+			irc.raw('USER chinachu 8 * :Chinachu IRC bot (Node)');
+			irc.raw('JOIN ' + irc.ch);
+		}, 1000);
+	});
+	
+	irc.socket.on('data', function(data) {
+		data = data.split('\n');
+		for (var i = 0; i < data.length; i++) {
+			if (data[i] !== '') {
+				//util.log(data[i]);
+				irc.handle(data[i].slice(0, -1));
+			}
+		}
+	});
+	
+	irc.handle = function(data) {
+		var info;
+		for (var i = 0; i < irc.listeners.length; i++) {
+			info = irc.listeners[i][0].exec(data);
+			if (info) {
+				irc.listeners[i][1](info, data);
+				if (irc.listeners[i][2]) {
+					irc.listeners.splice(i, 1);
+				}
+			}
+		}
+	};
+	
+	irc.listeners = [];
+	
+	irc.on = function(data, callback) {
+		irc.listeners.push([data, callback, false])
+	};
+	
+	irc.once = function(data, callback) {
+		irc.listeners.push([data, callback, true]);
+	};
+	
+	irc.raw = function(data) {
+		irc.socket.write(data + '\n', 'utf-8', function() {
+			util.log('SENT -' + data);
+		});
+	};
+	
+	irc.on(/^PING :(.+)$/i, function(info) {
+		irc.raw('PONG :' + info[1]);
+	});
+	
+	irc.on(/^:.+ PRIVMSG .+ :chinachu (.+)$/i, function(msg) {
+		util.log('CHII -' + msg[1]);
+		
+		var args = msg[1].split(' ');
+		
+		switch (args[0]) {
+			case 'search':
+			case 'rules':
+			case 'reserved':
+			case 'recording':
+			case 'recorded':
+				break;
+			default:
+				irc.notice(irc.ch, '無効なコマンド');
+				return;
+		}
+		
+		args.push('-simple');
+		
+		var c = child_process.spawn('./chinachu', args);
+		
+		c.stdout.on('data', function(data) {
+			var arr = (data + '').split('\n');
+			
+			if (arr.length > 20) {
+				irc.notice(irc.ch, '結果が多すぎ');
+			} else {
+				arr.forEach(function(line, i) {
+					if (line) {
+						setTimeout(function() {
+							irc.notice(irc.ch, line);
+						}, 250 * i);
+					}
+				});
+			}
+		});
+	});
+	
+	irc.join = function(chan, callback) {
+		if (callback !== undefined) {
+			irc.once(new RegExp('^:' + irc.info.nick + '![^@]+@[^ ]+ JOIN :' + chan), callback);
+		}
+		irc.info.names[chan] = {};
+		irc.raw('JOIN ' + chan);
+	};
+	
+	irc.msg = function(chan, msg) {
+		var max_length = 500 - chan.length;
+		
+		var msgs = msg.match(new RegExp('.{1,' + max_length + '}', 'g'));
+		
+		var interval = setInterval(function() {
+			irc.raw('PRIVMSG ' + chan + ' :' + msgs[0]);
+			msgs.splice(0, 1);
+			if (msgs.length === 0) {
+				clearInterval(interval);
+			}
+		}, 1000);
+	};
+	
+	irc.notice = function(chan, msg) {
+		var max_length = 500 - chan.length;
+		
+		var msgs = msg.match(new RegExp('.{1,' + max_length + '}', 'g'));
+		
+		var interval = setInterval(function() {
+			irc.raw('NOTICE ' + chan + ' :' + msgs[0]);
+			msgs.splice(0, 1);
+			if (msgs.length === 0) {
+				clearInterval(interval);
+			}
+		}, 1000);
+	};
+	
+	irc.socket.setEncoding('utf-8');
+	irc.socket.setNoDelay();
+	irc.socket.connect(irc.port, irc.host);
 }
 
 // (function) rule checker
@@ -315,6 +513,10 @@ function isMatchedProgram(program) {
 			var progStart = new Date(program.start).getHours();
 			var progEnd   = new Date(program.end).getHours();
 			
+			if (progStart > progEnd) {
+				progEnd += 24;
+			}
+			
 			if (ruleStart > ruleEnd) {
 				if ((ruleStart > progStart) && (ruleEnd < progEnd)) return;
 			} else {
@@ -347,6 +549,8 @@ function isMatchedProgram(program) {
 		
 		// ignore_descriptions
 		if (rule.ignore_descriptions) {
+			if (!program.detail) return;
+			
 			for (var i = 0; i < rule.ignore_descriptions.length; i++) {
 				if (program.detail.match(rule.ignore_descriptions[i]) !== null) return;
 			}
@@ -354,6 +558,8 @@ function isMatchedProgram(program) {
 		
 		// reserve_descriptions
 		if (rule.reserve_descriptions) {
+			if (!program.detail) return;
+			
 			var isFound = false;
 			
 			for (var i = 0; i < rule.reserve_descriptions.length; i++) {
@@ -370,6 +576,21 @@ function isMatchedProgram(program) {
 					if (rule.ignore_flags[i] === program.flags[j]) return;
 				}
 			}
+		}
+		
+		// reserve_flags
+		if (rule.reserve_flags) {
+			if (!program.detail) return;
+			
+			var isFound = false;
+			
+			for (var i = 0; i < rule.reserve_flags.length; i++) {
+				for (var j = 0; j < program.flags.length; j++) {
+					if (rule.reserve_flags[i] === program.flags[j]) isFound = true;
+				}
+			}
+			
+			if (!isFound) return;
 		}
 		
 		result = true;

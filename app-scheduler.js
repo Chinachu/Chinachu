@@ -649,6 +649,10 @@ function isMatchedProgram(program) {
 			var progStart = new Date(program.start).getHours();
 			var progEnd   = new Date(program.end).getHours();
 			
+			if (progStart > progEnd) {
+				progEnd += 24;
+			}
+			
 			if (ruleStart > ruleEnd) {
 				if ((ruleStart > progStart) && (ruleEnd < progEnd)) return;
 			} else {
@@ -681,6 +685,8 @@ function isMatchedProgram(program) {
 		
 		// ignore_descriptions
 		if (rule.ignore_descriptions) {
+			if (!program.detail) return;
+			
 			for (var i = 0; i < rule.ignore_descriptions.length; i++) {
 				if (program.detail.match(rule.ignore_descriptions[i]) !== null) return;
 			}
@@ -688,6 +694,8 @@ function isMatchedProgram(program) {
 		
 		// reserve_descriptions
 		if (rule.reserve_descriptions) {
+			if (!program.detail) return;
+			
 			var isFound = false;
 			
 			for (var i = 0; i < rule.reserve_descriptions.length; i++) {
@@ -704,6 +712,21 @@ function isMatchedProgram(program) {
 					if (rule.ignore_flags[i] === program.flags[j]) return;
 				}
 			}
+		}
+		
+		// reserve_flags
+		if (rule.reserve_flags) {
+			if (!program.detail) return;
+			
+			var isFound = false;
+			
+			for (var i = 0; i < rule.reserve_flags.length; i++) {
+				for (var j = 0; j < program.flags.length; j++) {
+					if (rule.reserve_flags[i] === program.flags[j]) isFound = true;
+				}
+			}
+			
+			if (!isFound) return;
 		}
 		
 		result = true;
