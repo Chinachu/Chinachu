@@ -255,6 +255,16 @@ switch (opts.get('mode')) {
 	case 'search':
 		chinachuSearch();
 		break;
+	// Program List
+	case 'reserves':
+	case 'recording':
+	case 'recorded':
+		chinachuProgramList(eval(opts.get('mode')));
+		break;
+	// Clean-up
+	case 'cleanup':
+		chinachuCleanup();
+		break;
 	// IRC bot
 	case 'ircbot':
 		chinachuIrcbot();
@@ -313,6 +323,89 @@ function chinachuSearch() {
 			util.puts(t.toString().trim());
 		}
 	}
+	
+	process.exit(0);
+}
+
+// Program List
+function chinachuProgramList(target) {
+	// matching
+	var matches = [];
+	
+	target.forEach(function(p) {
+		if (isMatchedProgram(p)) {
+			matches.push(p);
+		}
+	});
+	
+	// sort
+	matches.sort(function(a, b) {
+		return a.start - b.start;
+	});
+	
+	// table
+	var t = new Table;
+	
+	// output
+	matches.forEach(function(a, i) {
+		t.cell('#', i);
+		if (!opts.get('simple') || opts.get('detail')) t.cell('Program ID', a.id);
+		t.cell('Type:CH', a.channel.type + ':' + a.channel.channel);
+		if (opts.get('detail')) t.cell('SID', a.channel.sid);
+		t.cell('Cat', a.category);
+		if (opts.get('simple')) {
+			t.cell('Datetime', dateFormat(new Date(a.start), 'dd HH:MM'));
+		} else {
+			t.cell('By', a.isManualReserved ? 'user' : 'rule');
+			t.cell('Datetime', dateFormat(new Date(a.start), 'yy/mm/dd HH:MM'));
+		}
+		t.cell('Dur', (a.seconds / 60) + 'm');
+		t.cell('Title', a.title);
+		if (opts.get('detail')) t.cell('Description', a.detail);
+		
+		t.newRow();
+	});
+	
+	if (matches.length === 0) {
+		util.puts('見つかりません');
+	} else {
+		if (opts.get('simple')) {
+			util.puts(t.print().trim());
+		} else {
+			util.puts(t.toString().trim());
+		}
+	}
+	
+	process.exit(0);
+}
+
+// Clean-up
+function chinachuCleanup() {
+	var t = new Table;
+	
+	recorded = (function() {
+		var array = [];
+		
+		recorded.forEach(function(a) {
+			if (fs.existsSync(a.recorded)) {
+				array.push(a);
+				
+				t.cell('action', 'exist');
+			} else {
+				t.cell('action', 'removed');
+			}
+			
+			t.cell('Program ID', a.id);
+			t.cell('Recorded', a.recorded);
+			
+			t.newRow();
+		});
+		
+		return array;
+	})();
+	fs.writeFileSync(RECORDED_DATA_FILE, JSON.stringify(recorded));
+	
+	util.puts(t.print().trim());
 	
 	process.exit(0);
 }
@@ -394,7 +487,7 @@ function chinachuIrcbot() {
 		switch (args[0]) {
 			case 'search':
 			case 'rules':
-			case 'reserved':
+			case 'reserves':
 			case 'recording':
 			case 'recorded':
 				break;

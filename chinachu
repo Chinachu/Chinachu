@@ -53,7 +53,9 @@ main () {
   local cmd="$1"
   shift
   case $cmd in
-    installer | service | update | search | ircbot )
+    installer | service | update | search | \
+    reserves | recording | recorded | \
+    cleanup | unlock | ircbot )
       cmd="chinachu_$cmd"
       ;;
     * )
@@ -313,6 +315,53 @@ chinachu_search () {
   ${NAVE_DIR}/node app-cli.js -mode search "$@" && return 0
 }
 
+chinachu_reserves () {
+  ${NAVE_DIR}/node app-cli.js -mode reserves "$@" && return 0
+}
+
+chinachu_recording () {
+  ${NAVE_DIR}/node app-cli.js -mode recording "$@" && return 0
+}
+
+chinachu_recorded () {
+  ${NAVE_DIR}/node app-cli.js -mode recorded "$@" && return 0
+}
+
+chinachu_cleanup () {
+  echo "Clean-up the recorded list."
+  
+  while [ 1 ]; do
+    echo -n "Do you want to continue [Y/n]? "
+    read line
+    case $line in
+      [yY])
+        ${NAVE_DIR}/node app-cli.js -mode cleanup && return 0
+        ;;
+      [nN])
+        echo "Abort." && return 0
+        ;;
+    esac
+  done
+}
+
+chinachu_unlock () {
+  echo "Unlock the tuners."
+  echo "*WARNING* Do NOT run this command when on running recording, scheduler."
+  
+  while [ 1 ]; do
+    echo -n "Do you want to continue [Y/n]? "
+    read line
+    case $line in
+      [yY])
+        rm -vf "${CHINACHU_DIR}"/data/tuner.*.lock && echo "done." && return 0
+        ;;
+      [nN])
+        echo "Abort." && return 0
+        ;;
+    esac
+  done
+}
+
 chinachu_ircbot () {
   ${NAVE_DIR}/node app-cli.js -mode ircbot "$@" && return 0
 }
@@ -336,7 +385,7 @@ rule [options]          Add a rule for auto reservation.
 unrule <ruleid>         Remove a rule for auto reservation.
 
 rules                   Show a list of auto reserving rules.
-reserved                Show a list of reserved programs.
+reserves                Show a list of reserved programs.
 recording               Show a list of recording programs.
 recorded                Show a list of recorded programs.
 
