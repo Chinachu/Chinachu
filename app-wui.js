@@ -506,9 +506,9 @@ function httpServer(req, res) {
 							var size     = query.size     || null;
 							var rate     = query.rate     || null;
 							
-							if (start === 'live') {
-								start = Math.round((new Date().getTime() - program.start) / 1000).toString(10);
-							}
+							//if (start === 'live') {
+							//	start = Math.round((new Date().getTime() - program.start) / 1000).toString(10);
+							//}
 							
 							if (ext === 'm2ts') {
 								format = 'mpegts';
@@ -531,10 +531,10 @@ function httpServer(req, res) {
 							args.push('-v', '0');
 							args.push('-threads', status.system.core.toString(10));
 							
-							if (start)    { args.push('-ss', start); }
+							if (start !== 'live')    { args.push('-ss', start); }
 							if (duration) { args.push('-t', duration); }
 							
-							args.push('-re', '-i', program.recorded);
+							args.push('-re', '-i', (start === 'live') ? 'pipe:0' : program.recorded);
 							args.push('-vcodec', vcodec, '-acodec', acodec);
 							//args.push('-map', '0.0', '-map', '0.1');
 							
@@ -550,21 +550,56 @@ function httpServer(req, res) {
 							
 							var ffmpeg = child_process.spawn('ffmpeg', args);
 							
+							if (start === 'live') {
+								var tailf = child_process.spawn('tail', ['-f', '-c', '1024', program.recorded]);// 1KB
+								
+								tailf.stdout.on('data', function(data) {
+									if (tailf) ffmpeg.stdin.write(data);
+								});
+								
+								tailf.on('exit', function(code) {
+									if (tailf) ffmpeg.stdin.end();
+									tailf = null;
+								});
+							}
+							
 							ffmpeg.stdout.on('data', function(data) {
-								res.write(data, 'binary');
+								if (ffmpeg) res.write(data, 'binary');
 							});
 							
 							ffmpeg.stderr.on('data', function(data) {
-								util.puts(data);
+								if (ffmpeg) util.puts(data);
 							});
 							
 							ffmpeg.on('exit', function(code) {
+								if (tailf) {
+									tailf.stdout.removeAllListeners('data');
+									tailf.stderr.removeAllListeners('data');
+									tailf.kill('SIGKILL');
+									tailf = null;
+								}
+								if (ffmpeg) {
+									ffmpeg.stdout.removeAllListeners('data');
+									ffmpeg.stderr.removeAllListeners('data');
+									ffmpeg.kill('SIGKILL');
+									ffmpeg = null;
+								}
+								
 								res.end();
 								log(statusCode);
 							});
 							
 							req.on('close', function() {
-								ffmpeg.kill('SIGKILL');
+								if (tailf) {
+									tailf.stdout.removeAllListeners('data');
+									tailf.stderr.removeAllListeners('data');
+									tailf.kill('SIGKILL');
+								} else {
+									ffmpeg.stdout.removeAllListeners('data');
+									ffmpeg.stderr.removeAllListeners('data');
+									ffmpeg.kill('SIGKILL');
+									ffmpeg = null;
+								}
 							});
 							
 							return;
