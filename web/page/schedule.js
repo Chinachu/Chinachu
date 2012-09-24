@@ -13,10 +13,22 @@
 	
 	var param = {
 		unit       : 25,
+		line       : 50,
 		dateIndex  : [],
 		dateBtns   : [],
 		points     : [0, 0],
-		isScrolling: false
+		isScrolling: false,
+		color      : {
+			anime      : '#fcbde1',
+			information: '#bdfce8',
+			news       : '#d7fcbd',
+			sports     : '#bdf1fc',
+			variety    : '#fbfcbd',
+			drama      : '#fce1c4',
+			music      : '#bdc9fc',
+			cinema     : '#d6bdfc',
+			etc        : '#eeeeee'
+		}
 	};
 	
 	// 目盛のポインタ
@@ -76,6 +88,21 @@
 	function timelineOnScroll(e) {
 		contentBodyTimescale.scrollLeft = contentBodyTimeline.scrollLeft;
 		contentBodyTimelineHeader.scrollTop = contentBodyTimeline.scrollTop;
+		
+		setTimeout(function() {
+			for (var i = param.dateIndex.length - 1; i >= 0; i--) {
+				param.dateBtns[i].className = '';
+			}
+			
+			for (var i = param.dateIndex.length - 1; i >= 0; i--) {
+				param.dateBtns[i].className = '';
+				
+				if (scrollLeft >= param.dateIndex[i]) {
+					param.dateBtns[i].className = 'selected';
+					break;
+				}
+			}
+		}, 0);
 	}
 	
 	if (Prototype.Browser.MobileSafari) {
@@ -86,6 +113,8 @@
 		contentBodyTimeline.observe('mousedown', timelineOnMousedown);
 		contentBodyTimeline.observe('mouseup', timelineOnMouseup);
 		contentBodyTimeline.observe('mousemove', timelineOnMousemove);
+		contentBodyTimelineHeader.observe('mouseup', timelineOnMouseup);
+		contentBodyTimelineHeader.observe('mousemove', timelineOnMousemove);
 	}
 	
 	// ビュー: スケジュール
@@ -94,6 +123,8 @@
 		
 		var loading = new app.ui.ContentLoading({
 			onComplete: function() {
+				stage.update();
+				
 				loading.remove();
 				loading = null;
 			}
@@ -115,8 +146,16 @@
 		contentBodyTimeline.update();
 		contentBodyTimelineHeader.update();
 		
+		var canvas = new Element('canvas');
+		contentBodyTimeline.insert(canvas);
+		
+		var stage = new createjs.Stage(canvas);
+		
+		var k = 0;
 		app.chinachu.schedule.each(function(channel, i) {
 			if (channel.programs.length === 0) return;
+			
+			var y = k;
 			
 			var header = new Element('div');
 			header.addClassName('channel-type-' + channel.type).addClassName('channel-id-' + channel.id);
@@ -124,9 +163,6 @@
 			header.insert(new Element('div', { className: 'meta' }).insert(channel.id + ' (' + channel.channel + ')'));
 			contentBodyTimelineHeader.insert(header);
 			
-			var programs = new Element('div');
-			programs.addClassName('channel-type-' + channel.type).addClassName('channel-id-' + channel.id);
-			contentBodyTimeline.insert(programs);
 			
 			channel.programs.each(function(program, j) {
 				if ((program.end - param.cur) < 0) {
@@ -139,24 +175,36 @@
 				var points = [0, 0];
 				
 				setTimeout(function() {
-					programs.insert(
-						new Element('div', {
-							className: 'cat-' + program.category + ' ' + program.id
-						}).setStyle({
-							left : ((program.start - param.cur) / 1000 / 1000 * param.unit) + 'px',
-							width: (program.seconds / 1000 * param.unit) + 'px'
-						}).insert(
-							new Element('div', { className: 'title' }).insert(program.title)
-						).observe('mousedown', function(e) {
-							points = [ e.x || e.pageX, e.y || e.pageY ];
-						}).observe('mouseup', function(e) {
-							var pts = [ e.x || e.pageX, e.y || e.pageY ];
-							
-							if ((pts[0] === points[0]) && (pts[1] === points[1]) && e.isLeftClick()) {
-								new app.ui.ProgramViewer(program.id);
-							}
-						})
-					);
+					var posX   = (program.start - param.cur) / 1000 / 1000 * param.unit + 150;
+					var posY   = 5 + y * (5 + param.line);
+					var width  = program.seconds / 1000 * param.unit;
+					var height = param.line;
+					
+					var rect = new createjs.Shape();
+					rect.graphics.beginFill(param.color[program.category] || '#fff').drawRect(posX, posY, width, height);
+					stage.addChild(rect);
+					
+					var text = new createjs.Text(program.title, '10px', "#444");
+					text.mask = rect;
+					text.x    = posX + 5;
+					text.y    = posY + 5;
+					stage.addChild(text);
+					
+					var eop = new createjs.Shape();
+					eop.graphics.beginFill('rgba(0,0,0,0.2)').drawRect(posX + width - 1, posY, 1, height);
+					stage.addChild(eop);
+					
+					rect.onPress = function(e) {
+						points = [ e.nativeEvent.x || e.nativeEvent.pageX, e.nativeEvent.y || e.nativeEvent.pageY ];
+					};
+					
+					rect.onClick = function(e) {
+						var pts = [ e.nativeEvent.x || e.nativeEvent.pageX, e.nativeEvent.y || e.nativeEvent.pageY ];
+						
+						if ((pts[0] === points[0]) && (pts[1] === points[1]) && e.nativeEvent.isLeftClick()) {
+							new app.ui.ProgramViewer(program.id);
+						}
+					};
 					
 					counter();
 				}, 0);
@@ -164,16 +212,35 @@
 			
 			if (channel.programs.length === 0) {
 				header.remove();
-				programs.remove();
 				return;
 			}
 			
-			programs.setStyle({
-				width: ((channel.programs.last().end - param.cur) / 1000 / 1000 * param.unit) + 'px'
-			});
-			
+			++k;
 			total += channel.programs.length;
 		});
+		
+		var canvasWidth = (maxlen - param.cur) / 1000 / 1000 * param.unit;
+		
+		(k).times(function(n) {
+			setTimeout(function() {
+				var posY   = 5 + n * (5 + param.line);
+				
+				var b1 = new createjs.Shape();
+				b1.graphics.beginFill('rgba(0,0,0,0.1)').drawRect(0, posY, canvasWidth, 1);
+				stage.addChild(b1);
+				
+				var b2 = new createjs.Shape();
+				b2.graphics.beginFill('rgba(0,0,0,0.1)').drawRect(0, posY + param.line - 1, canvasWidth, 1);
+				stage.addChild(b2);
+				
+				var b3 = new createjs.Shape();
+				b3.graphics.beginFill('#f4f4f4').drawRect(0, posY + param.line, canvasWidth, 1);
+				stage.addChild(b3);
+			}, 0);
+		});
+		
+		canvas.setAttribute('width', canvasWidth);
+		canvas.setAttribute('height', k * (5 + param.line));
 		
 		// 目盛と日付
 		
