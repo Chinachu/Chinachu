@@ -195,7 +195,7 @@ function getEpg() {
 		util.log('SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
 		
 		// プロセスタイムアウト
-		setTimeout(function() { recProc.kill('SIGTERM'); }, 1000 * 45);
+		setTimeout(function() { recProc.kill('SIGTERM'); }, 1000 * (config.schedulerEpgRecordTime || 60));
 		
 		// 一時ファイルへの書き込みストリームを作成
 		var recFile = fs.createWriteStream(recPath);
@@ -280,6 +280,16 @@ function getEpg() {
 					xmlParser.parseString(stdout, function(err, result) {
 						if (result === null) {
 							util.log('EPG: パースに失敗 (result=null)');
+							retry();
+							return;
+						}
+						
+						if (
+							!result.tv.channel[0]['display-name'] ||
+							!result.tv.channel[0]['display-name'][0] ||
+							!result.tv.channel[0]['display-name'][0]['_']
+						) {
+							util.log('EPG: データが不正 (display-name is incorrect)');
 							retry();
 							return;
 						}

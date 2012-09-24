@@ -7,7 +7,7 @@
 		document.stopObserving('chinachu:reserves', viewScheduler);
 		clearInterval(viewReservesInterval);
 		clearInterval(viewRecordedInterval);
-	})
+	});
 	
 	var loading = new app.ui.ContentLoading({
 		onComplete: function() {

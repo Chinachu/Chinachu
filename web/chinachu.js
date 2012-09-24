@@ -330,6 +330,7 @@ app.ui.RemoveRecordedProgram = Class.create({
 				title  : '録画履歴の削除',
 				description: this.program.title + ' #' + this.program.id,
 				content: '本当によろしいですか？<br>システムはこの録画ファイルを見失います。',
+
 				buttons: [
 					{
 						label  : '削除',
@@ -522,6 +523,11 @@ app.ui.ProgramViewer = Class.create({
 		
 		this.redraw();
 		
+		this.entity.container.observe('contextmenu', function(e) {
+			e.stop();
+			this.remove();
+		}.bind(this));
+		
 		return this;
 	},
 	redraw: function _redraw() {
@@ -628,6 +634,11 @@ app.ui.ProgramViewer = Class.create({
 		return this;
 	},
 	render: function _render() {
+		this.entity.container.style.opacity = '0';
+		setTimeout(function() {
+			this.entity.container.style.opacity = '1';
+		}.bind(this), 0);
+		
 		this.target.insert({top: this.entity.container});
 		
 		document.observe('chinachu:reload', function() {
@@ -639,15 +650,19 @@ app.ui.ProgramViewer = Class.create({
 	},
 	remove: function _remove() {
 		try {
-			this.entity.content.remove();
-			this.entity.container.remove();
+			this.entity.container.style.opacity = '0';
 			
-			this.entity.content   = null;
-			this.entity.container = null;
-			
-			delete this.program;
-			delete this.entity;
-			delete this.target;
+			setTimeout(function() {
+				this.entity.content.remove();
+				this.entity.container.remove();
+				
+				this.entity.content   = null;
+				this.entity.container = null;
+				
+				delete this.program;
+				delete this.entity;
+				delete this.target;
+			}.bind(this), 200);
 		} catch (e) { /* has been removed */ }
 		
 		return true;
