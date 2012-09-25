@@ -776,14 +776,14 @@ var Hyperform = Class.create({
 					}
 					
 					// create tag add button
-					var addButton = new Element('button').insert('&#x25B8;');
+					var addButton = new Element('button').insert('&#x2b;');// (v1.0:&#x25B8;)
 					field._i.insert(addButton);
 					
 					// create tag list container
 					var tagListContainer = new Element('div');
 					field._i.insert(tagListContainer);
 					
-					var makeTagList = function _makeTagList() {
+					function makeTagList() {
 						tagListContainer.update();
 						
 						if (field._o.length === 0) {
@@ -808,12 +808,13 @@ var Hyperform = Class.create({
 					};
 					makeTagList();
 					
-					var addTag = function _addTag() {
-						if ($F(input).strip() === '') {
+					function addTag() {
+						var value = $F(input).strip();
+						
+						if (value === '') {
 							return;
 						}
 						
-						var value = $F(input).strip();
 						field._o = field._o.without(value);
 						field._o.push(value);
 						
@@ -824,6 +825,7 @@ var Hyperform = Class.create({
 					input.observe('keydown', function _onKeydown(e) {
 						if (e.keyCode === 13) {
 							addTag();
+							e.stop();
 						}
 					});
 					addButton.observe('click', addTag);
