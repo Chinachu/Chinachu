@@ -405,24 +405,16 @@ div.hypermodal > div > div > div.hypermodal-footer {
 	border-radius   : 0; }
 
 /* hyperform */
-.hyperform div.radio > button {
-	box-shadow      : none !important;
-	border-radius   : 0 !important;
-	border-width    : 2px !important;
-	background-image: none !important;
-	background-color: rgba(0,0,0,0.1) !important; }
 
-.hyperform div.radio > button.selected {
+.hyperform button.selected {
+	border-color    : #000 !important;
+	border-color    : rgba(0, 0, 0, 0.5) !important;
 	background-color: #c24186 !important; }
 	
-	.hyperform div.radio > button.selected > label {
-		color           : #fff !important;
-		text-shadow     : none !important; }
+	.hyperform button.selected > label {
+		color: #fff; }
 
 .hyperform div.slider > .slider-base {
-	box-shadow      : none !important;
-	border-radius   : 0 !important;
-	border-width    : 2px !important;
 	background-image: none !important;
 	background-color: #fff !important;
 	border-color    : #000 !important; }
@@ -431,21 +423,13 @@ div.hypermodal > div > div > div.hypermodal-footer {
 	color           : #c24186 !important; }
 	
 	.hyperform div.slider > .slider-base > .slider-fill {
-		box-shadow      : none !important;
-		border-radius   : 0 !important;
 		background-image: none !important;
 		background-color: #c24186 !important; }
 		
 		.hyperform div.slider > .slider-base > .slider-fill > .slider-handle {
-			box-shadow      : none !important;
-			border-radius   : 0 !important;
 			border-color    : #000 !important;
 			background-image: none !important;
-			background-color: #d67fae !important;
-			right           : -4px !important;
-			height          : 12px !important;
-			border-width    : 2px !important;
-			width           : 4px !important; }
+			background-color: #d67fae !important; }
 
 /* page */
 
@@ -476,6 +460,9 @@ div#content-body > div#content-body-head {
 	div#content-body > div#content-body-head > a.selected {
 		background-color: #e5e5e5;
 		box-shadow      : inset 0 0 2px #ccc; }
+	
+	div#content-body > div#content-body-head > a.right {
+		float           : right; }
 		
 		div#content-body > div#content-body-head > a > span {
 			margin-left     : 2px;
