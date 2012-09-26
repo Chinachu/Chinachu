@@ -154,7 +154,7 @@
 					key   : 'categories',
 					label : 'カテゴリー',
 					input : {
-						type : 'checkbox-block',
+						type : 'checkbox',
 						items: (function() {
 							var array = [];
 							
@@ -207,18 +207,14 @@
 		var points = [ e.x || e.pageX, e.y || e.pageY ];
 		
 		if (param.isScrolling) {
-			contentBodyTimeline.scrollTop  += param.points[1] - points[1];
-			contentBodyTimeline.scrollLeft += param.points[0] - points[0];
-			
-			var scrollLeft = contentBodyTimeline.scrollLeft;
-			
-			contentBodyTimelineHeader.scrollTop = contentBodyTimeline.scrollTop;
-			contentBodyTimescale.scrollLeft = scrollLeft;
+			contentBodyTimelineHeader.scrollTop = contentBodyTimeline.scrollTop = contentBodyTimeline.scrollTop + param.points[1] - points[1];
+			var position = contentBodyTimescale.scrollLeft = contentBodyTimeline.scrollLeft = contentBodyTimeline.scrollLeft + param.points[0] - points[0];
+			position += points[0];
+		} else {
+			var position = contentBodyTimeline.scrollLeft + points[0];
 		}
 		
 		param.points = [ points[0], points[1] ];
-		
-		var position = contentBodyTimeline.scrollLeft + param.points[0];
 		
 		pointer.style.left = position + 'px';
 		pointer.innerHTML  = ':' + new Date(param.cur + ((position - 150) / param.unit * 1000 * 1000)).getMinutes().toPaddedString(2);
@@ -234,13 +230,20 @@
 	if (Prototype.Browser.MobileSafari) {
 		contentBodyTimeline.style.overflow = 'scroll';
 		contentBodyTimeline.addEventListener('scroll', timelineOnScroll);
+	} else if(Prototype.Browser.IE) {
+		contentBodyTimeline.attachEvent('onmousemove', timelineOnMousemove);
+		contentBodyTimeline.attachEvent('onmouseout', timelineOnMouseout);
+		contentBodyTimeline.attachEvent('onmousedown', timelineOnMousedown);
+		contentBodyTimeline.attachEvent('onmouseup', timelineOnMouseup);
+		contentBodyTimelineHeader.attachEvent('onmousemove', timelineOnMousemove);
+		contentBodyTimelineHeader.attachEvent('onmouseup', timelineOnMouseup);
 	} else {
-		contentBodyTimeline.observe('mouseout', timelineOnMouseout);
-		contentBodyTimeline.observe('mousedown', timelineOnMousedown);
-		contentBodyTimeline.observe('mouseup', timelineOnMouseup);
-		contentBodyTimeline.observe('mousemove', timelineOnMousemove);
-		contentBodyTimelineHeader.observe('mouseup', timelineOnMouseup);
-		contentBodyTimelineHeader.observe('mousemove', timelineOnMousemove);
+		contentBodyTimeline.addEventListener('mousemove', timelineOnMousemove);
+		contentBodyTimeline.addEventListener('mouseout', timelineOnMouseout);
+		contentBodyTimeline.addEventListener('mousedown', timelineOnMousedown);
+		contentBodyTimeline.addEventListener('mouseup', timelineOnMouseup);
+		contentBodyTimelineHeader.addEventListener('mousemove', timelineOnMousemove);
+		contentBodyTimelineHeader.addEventListener('mouseup', timelineOnMouseup);
 	}
 	
 	// ビュー: スケジュール
@@ -297,6 +300,10 @@
 			} else {
 				header.insert(new Element('div', { className: 'name' }).insert(channel.name).setStyle({ marginTop: '3px' }));
 			}
+			
+			header.observe('click', function() {
+				window.location.hash = '/search?' + Object.toQueryString({ skip: 1, chid: channel.id });
+			});
 			
 			contentBodyTimelineHeader.insert(header);
 			
@@ -491,7 +498,7 @@
 			for (var i = param.dateIndex.length - 1; i >= 0; i--) {
 				param.dateBtns[i].className = '';
 				
-				if (scrollLeft >= param.dateIndex[i]) {
+				if (scrollLeft + 1 >= param.dateIndex[i]) {
 					param.dateBtns[i].className = 'selected';
 					break;
 				}
