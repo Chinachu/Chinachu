@@ -9,6 +9,7 @@ var app = {
 	router: null,
 	socket: null,
 	notify: null,
+	query : {},
 	chinachu: {
 		status   : {},
 		rules    : [],
@@ -31,6 +32,8 @@ YUI().use('get', 'node-load', 'router', function _initYUI(Y) {
 				path: /.*/,
 				callback: function _cbRouterRoot(a) {
 					var path = a.path;
+					
+					app.query = a.query;
 					
 					if (path === '/') { path = '/dashboard'; }
 					
