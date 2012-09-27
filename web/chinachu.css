@@ -437,6 +437,10 @@ div.hypermodal > div > div > div.hypermodal-footer {
 			background-image: none !important;
 			background-color: #d67fae !important; }
 
+/* hypergrid */
+.chinachu-hypergrid-multiline {
+	 }
+
 /* page */
 
 div#content-body > div#content-body-head {
@@ -565,6 +569,17 @@ div#content-body > div#content-body-results {
 			margin   : 2px 0 0 70px;
 			font-size: 12px;
 			color    : #777; }
+		
+
+div#content-body > div#content-body-grid {
+	z-index   : 0;
+	position  : absolute;
+	top       : 25px;
+	right     : 0;
+	bottom    : 0;
+	left      : 0;
+	padding   : 10px;
+	overflow  : auto; }
 
 div#content-body > div#content-body-timescale {
 	z-index   : 150;
