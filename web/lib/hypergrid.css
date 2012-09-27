@@ -1,5 +1,5 @@
 /*!
- * Hypergrid/1.5 for Prototype.js
+ * Hypergrid/1.6 for Prototype.js
  *
  * Copyright (c) 2011 Yuki KAN
  * Licensed under the MIT-License.
@@ -67,13 +67,23 @@ table.hypergrid {
 		table.hypergrid > tbody > tr > td {
 			font-size       : 11px;
 			font-weight     : normal; }
+	
+			table.hypergrid > thead > tr > th > div.hypergrid-icon,
+			table.hypergrid > tbody > tr > td > div.hypergrid-icon {
+				background-repeat  : no-repeat;
+				background-position: left center;
+				padding-left       : 20px; }
 			
 			table.hypergrid > thead > tr > th > *,
 			table.hypergrid > tbody > tr > td > div {
 				white-space   : nowrap;
 				vertical-align: bottom;
 				overflow      : hidden;
-				width         : 100%; }
+				width         : 100%;
+				height        : auto; }
+				
+			table.hypergrid > tbody > tr > td > div {
+				padding-top   : 1px; }
 			
 			table.hypergrid > thead > tr > th > div > input,
 			table.hypergrid > tbody > tr > td > div > input {
@@ -181,7 +191,7 @@ table.hypergrid {
 		
 		table.hypergrid > tbody > tr > td {
 			border-left: 1px solid #cccccc;
-			padding    : 3px 5px 1px 5px; }
+			padding    : 2px 5px; }
 		
 		table.hypergrid > tbody > tr > td:first-child {
 			border-left: none; }
@@ -205,3 +215,22 @@ table.hypergrid {
 	table.hypergrid > .hypergrid-resize-bar-visible {
 		background-color: #cccccc;
 		background-color: rgba(50, 50, 50, 0.1); }
+
+/* extended style */
+table.hypergrid-nohead > thead > tr {
+	border-bottom: none; }
+
+	table.hypergrid-nohead > thead > tr > th {
+		padding   : 0;
+		background: none; }
+		
+		table.hypergrid-nohead > thead > tr > th > div {
+			height  : 0px; }
+	
+table.hypergrid-noborder > thead > tr,
+table.hypergrid-noborder > thead > tr > th,
+table.hypergrid-noborder > tbody > tr > td {
+	border: none; }
+
+table.hypergrid-padded > tbody > tr > td {
+	padding: 6px 10px; }

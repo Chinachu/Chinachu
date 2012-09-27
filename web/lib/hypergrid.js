@@ -1,5 +1,5 @@
 /*!
- * Hypergrid/1.5 for Prototype.js
+ * Hypergrid/1.6 for Prototype.js
  *
  * Copyright (c) 2011 Yuki KAN
  * Licensed under the MIT-License.
@@ -351,6 +351,11 @@ var Hypergrid = Class.create({
 				r.className = 'hypergrid-odd';
 			}
 			
+			// set className attr
+			if (row.className) {
+				r.className = (r.className || '') + ' ' + row.className;
+			}
+			
 			// set styles
 			var styles = row.style || {};
 			var isEnableEvent = (
@@ -382,6 +387,11 @@ var Hypergrid = Class.create({
 					td.title = row.cell[col.key].title;
 				}
 				
+				// set className attr
+				if (row.cell[col.key].className) {
+					td.className = row.cell[col.key].className;
+				}
+				
 				// set styles
 				var styles = row.cell[col.key].style || {};
 				if (row.cell[col.key].onClick) {
@@ -399,13 +409,19 @@ var Hypergrid = Class.create({
 					});
 				}
 				
-				//innerHTML
+				// innerHTML
 				if (row.cell[col.key].innerHTML) {
-					//create container
+					// create container
 					var contentContainer = document.createElement('div');
 					td.appendChild(contentContainer);
 					
-					//insertion
+					// set icon
+					if (row.cell[col.key].icon) {
+						contentContainer.setStyle({ backgroundImage: 'url(' + row.cell[col.key].icon + ')' });
+						contentContainer.addClassName('hypergrid-icon');
+					}
+					
+					// insertion
 					if (Object.isElement(row.cell[col.key].innerHTML) === true) {
 						contentContainer.appendChild(row.cell[col.key].innerHTML);
 					} else {
@@ -932,6 +948,30 @@ var Hypergrid = Class.create({
 				this.rows[i + j] = nRow;
 			}.bind(this));
 		}.bind(this));
+		
+		return this;
+	}
+	,
+	/**
+	 *  Hypergrid#delete(position) -> Hypergrid
+	 *  - position (Number, Object) - delete position
+	 *
+	 *  this method is experiment.
+	**/
+	'delete': function _delete(pos) {
+		this.selector('unselectAll');
+		
+		this.rows.each(function(row, i) {
+			if ((typeof pos === 'number') && ((pos - 1) !== i)) {
+				return;// continue
+			} else if ((typeof pos === 'object') && (row !== pos)) {
+				return;// continue
+			}
+			
+			delete this.rows[i];
+		}.bind(this));
+		
+		this.rows = this.rows.compact();
 		
 		return this;
 	}
