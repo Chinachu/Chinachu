@@ -630,17 +630,25 @@ function isMatchedProgram(program) {
 		
 		// types
 		if (rule.types) {
-			if (rule.types.indexOf(program.channel.type) === -1) return;
+			if (
+				(rule.types.indexOf(program.channel.type) === -1)
+			) return;
 		}
 		
 		// channels
 		if (rule.channels) {
-			if (rule.channels.indexOf(program.channel.channel) === -1) return;
+			if (
+				(rule.channels.indexOf(program.channel.id) === -1) &&
+				(rule.channels.indexOf(program.channel.channel) === -1)
+			) return;
 		}
 		
 		// ignore_channels
 		if (rule.ignore_channels) {
-			if (rule.ignore_channels.indexOf(program.channel.channel) !== -1) return;
+			if (
+				(rule.ignore_channels.indexOf(program.channel.id) !== -1) &&
+				(rule.ignore_channels.indexOf(program.channel.channel) !== -1)
+			) return;
 		}
 		
 		// category
