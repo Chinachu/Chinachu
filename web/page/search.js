@@ -232,6 +232,8 @@
 					}
 				}
 				
+				if (param.cur > program.end) return;
+				
 				results.push(program);
 				result[program.id] = program;
 			});
@@ -274,7 +276,11 @@
 				
 				div.insert(new Element('span', { className: 'channel' }).insert(program.channel.name));
 				
-				div.insert(new Element('span', { className: 'stat' }).hide());
+				if (program.start < param.cur && program.end > param.cur) {
+					div.insert(new Element('span', { className: 'stat' }).insert('放送中'));
+				} else {
+					div.insert(new Element('span', { className: 'stat' }).hide());
+				}
 				
 				div.insert(new Element('span', { className: 'title' }).insert(program.title));
 				
