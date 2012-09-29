@@ -577,8 +577,7 @@ function httpServer(req, res) {
 									tailf.stderr.removeAllListeners('data');
 									tailf.kill('SIGKILL');
 									tailf = null;
-								}
-								if (ffmpeg) {
+								} else {
 									ffmpeg.stdout.removeAllListeners('data');
 									ffmpeg.stderr.removeAllListeners('data');
 									ffmpeg.kill('SIGKILL');
