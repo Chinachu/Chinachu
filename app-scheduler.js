@@ -646,7 +646,7 @@ function isMatchedProgram(program) {
 		// ignore_channels
 		if (rule.ignore_channels) {
 			if (
-				(rule.ignore_channels.indexOf(program.channel.id) !== -1) &&
+				(rule.ignore_channels.indexOf(program.channel.id) !== -1) ||
 				(rule.ignore_channels.indexOf(program.channel.channel) !== -1)
 			) return;
 		}
