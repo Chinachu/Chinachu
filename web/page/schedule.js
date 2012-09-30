@@ -252,10 +252,22 @@
 		
 		var loading = new app.ui.ContentLoading({
 			onComplete: function() {
-				stage.update();
-				
 				loading.remove();
 				loading = null;
+				
+				app.chinachu.reserves.each(function(program) {
+					if (typeof piece[program.id] === 'undefined') return;
+					
+					piece[program.id].title.color = '#ff7244';
+				});
+				
+				app.chinachu.recording.each(function(program) {
+					if (typeof piece[program.id] === 'undefined') return;
+					
+					piece[program.id].title.color = '#f44';
+				});
+				
+				stage.update();
 			}
 		}).render();
 		
@@ -274,6 +286,8 @@
 		contentBodyTimescale.update();
 		contentBodyTimeline.update();
 		contentBodyTimelineHeader.update();
+		
+		var piece = {};// piece of canvas programs
 		
 		var canvas = new Element('canvas');
 		contentBodyTimeline.insert(canvas);
@@ -306,7 +320,6 @@
 			});
 			
 			contentBodyTimelineHeader.insert(header);
-			
 			
 			channel.programs.each(function(program, j) {
 				if ((program.end - param.cur) < 0) {
@@ -365,6 +378,14 @@
 						title.alpha = 0.3;
 						if (desc) desc.alpha = 0.3;
 					}
+					
+					// add to piece
+					piece[program.id] = {
+						rect : rect,
+						title: title,
+						desc : desc || null,
+						eop  : eop
+					};
 					
 					counter();
 				}, 0);
