@@ -480,7 +480,31 @@ function scheduler() {
 		if (reserve.isManualReserve) matches.push(reserve);
 	});
 	
-	util.log('MATCHES: ' + matches.length.toString(10));
+	// duplicates
+	var duplicateCount = 0;
+	for (var i = 0; i < matches.length; i++) {
+		var a = matches[i];
+		
+		for (var j = 0; j < matches.length; j++) {
+			var b = matches[j];
+			
+			if (b.isDuplicate) continue;
+			
+			if (a.id === b.id) continue;
+			if (a.channel.type !== b.channel.type) continue;
+			if (a.channel.channel !== b.channel.channel) continue;
+			if (a.start !== b.start) continue;
+			if (a.end !== b.end) continue;
+			if (a.title !== b.title) continue;
+			
+			util.log('DUPLICATE: ' + a.id + ' ' + dateFormat(new Date(a.start), 'isoDateTime') + ' [' + a.channel.name + '] ' + a.title);
+			a.isDuplicate = true;
+			
+			++duplicateCount;
+			
+			break;
+		}
+	}
 	
 	// check conflict
 	var conflictCount = 0;
@@ -543,8 +567,6 @@ function scheduler() {
 		}
 	}
 	
-	util.log('CONFLICTS: ' + conflictCount.toString(10));
-	
 	// sort
 	matches.sort(function(a, b) {
 		return a.start - b.start;
@@ -557,7 +579,7 @@ function scheduler() {
 		(function() {
 			var a = matches[i];
 			
-			if (!a.isConflict) {
+			if (!a.isConflict && !a.isDuplicate) {
 				reserves.push(a);
 				util.log('RESERVE: ' + a.id + ' ' + dateFormat(new Date(a.start), 'isoDateTime') + ' [' + a.channel.name + '] ' + a.title);
 				++reservedCount;
@@ -565,6 +587,10 @@ function scheduler() {
 		})();
 	}
 	
+	// results
+	util.log('MATCHES: ' + matches.length.toString(10));
+	util.log('DUPLICATES: ' + duplicateCount.toString(10));
+	util.log('CONFLICTS: ' + conflictCount.toString(10));
 	util.log('RESERVES: ' + reservedCount.toString(10));
 	
 	if (!opts.get('s')) {
