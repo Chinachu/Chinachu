@@ -2,7 +2,7 @@
  *  Chinachu WebUI Client Application (chinachu-wui-client)
  *
  *  Copyright (c) 2012 Yuki KAN and Chinachu Project Contributors
- *  http://akkar.in/projects/chinachu/
+ *  http://chinachu.akkar.in/
 **/
 
 var app = {

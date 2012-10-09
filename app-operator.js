@@ -2,7 +2,7 @@
  *  Chinachu Task Operator Service (chinachu-operator)
  *
  *  Copyright (c) 2012 Yuki KAN and Chinachu Project Contributors
- *  http://akkar.in/projects/chinachu/
+ *  http://chinachu.akkar.in/
 **/
 
 var CONFIG_FILE         = __dirname + '/config.json';
