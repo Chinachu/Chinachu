@@ -48,7 +48,7 @@ YUI().use('get', 'node-load', 'router', function _initYUI(Y) {
 					});
 					
 					Y.Node.all('header > div > ul > li > a').removeClass('selected');
-					Y.Node.one('header > div > ul > li > a[href="#' + path + '"]').addClass('selected');
+					Y.Node.all('header > div > ul > li > a[href="#' + path + '"]').addClass('selected');
 				}
 			}
 		]
