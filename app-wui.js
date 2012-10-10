@@ -15,7 +15,6 @@ var OPERATOR_LOG_FILE   = __dirname + '/log/operator';
 var WUI_LOG_FILE        = __dirname + '/log/wui';
 var SCHEDULER_LOG_FILE  = __dirname + '/log/scheduler';
 
-
 // 標準モジュールのロード
 var path          = require('path');
 var fs            = require('fs');
@@ -35,9 +34,11 @@ process.on('SIGQUIT', function() {
 		process.exit(0);
 	}, 0);
 });
+
 // 追加モジュールのロード
 var auth     = require('http-auth');
 var socketio = require('socket.io');
+var chinachu = require('chinachu-common');
 
 // 設定の読み込み
 var config = JSON.parse( fs.readFileSync(CONFIG_FILE, 'ascii') );
@@ -55,83 +56,99 @@ if (config.wuiTlsKeyPath && config.wuiTlsCertPath) {
 }
 
 // ファイル更新監視: ./data/rules.json
-if (!fs.existsSync(RULES_FILE)) fs.writeFileSync(RULES_FILE, '[]');
-var rules = JSON.parse( fs.readFileSync(RULES_FILE, 'ascii') );
-var rulesTimer;
-function rulesOnUpdated() {
-	clearTimeout(rulesTimer);
-	rulesTimer = setTimeout(function() {
-		util.log('UPDATED: ' + RULES_FILE);
-		
-		try {
-			rules = JSON.parse( fs.readFileSync(RULES_FILE, 'ascii') );
-			io.sockets.emit('rules', rules);
-		} catch (e) {
-			util.log('WARNING: RULES_FILE が不正です');
+var rules = [];
+chinachu.jsonWatcher(
+	RULES_FILE
+	,
+	function _onUpdated(data, err, mes) {
+		if (err) {
+			util.error(err);
+			return;
 		}
-	}, 1000);
-}
-fs.watch(RULES_FILE, rulesOnUpdated);
+		
+		rules = data;
+		if (io) io.sockets.emit('rules', rules);
+		util.log(mes);
+	}
+	,
+	{ create: [], now: true }
+);
 
 // ファイル更新監視: ./data/schedule.json
-if (!fs.existsSync(SCHEDULE_DATA_FILE)) fs.writeFileSync(SCHEDULE_DATA_FILE, '[]');
-var schedule = JSON.parse( fs.readFileSync(SCHEDULE_DATA_FILE, 'ascii') );
-var scheduleTimer;
-function scheduleOnUpdated() {
-	clearTimeout(scheduleTimer);
-	scheduleTimer = setTimeout(function() {
-		util.log('UPDATED: ' + SCHEDULE_DATA_FILE);
+var schedule = [];
+chinachu.jsonWatcher(
+	SCHEDULE_DATA_FILE
+	,
+	function _onUpdated(data, err, mes) {
+		if (err) {
+			util.error(err);
+			return;
+		}
 		
-		schedule = JSON.parse( fs.readFileSync(SCHEDULE_DATA_FILE, 'ascii') );
-		io.sockets.emit('schedule', schedule);
-	}, 1000);
-}
-fs.watch(SCHEDULE_DATA_FILE, scheduleOnUpdated);
+		schedule = data;
+		if (io) io.sockets.emit('schedule', schedule);
+		util.log(mes);
+	}
+	,
+	{ create: [], now: true }
+);
 
 // ファイル更新監視: ./data/reserves.json
-if (!fs.existsSync(RESERVES_DATA_FILE)) fs.writeFileSync(RESERVES_DATA_FILE, '[]');
-var reserves = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE, 'ascii') );
-var reservesTimer;
-function reservesOnUpdated() {
-	clearTimeout(reservesTimer);
-	reservesTimer = setTimeout(function() {
-		util.log('UPDATED: ' + RESERVES_DATA_FILE);
+var reserves = [];
+chinachu.jsonWatcher(
+	RESERVES_DATA_FILE
+	,
+	function _onUpdated(data, err, mes) {
+		if (err) {
+			util.error(err);
+			return;
+		}
 		
-		reserves = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE, 'ascii') );
-		io.sockets.emit('reserves', reserves);
-	}, 1000);
-}
-fs.watch(RESERVES_DATA_FILE, reservesOnUpdated);
+		reserves = data;
+		if (io) io.sockets.emit('reserves', reserves);
+		util.log(mes);
+	}
+	,
+	{ create: [], now: true }
+);
 
 // ファイル更新監視: ./data/recording.json
-if (!fs.existsSync(RECORDING_DATA_FILE)) fs.writeFileSync(RECORDING_DATA_FILE, '[]');
-var recording = JSON.parse( fs.readFileSync(RECORDING_DATA_FILE, 'ascii') );
-var recordingTimer;
-function recordingOnUpdated() {
-	clearTimeout(recordingTimer);
-	recordingTimer = setTimeout(function() {
-		util.log('UPDATED: ' + RECORDING_DATA_FILE);
+var recording = [];
+chinachu.jsonWatcher(
+	RECORDING_DATA_FILE
+	,
+	function _onUpdated(data, err, mes) {
+		if (err) {
+			util.error(err);
+			return;
+		}
 		
-		recording = JSON.parse( fs.readFileSync(RECORDING_DATA_FILE, 'ascii') );
-		io.sockets.emit('recording', recording);
-	}, 1000);
-}
-fs.watch(RECORDING_DATA_FILE, recordingOnUpdated);
+		recording = data;
+		if (io) io.sockets.emit('recording', recording);
+		util.log(mes);
+	}
+	,
+	{ create: [], now: true }
+);
 
 // ファイル更新監視: ./data/recorded.json
-if (!fs.existsSync(RECORDED_DATA_FILE)) fs.writeFileSync(RECORDED_DATA_FILE, '[]');
-var recorded = JSON.parse( fs.readFileSync(RECORDED_DATA_FILE, 'ascii') );
-var recordedTimer;
-function recordedOnUpdated() {
-	clearTimeout(recordedTimer);
-	recordedTimer = setTimeout(function() {
-		util.log('UPDATED: ' + RECORDED_DATA_FILE);
+var recorded = [];
+chinachu.jsonWatcher(
+	RECORDED_DATA_FILE
+	,
+	function _onUpdated(data, err, mes) {
+		if (err) {
+			util.error(err);
+			return;
+		}
 		
-		recorded = JSON.parse( fs.readFileSync(RECORDED_DATA_FILE, 'ascii') );
-		io.sockets.emit('recorded', recorded);
-	}, 1000);
-}
-fs.watch(RECORDED_DATA_FILE, recordedOnUpdated);
+		recorded = data;
+		if (io) io.sockets.emit('recorded', recorded);
+		util.log(mes);
+	}
+	,
+	{ create: [], now: true }
+);
 
 // BASIC認証
 if (config.wuiUsers && (config.wuiUsers.length > 0)) {
@@ -980,7 +997,7 @@ function httpServer(req, res) {
 //
 // socket.io server
 //
-var io   = socketio.listen(app);
+var io = socketio.listen(app);
 io.enable('browser client minification');
 io.set('log level', 1);
 io.set('transports', ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
