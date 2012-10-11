@@ -1,0 +1,31 @@
+{
+  "/": {
+    "script" : "recorded",
+    "methods": ["get", "put"],
+    "types"  : ["json"]
+  },
+  
+  "/:id": {
+    "script" : "recorded-program",
+    "methods": ["get", "delete"],
+    "types"  : ["json"]
+  },
+  
+  "/:id/file": {
+    "script" : "recorded-program-file",
+    "methods": ["get", "delete"],
+    "types"  : ["json", "m2ts"]
+  },
+  
+  "/:id/preview": {
+    "script" : "recorded-program-preview",
+    "methods": ["get"],
+    "types"  : ["png", "jpg", "txt"]
+  },
+  
+  "/:id/watch": {
+    "script" : "recorded-program-watch",
+    "methods": ["get"],
+    "types"  : ["txt", "m3u8", "xspf", "m2ts", "f4v", "flv", "webm"]
+  }
+}

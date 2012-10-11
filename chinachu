@@ -275,7 +275,7 @@ chinachu_service_execute () {
   ensure_dir log
   ensure_dir data
   
-  ${NAVE_DIR}/node app-${name}.js > /dev/stdout 2>&1 | tee ./log/${name} && return 0
+  ${NAVE_DIR}/node --expose_gc app-${name}.js > /dev/stdout 2>&1 | tee ./log/${name} && return 0
 }
 
 chinachu_service_help () {

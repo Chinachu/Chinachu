@@ -406,7 +406,7 @@ app.ui.RemoveRecordedFile = Class.create({
 						onClick: function(e, btn, modal) {
 							btn.disable();
 							
-							new Ajax.Request('./api/recorded/' + this.program.id + '/recorded.m2ts', {
+							new Ajax.Request('./api/recorded/' + this.program.id + '/file.json', {
 								method    : 'get',
 								parameters: { method: 'DELETE' },
 								onComplete: function() {
@@ -874,12 +874,12 @@ app.ui.Streamer = Class.create({
 							},
 							{
 								label     : '1Mbps',
-								value     : '1M'
+								value     : '1M',
+								isSelected: true
 							},
 							{
 								label     : '2Mbps',
-								value     : '2M',
-								isSelected: true
+								value     : '2M'
 							},
 							{
 								label     : '3Mbps',
@@ -1017,8 +1017,10 @@ app.ui.Streamer = Class.create({
 						var d = this.form.result();
 						
 						if (this.program._isRecording) {
+							d.prefix = window.location.protocol + '//' + window.location.host + '/api/recording/' + this.program.id + '/';
 							window.open('./api/recording/' + this.program.id + '/watch.xspf?' + Object.toQueryString(d));
 						} else {
+							d.prefix = window.location.protocol + '//' + window.location.host + '/api/recorded/' + this.program.id + '/';
 							window.open('./api/recorded/' + this.program.id + '/watch.xspf?' + Object.toQueryString(d));
 						}
 					}.bind(this)

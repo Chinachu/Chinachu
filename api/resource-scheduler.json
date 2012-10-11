@@ -1,0 +1,7 @@
+{
+  "/": {
+    "script" : "scheduler",
+    "methods": ["get", "put"],
+    "types"  : ["json"]
+  }
+}
