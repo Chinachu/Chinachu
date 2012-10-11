@@ -32,37 +32,46 @@ process.on('SIGQUIT', function() {
 // 追加モジュールのロード
 var dateFormat = require('dateformat');
 var OAuth      = require('oauth').OAuth;
+var chinachu   = require('chinachu-common');
 
 // 設定の読み込み
 var config = JSON.parse( fs.readFileSync(CONFIG_FILE, 'ascii') );
 
 // ファイル更新監視: ./data/reserves.json
-if (!fs.existsSync(RESERVES_DATA_FILE)) fs.writeFileSync(RESERVES_DATA_FILE, '[]');
-var reserves = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE, 'ascii') );
-var reservesTimer;
-function reservesOnUpdated() {
-	clearTimeout(reservesTimer);
-	reservesTimer = setTimeout(function() {
-		util.log('UPDATED: ' + RESERVES_DATA_FILE);
+var reserves = [];
+chinachu.jsonWatcher(
+	RESERVES_DATA_FILE
+	,
+	function _onUpdated(data, err, mes) {
+		if (err) {
+			util.error(err);
+			return;
+		}
 		
-		reserves = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE, 'ascii') );
-	}, 1000);
-}
-fs.watch(RESERVES_DATA_FILE, reservesOnUpdated);
+		reserves = data;
+		util.log(mes);
+	}
+	,
+	{ create: [], now: true }
+);
  
 // ファイル更新監視: ./data/recorded.json
-if (!fs.existsSync(RECORDED_DATA_FILE)) fs.writeFileSync(RECORDED_DATA_FILE, '[]');
-var recorded = JSON.parse( fs.readFileSync(RECORDED_DATA_FILE, 'ascii') );
-var recordedTimer;
-function recordedOnUpdated() {
-	clearTimeout(recordedTimer);
-	recordedTimer = setTimeout(function() {
-		util.log('UPDATED: ' + RECORDED_DATA_FILE);
+var recorded = [];
+chinachu.jsonWatcher(
+	RECORDED_DATA_FILE
+	,
+	function _onUpdated(data, err, mes) {
+		if (err) {
+			util.error(err);
+			return;
+		}
 		
-		recorded = JSON.parse( fs.readFileSync(RECORDED_DATA_FILE, 'ascii') );
-	}, 1000);
-}
-fs.watch(RECORDED_DATA_FILE, recordedOnUpdated);
+		recorded = data;
+		util.log(mes);
+	}
+	,
+	{ create: [], now: true }
+);
 
 // 録画中リストをクリア
 fs.writeFileSync(RECORDING_DATA_FILE, '[]');

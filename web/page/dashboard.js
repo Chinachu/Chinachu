@@ -53,7 +53,7 @@
 						return;
 					}
 					
-					new Ajax.Request('./api/recording/' + program.id + '/preview', {
+					new Ajax.Request('./api/recording/' + program.id + '/preview.txt', {
 						method    : 'get',
 						parameters: {width: 320, height: 180, nonce: new Date().getTime()},
 						onSuccess : function(t) {
