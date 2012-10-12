@@ -7,7 +7,7 @@
   ],
   
   "wuiPort"        : 10772,
-  "wuiIpv6"        : "::",
+  "wuiHost"        : "::",
   "wuiTlsKeyPath"  : null,
   "wuiTlsCertPath" : null,
   "wuiPreviewer"   : true,
