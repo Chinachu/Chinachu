@@ -16,7 +16,7 @@ fi
 shopt -s extglob
 
 # variables
-NODE_VER=0.8.9
+NODE_VER=0.8.11
 
 main () {
   local SELF_PATH DIR SYM
@@ -392,7 +392,7 @@ recorded                Show a list of recorded programs.
 cleanup                 Clean-up the recorded list.
 unlock                  Unlock the tuners.
 
-ircbot [options]        Connect to IRC server and run a ircbot.
+ircbot [options]        Connect to IRC server and run a ircbot. (Experimental)
 
 help                    Output this information.
 

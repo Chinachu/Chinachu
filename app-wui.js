@@ -15,13 +15,13 @@ var OPERATOR_LOG_FILE   = __dirname + '/log/operator';
 var WUI_LOG_FILE        = __dirname + '/log/wui';
 var SCHEDULER_LOG_FILE  = __dirname + '/log/scheduler';
 
+
 // 標準モジュールのロード
 var path          = require('path');
 var fs            = require('fs');
 var util          = require('util');
 var child_process = require('child_process');
 var url           = require('url');
-var vm            = require('vm');
 
 // ディレクトリチェック
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
@@ -35,11 +35,9 @@ process.on('SIGQUIT', function() {
 		process.exit(0);
 	}, 0);
 });
-
 // 追加モジュールのロード
 var auth     = require('http-auth');
 var socketio = require('socket.io');
-var chinachu = require('chinachu-common');
 
 // 設定の読み込み
 var config = JSON.parse( fs.readFileSync(CONFIG_FILE, 'ascii') );
@@ -57,99 +55,83 @@ if (config.wuiTlsKeyPath && config.wuiTlsCertPath) {
 }
 
 // ファイル更新監視: ./data/rules.json
-var rules = [];
-chinachu.jsonWatcher(
-	RULES_FILE
-	,
-	function _onUpdated(data, err, mes) {
-		if (err) {
-			util.error(err);
-			return;
-		}
+if (!fs.existsSync(RULES_FILE)) fs.writeFileSync(RULES_FILE, '[]');
+var rules = JSON.parse( fs.readFileSync(RULES_FILE, 'ascii') );
+var rulesTimer;
+function rulesOnUpdated() {
+	clearTimeout(rulesTimer);
+	rulesTimer = setTimeout(function() {
+		util.log('UPDATED: ' + RULES_FILE);
 		
-		rules = data;
-		if (io) io.sockets.emit('rules', rules);
-		util.log(mes);
-	}
-	,
-	{ create: [], now: true }
-);
+		try {
+			rules = JSON.parse( fs.readFileSync(RULES_FILE, 'ascii') );
+			io.sockets.emit('rules', rules);
+		} catch (e) {
+			util.log('WARNING: RULES_FILE が不正です');
+		}
+	}, 1000);
+}
+fs.watch(RULES_FILE, rulesOnUpdated);
 
 // ファイル更新監視: ./data/schedule.json
-var schedule = [];
-chinachu.jsonWatcher(
-	SCHEDULE_DATA_FILE
-	,
-	function _onUpdated(data, err, mes) {
-		if (err) {
-			util.error(err);
-			return;
-		}
+if (!fs.existsSync(SCHEDULE_DATA_FILE)) fs.writeFileSync(SCHEDULE_DATA_FILE, '[]');
+var schedule = JSON.parse( fs.readFileSync(SCHEDULE_DATA_FILE, 'ascii') );
+var scheduleTimer;
+function scheduleOnUpdated() {
+	clearTimeout(scheduleTimer);
+	scheduleTimer = setTimeout(function() {
+		util.log('UPDATED: ' + SCHEDULE_DATA_FILE);
 		
-		schedule = data;
-		if (io) io.sockets.emit('schedule', schedule);
-		util.log(mes);
-	}
-	,
-	{ create: [], now: true }
-);
+		schedule = JSON.parse( fs.readFileSync(SCHEDULE_DATA_FILE, 'ascii') );
+		io.sockets.emit('schedule', schedule);
+	}, 1000);
+}
+fs.watch(SCHEDULE_DATA_FILE, scheduleOnUpdated);
 
 // ファイル更新監視: ./data/reserves.json
-var reserves = [];
-chinachu.jsonWatcher(
-	RESERVES_DATA_FILE
-	,
-	function _onUpdated(data, err, mes) {
-		if (err) {
-			util.error(err);
-			return;
-		}
+if (!fs.existsSync(RESERVES_DATA_FILE)) fs.writeFileSync(RESERVES_DATA_FILE, '[]');
+var reserves = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE, 'ascii') );
+var reservesTimer;
+function reservesOnUpdated() {
+	clearTimeout(reservesTimer);
+	reservesTimer = setTimeout(function() {
+		util.log('UPDATED: ' + RESERVES_DATA_FILE);
 		
-		reserves = data;
-		if (io) io.sockets.emit('reserves', reserves);
-		util.log(mes);
-	}
-	,
-	{ create: [], now: true }
-);
+		reserves = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE, 'ascii') );
+		io.sockets.emit('reserves', reserves);
+	}, 1000);
+}
+fs.watch(RESERVES_DATA_FILE, reservesOnUpdated);
 
 // ファイル更新監視: ./data/recording.json
-var recording = [];
-chinachu.jsonWatcher(
-	RECORDING_DATA_FILE
-	,
-	function _onUpdated(data, err, mes) {
-		if (err) {
-			util.error(err);
-			return;
-		}
+if (!fs.existsSync(RECORDING_DATA_FILE)) fs.writeFileSync(RECORDING_DATA_FILE, '[]');
+var recording = JSON.parse( fs.readFileSync(RECORDING_DATA_FILE, 'ascii') );
+var recordingTimer;
+function recordingOnUpdated() {
+	clearTimeout(recordingTimer);
+	recordingTimer = setTimeout(function() {
+		util.log('UPDATED: ' + RECORDING_DATA_FILE);
 		
-		recording = data;
-		if (io) io.sockets.emit('recording', recording);
-		util.log(mes);
-	}
-	,
-	{ create: [], now: true }
-);
+		recording = JSON.parse( fs.readFileSync(RECORDING_DATA_FILE, 'ascii') );
+		io.sockets.emit('recording', recording);
+	}, 1000);
+}
+fs.watch(RECORDING_DATA_FILE, recordingOnUpdated);
 
 // ファイル更新監視: ./data/recorded.json
-var recorded = [];
-chinachu.jsonWatcher(
-	RECORDED_DATA_FILE
-	,
-	function _onUpdated(data, err, mes) {
-		if (err) {
-			util.error(err);
-			return;
-		}
+if (!fs.existsSync(RECORDED_DATA_FILE)) fs.writeFileSync(RECORDED_DATA_FILE, '[]');
+var recorded = JSON.parse( fs.readFileSync(RECORDED_DATA_FILE, 'ascii') );
+var recordedTimer;
+function recordedOnUpdated() {
+	clearTimeout(recordedTimer);
+	recordedTimer = setTimeout(function() {
+		util.log('UPDATED: ' + RECORDED_DATA_FILE);
 		
-		recorded = data;
-		if (io) io.sockets.emit('recorded', recorded);
-		util.log(mes);
-	}
-	,
-	{ create: [], now: true }
-);
+		recorded = JSON.parse( fs.readFileSync(RECORDED_DATA_FILE, 'ascii') );
+		io.sockets.emit('recorded', recorded);
+	}, 1000);
+}
+fs.watch(RECORDED_DATA_FILE, recordedOnUpdated);
 
 // BASIC認証
 if (config.wuiUsers && (config.wuiUsers.length > 0)) {
@@ -214,95 +196,70 @@ function httpServer(req, res) {
 		ext = filename.split('.').pop();
 	}
 	
-	// エラーレスポンス用
-	function resErr(code) {
-		res.writeHead(code, {'content-type': 'text/plain'});
-		switch (code) {
-			case 400:
-				res.write('400 Bad Request\n');
-				break;
-			case 402:
-				res.write('402 Payment Required\n');
-				break;
-			case 401:
-				res.write('401 Unauthorized\n');
-				break;
-			case 403:
-				res.write('403 Forbidden\n');
-				break;
-			case 404:
-				res.write('404 Not Found\n');
-				break;
-			case 405:
-				res.write('405 Method Not Allowed\n');
-				break;
-			case 406:
-				res.write('406 Not Acceptable\n');
-				break;
-			case 407:
-				res.write('407 Proxy Authentication Required\n');
-				break;
-			case 408:
-				res.write('408 Request Timeout\n');
-				break;
-			case 409:
-				res.write('409 Conflict\n');
-				break;
-			case 410:
-				res.write('410 Gone\n');
-				break;
-			case 411:
-				res.write('411 Length Required\n');
-				break;
-			case 412:
-				res.write('412 Precondition Failed\n');
-				break;
-			case 413:
-				res.write('413 Request Entity Too Large\n');
-				break;
-			case 414:
-				res.write('414 Request-URI Too Long\n');
-				break;
-			case 415:
-				res.write('415 Unsupported Media Type\n');
-				break;
-			case 416:
-				res.write('416 Requested Range Not Satisfiable\n');
-				break;
-			case 417:
-				res.write('417 Expectation Failed\n');
-				break;
-			case 429:
-				res.write('429 Too Many Requests\n');
-				break;
-			case 451:
-				res.write('451 Unavailable For Legal Reasons\n');
-				break;
-			case 500:
-				res.write('500 Internal Server Error\n');
-				break;
-			case 501:
-				res.write('501 Not Implemented\n');
-				break;
-			case 502:
-				res.write('502 Bad Gateway\n');
-				break;
-			case 503:
-				res.write('503 Service Unavailable\n');
-				break;
-		}
+	function err400() {
+		res.writeHead(400, {'Content-Type': 'text/plain'});
+		res.write('400 Bad Request\n');
 		res.end();
-		log(code);
+		log(400);
 	}
 	
-	function writeHead(code) {
-		var type = 'text/plain';
+	function err404() {
+		res.writeHead(404, {'Content-Type': 'text/plain'});
+		res.write('404 Not Found\n');
+		res.end();
+		log(404);
+	}
+	
+	function err405() {
+		res.writeHead(405, {'Content-Type': 'text/plain'});
+		res.write('405 Method Not Allowed\n');
+		res.end();
+		log(405);
+	}
+	
+	function err500() {
+		res.writeHead(500, {'Content-Type': 'text/plain'});
+		res.write('500 Internal Server Error\n');
+		res.end();
+		log(500);
+	}
+	
+	function responseStatic() {
+		fs.readFile(filename, function(err, data) {
+			if (err) {
+				err500();
+				return;
+			}
+			
+			var statusCode = 200;
+			var type       = 'text/plain';
+			
+			if (ext === 'html') { type = 'text/html'; }
+			if (ext === 'js')   { type = 'text/javascript'; }
+			if (ext === 'css')  { type = 'text/css'; }
+			if (ext === 'ico')  { type = 'image/vnd.microsoft.icon'; }
+			if (ext === 'cur')  { type = 'image/vnd.microsoft.icon'; }
+			if (ext === 'png')  { type = 'image/png'; }
+			if (ext === 'gif')  { type = 'image/gif'; }
+			if (ext === 'xspf') { type = 'application/xspf+xml'; }
+			
+			res.writeHead(statusCode, {
+				'Content-Type': type,
+				'Server'      : 'chinachu-wui'
+			});
+			res.write(data, 'binary');
+			res.end();
+			log(statusCode);
+			return;
+		});
+	}
+	
+	function responseApi() {
+		var map = location.replace('/api/', '').split('/');
 		
-		if (ext === 'html') { type = 'text/html'; }
-		if (ext === 'js')   { type = 'text/javascript'; }
-		if (ext === 'css')  { type = 'text/css'; }
-		if (ext === 'ico')  { type = 'image/vnd.microsoft.icon'; }
-		if (ext === 'cur')  { type = 'image/vnd.microsoft.icon'; }
+		var statusCode = 200;
+		var type       = 'text/plain';
+		
 		if (ext === 'png')  { type = 'image/png'; }
 		if (ext === 'gif')  { type = 'image/gif'; }
 		if (ext === 'jpg')  { type = 'image/jpeg'; }
@@ -314,22 +271,702 @@ function httpServer(req, res) {
 		if (ext === 'json') { type = 'application/json'; }
 		if (ext === 'xspf') { type = 'application/xspf+xml'; }
 		
-		res.writeHead(code, {
-			'content-type': type,
-			'server'      : 'chinachu-wui'
-		});
+		switch (map[0]) {
+			case 'scheduler.json':
+				var result = {
+					time     : 0,
+					conflicts: [],
+					reserves : []
+				};
+				
+				switch (req.method) {
+					case 'GET':
+						if (!fs.existsSync(SCHEDULER_LOG_FILE)) {
+							err404();
+							return;
+						}
+						
+						result.time = fs.statSync(SCHEDULER_LOG_FILE).mtime.getTime();
+						
+						fs.readFileSync(SCHEDULER_LOG_FILE, 'ascii').split('\n').forEach(function(line) {
+							if ((line.match('CONFLICT:') !== null) || (line.match('RESERVE:') !== null)) {
+								var id = line.match(/(RESERVE|CONFLICT): ([a-z0-9-]+)/)[2];
+								var t  = line.match(/(RESERVE|CONFLICT): ([a-z0-9-]+)/)[1];
+								var f  = null;
+								
+								for (var i = 0; i < schedule.length; i++) {
+									for (var j = 0; j < schedule[i].programs.length; j++) {
+										if (schedule[i].programs[j].id === id) {
+											f = schedule[i].programs[j];
+											break;
+										}
+									}
+									if (f !== null) { break; }
+								}
+								
+								if (t === 'CONFLICT') {
+									result.conflicts.push(f);
+								}
+								if (t === 'RESERVE') {
+									result.reserves.push(f);
+								}
+							}
+						});
+						
+						res.writeHead(statusCode, {'Content-Type': type});
+						res.end(JSON.stringify(result));
+						log(statusCode);
+				}
+				return;//<--case 'scheduler.json'
+			case 'recording':
+				if ((map.length === 2) && (ext === 'json')) {
+					var program = (function() {
+						var x = null;
+						
+						recording.forEach(function(a) {
+							if (a.id === map[1].replace('.json', '')) { x = a; }
+						});
+						
+						return x;
+					})();
+					
+					if (program === null) {
+						err404();
+						return;
+					}
+					
+					switch (req.method) {
+						case 'GET':
+							res.writeHead(statusCode, {'Content-Type': type});
+							res.end(JSON.stringify(program));
+							log(statusCode);
+							return;
+						case 'DELETE':
+							child_process.exec('kill -TERM ' + program.pid, function(err, stdout, stderr) {
+								if (err) {
+									err500();
+									return;
+								}
+								res.writeHead(statusCode, {'Content-Type': type});
+								res.end('{}');
+								log(statusCode);
+							});
+							return;
+						default:
+							err405();
+							return;
+					}//<--switch
+				} else if (map.length === 3) {
+					var program = (function() {
+						var x = null;
+						
+						recording.forEach(function(a) {
+							if (a.id === map[1]) { x = a; }
+						});
+						
+						return x;
+					})();
+					
+					if (program === null) {
+						err404();
+						return;
+					}
+					
+					switch (map[2]) {
+						// プレビュー(スナップショット画像)
+						case 'preview':
+						case 'preview.png':
+						case 'preview.jpg':
+							if (!status.feature.previewer || !program.pid || (program.tuner && program.tuner.isScrambling)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {'Content-Type': type});
+							
+							var w = query.width  || '320';
+							var h = query.height || '180';
+							
+							var vcodec = ext || 'mjpeg';
+							if (ext === 'jpg') { vcodec = 'mjpeg'; }
+							
+							var ffmpeg = child_process.exec(
+								(
+									'tail -c 3200000 "' + program.recorded + '" | ' +
+									'ffmpeg -i pipe:0 -ss 1.3 -vframes 1 -f image2 -vcodec ' + vcodec +
+									' -s ' + w + 'x' + h + ' -map 0.0 -y pipe:1'
+								),
+								{
+									encoding: 'binary',
+									maxBuffer: 3200000
+								},
+								function(err, stdout, stderr) {
+									if (ext) {
+										res.end(stdout, 'binary');
+									} else {
+										res.end('data:image/jpeg;base64,' + new Buffer(stdout, 'binary').toString('base64'));
+									}
+									log(statusCode);
+									clearTimeout(timeout);
+								}
+							);
+							
+							var timeout = setTimeout(function() {
+								ffmpeg.kill('SIGKILL');
+							}, 3000);
+							
+							return;
+						// HTTP Live Streaming (Experimental)
+						case 'watch.m3u8.txt'://for debug
+						case 'watch.m3u8':
+							if (!status.feature.streamer || !program.pid || (program.tuner && program.tuner.isScrambling)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {'Content-Type': type});
+							
+							var current  = (new Date().getTime() - program.start) / 1000;
+							var duration = parseInt(query.duration || 15, 10);
+							var vcodec   = query.vcodec   || 'libx264';
+							var acodec   = query.acodec   || 'libfaac';
+							var bitrate  = query.bitrate  || '1000k';
+							var ar       = query.ar       || '44100';
+							var ab       = query.ab       || '96k';
+							var size     = query.size     || '1024x576';
+							var rate     = query.rate     || '24';
+							
+							res.write('#EXTM3U\n');
+							res.write('#EXT-X-TARGETDURATION:' + duration + '\n');
+							res.write('#EXT-X-MEDIA-SEQUENCE:' + Math.floor(current / duration) + '\n');
+							
+							var target = query.prefix || '';
+							target += 'watch.m2ts?duration=' + duration + '&vcodec=' + vcodec + '&acodec=' + acodec;
+							target += '&bitrate=' + bitrate + '&size=' + size + '&ar=' + ar + '&ab=' + ab + '&rate=' + rate;
+							
+							for (var i = 0; i < current; i += duration) {
+								if (current - i > 60) { continue; }
+								res.write('#EXTINF:' + duration + ',\n');
+								res.write(target + '&start=' + i + '\n');
+							}
+							
+							res.end();
+							log(statusCode);
+							
+							return;
+						case 'watch.xspf':
+							if (!status.feature.streamer || !program.pid || (program.tuner && program.tuner.isScrambling)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {
+								'Content-Type': type,
+								'Content-Disposition': 'attachment; filename="' + program.id + '.xspf"'
+							});
+							
+							var exte   = query.format || 'm2ts';
+							var refer  = req.headers.referer || '';
+							var prefix = query.prefix || refer.replace(/\/$/, '') + location.replace(/\/[^\/]+$/, '/') || '';
+							
+							var target = prefix + 'watch.' + exte + url.parse(req.url).search;
+							
+							res.write('<?xml version="1.0" encoding="UTF-8"?>\n');
+							res.write('<playlist version="1" xmlns="http://xspf.org/ns/0/">\n');
+							res.write('<trackList>\n');
+							res.write('<track>\n<location>' + target.replace(/&/g, '&amp;') + '</location>\n');
+							res.write('<title>' + program.title + '</title>\n</track>\n');
+							res.write('</trackList>\n');
+							res.write('</playlist>\n');
+							
+							res.end();
+							log(statusCode);
+							
+							return;
+						case 'watch.m2ts':
+						case 'watch.f4v':
+						case 'watch.flv':
+						case 'watch.webm':
+							if (!status.feature.streamer || !program.pid || (program.tuner && program.tuner.isScrambling)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {'Content-Type': type});
+							util.log('streamer: ' + program.recorded);
+							
+							var start    = query.start    || 'live';
+							var duration = query.duration || null;
+							var vcodec   = query.vcodec   || 'copy';
+							var acodec   = query.acodec   || 'copy';
+							var bitrate  = query.bitrate  || null;//r:3000k
+							var ar       = query.ar       || '44100';
+							var ab       = query.ab       || '128k';
+							var format   = query.format   || null;
+							var size     = query.size     || null;
+							var rate     = query.rate     || null;
+							
+							//if (start === 'live') {
+							//	start = Math.round((new Date().getTime() - program.start) / 1000).toString(10);
+							//}
+							
+							if (ext === 'm2ts') {
+								format = 'mpegts';
+								
+								if ((vcodec === 'copy') && size) { vcodec = 'mpeg2video'; }
+							} else if ((ext === 'flv') || (ext === 'f4v')) {
+								format = 'flv';
+								
+								if (vcodec === 'copy') { vcodec = 'libx264'; }
+								if (acodec === 'copy') { acodec = 'libfaac'; }
+							} else if (ext === 'webm') {
+								format = 'matroska';
+								
+								if (vcodec === 'copy') { vcodec = 'libvpx'; }
+								if (acodec === 'copy') { acodec = 'libvorbis'; }
+							}
+							
+							var args = [];
+							
+							args.push('-v', '0');
+							args.push('-threads', status.system.core.toString(10));
+							
+							if (start !== 'live')    { args.push('-ss', start); }
+							if (duration) { args.push('-t', duration); }
+							
+							args.push('-re', '-i', (start === 'live') ? 'pipe:0' : program.recorded);
+							args.push('-vcodec', vcodec, '-acodec', acodec);
+							//args.push('-map', '0.0', '-map', '0.1');
+							
+							if (size)                 { args.push('-s', size); }
+							if (rate)                 { args.push('-r', rate); }
+							if (bitrate)              { args.push('-b', bitrate); }
+							if (acodec !== 'copy')    { args.push('-ar', ar, '-ab', ab); }
+							if (format === 'mpegts')  { args.push('-copyts'); }
+							if (format === 'flv')     { args.push('-vsync', '2'); }
+							if (vcodec === 'libx264') { args.push('-coder', '0', '-bf', '0', '-subq', '1', '-intra'); }
+							
+							args.push('-y', '-f', format, 'pipe:1');
+							
+							var ffmpeg = child_process.spawn('ffmpeg', args);
+							
+							if (start === 'live') {
+								var tailf = child_process.spawn('tail', ['-f', '-c', '1024', program.recorded]);// 1KB
+								
+								tailf.stdout.on('data', function(data) {
+									if (tailf) ffmpeg.stdin.write(data);
+								});
+								
+								tailf.on('exit', function(code) {
+									if (tailf) ffmpeg.stdin.end();
+									tailf = null;
+								});
+							}
+							
+							ffmpeg.stdout.on('data', function(data) {
+								if (ffmpeg) res.write(data, 'binary');
+							});
+							
+							ffmpeg.stderr.on('data', function(data) {
+								if (ffmpeg) util.puts(data);
+							});
+							
+							ffmpeg.on('exit', function(code) {
+								if (tailf) {
+									tailf.stdout.removeAllListeners('data');
+									tailf.stderr.removeAllListeners('data');
+									tailf.kill('SIGKILL');
+									tailf = null;
+								} else {
+									ffmpeg.stdout.removeAllListeners('data');
+									ffmpeg.stderr.removeAllListeners('data');
+									ffmpeg.kill('SIGKILL');
+									ffmpeg = null;
+								}
+								
+								res.end();
+								log(statusCode);
+							});
+							
+							req.on('close', function() {
+								if (tailf) {
+									tailf.stdout.removeAllListeners('data');
+									tailf.stderr.removeAllListeners('data');
+									tailf.kill('SIGKILL');
+								} else {
+									ffmpeg.stdout.removeAllListeners('data');
+									ffmpeg.stderr.removeAllListeners('data');
+									ffmpeg.kill('SIGKILL');
+									ffmpeg = null;
+								}
+							});
+							
+							return;
+						default:
+							err404();
+							return;
+					}//<--switch
+				} else {
+					err400();
+					return;
+				}
+				return;//<--case 'recording'
+			case 'recorded.json':
+				switch (req.method) {
+					case 'GET':
+						res.writeHead(statusCode, {'Content-Type': type});
+						res.end(JSON.stringify(recorded));
+						log(statusCode);
+						return;
+					case 'PUT':
+						recorded = (function() {
+							var array = [];
+							
+							recorded.forEach(function(a) {
+								if (fs.existsSync(a.recorded)) {
+									array.push(a);
+								}
+							});
+							
+							return array;
+						})();
+						fs.writeFileSync(RECORDED_DATA_FILE, JSON.stringify(recorded));
+						
+						res.writeHead(statusCode, {'Content-Type': type});
+						res.end('{}');
+						log(statusCode);
+						return;
+					default:
+						err405();
+						return;
+				}//<--switch
+				return;//<--case 'recorded.json'
+			case 'recorded':
+				if ((map.length === 2) && (ext === 'json')) {
+					var program = (function() {
+						var x = null;
+						
+						recorded.forEach(function(a) {
+							if (a.id === map[1].replace('.json', '')) { x = a; }
+						});
+						
+						return x;
+					})();
+					
+					if (program === null) {
+						err404();
+						return;
+					}
+					
+					program.isRemoved = !fs.existsSync(program.recorded);
+					
+					switch (req.method) {
+						case 'GET':
+							res.writeHead(statusCode, {'Content-Type': type});
+							res.end(JSON.stringify(program));
+							log(statusCode);
+							return;
+						case 'DELETE':
+							recorded = (function() {
+								var array = [];
+								
+								recorded.forEach(function(a) {
+									if (a.id !== program.id) {
+										array.push(a);
+									}
+								});
+								
+								return array;
+							})();
+							fs.writeFileSync(RECORDED_DATA_FILE, JSON.stringify(recorded));
+							
+							res.writeHead(statusCode, {'Content-Type': type});
+							res.end('{}');
+							log(statusCode);
+							return;
+						default:
+							err405();
+							return;
+					}//<--switch
+				} else if (map.length === 3) {
+					var program = (function() { 
+						var x = null;
+						
+						recorded.forEach(function(a) {
+							if (a.id === map[1]) { x = a; }
+						});
+						
+						return x;
+					})();
+					
+					if (program === null) {
+						err404();
+						return;
+					}
+					
+					switch (map[2]) {
+						// 録画ファイル
+						case 'recorded.m2ts':
+							if (!status.feature.filer || !fs.existsSync(program.recorded)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {'Content-Type': type});
+							
+							switch (req.method) {
+								case 'GET':
+									var readStream = fs.createReadStream(program.recorded);
+									
+									readStream.on('data', function(data) {
+										res.write(data, 'binary');
+									});
+									
+									readStream.on('end', function() {
+										readStream.destroy();
+									});
+									
+									readStream.on('close', function() {
+										res.end();
+										log(statusCode);
+									});
+									
+									req.on('close', function() {
+										readStream.destroy();
+									});
+									
+									return;
+								case 'DELETE':
+									fs.unlinkSync(program.recorded);
+									
+									res.end();
+									log(statusCode);
+									
+									return;
+							}//<--switch
+							
+							return;
+						// プレビュー(スナップショット画像)
+						case 'preview':
+						case 'preview.png':
+						case 'preview.jpg':
+							if (!status.feature.previewer || !fs.existsSync(program.recorded) || (program.tuner && program.tuner.isScrambling)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {'Content-Type': type});
+							
+							var w   = query.width  || '320';
+							var h   = query.height || '180';
+							var pos = query.pos    || '10';
+							
+							var vcodec = ext || 'mjpeg';
+							if (ext === 'jpg') { vcodec = 'mjpeg'; }
+							
+							var ffmpeg = child_process.exec(
+								(
+									'ffmpeg -i "' + program.recorded + '" -ss ' + pos + ' -vframes 1 -f image2 -vcodec ' + vcodec +
+									' -s ' + w + 'x' + h + ' -map 0.0 -y pipe:1'
+								),
+								{
+									encoding: 'binary',
+									maxBuffer: 3200000
+								},
+								function(err, stdout, stderr) {
+									if (ext) {
+										res.end(stdout, 'binary');
+									} else {
+										res.end('data:image/jpeg;base64,' + new Buffer(stdout, 'binary').toString('base64'));
+									}
+									log(statusCode);
+									clearTimeout(timeout);
+								}
+							);
+							
+							var timeout = setTimeout(function() {
+								ffmpeg.kill('SIGKILL');
+							}, 3000);
+							
+							return;
+						// HTTP Live Streaming (Experimental)
+						case 'watch.m3u8.txt'://for debug
+						case 'watch.m3u8':
+							if (!status.feature.streamer || !fs.existsSync(program.recorded) || (program.tuner && program.tuner.isScrambling)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {'Content-Type': type});
+							
+							var current  = (program.end - program.start) / 1000;
+							var duration = parseInt(query.duration || 15, 10);
+							var vcodec   = query.vcodec   || 'libx264';
+							var acodec   = query.acodec   || 'libfaac';
+							var bitrate  = query.bitrate  || '1000k';
+							var ar       = query.ar       || '44100';
+							var ab       = query.ab       || '96k';
+							var size     = query.size     || '1024x576';
+							var rate     = query.rate     || '24';
+							
+							res.write('#EXTM3U\n');
+							res.write('#EXT-X-TARGETDURATION:' + duration + '\n');
+							res.write('#EXT-X-MEDIA-SEQUENCE:0\n');
+							
+							var target = query.prefix || '';
+							target += 'watch.m2ts?duration=' + duration + '&vcodec=' + vcodec + '&acodec=' + acodec;
+							target += '&bitrate=' + bitrate + '&size=' + size + '&ar=' + ar + '&ab=' + ab + '&rate=' + rate;
+							
+							for (var i = 0; i < current; i += duration) {
+								res.write('#EXTINF:' + duration + ',\n');
+								res.write(target + '&start=' + i + '\n');
+							}
+							
+							res.end('#EXT-X-ENDLIST');
+							log(statusCode);
+							
+							return;
+						case 'watch.xspf':
+							if (!status.feature.streamer || !fs.existsSync(program.recorded) || (program.tuner && program.tuner.isScrambling)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {
+								'Content-Type': type,
+								'Content-Disposition': 'attachment; filename="' + program.id + '.xspf"'
+							});
+							
+							var exte   = query.format || 'm2ts';
+							var refer  = req.headers.referer || '';
+							var prefix = query.prefix || refer.replace(/\/$/, '') + location.replace(/\/[^\/]+$/, '/') || '';
+							
+							var target = prefix + 'watch.' + exte + url.parse(req.url).search;
+							
+							res.write('<?xml version="1.0" encoding="UTF-8"?>\n');
+							res.write('<playlist version="1" xmlns="http://xspf.org/ns/0/">\n');
+							res.write('<trackList>\n');
+							res.write('<track>\n<location>' + target.replace(/&/g, '&amp;') + '</location>\n');
+							res.write('<title>' + program.title + '</title>\n</track>\n');
+							res.write('</trackList>\n');
+							res.write('</playlist>\n');
+							
+							res.end();
+							log(statusCode);
+							
+							return;
+						case 'watch.m2ts':
+						case 'watch.f4v':
+						case 'watch.flv':
+						case 'watch.webm':
+							if (!status.feature.streamer || !fs.existsSync(program.recorded) || (program.tuner && program.tuner.isScrambling)) {
+								err404();
+								return;
+							}
+							
+							res.writeHead(statusCode, {'Content-Type': type});
+							util.log('streamer: ' + program.recorded);
+							
+							var start    = query.start    || '0';
+							var duration = query.duration || null;
+							var vcodec   = query.vcodec   || 'copy';
+							var acodec   = query.acodec   || 'copy';
+							var bitrate  = query.bitrate  || null;//r:3000k
+							var ar       = query.ar       || '44100';
+							var ab       = query.ab       || '128k';
+							var format   = query.format   || null;
+							var size     = query.size     || null;
+							var rate     = query.rate     || null;
+							
+							if (start === 'live') {
+								start = '0';
+							}
+							
+							if (ext === 'm2ts') {
+								format = 'mpegts';
+								
+								if ((vcodec === 'copy') && size) { vcodec = 'mpeg2video'; }
+							} else if ((ext === 'flv') || (ext === 'f4v')) {
+								format = 'flv';
+								
+								if (vcodec === 'copy') { vcodec = 'libx264'; }
+								if (acodec === 'copy') { acodec = 'libfaac'; }
+							} else if (ext === 'webm') {
+								format = 'matroska';
+								
+								if (vcodec === 'copy') { vcodec = 'libvpx'; }
+								if (acodec === 'copy') { acodec = 'libvorbis'; }
+							}
+							
+							var args = [];
+							
+							args.push('-v', '0');
+							args.push('-threads', status.system.core.toString(10));
+							
+							if (start)    { args.push('-ss', start); }
+							if (duration) { args.push('-t', duration); }
+							
+							args.push('-re', '-i', program.recorded);
+							args.push('-vcodec', vcodec, '-acodec', acodec);
+							//args.push('-map', '0.0', '-map', '0.1');
+							
+							if (size)                 { args.push('-s', size); }
+							if (rate)                 { args.push('-r', rate); }
+							if (bitrate)              { args.push('-b', bitrate); }
+							if (acodec !== 'copy')    { args.push('-ar', ar, '-ab', ab); }
+							if (format === 'mpegts')  { args.push('-copyts'); }
+							if (format === 'flv')     { args.push('-vsync', '2'); }
+							if (vcodec === 'libx264') { args.push('-coder', '0', '-bf', '0', '-subq', '1', '-intra'); }
+							
+							args.push('-y', '-f', format, 'pipe:1');
+							
+							var ffmpeg = child_process.spawn('ffmpeg', args);
+							
+							ffmpeg.stdout.on('data', function(data) {
+								res.write(data, 'binary');
+							});
+							
+							ffmpeg.stderr.on('data', function(data) {
+								util.puts(data);
+							});
+							
+							ffmpeg.on('exit', function(code) {
+								res.end();
+								log(statusCode);
+							});
+							
+							req.on('close', function() {
+								ffmpeg.kill('SIGKILL');
+							});
+							
+							return;
+						default:
+							err404();
+							return;
+					}//<--switch
+				} else {
+					err400();
+					return;
+				}
+				return;//<--case 'recorded'
+			default:
+				err404();
+				return;
+		}
 	}
 	
-	// 静的ファイルまたはAPIレスポンスの分岐
-	if (req.url.match(/^\/api\/.*$/) === null) {
-		if (fs.existsSync(filename) === false) return resErr(404);
+	if (req.url.match(/^\/api\/.+$/) === null) {
+		if (fs.existsSync(filename) === false) {
+			err404();
+			return;
+		}
 		
-		if (req.url.match(/^\/apple-.+\.png$/) !== null) {
+		if ((req.url === '/apple-touch-icon.png') || (req.url === '/apple-touch-startup-image-iphone4.png')) {
 			responseStatic();
-		} else if (!basic) {
-			responseStatic();
-		} else {
+		} else if (basic) {
 			basic.apply(req, res, responseStatic);
+		} else {
+			responseStatic();
 		}
 	} else {
 		if (basic) {
@@ -338,157 +975,12 @@ function httpServer(req, res) {
 			responseApi();
 		}
 	}
-	
-	function responseStatic() {
-		fs.readFile(filename, function(err, data) {
-			if (err) return resErr(500);
-			
-			writeHead(200);
-			res.end(data);
-			log(200);
-			return;
-		});
-	}
-	
-	function responseApi() {
-		var dir  = location.replace('/api/', '').replace(/\.[a-z0-9]+$/, '');
-		var dirs = dir.split('/');
-		var addr = dir.replace(/^[^\/]+\/?/, '/');
-		
-		if (dirs[0] === 'index.html') return resErr(400);
-		
-		var resourceFile = './api/resource-' + dirs[0] + '.json';
-		
-		if (fs.existsSync(resourceFile) === false) return resErr(404);
-		
-		fs.readFile(resourceFile, function(err, json) {
-			if (err) return resErr(500);
-			
-			try {
-				var r = JSON.parse(json);
-			} catch (e) {
-				util.error(e);
-				return resErr(500);
-			}
-			
-			var pattern;
-			var param;
-			var target = null;
-			
-			for (var k in r) {
-				pattern = new RegExp(k.replace(/:[^\/]+/g, '([^/]+)'));
-				
-				if (addr.match(pattern) !== null) {
-					target = r[k];
-					param  = {};
-					
-					if (k.match(pattern).length > 1) {
-						k.match(pattern).forEach(function(a, i) {
-							if (i === 0) return;
-							
-							param[a.replace(':', '')] = addr.match(pattern)[i];
-						});
-					}
-				}
-				
-				
-			}
-			
-			if (target === null) return resErr(400);
-			if (target.methods.indexOf(req.method.toLowerCase()) === -1) return resErr(405);
-			if (target.types.indexOf(ext) === -1) return resErr(415);
-			
-			var scriptFile = './api/script-' + target.script + '.vm.js';
-			
-			if (fs.existsSync(scriptFile) === false) return resErr(501);
-			
-			var sandbox = {
-				request      : req,
-				response     : res,
-				path         : path,
-				fs           : fs,
-				url          : url,
-				util         : util,
-				child_process: child_process,
-				Buffer       : Buffer,
-				chinachu     : chinachu,
-				define: {
-					CONFIG_FILE        : CONFIG_FILE,
-					RULES_FILE         : RULES_FILE,
-					RESERVES_DATA_FILE : RESERVES_DATA_FILE,
-					SCHEDULE_DATA_FILE : SCHEDULE_DATA_FILE,
-					RECORDING_DATA_FILE: RECORDING_DATA_FILE,
-					RECORDED_DATA_FILE : RECORDED_DATA_FILE,
-					OPERATOR_LOG_FILE  : OPERATOR_LOG_FILE,
-					WUI_LOG_FILE       : WUI_LOG_FILE,
-					SCHEDULER_LOG_FILE : SCHEDULER_LOG_FILE
-				},
-				data: {
-					rules    : rules,
-					schedule : schedule,
-					reserves : reserves,
-					recording: recording,
-					recorded : recorded,
-					status   : status
-				},
-				setInterval: setInterval,
-				setTimeout : setTimeout,
-				clearInterval: clearInterval,
-				clearTimeout : clearTimeout
-			};
-			
-			var isClosed = false;
-			
-			sandbox.request.query  = query;
-			sandbox.request.param  = param;
-			sandbox.request.type   = ext;
-			sandbox.response.head  = writeHead;
-			sandbox.response.error = function(code) {
-				resErr(code);
-				isClosed = true;
-			};
-			sandbox.response.exit = function(data, encoding) {
-				res.end(data, encoding);
-				
-				onEnd();
-			};
-			
-			function onEnd() {
-				if (!isClosed) {
-					isClosed = true;
-					
-					log(res.statusCode);
-					
-					setTimeout(function() {
-						gc();
-					}, 3000);
-				}
-			}
-			
-			req.on('close', onEnd);
-			
-			try {
-				vm.runInNewContext(fs.readFileSync(scriptFile), sandbox, scriptFile);
-			} catch (e) {
-				if (!isClosed) {
-					resErr(500);
-					isClosed = true;
-				}
-				
-				util.error(e);
-			}
-			
-			return;
-		});
-		
-		return;
-	}
 }
 
 //
 // socket.io server
 //
-var io = socketio.listen(app);
+var io   = socketio.listen(app);
 io.enable('browser client minification');
 io.set('log level', 1);
 io.set('transports', ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
