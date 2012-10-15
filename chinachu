@@ -16,7 +16,7 @@ fi
 shopt -s extglob
 
 # variables
-NODE_VER=0.8.11
+NODE_VER=0.8.12
 
 main () {
   local SELF_PATH DIR SYM
@@ -44,6 +44,7 @@ main () {
   NAVE_DIR=${CHINACHU_DIR}/.nave
   EPGDUMP_DIR=${CHINACHU_DIR}/.epgdump
   NODE_PATH=${NAVE_DIR}/installed/${NODE_VER}/bin/node
+  NPM_PATH=${NAVE_DIR}/installed/${NODE_VER}/bin/npm
   
   cd $CHINACHU_DIR
   
@@ -72,18 +73,21 @@ chinachu_installer () {
   
   local PS3 item cmd
   PS3="what do you install? > "
-  select item in "Auto" "Node.js" "epgdump"
+  select item in "Auto" "epgdump" "Node.js Environment" "Node.js Modules"
   do
     echo "selected: ${item}"
     case $item in
       "Auto" )
         cmd="chinachu_installer_auto"
         ;;
-      "Node.js" )
-        cmd="chinachu_installer_node"
-        ;;
       "epgdump" )
         cmd="chinachu_installer_epgdump"
+        ;;
+      "Node.js Environment" )
+        cmd="chinachu_installer_node"
+        ;;
+      "Node.js Modules" )
+        cmd="chinachu_installer_node_modules"
         ;;
       * )
         cmd="chinachu_installer"
@@ -96,24 +100,47 @@ chinachu_installer () {
 }
 
 chinachu_installer_auto () {
-  chinachu_installer_node
   chinachu_installer_epgdump
+  chinachu_installer_node
+  chinachu_installer_node_modules
   
   return 0
 }
 
 chinachu_installer_node () {
-  if [ -d "$NAVE_DIR" ]; then
-    rm -rfv $NAVE_DIR
-  fi
+  remove_dir "$NAVE_DIR"
   
   echo "Installing Node using Nave..."
   git clone git://github.com/isaacs/nave.git $NAVE_DIR
   ${NAVE_DIR}/nave.sh install $NODE_VER
   rm -fv ${NAVE_DIR}/node
   ln -sv $NODE_PATH ${NAVE_DIR}/node
+  ln -sv $NPM_PATH ${NAVE_DIR}/npm
   
   echo "done."
+  
+  return 0
+}
+
+chinachu_installer_node_modules () {
+  echo "Installing Node Modules using NPM..."
+  
+  chinachu_installer_node_modules_install dateformat
+  chinachu_installer_node_modules_install easy-table
+  chinachu_installer_node_modules_install http-auth
+  chinachu_installer_node_modules_install oauth
+  chinachu_installer_node_modules_install opts
+  chinachu_installer_node_modules_install socket.io
+  chinachu_installer_node_modules_install xml2js
+  
+  echo "done."
+  
+  return 0
+}
+
+chinachu_installer_node_modules_install () {
+  remove_dir "$CHINACHU_DIR/node_modules/$1"
+  ${NAVE_DIR}/npm install "$1"
   
   return 0
 }
@@ -408,8 +435,8 @@ ensure_dir () {
 }
 
 remove_dir () {
-  if ! [ -d "$1" ]; then
-    rm -rf -- "$1" || fail "Could not remove $1"
+  if [ -d "$1" ]; then
+    rm -rfv -- "$1" || fail "couldn't remove $1"
   fi
 }
 
