@@ -870,12 +870,12 @@ app.ui.Streamer = Class.create({
 							},
 							{
 								label     : '512kbps',
-								value     : '512k'
+								value     : '512k',
+								isSelected: true
 							},
 							{
 								label     : '1Mbps',
-								value     : '1M',
-								isSelected: true
+								value     : '1M'
 							},
 							{
 								label     : '2Mbps',
@@ -908,12 +908,12 @@ app.ui.Streamer = Class.create({
 							},
 							{
 								label     : '96kbps',
-								value     : '96k'
+								value     : '96k',
+								isSelected: true
 							},
 							{
 								label     : '128kbps',
-								value     : '128k',
-								isSelected: true
+								value     : '128k'
 							},
 							{
 								label     : '192kbps',
