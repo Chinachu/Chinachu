@@ -192,7 +192,7 @@ function httpServer(req, res) {
 			/*method+url*/ req.method + ':' + req.url,
 			/*remoteAddr*/ req.headers['x-forwarded-for'] || req.client.remoteAddress,
 			/*referer   */ /* req.headers.referer || '-', */
-			/*userAgent */ req.headers['user-agent'].split(' ').pop() || '-'
+			/*userAgent */ (req.headers['user-agent'] || '').split(' ').pop() || '-'
 		].join(' '));
 	};
 	
