@@ -82,12 +82,12 @@
 				{
 					key      : 'hour',
 					innerHTML: '時間帯',
-					width    : 60
+					width    : 40
 				},
 				{
 					key      : 'duration',
 					innerHTML: '長さ',
-					width    : 60
+					width    : 70
 				},
 				{
 					key      : 'reserve_titles',
@@ -156,6 +156,20 @@
 						ignore_flags: {
 							innerHTML: !!rule.ignore_flags ? (
 								rule.ignore_flags.join('<br>')
+							) : (
+								'-'
+							)
+						},
+						hour: {
+							innerHTML: !!rule.hour ? (
+								rule.hour.start + " - " + rule.hour.end
+							) : (
+								'-'
+							)
+						},
+						duration: {
+							innerHTML: !!rule.duration ? (
+								rule.duration.min + " - " + rule.duration.max
 							) : (
 								'-'
 							)
