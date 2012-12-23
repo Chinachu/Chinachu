@@ -59,6 +59,13 @@ opts.parse([
 		required   : false
 	},
 	{
+		short      : 'n',
+		long       : 'num',
+		description: '番号',
+		value      : true,
+		required   : false
+	},
+	{
 		short      : 'now',
 		long       : 'now',
 		description: '現在',
@@ -255,6 +262,10 @@ switch (opts.get('mode')) {
 	case 'search':
 		chinachuSearch();
 		break;
+	// Rule List
+	case 'rules':
+		chinachuRuleList();
+		break;
 	// Program List
 	case 'reserves':
 	case 'recording':
@@ -315,6 +326,73 @@ function chinachuSearch() {
 	});
 	
 	if (matches.length === 0) {
+		util.puts('見つかりません');
+	} else {
+		if (opts.get('simple')) {
+			util.puts(t.print().trim());
+		} else {
+			util.puts(t.toString().trim());
+		}
+	}
+	
+	process.exit(0);
+}
+
+// Rule List
+function chinachuRuleList() {
+	// table
+	var t = new Table;
+	
+	// keys
+	var keys = [
+		'types', 'categories', 'channels', 'ignore_channels', 'reserve_flags',
+		'ignore_flags', 'hour', 'duration', 'reserve_titles', 'ignore_titles',
+		'reserve_descriptions', 'ignore_descriptions'
+	];
+	
+	// output
+	rules.forEach(function(a, i) {
+		if (opts.get('num')) {
+			if (i !== parseInt(opts.get('num'), 10)) {
+				return;
+			}
+		}
+		
+		t.cell('#', i);
+		
+		keys.forEach(function(b) {
+			switch (typeof a[b]) {
+				case 'object':
+					if (
+						!opts.get('detail') && (
+							(b.indexOf('titles') !== -1) ||
+							(b.indexOf('descriptions') !== -1)
+						)
+					) {
+						t.cell(b, '[' + Object.keys(a[b]).length + ']');
+					} else {
+						var val = [];
+						Object.keys(a[b]).forEach(function(c, j) {
+							val[j] = a[b][c];
+						});
+						t.cell(b, val.join(', '));
+					}
+					break;
+				
+				case 'string':
+					t.cell(b, a[b]);
+					break;
+				
+				case 'undefined':
+					t.cell(b, '-');
+					break;
+			}
+		});
+		
+		t.newRow();
+	});
+	
+	if (rules.length === 0) {
 		util.puts('見つかりません');
 	} else {
 		if (opts.get('simple')) {

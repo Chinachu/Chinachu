@@ -55,7 +55,7 @@ main () {
   shift
   case $cmd in
     installer | service | update | search | \
-    reserves | recording | recorded | \
+    rules | reserves | recording | recorded | \
     cleanup | unlock | ircbot )
       cmd="chinachu_$cmd"
       ;;
@@ -340,6 +340,10 @@ chinachu_update () {
 
 chinachu_search () {
   ${NAVE_DIR}/node app-cli.js -mode search "$@" && return 0
+}
+
+chinachu_rules () {
+  ${NAVE_DIR}/node app-cli.js -mode rules "$@" && return 0
 }
 
 chinachu_reserves () {
