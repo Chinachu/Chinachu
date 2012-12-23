@@ -308,6 +308,12 @@ function chinachuSearch() {
 	
 	// output
 	matches.forEach(function(a, i) {
+		if (opts.get('num')) {
+			if (i !== parseInt(opts.get('num'), 10)) {
+				return;
+			}
+		}
+		
 		t.cell('#', i);
 		if (!opts.get('simple') || opts.get('detail')) t.cell('Program ID', a.id);
 		t.cell('Type:CH', a.channel.type + ':' + a.channel.channel);
@@ -426,6 +432,12 @@ function chinachuProgramList(target) {
 	
 	// output
 	matches.forEach(function(a, i) {
+		if (opts.get('num')) {
+			if (i !== parseInt(opts.get('num'), 10)) {
+				return;
+			}
+		}
+		
 		t.cell('#', i);
 		if (!opts.get('simple') || opts.get('detail')) t.cell('Program ID', a.id);
 		t.cell('Type:CH', a.channel.type + ':' + a.channel.channel);
