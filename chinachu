@@ -412,8 +412,11 @@ search [options]        Search for programs.
 
 reserve <pgid>          Reserve the program manually.
 unreserve <pgid>        Unreserve the program manually.
-rule [options]          Add a rule for auto reservation.
-unrule <ruleid>         Remove a rule for auto reservation.
+
+rule [options]          Add or config a rule for auto reservation.
+enrule <ruleid>         Enable a rule. (alias of rule -id <ruleid> --enable)
+disrule <ruleid>        Disable a rule. (alias of rule -id <ruleid> --disable)
+rmrule <ruleid>         Remove a rule. (alias of rule -id <ruleid> --remove)
 
 rules                   Show a list of auto reserving rules.
 reserves                Show a list of reserved programs.
