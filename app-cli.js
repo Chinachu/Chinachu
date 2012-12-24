@@ -17,6 +17,7 @@ var fs            = require('fs');
 var util          = require('util');
 var net           = require('net');
 var child_process = require('child_process');
+var crypto        = require('crypto');
 
 // ディレクトリチェック
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
@@ -365,6 +366,13 @@ function chinachuRuleList() {
 		}
 		
 		t.cell('#', i);
+		
+		if (!opts.get('simple') || opts.get('detail')) {
+			t.cell(
+				'Rule ID',
+				crypto.createHash('md5').update(JSON.stringify(a), 'utf8').digest('hex').slice(-8)
+			);
+		}
 		
 		keys.forEach(function(b) {
 			switch (typeof a[b]) {
