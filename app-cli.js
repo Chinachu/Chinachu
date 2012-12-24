@@ -17,6 +17,7 @@ var fs            = require('fs');
 var util          = require('util');
 var net           = require('net');
 var child_process = require('child_process');
+var crc           = require('crc');
 
 // ディレクトリチェック
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
@@ -366,9 +367,19 @@ function chinachuRuleList() {
 		
 		t.cell('#', i);
 		
+		// for rule_id
+		var allStr = '';
+		t.cell('rule_id', '');
+
 		keys.forEach(function(b) {
 			switch (typeof a[b]) {
 				case 'object':
+					var val = [];
+					Object.keys(a[b]).forEach(function(c, j) {
+						val[j] = a[b][c];
+					});
+					allStr += val;
+ 
 					if (
 						!opts.get('detail') && (
 							(b.indexOf('titles') !== -1) ||
@@ -377,24 +388,25 @@ function chinachuRuleList() {
 					) {
 						t.cell(b, '[' + Object.keys(a[b]).length + ']');
 					} else {
-						var val = [];
-						Object.keys(a[b]).forEach(function(c, j) {
-							val[j] = a[b][c];
-						});
 						t.cell(b, val.join(', '));
 					}
 					break;
 				
 				case 'string':
+					allStr += a[b];
 					t.cell(b, a[b]);
 					break;
 				
 				case 'undefined':
+					allStr += '-';
 					t.cell(b, '-');
 					break;
 			}
 		});
-		
+
+		var hash = Math.abs(crc.crc32(allStr)).toString(16);
+		t.cell('rule_id', ('0000000' + hash).slice(-8));
+
 		t.newRow();
 	});
 	
