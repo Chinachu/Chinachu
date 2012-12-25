@@ -55,6 +55,7 @@ main () {
   shift
   case $cmd in
     installer | service | update | search | \
+    rule | enrule | disrule | rmrule | \
     rules | reserves | recording | recorded | \
     cleanup | unlock | ircbot )
       cmd="chinachu_$cmd"
@@ -340,6 +341,34 @@ chinachu_update () {
 
 chinachu_search () {
   ${NAVE_DIR}/node app-cli.js -mode search "$@" && return 0
+}
+
+chinachu_rule () {
+  ${NAVE_DIR}/node app-cli.js -mode rule "$@" && return 0
+}
+
+chinachu_enrule () {
+  if [ ! "$1" ]; then
+    fail "Usage: enrule <ruleid>"
+  fi
+  
+  ${NAVE_DIR}/node app-cli.js -mode rule -id "$1" --enable && return 0
+}
+
+chinachu_disrule () {
+  if [ ! "$1" ]; then
+    fail "Usage: disrule <ruleid>"
+  fi
+  
+  ${NAVE_DIR}/node app-cli.js -mode rule -id "$1" --disable && return 0
+}
+
+chinachu_rmrule () {
+  if [ ! "$1" ]; then
+    fail "Usage: rmrule <ruleid>"
+  fi
+  
+  ${NAVE_DIR}/node app-cli.js -mode rule -id "$1" --remove && return 0
 }
 
 chinachu_rules () {
