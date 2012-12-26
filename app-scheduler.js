@@ -651,6 +651,9 @@ function isMatchedProgram(program) {
 	
 	rules.forEach(function(rule) {
 		
+		// isDisabled
+		if (rule.isDisabled) return;
+		
 		// sid
 		if (rule.sid && rule.sid !== program.channel.sid) return;
 		
