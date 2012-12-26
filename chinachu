@@ -55,6 +55,8 @@ main () {
   shift
   case $cmd in
     installer | service | update | search | \
+    reserve | unreserve | \
+    rule | enrule | disrule | rmrule | \
     rules | reserves | recording | recorded | \
     cleanup | unlock | ircbot )
       cmd="chinachu_$cmd"
@@ -342,6 +344,63 @@ chinachu_search () {
   ${NAVE_DIR}/node app-cli.js -mode search "$@" && return 0
 }
 
+chinachu_reserve () {
+  if [ ! "$1" ]; then
+    fail "Usage: reserve <pgid>"
+  fi
+  
+  ${NAVE_DIR}/node app-cli.js -mode reserve -id "$1" || fail "couldn't reserve $1"
+  
+  while [ 1 ]; do
+    echo -n "Run a scheduler [Y/n]? "
+    read line
+    case $line in
+      [yY])
+        ${NAVE_DIR}/node app-scheduler.js > /dev/stdout 2>&1 | tee ./log/scheduler && return 0
+        ;;
+      [nN])
+        echo "Ok." && return 0
+        ;;
+    esac
+  done
+}
+
+chinachu_unreserve () {
+  if [ ! "$1" ]; then
+    fail "Usage: unreserve <pgid>"
+  fi
+  
+  ${NAVE_DIR}/node app-cli.js -mode unreserve -id "$1" || fail "couldn't unreserve $1"
+}
+
+chinachu_rule () {
+  ${NAVE_DIR}/node app-cli.js -mode rule "$@" && return 0
+}
+
+chinachu_enrule () {
+  if [ ! "$1" ]; then
+    fail "Usage: enrule <ruleid>"
+  fi
+  
+  ${NAVE_DIR}/node app-cli.js -mode rule -id "$1" --enable && return 0
+}
+
+chinachu_disrule () {
+  if [ ! "$1" ]; then
+    fail "Usage: disrule <ruleid>"
+  fi
+  
+  ${NAVE_DIR}/node app-cli.js -mode rule -id "$1" --disable && return 0
+}
+
+chinachu_rmrule () {
+  if [ ! "$1" ]; then
+    fail "Usage: rmrule <ruleid>"
+  fi
+  
+  ${NAVE_DIR}/node app-cli.js -mode rule -id "$1" --remove && return 0
+}
+
 chinachu_rules () {
   ${NAVE_DIR}/node app-cli.js -mode rules "$@" && return 0
 }
@@ -412,8 +471,11 @@ search [options]        Search for programs.
 
 reserve <pgid>          Reserve the program manually.
 unreserve <pgid>        Unreserve the program manually.
-rule [options]          Add a rule for auto reservation.
-unrule <ruleid>         Remove a rule for auto reservation.
+
+rule [options]          Add or config a rule for auto reservation.
+enrule <ruleid>         Enable a rule. (alias of rule -id <ruleid> --enable)
+disrule <ruleid>        Disable a rule. (alias of rule -id <ruleid> --disable)
+rmrule <ruleid>         Remove a rule. (alias of rule -id <ruleid> --remove)
 
 rules                   Show a list of auto reserving rules.
 reserves                Show a list of reserved programs.

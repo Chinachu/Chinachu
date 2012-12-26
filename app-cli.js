@@ -17,7 +17,6 @@ var fs            = require('fs');
 var util          = require('util');
 var net           = require('net');
 var child_process = require('child_process');
-var crypto        = require('crypto');
 
 // ディレクトリチェック
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
@@ -26,6 +25,7 @@ if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./w
 }
 
 // 追加モジュールのロード
+var chinachu   = require('chinachu-common');
 var opts       = require('opts');
 var dateFormat = require('dateformat');
 var Table      = require('easy-table');
@@ -42,6 +42,27 @@ opts.parse([
 		short      : 's',
 		long       : 'simulation',
 		description: 'シミュレーション。実際には保存されません',
+		value      : false,
+		required   : false
+	},
+	{
+		short      : 'en',
+		long       : 'enable',
+		description: '有効化',
+		value      : false,
+		required   : false
+	},
+	{
+		short      : 'dis',
+		long       : 'disable',
+		description: '無効化',
+		value      : false,
+		required   : false
+	},
+	{
+		short      : 'rm',
+		long       : 'remove',
+		description: '削除',
 		value      : false,
 		required   : false
 	},
@@ -234,18 +255,23 @@ var channels  = JSON.parse( JSON.stringify(config.channels) );
 var clock     = new Date().getTime();
 
 // ルール
-var rule = {
-	sid: opts.get('sid') || null,
-	hour: {
+var rule = {};
+
+if (opts.get('start') || opts.get('end')) {
+	rule.hour = {
 		start: parseInt(opts.get('start') || 0, 10),
 		end  : parseInt(opts.get('end')   || 24, 10)
-	},
-	duration: {
+	};
+}
+
+if (opts.get('mini') || opts.get('maxi')) {
+	rule.duration = {
 		min: parseInt(opts.get('mini') || 0, 10),
 		max: parseInt(opts.get('maxi') || 99999999, 10)
-	}
-};
+	};
+}
 
+if (opts.get('sid'))    rule.sid                  = opts.get('sid');
 if (opts.get('type'))   rule.types                = opts.get('type').split(',');
 if (opts.get('ch'))     rule.channels             = opts.get('ch').split(',');
 if (opts.get('^ch'))    rule.ignore_channels      = opts.get('^ch').split(',');
@@ -262,6 +288,18 @@ switch (opts.get('mode')) {
 	// 検索
 	case 'search':
 		chinachuSearch();
+		break;
+	// 予約
+	case 'reserve':
+		chinachuReserve();
+		break;
+	// 予約解除
+	case 'unreserve':
+		chinachuUnreserve();
+		break;
+	// Rule
+	case 'rule':
+		chinachuRule();
 		break;
 	// Rule List
 	case 'rules':
@@ -345,6 +383,151 @@ function chinachuSearch() {
 	process.exit(0);
 }
 
+// 予約
+function chinachuReserve() {
+	var target = chinachu.getProgramById(opts.get('id'), schedule);
+	
+	if (target === null) {
+		util.error('見つかりません');
+		process.exit(1);
+	}
+	
+	if (chinachu.getProgramById(opts.get('id'), reserves) !== null) {
+		util.error('既に予約されています');
+		process.exit(1);
+	}
+	
+	target.isManualReserve = true;
+	
+	reserves.push(target);
+	
+	if (opts.get('simulation')) {
+		util.puts('[simulation] reserve:');
+		util.puts(JSON.stringify(target, null, '  '));
+	} else {
+		util.puts('reserve:');
+		util.puts(JSON.stringify(target, null, '  '));
+		
+		fs.writeFileSync(RESERVES_DATA_FILE, JSON.stringify(reserves));
+		
+		util.puts('予約しました。 スケジューラーを実行して競合を確認することをお勧めします');
+	}
+	
+	process.exit(0);
+}
+
+// 予約解除
+function chinachuUnreserve() {
+	var target = chinachu.getProgramById(opts.get('id'), reserves);
+	
+	if (target === null) {
+		util.error('見つかりません');
+		process.exit(1);
+	}
+	
+	if (!target.isManualReserve) {
+		util.error('自動予約された番組は解除できません。自動予約ルールを編集してください');
+		process.exit(1);
+	}
+	
+	for (var i = 0; reserves.length > i; i++) {
+		if (target.id === reserves[i].id) {
+			reserves.splice(i, 1);
+			break;
+		}
+	}
+	
+	if (opts.get('simulation')) {
+		util.puts('[simulation] unreserve:');
+		util.puts(JSON.stringify(target, null, '  '));
+	} else {
+		util.puts('unreserve:');
+		util.puts(JSON.stringify(target, null, '  '));
+		
+		fs.writeFileSync(RESERVES_DATA_FILE, JSON.stringify(reserves));
+		
+		util.puts('予約を解除しました。 ');
+	}
+	
+	process.exit(0);
+}
+
+// Rule
+function chinachuRule() {
+	var r = {};
+	
+	if (opts.get('id')) {
+		rules.forEach(function(a, i) {
+			if (chinachu.getRuleId(a) === opts.get('id')) { r = a; }
+		});
+	}
+	
+	for (var i in rule) {
+		r[i] = rule[i];
+	}
+	
+	if (JSON.stringify(r) === '{}') {
+		if (opts.get('enable') || opts.get('disable') || opts.get('remove')) {
+			util.error('見つかりません');
+		} else {
+			util.error('ルールが空です。一つ以上の条件が必要です。削除する場合は rmrule <ruleid> を使用します');
+		}
+		process.exit(1);
+	}
+	
+	if (opts.get('enable')) {
+		if (r.isDisabled) {
+			delete r.isDisabled;
+		}
+	}
+	
+	if (opts.get('disable')) {
+		r.isDisabled = 'true';
+	}
+	
+	if (opts.get('id')) {
+		for (var i = 0; rules.length > i; i++) {
+			if (chinachu.getRuleId(rules[i]) === opts.get('id')) {
+				if (opts.get('remove')) {
+					rules.splice(i, 1);
+				} else {
+					rules[i] = r;
+				}
+				break;
+			}
+		}
+	} else {
+		rules.push(r);
+	}
+	
+	if (opts.get('simulation')) {
+		if (opts.get('remove')) {
+			util.puts('[simulation] ルールを削除します');
+		} else {
+			util.puts('[simulation] Rule config:');
+			util.puts(JSON.stringify(r, null, '  '));
+		}
+	} else {
+		if (opts.get('remove')) {
+			util.puts('ルールを削除します');
+		} else {
+			util.puts('Rule config:');
+			util.puts(JSON.stringify(r, null, '  '));
+		}
+		fs.writeFileSync(RULES_FILE, JSON.stringify(rules, null, '  '));
+	}
+	
+	if (!opts.get('remove')) {
+		if (opts.get('id')) {
+			util.puts('Rule ID: ' + opts.get('id') + ' -> ' + chinachu.getRuleId(r));
+		} else {
+			util.puts('Rule ID: ' + chinachu.getRuleId(r));
+		}
+	}
+	
+	process.exit(0);
+}
+
 // Rule List
 function chinachuRuleList() {
 	// table
@@ -358,6 +541,8 @@ function chinachuRuleList() {
 	];
 	
 	// output
+	var cnt = 0;
+	
 	rules.forEach(function(a, i) {
 		if (opts.get('num')) {
 			if (i !== parseInt(opts.get('num'), 10)) {
@@ -367,11 +552,16 @@ function chinachuRuleList() {
 		
 		t.cell('#', i);
 		
+		var id = chinachu.getRuleId(a);
+		
+		if (opts.get('id')) {
+			if (id !== opts.get('id')) {
+				return;
+			}
+		}
+		
 		if (!opts.get('simple') || opts.get('detail')) {
-			t.cell(
-				'Rule ID',
-				crypto.createHash('md5').update(JSON.stringify(a), 'utf8').digest('hex').slice(-8)
-			);
+			t.cell('Rule ID', id);
 		}
 		
 		keys.forEach(function(b) {
@@ -389,7 +579,7 @@ function chinachuRuleList() {
 						Object.keys(a[b]).forEach(function(c, j) {
 							val[j] = a[b][c];
 						});
-						t.cell(b, val.join(', '));
+						t.cell(b, val.join(', '), null, (val.join(', ').length > 20) ? 20 : null);
 					}
 					break;
 				
@@ -404,10 +594,13 @@ function chinachuRuleList() {
 		});
 		
 		t.newRow();
+		++cnt;
 	});
 	
-	if (rules.length === 0) {
+	if (cnt === 0) {
 		util.puts('見つかりません');
+	} else if (cnt === 1) {
+		util.puts(t.printTransposed().trim());
 	} else {
 		if (opts.get('simple')) {
 			util.puts(t.print().trim());
