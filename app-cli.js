@@ -289,6 +289,14 @@ switch (opts.get('mode')) {
 	case 'search':
 		chinachuSearch();
 		break;
+	// 予約
+	case 'reserve':
+		chinachuReserve();
+		break;
+	// 予約解除
+	case 'unreserve':
+		chinachuUnreserve();
+		break;
 	// Rule
 	case 'rule':
 		chinachuRule();
@@ -375,13 +383,77 @@ function chinachuSearch() {
 	process.exit(0);
 }
 
+// 予約
+function chinachuReserve() {
+	var target = chinachu.getProgramById(opts.get('id'), schedule);
+	
+	if (target === null) {
+		util.error('見つかりません');
+		process.exit(1);
+	}
+	
+	if (chinachu.getProgramById(opts.get('id'), reserves) !== null) {
+		util.error('既に予約されています');
+		process.exit(1);
+	}
+	
+	target.isManualReserve = true;
+	
+	reserves.push(target);
+	
+	if (opts.get('simulation')) {
+		util.puts('[simulation] reserve:');
+		util.puts(JSON.stringify(target, null, '  '));
+	} else {
+		util.puts('reserve:');
+		util.puts(JSON.stringify(target, null, '  '));
+		
+		fs.writeFileSync(RESERVES_DATA_FILE, JSON.stringify(reserves));
+		
+		util.puts('予約しました。 スケジューラーを実行して競合を確認することをお勧めします');
+	}
+	
+	process.exit(0);
+}
+
+// 予約解除
+function chinachuUnreserve() {
+	var target = chinachu.getProgramById(opts.get('id'), reserves);
+	
+	if (target === null) {
+		util.error('見つかりません');
+		process.exit(1);
+	}
+	
+	if (!target.isManualReserve) {
+		util.error('自動予約された番組は解除できません。自動予約ルールを編集してください');
+		process.exit(1);
+	}
+	
+	for (var i = 0; reserves.length > i; i++) {
+		if (target.id === reserves[i].id) {
+			reserves.splice(i, 1);
+			break;
+		}
+	}
+	
+	if (opts.get('simulation')) {
+		util.puts('[simulation] unreserve:');
+		util.puts(JSON.stringify(target, null, '  '));
+	} else {
+		util.puts('unreserve:');
+		util.puts(JSON.stringify(target, null, '  '));
+		
+		fs.writeFileSync(RESERVES_DATA_FILE, JSON.stringify(reserves));
+		
+		util.puts('予約を解除しました。 ');
+	}
+	
+	process.exit(0);
+}
+
 // Rule
 function chinachuRule() {
-	//if (!opts.get('id')) {
-	//	util.error('require: -host, -ch');
-	//	util.error('option : -port');
-	//	process.exit(1);
-	//}
 	var r = {};
 	
 	if (opts.get('id')) {
@@ -452,6 +524,8 @@ function chinachuRule() {
 			util.puts('Rule ID: ' + chinachu.getRuleId(r));
 		}
 	}
+	
+	process.exit(0);
 }
 
 // Rule List
