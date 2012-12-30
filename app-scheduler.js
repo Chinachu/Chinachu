@@ -477,7 +477,7 @@ function scheduler() {
 	});
 	
 	reserves.forEach(function(reserve) {
-		if (reserve.isManualReserve) matches.push(reserve);
+		if (reserve.isManualReserved) matches.push(reserve);
 	});
 	
 	// duplicates

@@ -397,7 +397,7 @@ function chinachuReserve() {
 		process.exit(1);
 	}
 	
-	target.isManualReserve = true;
+	target.isManualReserved = true;
 	
 	reserves.push(target);
 	
@@ -425,7 +425,7 @@ function chinachuUnreserve() {
 		process.exit(1);
 	}
 	
-	if (!target.isManualReserve) {
+	if (!target.isManualReserved) {
 		util.error('自動予約された番組は解除できません。自動予約ルールを編集してください');
 		process.exit(1);
 	}
