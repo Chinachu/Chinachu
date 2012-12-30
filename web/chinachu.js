@@ -575,7 +575,7 @@ app.ui.ProgramViewer = Class.create({
 			this.entity.control.insert('<a onclick="new app.ui.Reserve(\'' + this.program.id + '\')">一時予約</a>');
 		}
 		
-		if (this.program._isReserves && !this.program._isRecorded && this.program.isManualReserve) {
+		if (this.program._isReserves && !this.program._isRecorded && this.program.isManualReserved) {
 			this.entity.control.insert('<a onclick="new app.ui.Unreserve(\'' + this.program.id + '\')">一時予約の取消</a>');
 		}
 		
