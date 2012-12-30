@@ -1,0 +1,7 @@
+{
+  "/:id": {
+    "script" : "program",
+    "methods": ["get", "put"],
+    "types"  : ["json"]
+  }
+}

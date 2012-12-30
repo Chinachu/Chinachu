@@ -1,0 +1,25 @@
+{
+  "/": {
+    "script" : "schedule",
+    "methods": ["get"],
+    "types"  : ["json"]
+  },
+  
+  "/programs": {
+    "script" : "schedule-programs",
+    "methods": ["get"],
+    "types"  : ["json"]
+  },
+  
+  "/:chid": {
+    "script" : "schedule-channel",
+    "methods": ["get"],
+    "types"  : ["json"]
+  },
+  
+  "/:chid/programs": {
+    "script" : "schedule-channel-programs",
+    "methods": ["get"],
+    "types"  : ["json"]
+  }
+}
