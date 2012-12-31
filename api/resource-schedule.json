@@ -5,14 +5,14 @@
     "types"  : ["json"]
   },
   
-  "/programs": {
-    "script" : "schedule-programs",
+  "/:chid": {
+    "script" : "schedule-channel",
     "methods": ["get"],
     "types"  : ["json"]
   },
   
-  "/:chid": {
-    "script" : "schedule-channel",
+  "/programs": {
+    "script" : "schedule-programs",
     "methods": ["get"],
     "types"  : ["json"]
   },
