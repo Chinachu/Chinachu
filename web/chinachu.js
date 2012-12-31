@@ -249,6 +249,136 @@ app.ui.ContentLoading = Class.create({
 	}
 });
 
+app.ui.Reserve = Class.create({
+	initialize: function _init(id) {
+		this.program = app.f.getProgramById(id);
+		
+		this.create();
+		
+		return this;
+	},
+	create: function _create() {
+		if (this.program === null) {
+			this.modal = new Hypermodal({
+				title  : 'エラー',
+				content: '番組が見つかりませんでした'
+			}); 
+		} else {
+			this.modal = new Hypermodal({
+				title  : '手動予約',
+				description: this.program.title + ' #' + this.program.id,
+				content: '本当によろしいですか？',
+				buttons: [
+					{
+						label  : '手動予約',
+						color  : '@red',
+						onClick: function(e, btn, modal) {
+							btn.disable();
+							
+							new Ajax.Request('./api/program/' + this.program.id + '.json', {
+								method    : 'get',
+								parameters: { method: 'PUT' },
+								onComplete: function() {
+									modal.close();
+								},
+								onSuccess: function() {
+									app.router.save(window.location.hash.replace('#', ''));
+									
+									new Hypermodal({
+										title  : '成功',
+										content: '手動予約に成功しました'
+									}).render();
+								},
+								onFailure: function(t) {
+									new Hypermodal({
+										title  : '失敗',
+										content: '手動予約に失敗しました (' + t.status + ')'
+									}).render();
+								}
+							});
+						}.bind(this)
+					},
+					{
+						label  : 'キャンセル',
+						onClick: function(e, btn, modal) {
+							modal.close();
+						}
+					}
+				]
+			});
+		}
+		
+		this.modal.render();
+		
+		return this;
+	}
+});
+
+app.ui.Unreserve = Class.create({
+	initialize: function _init(id) {
+		this.program = app.f.getProgramById(id);
+		
+		this.create();
+		
+		return this;
+	},
+	create: function _create() {
+		if (this.program === null) {
+			this.modal = new Hypermodal({
+				title  : 'エラー',
+				content: '番組が見つかりませんでした'
+			}); 
+		} else {
+			this.modal = new Hypermodal({
+				title  : '手動予約の取消',
+				description: this.program.title + ' #' + this.program.id,
+				content: '本当によろしいですか？',
+				buttons: [
+					{
+						label  : '手動予約の取消',
+						color  : '@red',
+						onClick: function(e, btn, modal) {
+							btn.disable();
+							
+							new Ajax.Request('./api/reserves/' + this.program.id + '.json', {
+								method    : 'get',
+								parameters: { method: 'DELETE' },
+								onComplete: function() {
+									modal.close();
+								},
+								onSuccess: function() {
+									app.router.save(window.location.hash.replace('#', ''));
+									
+									new Hypermodal({
+										title  : '成功',
+										content: '手動予約の取消に成功しました'
+									}).render();
+								},
+								onFailure: function(t) {
+									new Hypermodal({
+										title  : '失敗',
+										content: '手動予約の取消に失敗しました (' + t.status + ')'
+									}).render();
+								}
+							});
+						}.bind(this)
+					},
+					{
+						label  : 'キャンセル',
+						onClick: function(e, btn, modal) {
+							modal.close();
+						}
+					}
+				]
+			});
+		}
+		
+		this.modal.render();
+		
+		return this;
+	}
+});
+
 app.ui.StopRecord = Class.create({
 	initialize: function _init(id) {
 		this.program = app.f.getProgramById(id);
@@ -572,11 +702,11 @@ app.ui.ProgramViewer = Class.create({
 		}
 		
 		if (!this.program._isReserves && !this.program._isRecorded && !this.program._isRecording) {
-			this.entity.control.insert('<a onclick="new app.ui.Reserve(\'' + this.program.id + '\')">一時予約</a>');
+			this.entity.control.insert('<a onclick="new app.ui.Reserve(\'' + this.program.id + '\')">手動予約</a>');
 		}
 		
 		if (this.program._isReserves && !this.program._isRecorded && this.program.isManualReserved) {
-			this.entity.control.insert('<a onclick="new app.ui.Unreserve(\'' + this.program.id + '\')">一時予約の取消</a>');
+			this.entity.control.insert('<a onclick="new app.ui.Unreserve(\'' + this.program.id + '\')">手動予約の取消</a>');
 		}
 		
 		if (this.program._isReserves) {
