@@ -454,23 +454,21 @@ function chinachuUnreserve() {
 
 // Rule
 function chinachuRule() {
-	var r = {};
+	var r = null;
 	
-	if (opts.get('id')) {
-		rules.forEach(function(a, i) {
-			if (chinachu.getRuleId(a) === opts.get('id')) { r = a; }
-		});
+	if (opts.get('n')) {
+		r = rules[parseInt(opts.get('n'), 10)] || null;
 	}
 	
 	for (var i in rule) {
 		r[i] = rule[i];
 	}
 	
-	if (JSON.stringify(r) === '{}') {
+	if (r === null) {
 		if (opts.get('enable') || opts.get('disable') || opts.get('remove')) {
 			util.error('見つかりません');
 		} else {
-			util.error('ルールが空です。一つ以上の条件が必要です。削除する場合は rmrule <ruleid> を使用します');
+			util.error('ルールが空です。一つ以上の条件が必要です。');
 		}
 		process.exit(1);
 	}
@@ -485,16 +483,11 @@ function chinachuRule() {
 		r.isDisabled = 'true';
 	}
 	
-	if (opts.get('id')) {
-		for (var i = 0; rules.length > i; i++) {
-			if (chinachu.getRuleId(rules[i]) === opts.get('id')) {
-				if (opts.get('remove')) {
-					rules.splice(i, 1);
-				} else {
-					rules[i] = r;
-				}
-				break;
-			}
+	if (opts.get('n')) {
+		if (opts.get('remove')) {
+			rules.splice(parseInt(opts.get('n'), 10), 1);
+		} else {
+			rules[parseInt(opts.get('n'), 10)] = r;
 		}
 	} else {
 		rules.push(r);
@@ -515,14 +508,6 @@ function chinachuRule() {
 			util.puts(JSON.stringify(r, null, '  '));
 		}
 		fs.writeFileSync(RULES_FILE, JSON.stringify(rules, null, '  '));
-	}
-	
-	if (!opts.get('remove')) {
-		if (opts.get('id')) {
-			util.puts('Rule ID: ' + opts.get('id') + ' -> ' + chinachu.getRuleId(r));
-		} else {
-			util.puts('Rule ID: ' + chinachu.getRuleId(r));
-		}
 	}
 	
 	process.exit(0);
@@ -551,18 +536,6 @@ function chinachuRuleList() {
 		}
 		
 		t.cell('#', i);
-		
-		var id = chinachu.getRuleId(a);
-		
-		if (opts.get('id')) {
-			if (id !== opts.get('id')) {
-				return;
-			}
-		}
-		
-		if (!opts.get('simple') || opts.get('detail')) {
-			t.cell('Rule ID', id);
-		}
 		
 		keys.forEach(function(b) {
 			switch (typeof a[b]) {
