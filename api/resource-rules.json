@@ -1,0 +1,19 @@
+{
+  "/": {
+    "script" : "rules",
+    "methods": ["get", "post"],
+    "types"  : ["json"]
+  },
+  
+  "/:num": {
+    "script" : "rules-rule",
+    "methods": ["get", "put", "delete"],
+    "types"  : ["json"]
+  },
+  
+  "/:num/:action": {
+    "script" : "rules-rule-action",
+    "methods": ["put"],
+    "types"  : ["json"]
+  }
+}
