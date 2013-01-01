@@ -382,7 +382,7 @@ chinachu_enrule () {
     fail "Usage: enrule <ruleid>"
   fi
   
-  ${NAVE_DIR}/node app-cli.js -mode rule -id "$1" --enable && return 0
+  ${NAVE_DIR}/node app-cli.js -mode rule -n "$1" --enable && return 0
 }
 
 chinachu_disrule () {
@@ -390,7 +390,7 @@ chinachu_disrule () {
     fail "Usage: disrule <ruleid>"
   fi
   
-  ${NAVE_DIR}/node app-cli.js -mode rule -id "$1" --disable && return 0
+  ${NAVE_DIR}/node app-cli.js -mode rule -n "$1" --disable && return 0
 }
 
 chinachu_rmrule () {
@@ -398,7 +398,7 @@ chinachu_rmrule () {
     fail "Usage: rmrule <ruleid>"
   fi
   
-  ${NAVE_DIR}/node app-cli.js -mode rule -id "$1" --remove && return 0
+  ${NAVE_DIR}/node app-cli.js -mode rule -n "$1" --remove && return 0
 }
 
 chinachu_rules () {
@@ -473,9 +473,9 @@ reserve <pgid>          Reserve the program manually.
 unreserve <pgid>        Unreserve the program manually.
 
 rule [options]          Add or config a rule for auto reservation.
-enrule <ruleid>         Enable a rule. (alias of rule -id <ruleid> --enable)
-disrule <ruleid>        Disable a rule. (alias of rule -id <ruleid> --disable)
-rmrule <ruleid>         Remove a rule. (alias of rule -id <ruleid> --remove)
+enrule <rule#>          Enable a rule. (alias of rule -n <rule#> --enable)
+disrule <rule#>         Disable a rule. (alias of rule -n <rule#> --disable)
+rmrule <rule#>          Remove a rule. (alias of rule -n <rule#> --remove)
 
 rules                   Show a list of auto reserving rules.
 reserves                Show a list of reserved programs.
