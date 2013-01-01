@@ -454,17 +454,17 @@ function chinachuUnreserve() {
 
 // Rule
 function chinachuRule() {
-	var r = null;
+	var r = {};
 	
 	if (opts.get('n')) {
-		r = rules[parseInt(opts.get('n'), 10)] || null;
+		r = rules[parseInt(opts.get('n'), 10)] || {};
 	}
 	
 	for (var i in rule) {
 		r[i] = rule[i];
 	}
 	
-	if (r === null) {
+	if (JSON.stringify(r) === '{}') {
 		if (opts.get('enable') || opts.get('disable') || opts.get('remove')) {
 			util.error('見つかりません');
 		} else {
