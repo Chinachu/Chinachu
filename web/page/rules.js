@@ -34,22 +34,57 @@
 	}
 	
 	
-	function viewRuleDetail(rule, ruleId) {
+	function viewRuleDetail(rule, ruleNum) {
 		// フォームに表示するボタン
 		var buttons = [
 				{
 					label  : 'formButton0',
 					color  : '@pink',
-					/** 機能実装されるまでボタンを無効化 */
-					disabled: true,
 					onClick: function(e, btn, modal) {
 						btn.disable();
 
 						var result = viewRuleForm.result();
-						// ルールの新規追加や更新のメソッドを追加（API呼び出し？）
-
-						modal.close();
-						viewRules();
+						for(var element in result){
+							if(result[element] == "") {
+								delete result[element];
+							}
+						}
+						
+						var apiUrl = './api/rules';
+						
+						if (ruleNum == null){
+							apiUrl = apiUrl + '.json';
+							result.method = 'POST';
+						}else{
+							apiUrl = apiUrl + '/' +  ruleNum + '.json';
+							result.method = 'PUT';
+						}
+						
+						delete result.isDisabled;
+						
+						new Ajax.Request(apiUrl , {
+							method    : 'get',
+							parameters: result,
+							onComplete: function() {
+								modal.close();
+							},
+							onSuccess: function() {
+								//app.router.save(window.location.hash.replace('#', ''));
+								
+								new Hypermodal({
+									title  : '成功',
+									content: 'ルール変更に成功しました',
+									onClose: function(){viewRules();}
+								}).render();
+							},
+							onFailure: function(t) {
+								new Hypermodal({
+									title  : '失敗',
+									content: 'ルール変更に失敗しました (' + t.status + ')'
+								}).render();
+							}
+						});
+					
 					}
 				},
 				{
@@ -60,7 +95,7 @@
 				}
 			];
 			
-		if (ruleId == null) {
+		if (ruleNum == null) {
 			var formTitle = 'ルール新規追加';
 			buttons[0].label = '追加';
 		}else{
@@ -93,7 +128,7 @@
 			labelAlign : 'right',
 			fields     : [
 				{
-					key   : 'types',
+					key   : 'type',
 					label : 'タイプ',
 					input : {
 						type : 'checkbox',
@@ -113,7 +148,7 @@
 					}
 				},
 				{
-					key   : 'categories',
+					key   : 'cat',
 					label : 'カテゴリー',
 					input : {
 						type : 'checkbox',
@@ -136,7 +171,7 @@
 					}
 				},
 				{
-					key   : 'channels',
+					key   : 'ch',
 					label : '対象CH',
 					input : {
 						type  : 'tag',
@@ -144,7 +179,7 @@
 					}
 				},
 				{
-					key   : 'ignore_channels',
+					key   : '^ch',
 					label : '無視CH',
 					input : {
 						type  : 'tag',
@@ -152,7 +187,7 @@
 					}
 				},
 				{
-					key   : 'reserve_flags',
+					key   : 'flag',
 					label : '対象フラグ',
 					input : {
 						type  : 'tag',
@@ -160,7 +195,7 @@
 					}
 				},
 				{
-					key   : 'ignore_flags',
+					key   : '^flag',
 					label : '無視フラグ',
 					input : {
 						type  : 'tag',
@@ -168,7 +203,7 @@
 					}
 				},
 				{
-					key   : 'hour.start',
+					key   : 'start',
 					label : '何時から',
 					input : {
 						type      : 'text',
@@ -180,7 +215,7 @@
 					}
 				},
 				{
-					key   : 'hour.end',
+					key   : 'end',
 					label : '何時まで',
 					input : {
 						type      : 'text',
@@ -192,7 +227,7 @@
 					}
 				},
 				{
-					key   : 'duration.min',
+					key   : 'mini',
 					label : '最短長さ',
 					input : {
 						type      : 'text',
@@ -203,7 +238,7 @@
 					}
 				},
 				{
-					key   : 'duration.max',
+					key   : 'maxi',
 					label : '最長長さ',
 					input : {
 						type      : 'text',
@@ -214,7 +249,7 @@
 					}
 				},
 				{
-					key   : 'reserve_titles',
+					key   : 'title',
 					label : '対象タイトル',
 					input : {
 						type  : 'tag',
@@ -222,7 +257,7 @@
 					}
 				},
 				{
-					key   : 'ignore_titles',
+					key   : '^title',
 					label : '無視タイトル',
 					input : {
 						type  : 'tag',
@@ -230,7 +265,7 @@
 					}
 				},
 				{
-					key   : 'reserve_descriptions',
+					key   : 'desc',
 					label : '対象説明文',
 					input : {
 						type  : 'tag',
@@ -238,7 +273,7 @@
 					}
 				},
 				{
-					key   : 'ignore_descriptions',
+					key   : '^desc',
 					label : '無視説明文',
 					input : {
 						type  : 'tag',
@@ -445,8 +480,7 @@
 					onClick: function(element, evt) {
 						evt.stop();
 						var id = element.getElementsByTagName('div')[0].innerHTML;
-						var ruleId = ''; //将来的にAPIで呼び出し？
-						viewRuleDetail(app.chinachu.rules[id], ruleId);
+						viewRuleDetail(app.chinachu.rules[id], id);
 					}
 				});
 				
