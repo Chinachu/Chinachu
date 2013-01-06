@@ -1285,7 +1285,7 @@ app.ui.StreamerPlayer = Class.create({
 app.ui.EditRule = Class.create({
 	initialize: function _init(ruleNum) {
 		this.num = ruleNum;
-
+		
 		this.create();
 		
 		return this;
@@ -1306,7 +1306,7 @@ app.ui.EditRule = Class.create({
 				onSuccess: function(res) {
 					rule = JSON.parse(res.responseText);
 					this.rule = rule;
-
+					
 					var modal = new Hypermodal({
 						title  : 'ルール詳細',
 						content: new Element('div'),
@@ -1319,10 +1319,10 @@ app.ui.EditRule = Class.create({
 									/** 新旧ルールの違う箇所を検索する（予定）
 									 新ルールで要素を削除した場合の処理を実装する*/
 									
-									this.param = viewRuleForm.result();	
+									this.param = viewRuleForm.result();
 									// 空文字列ルールを削除
-									for(var element in this.param){
-										if(this.param[element] == "") {
+									for (var element in this.param) {
+										if (this.param[element] === '') {
 											delete this.param[element];
 										}
 									}
@@ -1416,8 +1416,8 @@ app.ui.EditRule = Class.create({
 							}
 						]
 					}).render();
-	
-	
+					
+					
 					var viewRuleForm = new Hyperform({
 						formWidth  : '100%',
 						labelWidth : '100px',
@@ -1430,7 +1430,7 @@ app.ui.EditRule = Class.create({
 									type : 'checkbox',
 									items: (function() {
 										var array = [];
-			
+										
 										['GR', 'BS', 'CS', 'EX'].each(function(a) {
 											array.push({
 												label     : a,
@@ -1438,7 +1438,7 @@ app.ui.EditRule = Class.create({
 												isSelected: !!rule.types ? (rule.types.indexOf(a) !== -1) : ''
 											});
 										});
-			
+										
 										return array;
 									})()
 								}
@@ -1450,7 +1450,7 @@ app.ui.EditRule = Class.create({
 									type : 'checkbox',
 									items: (function() {
 										var array = [];
-			
+										
 										[
 											'anime', 'information', 'news', 'sports',
 											'variety', 'drama', 'music', 'cinema', 'etc'
@@ -1461,7 +1461,7 @@ app.ui.EditRule = Class.create({
 												isSelected: !!rule.categories ? (rule.categories.indexOf(a) !== -1) : ''
 											});
 										});
-				
+										
 										return array;
 									})()
 								}
@@ -1597,7 +1597,6 @@ app.ui.EditRule = Class.create({
 							}
 						]
 					}).render(modal.content);
-
 				},
 				onFailure: function(t) {
 				}
