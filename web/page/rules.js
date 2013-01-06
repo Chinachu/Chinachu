@@ -34,10 +34,6 @@
 	}
 	
 	
-	function viewRuleDetail(ruleNum) {
-		new app.ui.EditRule(ruleNum);
-	}
-	
 	// ビュー: ルール
 	function viewRules() {
 		param.cur = new Date().getTime();
@@ -214,7 +210,7 @@
 					onClick: function(element, evt) {
 						evt.stop();
 						var id = element.getElementsByTagName('div')[0].innerHTML;
-						viewRuleDetail(id);
+						new app.ui.EditRule(id);
 					}
 				});
 				
