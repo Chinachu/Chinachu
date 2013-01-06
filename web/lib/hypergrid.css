@@ -1,5 +1,5 @@
 /*!
- * Hypergrid/1.6 for Prototype.js
+ * Hypergrid/1.7 for Prototype.js
  *
  * Copyright (c) 2011 Yuki KAN
  * Licensed under the MIT-License.
@@ -66,7 +66,8 @@ table.hypergrid {
 		table.hypergrid > thead > tr > th,
 		table.hypergrid > tbody > tr > td {
 			font-size       : 11px;
-			font-weight     : normal; }
+			font-weight     : normal;
+			overflow-x      : hidden; }
 	
 			table.hypergrid > thead > tr > th > div.hypergrid-icon,
 			table.hypergrid > tbody > tr > td > div.hypergrid-icon {
@@ -100,30 +101,6 @@ table.hypergrid {
 			text-shadow: 0 1px 0 #fff;
 			
 			background-color: transparent;
-			background-image: -webkit-linear-gradient(
-				bottom,
-				rgba(0,0,0,0.13) 0%,
-				rgba(0,0,0,0.06) 15%,
-				rgba(0,0,0,0)    100%
-			);
-			background-image: -moz-linear-gradient(
-				bottom,
-				rgba(0,0,0,0.13) 0%,
-				rgba(0,0,0,0.06) 15%,
-				rgba(0,0,0,0)    100%
-			);
-			background-image: -o-linear-gradient(
-				bottom,
-				rgba(0,0,0,0.13) 0%,
-				rgba(0,0,0,0.06) 15%,
-				rgba(0,0,0,0)    100%
-			);
-			background-image: linear-gradient(
-				bottom,
-				rgba(0,0,0,0.13) 0%,
-				rgba(0,0,0,0.06) 15%,
-				rgba(0,0,0,0)    100%
-			);
 			border-left     : 1px dotted #cccccc;
 			padding         : 3px 5px 3px 5px;
 			
@@ -133,32 +110,7 @@ table.hypergrid {
 			user-select        : none; }
 			
 		table.hypergrid > thead > tr > th:hover {
-			color : #000000;
-			
-			background-image: -webkit-linear-gradient(
-				bottom,
-				rgba(0,105,255,0.23) 0%,
-				rgba(0,105,255,0.10) 15%,
-				rgba(0,105,255,0)    100%
-			);
-			background-image: -moz-linear-gradient(
-				bottom,
-				rgba(0,105,255,0.23) 0%,
-				rgba(0,105,255,0.10) 15%,
-				rgba(0,105,255,0)    100%
-			);
-			background-image: -o-linear-gradient(
-				bottom,
-				rgba(0,105,255,0.23) 0%,
-				rgba(0,105,255,0.10) 15%,
-				rgba(0,105,255,0)    100%
-			);
-			background-image: linear-gradient(
-				bottom,
-				rgba(0,105,255,0.23) 0%,
-				rgba(0,105,255,0.10) 15%,
-				rgba(0,105,255,0)    100%
-			); }
+			color : #000000; }
 		
 		table.hypergrid > thead > tr > th:first-child {
 			border-left: none; }

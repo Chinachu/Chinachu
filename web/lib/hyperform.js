@@ -1,5 +1,5 @@
 /*!
- * Hyperform/[:version] for Prototype.js
+ * Hyperform/1.2 for Prototype.js
  *
  * Copyright (c) 2012 Yuki KAN
  * Licensed under the MIT-License.
@@ -244,7 +244,7 @@ var Hyperform = Class.create({
 					}
 					
 					if (typeof field.input.value !== 'undefined') {
-						field._f.insert(field.input.value);
+						field._f.insert(!!field.input.value ? field.input.value.escapeHTML() : '');
 					}
 					
 					if (typeof field.input.width !== 'undefined') {
@@ -466,6 +466,10 @@ var Hyperform = Class.create({
 					var list = new Element('div', {className: 'pulldown-list'}).hide();
 					field._i.insert(list);
 					
+					if (!!field.input.isForcePut) {
+						list.addClassName('pulldown-list-put');
+					}
+					
 					button.observe('click', function _onClickBtnPulldown(e) {
 						e.stop();
 						button.toggleClassName('selecting');
@@ -627,7 +631,7 @@ var Hyperform = Class.create({
 					field.input.items.each(function _eachItemsInput(a, i) {
 						a._sliderPosition = i * unitWidth;
 						
-						if (a.isSelected === true) {
+						if (a.isSelected === true && i !== 0) {
 							lastPosition = i * unitWidth - 1;
 							fillWidth    = i * unitWidth - 1;
 						}
@@ -752,7 +756,7 @@ var Hyperform = Class.create({
 				// if tag
 				if (field.input.type === 'tag') {
 					// create object (array)
-					field._o = field.input.values || [];
+					field._o = !!field.input.values ? field.input.values.invoke('escapeHTML') : [];
 					
 					// create *interface* container
 					field._i = new Element('div', {className: 'tag'})
@@ -809,7 +813,7 @@ var Hyperform = Class.create({
 					makeTagList();
 					
 					function addTag() {
-						var value = $F(input).strip();
+						var value = $F(input).strip().escapeHTML();
 						
 						if (value === '') {
 							return;
@@ -871,11 +875,15 @@ var Hyperform = Class.create({
 			}
 			
 			if (typeof field.text !== 'undefined') {
-				td.insert(new Element('div', {className: 'text'}).insert(field.text));
+				td.insert(new Element('div', {className: 'text'}).insert(('' + field.text).escapeHTML()));
 			}
 			
 			if (typeof field.description !== 'undefined') {
-				td.insert(new Element('div', {className: 'text'}).insert(field.description));
+				td.insert(new Element('div', {className: 'text'}).insert(('' + field.description).escapeHTML()));
+			}
+			
+			if (typeof field.html !== 'undefined') {
+				td.insert(new Element('div').insert(field.html));
 			}
 			
 			if (typeof field.innerHTML !== 'undefined') {
