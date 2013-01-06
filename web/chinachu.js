@@ -1280,3 +1280,574 @@ app.ui.StreamerPlayer = Class.create({
 		return true;
 	}
 });
+
+
+app.ui.EditRule = Class.create({
+	initialize: function _init(ruleNum) {
+		this.num = ruleNum;
+		
+		this.create();
+		
+		return this;
+	},
+	create: function _create() {
+		if (this.num == null) {
+			var modal = new Hypermodal({
+				title  : 'エラー',
+				content: 'ルールの指定が不正です。'
+			}).render(); 
+		} else {
+			// フォームに表示させるルールを読み込む
+			this.rule = {};
+			var num = this.num;
+			new Ajax.Request('./api/rules/' + num + '.json', {
+				method    : 'get',
+				evalJSON  : false,
+				onSuccess: function(res) {
+					rule = JSON.parse(res.responseText);
+					this.rule = rule;
+					
+					var modal = new Hypermodal({
+						title  : 'ルール詳細',
+						content: new Element('div'),
+						buttons: [
+							{
+								label  : '変更',
+								color  : '@pink',
+								onClick: function(e, btn, modal) {
+									btn.disable();
+									/** 新旧ルールの違う箇所を検索する（予定）
+									 新ルールで要素を削除した場合の処理を実装する*/
+									
+									this.param = viewRuleForm.result();
+									// 空文字列ルールを削除
+									for (var element in this.param) {
+										if (this.param[element] === '') {
+											delete this.param[element];
+										}
+									}
+									
+									delete this.param.isDisabled;
+									this.param.method = 'PUT';
+								
+									new Ajax.Request('./api/rules/' + num + '.json', {
+										method    : 'get',
+										parameters: this.param,
+										onComplete: function() {
+											modal.close();
+										},
+										onSuccess: function() {
+											
+											new Hypermodal({
+												title  : '成功',
+												content: 'ルール変更に成功しました',
+												onClose: function(){
+													app.router.save(window.location.hash.replace('#', ''));
+												}
+											}).render();
+										},
+										onFailure: function(t) {
+											new Hypermodal({
+												title  : '失敗',
+												content: 'ルール変更に失敗しました (' + t.status + ')',
+												onClose: function(){}
+											}).render();
+										}
+									});
+								}
+							},
+							{
+								label  : '削除',
+								color: '@red',
+								onClick: function(e, btn, modal) {
+									btn.disable();
+									// ルールの削除確認
+									this.modal = new Hypermodal({
+										title  : '削除',
+										description: 'Rule #' + num,
+										content: '本当によろしいですか？',
+										buttons: [
+											{
+												label  : '削除',
+												color  : '@red',
+												onClick: function(e, btn, modal) {
+													btn.disable();
+													
+													new Ajax.Request('./api/rules/' + num + '.json', {
+														method    : 'get',
+														parameters: { method: 'DELETE' },
+														onComplete: function() {
+															modal.close();
+														},
+														onSuccess: function() {
+															new Hypermodal({
+																title  : '成功',
+																content: 'ルール削除に成功しました',
+																onClose: function(){
+																	app.router.save(window.location.hash.replace('#', ''));
+																}
+															}).render();
+														},
+														onFailure: function(t) {
+															new Hypermodal({
+																title  : '失敗',
+																content: 'ルール削除に失敗しました (' + t.status + ')'
+															}).render();
+														}
+													});
+												}.bind(this)
+											},
+											{
+												label  : 'キャンセル',
+												onClick: function(e, btn, modal) {
+													modal.close();
+												}
+											}
+										]
+									}).render();
+									modal.close();
+								}
+							},
+							{
+								label  : 'キャンセル',
+								onClick: function(e, btn, modal) {
+									modal.close();
+								}
+							}
+						]
+					}).render();
+					
+					
+					var viewRuleForm = new Hyperform({
+						formWidth  : '100%',
+						labelWidth : '100px',
+						labelAlign : 'right',
+						fields     : [
+							{
+								key   : 'type',
+								label : 'タイプ',
+								input : {
+									type : 'checkbox',
+									items: (function() {
+										var array = [];
+										
+										['GR', 'BS', 'CS', 'EX'].each(function(a) {
+											array.push({
+												label     : a,
+												value     : a,
+												isSelected: !!rule.types ? (rule.types.indexOf(a) !== -1) : ''
+											});
+										});
+										
+										return array;
+									})()
+								}
+							},
+							{
+								key   : 'cat',
+								label : 'カテゴリー',
+								input : {
+									type : 'checkbox',
+									items: (function() {
+										var array = [];
+										
+										[
+											'anime', 'information', 'news', 'sports',
+											'variety', 'drama', 'music', 'cinema', 'etc'
+										].each(function(a) {
+											array.push({
+												label     : a,
+												value     : a,
+												isSelected: !!rule.categories ? (rule.categories.indexOf(a) !== -1) : ''
+											});
+										});
+										
+										return array;
+									})()
+								}
+							},
+							{
+								key   : 'ch',
+								label : '対象CH',
+								input : {
+									type  : 'tag',
+									values: rule.channels 
+								}
+							},
+							{
+								key   : '^ch',
+								label : '無視CH',
+								input : {
+									type  : 'tag',
+									values: rule.ignore_channels
+								}
+							},
+							{
+								key   : 'flag',
+								label : '対象フラグ',
+								input : {
+									type  : 'tag',
+									values: rule.reserve_flags
+								}
+							},
+							{
+								key   : '^flag',
+								label : '無視フラグ',
+								input : {
+									type  : 'tag',
+									values: rule.ignore_flags
+								}
+							},
+							{
+								key   : 'start',
+								label : '何時から',
+								input : {
+									type      : 'text',
+									width     : 25,
+									maxlength : 2,
+									appendText: '時',
+									value   : !!rule.hour ? rule.hour.start : '',
+									isNumber: true
+								}
+							},
+							{
+								key   : 'end',
+								label : '何時まで',
+								input : {
+									type      : 'text',
+									width     : 25,
+									maxlength : 2,
+									appendText: '時',
+									value   : !!rule.hour ? rule.hour.end : '',
+									isNumber: true
+								}
+							},
+							{
+								key   : 'mini',
+								label : '最短長さ',
+								input : {
+									type      : 'text',
+									width     : 60,
+									appendText: '秒',
+									value   : !!rule.duration ? rule.duration.min : '',
+									isNumber: true
+								}
+							},
+							{
+								key   : 'maxi',
+								label : '最長長さ',
+								input : {
+									type      : 'text',
+									width     : 60,
+									appendText: '秒',
+									value   : !!rule.duration ? rule.duration.max : '',
+									isNumber: true
+								}
+							},
+							{
+								key   : 'title',
+								label : '対象タイトル',
+								input : {
+									type  : 'tag',
+									values: rule.reserve_titles
+								}
+							},
+							{
+								key   : '^title',
+								label : '無視タイトル',
+								input : {
+									type  : 'tag',
+									values: rule.ignore_titles
+								}
+							},
+							{
+								key   : 'desc',
+								label : '対象説明文',
+								input : {
+									type  : 'tag',
+									values: rule.reserve_descriptions
+								}
+							},
+							{
+								key   : '^desc',
+								label : '無視説明文',
+								input : {
+									type  : 'tag',
+									values: rule.ignore_descriptions
+								}
+							},
+							{
+								key   : 'isDisabled',
+								label : 'ルールの状態',
+								input : {
+									type : 'radio',
+									items: [
+										{
+											label  : '有効',
+											value  : false,
+											isSelected: !!rule.isDisabled ? (rule.isDisabled == "false") : true
+										},
+										{
+											label  : '無効',
+											value  : true,
+											isSelected: !!rule.isDisabled ? (rule.isDisabled == "true") : false
+										}
+										]
+								}
+							}
+						]
+					}).render(modal.content);
+				},
+				onFailure: function(t) {
+				}
+			});
+		}
+		
+		return this;
+	}
+});
+
+
+
+app.ui.NewRule = Class.create({
+	initialize: function _init() {
+
+		this.create();
+		
+		return this;
+	},
+	create: function _create() {
+		if (false) { //のちにエラー処理を追加
+			var modal = new Hypermodal({
+				title  : 'エラー',
+				content: '不正なアクセスです。'
+			}).render(); 
+		} else {
+			var modal = new Hypermodal({
+				title  : '新規作成',
+				content: new Element('div'),
+				buttons: [
+					{
+						label  : '作成',
+						color  : '@pink',
+						onClick: function(e, btn, modal) {
+							btn.disable();
+							
+							this.param = viewRuleForm.result();	
+							// 空文字列ルールを削除
+							for(var element in this.param){
+								if(this.param[element] == "") {
+									delete this.param[element];
+								}
+							}
+
+							delete this.param.isDisabled;
+							this.param.method = 'POST';
+						
+							new Ajax.Request('./api/rules.json', {
+								method    : 'get',
+								parameters: this.param,
+								onComplete: function() {
+									modal.close();
+								},
+								onSuccess: function() {
+									new Hypermodal({
+										title  : '成功',
+										content: 'ルール作成に成功しました',
+										onClose: function(){
+											app.router.save(window.location.hash.replace('#', ''));
+										}
+									}).render();
+								},
+								onFailure: function(t) {
+									new Hypermodal({
+										title  : '失敗',
+										content: 'ルール作成に失敗しました (' + t.status + ')',
+										onClose: function(){}
+									}).render();
+								}
+							});
+							
+						}
+					},
+					{
+						label  : 'キャンセル',
+						onClick: function(e, btn, modal) {
+							modal.close();
+						}
+					}
+				]
+			}).render();
+	
+	
+			var viewRuleForm = new Hyperform({
+				formWidth  : '100%',
+				labelWidth : '100px',
+				labelAlign : 'right',
+				fields     : [
+					{
+						key   : 'type',
+						label : 'タイプ',
+						input : {
+							type : 'checkbox',
+							items: (function() {
+								var array = [];
+	
+								['GR', 'BS', 'CS', 'EX'].each(function(a) {
+									array.push({
+										label     : a,
+										value     : a,
+									});
+								});
+	
+								return array;
+							})()
+						}
+					},
+					{
+						key   : 'cat',
+						label : 'カテゴリー',
+						input : {
+							type : 'checkbox',
+							items: (function() {
+								var array = [];
+	
+								[
+									'anime', 'information', 'news', 'sports',
+									'variety', 'drama', 'music', 'cinema', 'etc'
+								].each(function(a) {
+									array.push({
+										label     : a,
+										value     : a
+									});
+								});
+	
+								return array;
+							})()
+						}
+					},
+					{
+						key   : 'ch',
+						label : '対象CH',
+						input : {
+							type  : 'tag'
+						}
+					},
+					{
+						key   : '^ch',
+						label : '無視CH',
+						input : {
+							type  : 'tag'
+						}
+					},
+					{
+						key   : 'flag',
+						label : '対象フラグ',
+						input : {
+							type  : 'tag'
+						}
+					},
+					{
+						key   : '^flag',
+						label : '無視フラグ',
+						input : {
+							type  : 'tag'
+						}
+					},
+					{
+						key   : 'start',
+						label : '何時から',
+						input : {
+							type      : 'text',
+							width     : 25,
+							maxlength : 2,
+							appendText: '時',
+							isNumber: true
+						}
+					},
+					{
+						key   : 'end',
+						label : '何時まで',
+						input : {
+							type      : 'text',
+							width     : 25,
+							maxlength : 2,
+							appendText: '時',
+							isNumber: true
+						}
+					},
+					{
+						key   : 'mini',
+						label : '最短長さ',
+						input : {
+							type      : 'text',
+							width     : 60,
+							appendText: '秒',
+							isNumber: true
+						}
+					},
+					{
+						key   : 'maxi',
+						label : '最長長さ',
+						input : {
+							type      : 'text',
+							width     : 60,
+							appendText: '秒',
+							isNumber: true
+						}
+					},
+					{
+						key   : 'title',
+						label : '対象タイトル',
+						input : {
+							type  : 'tag'
+						}
+					},
+					{
+						key   : '^title',
+						label : '無視タイトル',
+						input : {
+							type  : 'tag'
+						}
+					},
+					{
+						key   : 'desc',
+						label : '対象説明文',
+						input : {
+							type  : 'tag'
+						}
+					},
+					{
+						key   : '^desc',
+						label : '無視説明文',
+						input : {
+							type  : 'tag'
+						}
+					},
+					{
+						key   : 'isDisabled',
+						label : 'ルールの状態',
+						input : {
+							type : 'radio',
+							items: [
+								{
+									label  : '有効',
+									value  : false,
+									isSelected: true
+								},
+								{
+									label  : '無効',
+									value  : true
+								}
+								]
+						}
+					}
+				]
+			}).render(modal.content);
+
+
+		}
+		
+		return this;
+	}
+});

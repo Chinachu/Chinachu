@@ -1,5 +1,5 @@
 /*!
- * Hypergrid/1.6 for Prototype.js
+ * Hypergrid/1.7 for Prototype.js
  *
  * Copyright (c) 2011 Yuki KAN
  * Licensed under the MIT-License.
