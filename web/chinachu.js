@@ -1383,9 +1383,9 @@ app.ui.EditRule = Class.create({
 															new Hypermodal({
 																title  : '成功',
 																content: 'ルール削除に成功しました',
-																		onClose: function(){
-																			app.router.save(window.location.hash.replace('#', ''));
-																		}
+																onClose: function(){
+																	app.router.save(window.location.hash.replace('#', ''));
+																}
 															}).render();
 														},
 														onFailure: function(t) {
@@ -1719,7 +1719,7 @@ app.ui.NewRule = Class.create({
 								].each(function(a) {
 									array.push({
 										label     : a,
-										value     : a,
+										value     : a
 									});
 								});
 	
@@ -1731,28 +1731,28 @@ app.ui.NewRule = Class.create({
 						key   : 'ch',
 						label : '対象CH',
 						input : {
-							type  : 'tag',
+							type  : 'tag'
 						}
 					},
 					{
 						key   : '^ch',
 						label : '無視CH',
 						input : {
-							type  : 'tag',
+							type  : 'tag'
 						}
 					},
 					{
 						key   : 'flag',
 						label : '対象フラグ',
 						input : {
-							type  : 'tag',
+							type  : 'tag'
 						}
 					},
 					{
 						key   : '^flag',
 						label : '無視フラグ',
 						input : {
-							type  : 'tag',
+							type  : 'tag'
 						}
 					},
 					{
@@ -1801,28 +1801,28 @@ app.ui.NewRule = Class.create({
 						key   : 'title',
 						label : '対象タイトル',
 						input : {
-							type  : 'tag',
+							type  : 'tag'
 						}
 					},
 					{
 						key   : '^title',
 						label : '無視タイトル',
 						input : {
-							type  : 'tag',
+							type  : 'tag'
 						}
 					},
 					{
 						key   : 'desc',
 						label : '対象説明文',
 						input : {
-							type  : 'tag',
+							type  : 'tag'
 						}
 					},
 					{
 						key   : '^desc',
 						label : '無視説明文',
 						input : {
-							type  : 'tag',
+							type  : 'tag'
 						}
 					},
 					{
@@ -1838,7 +1838,7 @@ app.ui.NewRule = Class.create({
 								},
 								{
 									label  : '無効',
-									value  : true,
+									value  : true
 								}
 								]
 						}
