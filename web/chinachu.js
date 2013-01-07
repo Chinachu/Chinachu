@@ -1309,14 +1309,34 @@ app.ui.EditRule = Class.create({
 								color  : '@pink',
 								onClick: function(e, btn, modal) {
 									btn.disable();
-									/** 新旧ルールの違う箇所を検索する（予定）
-									 新ルールで要素を削除した場合の処理を実装する*/
 									
 									this.param = viewRuleForm.result();
-									// 空文字列ルールを削除
-									for (var element in this.param) {
-										if (this.param[element] === '') {
-											delete this.param[element];
+									
+									// ルールのラベル名
+									var ruleLabel = ['types', 'categories', 'channels', 'ignore_channels',
+											'reserve_flags', 'ignore_flags', 'hour.start', 'hour.end',
+											'duration.min', 'duration.max', 'reserve_titles', 'ignore_titles',
+											'reserve_descriptions', 'ignore_descriptions'];
+									
+									// パラメータのラベル名
+									var paramLabel = ['type', 'cat', 'ch', '^ch', 'flag', '^flag',
+											'start', 'end', 'mini', 'maxi', 'title', '^title',
+											'desc', '^desc'];
+									
+									/** 
+									新旧ルールに相違なし： パラメータ削除
+									新ルールに変更あり：
+										新ルールが空：　パラメータにnullを指定
+									新ルールあり：　パラメータはそのまま
+									*/
+									for (var i = 0; i < ruleLabel.length; i++){
+										var newRule = this.param[paramLabel[i]];
+										var oldRule = !!rule[ruleLabel[i].replace(/\..*/,'')] ? eval('rule.' + ruleLabel[i]) : '';
+										
+										if (newRule == oldRule) {
+											delete this.param[paramLabel[i]];
+										} else if (newRule == ''){
+											this.param[paramLabel[i]] = 'null';
 										}
 									}
 									
