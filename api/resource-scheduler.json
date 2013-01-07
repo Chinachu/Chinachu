@@ -2,6 +2,12 @@
   "/": {
     "script" : "scheduler",
     "methods": ["get", "put"],
+    "types"  : ["json", "txt"]
+  },
+  
+  "/force": {
+    "script" : "scheduler-force",
+    "methods": ["put"],
     "types"  : ["json"]
   }
 }
