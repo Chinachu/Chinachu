@@ -74,7 +74,7 @@
 					width    : 50
 				},
 				{
-					key      : 'flags',
+					key      : 'reserve_flags',
 					innerHTML: '対象フラグ',
 					width    : 50
 				},
@@ -150,9 +150,9 @@
 								'-'
 							)
 						},
-						flags: {
-							innerHTML: !!rule.flags ? (
-								rule.flags.join('<br>')
+						reserve_flags: {
+							innerHTML: !!rule.reserve_flags? (
+								rule.reserve_flags.join('<br>')
 							) : (
 								'-'
 							)
