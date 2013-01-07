@@ -21,6 +21,7 @@ var fs            = require('fs');
 var util          = require('util');
 var child_process = require('child_process');
 var url           = require('url');
+var querystring   = require('querystring');
 var vm            = require('vm');
 
 // ディレクトリチェック
@@ -185,6 +186,26 @@ if (https) { var app = https.createServer(tlsOption, httpServer); }
 app.listen(config.wuiPort, config.wuiHost || '::');
 
 function httpServer(req, res) {
+	if (req.method === 'GET') {
+		
+		httpServerMain(req, res, url.parse(req.url, true).query);
+		
+	} else if (req.method === 'POST') {
+		
+		var postBody = '';
+		
+		req.on('data', function(chunk) {
+			postBody += chunk.toString();
+		});
+		
+		req.on('end', function() {
+			httpServerMain(req, res, querystring.parse(postBody));
+		});
+		
+	}
+}
+
+function httpServerMain(req, res, query) {
 	// http request logging
 	var log = function(statusCode) {
 		util.log([
@@ -201,10 +222,15 @@ function httpServer(req, res) {
 	if (location.match(/\/$/) !== null)     { location += 'index.html'; }
 	if (location.match(/(\?.*)$/) !== null) { location = location.match(/^(.+)\?.*$/)[1]; }
 	
-	var query = url.parse(req.url, true).query;
-	
+	// HTTPメソッド指定を上書き
 	if (query.method) {
 		req.method = query.method.toUpperCase();
+		delete query.method;
+	}
+	
+	if (query._method) {
+		req.method = query._method.toUpperCase();
+		delete query._method;
 	}
 	
 	var filename = path.join('./web/', location);
