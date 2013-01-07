@@ -1281,7 +1281,6 @@ app.ui.StreamerPlayer = Class.create({
 	}
 });
 
-
 app.ui.EditRule = Class.create({
 	initialize: function _init(ruleNum) {
 		this.num = ruleNum;
@@ -1607,11 +1606,9 @@ app.ui.EditRule = Class.create({
 	}
 });
 
-
-
 app.ui.NewRule = Class.create({
 	initialize: function _init() {
-
+		
 		this.create();
 		
 		return this;
@@ -1633,14 +1630,14 @@ app.ui.NewRule = Class.create({
 						onClick: function(e, btn, modal) {
 							btn.disable();
 							
-							this.param = viewRuleForm.result();	
+							this.param = viewRuleForm.result();
 							// 空文字列ルールを削除
 							for(var element in this.param){
-								if(this.param[element] == "") {
+								if(this.param[element] === '') {
 									delete this.param[element];
 								}
 							}
-
+							
 							delete this.param.isDisabled;
 							this.param.method = 'POST';
 						
@@ -1678,8 +1675,8 @@ app.ui.NewRule = Class.create({
 					}
 				]
 			}).render();
-	
-	
+			
+			
 			var viewRuleForm = new Hyperform({
 				formWidth  : '100%',
 				labelWidth : '100px',
@@ -1692,14 +1689,14 @@ app.ui.NewRule = Class.create({
 							type : 'checkbox',
 							items: (function() {
 								var array = [];
-	
+								
 								['GR', 'BS', 'CS', 'EX'].each(function(a) {
 									array.push({
 										label     : a,
 										value     : a,
 									});
 								});
-	
+								
 								return array;
 							})()
 						}
@@ -1711,7 +1708,7 @@ app.ui.NewRule = Class.create({
 							type : 'checkbox',
 							items: (function() {
 								var array = [];
-	
+								
 								[
 									'anime', 'information', 'news', 'sports',
 									'variety', 'drama', 'music', 'cinema', 'etc'
@@ -1721,7 +1718,7 @@ app.ui.NewRule = Class.create({
 										value     : a
 									});
 								});
-	
+								
 								return array;
 							})()
 						}
@@ -1844,8 +1841,6 @@ app.ui.NewRule = Class.create({
 					}
 				]
 			}).render(modal.content);
-
-
 		}
 		
 		return this;
