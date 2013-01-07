@@ -249,6 +249,60 @@ app.ui.ContentLoading = Class.create({
 	}
 });
 
+app.ui.ExecuteScheduler = Class.create({
+	initialize: function _init() {
+		this.create();
+		
+		return this;
+	},
+	create: function _create() {
+		this.modal = new Hypermodal({
+			title  : 'スケジューラの実行',
+			content: '本当によろしいですか？<br>スケジューラはルールを適用し、手動予約との競合も検出します。',
+			buttons: [
+				{
+					label  : '実行',
+					color  : '@orange',
+					onClick: function(e, btn, modal) {
+						btn.disable();
+						
+						new Ajax.Request('./api/scheduler.json', {
+							method    : 'put',
+							onComplete: function() {
+								modal.close();
+							},
+							onSuccess: function() {
+								app.router.save(window.location.hash.replace('#', ''));
+								
+								new Hypermodal({
+									title  : '成功',
+									content: 'スケジューラは完了しました'
+								}).render();
+							},
+							onFailure: function(t) {
+								new Hypermodal({
+									title  : '失敗',
+									content: 'スケジューラは失敗しました (' + t.status + ')'
+								}).render();
+							}
+						});
+					}.bind(this)
+				},
+				{
+					label  : 'キャンセル',
+					onClick: function(e, btn, modal) {
+						modal.close();
+					}
+				}
+			]
+		});
+		
+		this.modal.render();
+		
+		return this;
+	}
+});
+
 app.ui.Reserve = Class.create({
 	initialize: function _init(id) {
 		this.program = app.f.getProgramById(id);

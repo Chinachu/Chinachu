@@ -441,6 +441,9 @@ div.hypermodal > div > div > div.hypermodal-footer {
 .chinachu-hypergrid-multiline {
 	 }
 
+table.hypergrid tr.disabled > td {
+	background-color: rgba(255,0,0,0.1); }
+
 /* page */
 
 div#content-body > div#content-body-head {
@@ -556,10 +559,19 @@ div#content-body > div#content-body-results {
 			margin    : 0 5px 0 0;
 			padding   : 0; }
 		
+		div#content-body > div#content-body-results > div > span.by.manual {
+			font-size : 10px;
+			background: #c24186;
+			color     : #fff; }
+		
 		div#content-body > div#content-body-results > div > span.channel {
 			font-size : 10px;
 			background: #eee;
 			color     : #777; }
+			
+			div#content-body > div#content-body-results > div > span.channel > span.type {
+				color       : #aaa;
+				margin-right: 2px; }
 		
 		div#content-body > div#content-body-results > div:hover > span.channel {
 			background: #ddd;

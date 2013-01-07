@@ -255,6 +255,12 @@
 					(program.seconds / 60) + '分'
 				));
 				
+				if (program.isManualReserved) {
+					div.insert(new Element('span', { className: 'by manual' }).insert('手動'));
+				} else {
+					//div.insert(new Element('span', { className: 'by rule' }).insert('ルール'));
+				}
+				
 				div.insert(
 					new Element('span', { className: 'cat' }).insert(
 						program.category
@@ -263,7 +269,9 @@
 					})
 				);
 				
-				div.insert(new Element('span', { className: 'channel' }).insert(program.channel.name));
+				div.insert(new Element('span', { className: 'channel' }).insert(
+					'<span class="type">' + program.channel.type + ':</span>' + program.channel.name
+				));
 				
 				div.insert(new Element('span', { className: 'stat' }).hide());
 				
