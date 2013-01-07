@@ -163,8 +163,6 @@
 	
 	// ビュー: 録画中
 	function viewRecording() {
-		if (app.chinachu.recording.length === 0) return;
-		
 		param.cur = new Date().getTime();
 		
 		$$('.hypermodal').each(function(a) {
@@ -174,6 +172,8 @@
 		contentBodyHead.update();
 		contentBodyResults.update();
 		contentBodyAnalysis.update();
+		
+		if (app.chinachu.recording.length === 0) return;
 		
 		contentBodyHead.insert(
 			new Element('a', {
@@ -247,6 +247,8 @@
 				
 				var div = new Element('div', { className: app.query.detail ? 'detail' : 'list' });
 				
+				div.addClassName('recording');
+				
 				div.insert(new Element('span', { className: 'datetime' }).insert(
 					dateFormat(new Date(program.start), 'HH:MM')
 				));
@@ -254,6 +256,12 @@
 				div.insert(new Element('span', { className: 'duration' }).insert(
 					(program.seconds / 60) + '分'
 				));
+				
+				if (program.isManualReserved) {
+					div.insert(new Element('span', { className: 'by manual' }).insert('手動'));
+				} else {
+					//div.insert(new Element('span', { className: 'by rule' }).insert('ルール'));
+				}
 				
 				div.insert(
 					new Element('span', { className: 'cat' }).insert(
@@ -263,9 +271,11 @@
 					})
 				);
 				
-				div.insert(new Element('span', { className: 'channel' }).insert(program.channel.name));
+				div.insert(new Element('span', { className: 'channel' }).insert(
+					'<span class="type">' + program.channel.type + ':</span>' + program.channel.name
+				));
 				
-				div.insert(new Element('span', { className: 'stat' }).hide());
+				div.insert(new Element('span', { className: 'stat' }).insert('録画中'));
 				
 				div.insert(new Element('span', { className: 'title' }).insert(program.title));
 				

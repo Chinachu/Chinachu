@@ -274,7 +274,9 @@
 					})
 				);
 				
-				div.insert(new Element('span', { className: 'channel' }).insert(program.channel.name));
+				div.insert(new Element('span', { className: 'channel' }).insert(
+					'<span class="type">' + program.channel.type + ':</span>' + program.channel.name
+				));
 				
 				if (program.start < param.cur && program.end > param.cur) {
 					div.insert(new Element('span', { className: 'stat' }).insert('放送中'));

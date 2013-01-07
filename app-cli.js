@@ -488,7 +488,7 @@ function chinachuRule() {
 	}
 	
 	if (opts.get('disable')) {
-		r.isDisabled = 'true';
+		r.isDisabled = true;
 	}
 	
 	if (opts.get('n')) {

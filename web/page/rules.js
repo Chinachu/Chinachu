@@ -28,10 +28,19 @@
 	var viewRuleAddBtn = new Element('a', { className: 'right' }).insert(
 		'新規追加'
 	);
-
+	
 	var viewRuleAddBtnOnClick = function() {
 		new app.ui.NewRule();
-	}
+	};
+	
+	// スケジューラの実行
+	var viewExecuteSchedulerBtn = new Element('a', { className: 'right' }).insert(
+		'スケジューラの実行'
+	);
+	
+	var viewExecuteSchedulerBtnOnClick = function() {
+		new app.ui.ExecuteScheduler();
+	};
 	
 	
 	// ビュー: ルール
@@ -42,7 +51,7 @@
 		
 		var grid = new Hypergrid({
 			tableWidth   : '100%',
-			tableClass   : 'hypergrid hypergrid-padded hypergrid-noborder chinachu-hypergrid-multiline',
+			tableClass   : 'hypergrid chinachu-hypergrid-multiline',
 			multiSelect  : false,
 			disableSelect: true,
 			disableSort  : true,
@@ -51,12 +60,12 @@
 				{
 					key      : 'id',
 					innerHTML: '#',
-					width    : 20
+					width    : 15
 				},
 				{
 					key      : 'types',
 					innerHTML: 'タイプ',
-					width    : 30
+					width    : 25
 				},
 				{
 					key      : 'categories',
@@ -115,6 +124,7 @@
 		app.chinachu.rules.each(function(rule, i) {
 			setTimeout(function() {
 				grid.push({
+					className: !!rule.isDisabled ? 'disabled' : null,
 					cell: {
 						id: {
 							innerHTML: i.toString(10)
@@ -145,7 +155,15 @@
 						},
 						categories: {
 							innerHTML: !!rule.categories ? (
-								rule.categories.join('<br>')
+								(function() {
+									var html = '';
+									
+									rule.categories.each(function(a) {
+										html += '<span style="background:' + param.color[a] + '">' + a + '</span><br>'
+									});
+									
+									return html;
+								})()
 							) : (
 								'-'
 							)
@@ -180,28 +198,36 @@
 						},
 						reserve_titles: {
 							innerHTML: !!rule.reserve_titles ? (
-								rule.reserve_titles.join('<br>').truncate(50)
+								(rule.reserve_titles.length < 5)
+									&& rule.reserve_titles.join('<br>')
+									|| '[' + rule.reserve_titles.length + ']'
 							) : (
 								'-'
 							)
 						},
 						ignore_titles: {
 							innerHTML: !!rule.ignore_titles ? (
-								rule.ignore_titles.join('<br>').truncate(50)
+								(rule.ignore_titles.length < 5)
+									&& rule.ignore_titles.join('<br>')
+									|| '[' + rule.ignore_titles.length + ']'
 							) : (
 								'-'
 							)
 						},
 						reserve_descriptions: {
 							innerHTML: !!rule.reserve_descriptions ? (
-								rule.reserve_descriptions.join('<br>').truncate(50)
+								(rule.reserve_descriptions.length < 5)
+									&& rule.reserve_descriptions.join('<br>')
+									|| '[' + rule.reserve_descriptions.length + ']'
 							) : (
 								'-'
 							)
 						},
 						ignore_descriptions: {
 							innerHTML: !!rule.ignore_descriptions ? (
-								rule.ignore_descriptions.join('<br>').truncate(50)
+								(rule.ignore_descriptions.length  < 5)
+									&& rule.ignore_descriptions.join('<br>')
+									|| '[' + rule.ignore_descriptions.length + ']'
 							) : (
 								'-'
 							)
@@ -219,6 +245,7 @@
 		});
 		
 		contentBodyHead.insert(viewRuleAddBtn.observe('click', viewRuleAddBtnOnClick));
+		contentBodyHead.insert(viewExecuteSchedulerBtn.observe('click', viewExecuteSchedulerBtnOnClick));
 	}
 	viewRules();
 	document.observe('chinachu:recorded', viewRules);
