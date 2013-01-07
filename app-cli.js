@@ -464,6 +464,14 @@ function chinachuRule() {
 		r[i] = rule[i];
 	}
 	
+	for (var i in r) {
+		if ((typeof r[i] === 'string') && (r[i] === 'null')) {
+			delete r[i];
+		} else if ((typeof r[i] === 'object') && !!r[i].length && (r[i].length === 1) && (r[i][0] === 'null')) {
+			delete r[i];
+		}
+	}
+	
 	if (JSON.stringify(r) === '{}') {
 		if (opts.get('enable') || opts.get('disable') || opts.get('remove')) {
 			util.error('見つかりません');
