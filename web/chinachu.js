@@ -1748,3 +1748,253 @@ app.ui.NewRule = Class.create({
 		return this;
 	}
 });
+
+app.ui.CreateRuleByProgram = Class.create({
+	initialize: function _init(id) {
+		this.program = app.f.getProgramById(id);
+		
+		this.create();
+		
+		return this;
+	},
+	create: function _create() {
+		if (this.program === null) { //のちにエラー処理を追加
+			var modal = new Hypermodal({
+				title  : 'エラー',
+				content: '不正なアクセスです。'
+			}).render(); 
+		} else {
+			var program = this.program;
+			var modal = new Hypermodal({
+				title  : '新規作成',
+				content: new Element('div'),
+				buttons: [
+					{
+						label  : '作成',
+						color  : '@pink',
+						onClick: function(e, btn, modal) {
+							btn.disable();
+							this.param = viewRuleForm.result();	
+							// 空文字列ルールを削除
+							for(var element in this.param){
+								if(this.param[element] == "") {
+									delete this.param[element];
+								}
+							}
+
+							delete this.param.isDisabled;
+							this.param.method = 'POST';
+						
+							new Ajax.Request('./api/rules.json', {
+								method    : 'get',
+								parameters: this.param,
+								onComplete: function() {
+									modal.close();
+								},
+								onSuccess: function() {
+									new Hypermodal({
+										title  : '成功',
+										content: 'ルール作成に成功しました',
+										onClose: function(){
+											app.router.save(window.location.hash.replace('#', ''));
+										}
+									}).render();
+								},
+								onFailure: function(t) {
+									new Hypermodal({
+										title  : '失敗',
+										content: 'ルール作成に失敗しました (' + t.status + ')',
+										onClose: function(){}
+									}).render();
+								}
+							});
+							
+						}
+					},
+					{
+						label  : 'キャンセル',
+						onClick: function(e, btn, modal) {
+							modal.close();
+						}
+					}
+				]
+			}).render();
+	
+	
+			var viewRuleForm = new Hyperform({
+				formWidth  : '100%',
+				labelWidth : '100px',
+				labelAlign : 'right',
+				fields     : [
+					{
+						key   : 'type',
+						label : 'タイプ',
+						input : {
+							type : 'checkbox',
+							items: (function() {
+								var array = [];
+	
+								['GR', 'BS', 'CS', 'EX'].each(function(a) {
+									array.push({
+										label     : a,
+										value     : a,
+										isSelected: (program.channel.type.indexOf(a) !== -1)
+									});
+								});
+	
+								return array;
+							})()
+						}
+					},
+					{
+						key   : 'cat',
+						label : 'カテゴリー',
+						input : {
+							type : 'checkbox',
+							items: (function() {
+								var array = [];
+	
+								[
+									'anime', 'information', 'news', 'sports',
+									'variety', 'drama', 'music', 'cinema', 'etc'
+								].each(function(a) {
+									array.push({
+										label     : a,
+										value     : a,
+										isSelected: (program.category.indexOf(a) !== -1)
+
+									});
+								});
+	
+								return array;
+							})()
+						}
+					},
+					{
+						key   : 'ch',
+						label : '対象CH',
+						input : {
+							type  : 'tag',
+							values: [program.channel.channel]
+						}
+					},
+					{
+						key   : '^ch',
+						label : '無視CH',
+						input : {
+							type  : 'tag'
+						}
+					},
+					{
+						key   : 'flag',
+						label : '対象フラグ',
+						input : {
+							type  : 'tag',
+							values: program.flags
+						}
+					},
+					{
+						key   : '^flag',
+						label : '無視フラグ',
+						input : {
+							type  : 'tag'
+						}
+					},
+					{
+						key   : 'start',
+						label : '何時から',
+						input : {
+							type      : 'text',
+							width     : 25,
+							maxlength : 2,
+							appendText: '時',
+							isNumber: true
+						}
+					},
+					{
+						key   : 'end',
+						label : '何時まで',
+						input : {
+							type      : 'text',
+							width     : 25,
+							maxlength : 2,
+							appendText: '時',
+							isNumber: true
+						}
+					},
+					{
+						key   : 'mini',
+						label : '最短長さ',
+						input : {
+							type      : 'text',
+							width     : 60,
+							appendText: '秒',
+							isNumber: true
+						}
+					},
+					{
+						key   : 'maxi',
+						label : '最長長さ',
+						input : {
+							type      : 'text',
+							width     : 60,
+							appendText: '秒',
+							isNumber: true
+						}
+					},
+					{
+						key   : 'title',
+						label : '対象タイトル',
+						input : {
+							type  : 'tag',
+							values: [this.program.title.replace(/【[^】]*】/g,'').replace(/　＃[０１２３ ４５６７８９]*/g,'')]
+						}
+					},
+					{
+						key   : '^title',
+						label : '無視タイトル',
+						input : {
+							type  : 'tag'
+						}
+					},
+					{
+						key   : 'desc',
+						label : '対象説明文',
+						input : {
+							type  : 'tag'
+						}
+					},
+					{
+						key   : '^desc',
+						label : '無視説明文',
+						input : {
+							type  : 'tag'
+						}
+					},
+					{
+						key   : 'isDisabled',
+						label : 'ルールの状態',
+						input : {
+							type : 'radio',
+							items: [
+								{
+									label  : '有効',
+									value  : false,
+									isSelected: true
+								},
+								{
+									label  : '無効',
+									value  : true
+								}
+								]
+						}
+					}
+				]
+			}).render(modal.content);
+
+
+		}
+		
+		return this;
+	}
+});
