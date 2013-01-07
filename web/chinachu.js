@@ -276,8 +276,7 @@ app.ui.Reserve = Class.create({
 							btn.disable();
 							
 							new Ajax.Request('./api/program/' + this.program.id + '.json', {
-								method    : 'get',
-								parameters: { method: 'PUT' },
+								method    : 'put',
 								onComplete: function() {
 									modal.close();
 								},
@@ -341,8 +340,7 @@ app.ui.Unreserve = Class.create({
 							btn.disable();
 							
 							new Ajax.Request('./api/reserves/' + this.program.id + '.json', {
-								method    : 'get',
-								parameters: { method: 'DELETE' },
+								method    : 'delete',
 								onComplete: function() {
 									modal.close();
 								},
@@ -406,8 +404,7 @@ app.ui.StopRecord = Class.create({
 							btn.disable();
 							
 							new Ajax.Request('./api/recording/' + this.program.id + '.json', {
-								method    : 'get',
-								parameters: { method: 'DELETE' },
+								method    : 'delete',
 								onComplete: function() {
 									modal.close();
 								},
@@ -472,8 +469,7 @@ app.ui.RemoveRecordedProgram = Class.create({
 							btn.disable();
 							
 							new Ajax.Request('./api/recorded/' + this.program.id + '.json', {
-								method    : 'get',
-								parameters: { method: 'DELETE' },
+								method    : 'delete',
 								onComplete: function() {
 									modal.close();
 								},
@@ -537,8 +533,7 @@ app.ui.RemoveRecordedFile = Class.create({
 							btn.disable();
 							
 							new Ajax.Request('./api/recorded/' + this.program.id + '/file.json', {
-								method    : 'get',
-								parameters: { method: 'DELETE' },
+								method    : 'delete',
 								onComplete: function() {
 									modal.close();
 								},
@@ -593,8 +588,7 @@ app.ui.Cleanup = Class.create({
 						btn.disable();
 						
 						new Ajax.Request('./api/recorded.json', {
-							method    : 'get',
-							parameters: { method: 'PUT' },
+							method    : 'put',
 							onComplete: function() {
 								modal.close();
 							},
@@ -1327,10 +1321,9 @@ app.ui.EditRule = Class.create({
 									}
 									
 									delete this.param.isDisabled;
-									this.param.method = 'PUT';
 								
 									new Ajax.Request('./api/rules/' + num + '.json', {
-										method    : 'get',
+										method    : 'put',
 										parameters: this.param,
 										onComplete: function() {
 											modal.close();
@@ -1373,8 +1366,7 @@ app.ui.EditRule = Class.create({
 													btn.disable();
 													
 													new Ajax.Request('./api/rules/' + num + '.json', {
-														method    : 'get',
-														parameters: { method: 'DELETE' },
+														method    : 'delete',
 														onComplete: function() {
 															modal.close();
 														},
@@ -1639,10 +1631,9 @@ app.ui.NewRule = Class.create({
 							}
 							
 							delete this.param.isDisabled;
-							this.param.method = 'POST';
-						
+							
 							new Ajax.Request('./api/rules.json', {
-								method    : 'get',
+								method    : 'post',
 								parameters: this.param,
 								onComplete: function() {
 									modal.close();
