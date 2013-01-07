@@ -763,7 +763,7 @@ function isMatchedProgram(program) {
 		
 		// reserve_flags
 		if (rule.reserve_flags) {
-			if (!program.detail) return;
+			if (!program.flags) return;
 			
 			var isFound = false;
 			
