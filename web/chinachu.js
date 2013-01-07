@@ -1313,15 +1313,19 @@ app.ui.EditRule = Class.create({
 									this.param = viewRuleForm.result();
 									
 									// ルールのラベル名
-									var ruleLabel = ['types', 'categories', 'channels', 'ignore_channels',
-											'reserve_flags', 'ignore_flags', 'hour.start', 'hour.end',
-											'duration.min', 'duration.max', 'reserve_titles', 'ignore_titles',
-											'reserve_descriptions', 'ignore_descriptions'];
+									var ruleLabel = [
+										'types', 'categories', 'channels', 'ignore_channels',
+										'reserve_flags', 'ignore_flags', 'hour.start', 'hour.end',
+										'duration.min', 'duration.max', 'reserve_titles', 'ignore_titles',
+										'reserve_descriptions', 'ignore_descriptions'
+									];
 									
 									// パラメータのラベル名
-									var paramLabel = ['type', 'cat', 'ch', '^ch', 'flag', '^flag',
-											'start', 'end', 'mini', 'maxi', 'title', '^title',
-											'desc', '^desc'];
+									var paramLabel = [
+										'type', 'cat', 'ch', '^ch', 'flag', '^flag',
+										'start', 'end', 'mini', 'maxi', 'title', '^title',
+										'desc', '^desc'
+									];
 									
 									/** 
 									新旧ルールに相違なし： パラメータ削除
@@ -1340,8 +1344,12 @@ app.ui.EditRule = Class.create({
 										}
 									}
 									
+									!this.param.isDisabled && (this.param.en = '');
+									!!this.param.isDisabled && (this.param.dis = '');
 									delete this.param.isDisabled;
-								
+									
+									delete this.param.isDisabled;
+									
 									new Ajax.Request('./api/rules/' + num + '.json', {
 										method    : 'put',
 										parameters: this.param,
@@ -1595,15 +1603,15 @@ app.ui.EditRule = Class.create({
 									items: [
 										{
 											label  : '有効',
-											value  : false,
-											isSelected: !!rule.isDisabled ? (rule.isDisabled == "false") : true
+											value  : 0,
+											isSelected: !!rule.isDisabled ? (rule.isDisabled === false) : true
 										},
 										{
 											label  : '無効',
-											value  : true,
-											isSelected: !!rule.isDisabled ? (rule.isDisabled == "true") : false
+											value  : 1,
+											isSelected: !!rule.isDisabled ? (rule.isDisabled === true) : false
 										}
-										]
+									]
 								}
 							}
 						]
@@ -1644,12 +1652,13 @@ app.ui.NewRule = Class.create({
 							
 							this.param = viewRuleForm.result();
 							// 空文字列ルールを削除
-							for(var element in this.param){
+							for (var element in this.param) {
 								if(this.param[element] === '') {
 									delete this.param[element];
 								}
 							}
 							
+							!!this.param.isDisabled && (this.param.dis = '');
 							delete this.param.isDisabled;
 							
 							new Ajax.Request('./api/rules.json', {
@@ -1840,14 +1849,14 @@ app.ui.NewRule = Class.create({
 							items: [
 								{
 									label  : '有効',
-									value  : false,
+									value  : 0,
 									isSelected: true
 								},
 								{
 									label  : '無効',
-									value  : true
+									value  : 1
 								}
-								]
+							]
 						}
 					}
 				]
