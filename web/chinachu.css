@@ -184,13 +184,9 @@ section {
 		bottom          : 0;
 		left            : 0;
 		background-color: #fff;
-		background-color: rgba(255,255,255,0.9);
-		
-		-webkit-transition: background ease 0.3s;
-		-moz-transition: background ease 0.2s;
-		-ms-transition: background ease 0.2s;
-		-o-transition: background ease 0.2s;
-		transition: background ease 0.2s; }
+		background-size : cover;
+		background-position: center center;
+		background-image: none; }
 	
 	section > div.program-view.black {
 		background-color: #111; }
@@ -211,14 +207,16 @@ section {
 		
 		section > div.program-view > div.main {
 			position        : absolute;
-			top             : 20px;
-			left            : 20px;
+			top             : 10px;
+			left            : 10px;
 			right           : 220px;
-			bottom          : 20px;
+			bottom          : 10px;
+			padding         : 10px;
 			line-height     : 25px;
 			color           : #555;
 			text-shadow     : 0 1px 0 #fff;
-			overflow        : auto; }
+			overflow        : auto;
+			background-color: rgba(255,255,255,0.8); }
 			
 			section > div.program-view > div > h1 {
 				margin          : 0 0 10px 0;
@@ -273,13 +271,15 @@ section {
 		
 		section > div.program-view > div.sub {
 			position        : absolute;
-			top             : 20px;
-			right           : 20px;
+			top             : 10px;
+			right           : 10px;
 			bottom          : 10px;
+			padding         : 10px;
 			width           : 190px;
 			line-height     : 25px;
 			color           : #555;
-			overflow        : auto; }
+			overflow        : auto;
+			background-color: rgba(255,255,255,0.5); }
 			
 			section > div.program-view > div.sub > a {
 				display         : block;

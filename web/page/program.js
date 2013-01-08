@@ -136,6 +136,16 @@
 				}.bind(this)
 			});
 		}
+		
+		if (app.chinachu.status.feature.previewer && program._isRecording) {
+			new Ajax.Request('./api/recording/' + program.id + '/preview.txt', {
+				method    : 'get',
+				parameters: {width: 640, height: 360, nonce: new Date().getTime()},
+				onSuccess : function(t) {
+					$('content-body').style.backgroundImage = 'url(' + t.responseText + ')';
+				}
+			});
+		}
 	}
 	viewProgram();
 	document.observe('chinachu:reserves',  viewProgram);
