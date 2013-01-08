@@ -369,7 +369,7 @@
 						var pts = [ e.nativeEvent.x || e.nativeEvent.pageX, e.nativeEvent.y || e.nativeEvent.pageY ];
 						
 						if ((pts[0] === points[0]) && (pts[1] === points[1]) && e.nativeEvent.isLeftClick()) {
-							new app.ui.ProgramViewer(program.id);
+							window.location.hash = '/program?id=' + program.id;
 						}
 					};
 					
