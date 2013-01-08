@@ -288,7 +288,7 @@
 				}
 				
 				div.observe('click', function() {
-					new app.ui.ProgramViewer(program.id);
+					window.location.hash = '/program?id=' + program.id;
 				});
 				
 				contentBodyResults.insert(div);

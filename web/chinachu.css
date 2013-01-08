@@ -176,7 +176,7 @@ section {
 				height          : 8px;
 				background-color: #c24186; }
 	
-	section > div.program-viewer-container {
+	section > div.program-view{
 		z-index         : 200;
 		position        : absolute;
 		top             : 0;
@@ -184,18 +184,14 @@ section {
 		bottom          : 0;
 		left            : 0;
 		background-color: #fff;
-		background-color: rgba(255,255,255,0.9);
-		
-		-webkit-transition: all ease 0.2s;
-		-moz-transition: all ease 0.2s;
-		-ms-transition: all ease 0.2s;
-		-o-transition: all ease 0.2s;
-		transition: all ease 0.2s; }
+		background-size : cover;
+		background-position: center center;
+		background-image: none; }
 	
-	section > div.program-viewer-container.black {
+	section > div.program-view.black {
 		background-color: #111; }
 		
-		section > div.program-viewer-container > a.program-viewer-close-button {
+		section > div.program-view > a.program-view-close-button {
 			position        : absolute;
 			top             : 20px;
 			left            : 20px;
@@ -203,61 +199,65 @@ section {
 			font-size       : 25px;
 			display         : block;
 			cursor          : pointer;
-			color           : #555; }
+			color           : #555;
+			z-index         : 100; }
 		
-		section > div.program-viewer-container > a.program-viewer-close-button:hover {
+		section > div.program-view > a.program-view-close-button:hover {
 			color           : #c24186; }
 		
-		section > div.program-viewer-container > div.main {
+		section > div.program-view > div.main {
 			position        : absolute;
-			top             : 20px;
-			left            : 60px;
+			top             : 10px;
+			left            : 10px;
 			right           : 220px;
-			bottom          : 20px;
+			bottom          : 10px;
+			padding         : 10px;
 			line-height     : 25px;
 			color           : #555;
 			text-shadow     : 0 1px 0 #fff;
-			overflow        : auto; }
+			overflow        : auto;
+			background-color: rgba(255,255,255,0.8); }
 			
-			section > div.program-viewer-container > div > h1 {
+			section > div.program-view > div > h1 {
 				margin          : 0 0 10px 0;
 				padding         : 0;
 				font-size       : 20px;
+				font-weight     : normal;
 				color           : #2b2b2b;
 				line-height     : 27px; }
 			
-			section > div.program-viewer-container > div > h2 {
+			section > div.program-view > div > h2 {
 				margin          : 0 0 10px 0;
 				padding         : 0;
 				font-size       : 16px;
 				color           : #2b2b2b;
 				line-height     : 25px; }
 			
-			section > div.program-viewer-container > div > div.meta {
+			section > div.program-view > div > div.meta {
 				margin          : 0 0 10px 0;
 				padding         : 0;
 				font-size       : 14px;
 				color           : #2b2b2b;
 				line-height     : 20px; }
 				
-				section > div.program-viewer-container > div > div.meta > small {
+				section > div.program-view > div > div.meta > small {
 					color           : #777; }
 			
-			section > div.program-viewer-container > div > p {
+			section > div.program-view > div > p {
 				margin          : 0 0 10px 0; }
 				
-				section > div.program-viewer-container > div > p a {
+				section > div.program-view > div > p a {
 					color           : #c24186;
 					text-decoration : underline; }
 				
-				section > div.program-viewer-container > div > p a:hover {
+				section > div.program-view > div > p a:hover {
 					text-decoration : none; }
 			
-			section > div.program-viewer-container > div > dl {
+			section > div.program-view > div dl {
 				font-size  : 12px;
 				line-height: 18px; }
 				
-				section > div.program-viewer-container > div > dl > dt {
+				section > div.program-view > div dl > dt {
 					clear       : left;
 					float       : left;
 					margin      : 0 0 5px;
@@ -265,21 +265,23 @@ section {
 					border-left : 2px solid #d67fae;
 					padding-left: 8px; }
 				
-				section > div.program-viewer-container > div > dl > dd {
+				section > div.program-view > div dl > dd {
 					margin      : 0 0 5px 150px;
 					font-family : monospace; }
 		
-		section > div.program-viewer-container > div.sub {
+		section > div.program-view > div.sub {
 			position        : absolute;
-			top             : 20px;
-			right           : 20px;
+			top             : 10px;
+			right           : 10px;
 			bottom          : 10px;
+			padding         : 10px;
 			width           : 190px;
 			line-height     : 25px;
 			color           : #555;
-			overflow        : auto; }
+			overflow        : auto;
+			background-color: rgba(255,255,255,0.5); }
 			
-			section > div.program-viewer-container > div.sub > a {
+			section > div.program-view > div.sub > a {
 				display         : block;
 				line-height     : 25px;
 				color           : #c24186;
@@ -289,18 +291,18 @@ section {
 				text-decoration : none;
 				font-size       : 12px; }
 			
-			section > div.program-viewer-container > div.sub > a:hover {
+			section > div.program-view > div.sub > a:hover {
 				color           : #f1d4e3;
 				background-color: #c24186; }
 		
-		section > div.program-viewer-container.black > div {
+		section > div.program-view.black > div {
 			color           : #ddd; }
 			
-			section > div.program-viewer-container.black > div > h1,
-			section > div.program-viewer-container.black > div > h2 {
+			section > div.program-view.black > div > h1,
+			section > div.program-view.black > div > h2 {
 				color           : #fff; }
 			
-			section > div.program-viewer-container.black > div > .meta {
+			section > div.program-view.black > div > .meta {
 				color           : #ccc; }
 	
 	section > div#content-toolbar {

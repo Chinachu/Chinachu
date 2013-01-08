@@ -37,7 +37,7 @@
 			li.insert(new Element('div', {className: 'foot', title: program.detail || '説明なし'}).insert(title));
 			
 			var jump = '<a href="#/recording">録画中リスト</a>';
-			jump += '<a onclick="new app.ui.ProgramViewer(\'' + program.id + '\')">番組情報表示</a>';
+			jump += '<a href="#/program?id=' + program.id + '">番組情報表示</a>';
 			
 			if (program.pid && !program.tuner.isScrambling && app.chinachu.status.feature.streamer) {
 				jump += '<a onclick="new app.ui.Streamer(\'' + program.id + '\')">ストリーミング再生</a>';
@@ -127,7 +127,7 @@
 			r = Math.round(r * 10) / 10;
 			
 			reservesList.insert(
-				'<a onclick="new app.ui.ProgramViewer(\'' + program.id + '\')">' +
+				'<a href="#/program?id=' + program.id + '">' +
 				'<span class="time ' + c + '">' + r.toString(10) + u + '</span>' +
 				program.title.truncate(16) +
 				'<span class="channel">' + program.channel.name.truncate(7) + '</span>' +
@@ -193,7 +193,7 @@
 			r = Math.round(r * 10) / 10;
 			
 			recordedList.insert(
-				'<a onclick="new app.ui.ProgramViewer(\'' + program.id + '\')">' +
+				'<a href="#/program?id=' + program.id + '">' +
 				'<span class="time">' + r.toString(10) + u + '</span>' +
 				program.title.truncate(16) +
 				'<span class="channel">' + program.channel.name.truncate(7) + '</span>' +
@@ -241,7 +241,7 @@
 				var dt = new Date().getTime();
 				d.conflicts.each(function(program, i) {
 					list.insert(
-						'<a onclick="new app.ui.ProgramViewer(\'' + program.id + '\')">' +
+						'<a href="#/program?id=' + program.id + '">' +
 						'<span class="time">' + dateFormat(new Date(program.start), 'd日 HH:MM') + '</span>' +
 						'<span class="color-red">' + program.title.truncate(16) + '</span>' +
 						'<span class="channel">' + program.channel.name.truncate(7) + '</span>' +
