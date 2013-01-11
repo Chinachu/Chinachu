@@ -3,7 +3,7 @@
 	document.observe('chinachu:reload', function() {
 		document.stopObserving('chinachu:reload', arguments.callee);
 		document.stopObserving('chinachu:schedule', viewSchedule);
-		clearInterval(viewScheduleDatePollingInterval);
+		clearInterval(viewSchedulePollingInterval);
 	});
 	
 	var contentBodyHead           = $('content-body-head');
@@ -31,7 +31,8 @@
 		dateIndex  : [],
 		dateBtns   : [],
 		points     : [0, 0],
-		isScrolling: false,
+		scrolls    : eval(window.sessionStorage.getItem('schedule-param-scrolls') || "[0, 0]"),
+		isScrolling: false
 	};
 	
 	// 設定ボタン
@@ -190,20 +191,24 @@
 		left: '-1px'
 	});
 	
-	function timelineOnMousedown() {
+	var timelineOnMousedown = function _timelineOnMousedown() {
 		param.isScrolling = true;
-	}
+	};
 	
-	function timelineOnMouseup() {
+	var timelineOnMouseup = function _timelineOnMouseup() {
 		param.isScrolling = false;
-	}
+	};
 	
-	function timelineOnMouseout() {
+	var timelineOnMouseout = function _timelineOnMouseout() {
 		pointer.style.left = '-1px';
 		pointer.innerHTML  = '';
-	}
+	};
 	
-	function timelineOnMousemove(e) {
+	var timelineOnMousewheel = function _timelineOnMousewheel(e) {
+		contentBodyTimelineHeader.scrollTop = contentBodyTimeline.scrollTop = contentBodyTimeline.scrollTop - (e.wheelDelta || -e.detail);
+	};
+	
+	var timelineOnMousemove = function _timelineOnMousemove(e) {
 		var points = [ e.x || e.pageX, e.y || e.pageY ];
 		
 		if (param.isScrolling) {
@@ -218,36 +223,74 @@
 		
 		pointer.style.left = position + 'px';
 		pointer.innerHTML  = ':' + new Date(param.cur + ((position - 150) / param.unit * 1000 * 1000)).getMinutes().toPaddedString(2);
-	}
+	};
 	
-	function timelineOnScroll(e) {
-		var scrollLeft = contentBodyTimeline.scrollLeft;
-		
-		contentBodyTimescale.scrollLeft = scrollLeft;
+	var timelineOnScroll = function _timelineOnScroll(e) {
+		contentBodyTimescale.scrollLeft     = contentBodyTimeline.scrollLeft;
 		contentBodyTimelineHeader.scrollTop = contentBodyTimeline.scrollTop;
-	}
+	};
+	
+	var scrollTimeline = function _scrollTimeline(x, y) {
+		contentBodyTimescale.scrollLeft     = contentBodyTimeline.scrollLeft = x;
+		contentBodyTimelineHeader.scrollTop = contentBodyTimeline.scrollTop  = y;
+	};
+	
+	var redrawTimelinePieces = function _redrawTimelinePieces() {
+		var isChanged = false;
+		
+		var left   = contentBodyTimeline.scrollLeft - 200;
+		var top    = contentBodyTimeline.scrollTop - 200;
+		var right  = left + contentBodyTimeline.getWidth() + 400;
+		var bottom = top + contentBodyTimeline.getHeight() + 400;
+		
+		param.pieces.each(function(a) {
+			// 表示範囲か
+			if ((a.posX > left) && (a.posY > top) && (a.posX < right) && (a.posY < bottom)) {
+				if (a.isAdded === false) {
+					param.stage.addChild(a.rect);
+					param.stage.addChild(a.title);
+					param.stage.addChild(a.desc);
+					param.stage.addChild(a.eop);
+					a.isAdded = true;
+					isChanged = true;
+				}
+			} else {
+				if (a.isAdded === true) {
+					param.stage.removeChild(a.rect);
+					param.stage.removeChild(a.title);
+					param.stage.removeChild(a.desc);
+					param.stage.removeChild(a.eop);
+					a.isAdded = false;
+					isChanged = true;
+				}
+			}
+		});
+		
+		return isChanged;
+	};
 	
 	if (Prototype.Browser.MobileSafari) {
 		contentBodyTimeline.style.overflow = 'scroll';
 		contentBodyTimeline.addEventListener('scroll', timelineOnScroll);
-	} else if(Prototype.Browser.IE) {
-		contentBodyTimeline.attachEvent('onmousemove', timelineOnMousemove);
-		contentBodyTimeline.attachEvent('onmouseout', timelineOnMouseout);
-		contentBodyTimeline.attachEvent('onmousedown', timelineOnMousedown);
-		contentBodyTimeline.attachEvent('onmouseup', timelineOnMouseup);
-		contentBodyTimelineHeader.attachEvent('onmousemove', timelineOnMousemove);
-		contentBodyTimelineHeader.attachEvent('onmouseup', timelineOnMouseup);
-	} else {
+	} else if(!!contentBodyTimeline.addEventListener) {
+		contentBodyTimeline.addEventListener('mousewheel', timelineOnMousewheel);
 		contentBodyTimeline.addEventListener('mousemove', timelineOnMousemove);
 		contentBodyTimeline.addEventListener('mouseout', timelineOnMouseout);
 		contentBodyTimeline.addEventListener('mousedown', timelineOnMousedown);
 		contentBodyTimeline.addEventListener('mouseup', timelineOnMouseup);
 		contentBodyTimelineHeader.addEventListener('mousemove', timelineOnMousemove);
 		contentBodyTimelineHeader.addEventListener('mouseup', timelineOnMouseup);
+	} else if(!!contentBodyTimeline.attachEvent) {
+		contentBodyTimeline.attachEvent('onmousemove', timelineOnMousemove);
+		contentBodyTimeline.attachEvent('onmouseout', timelineOnMouseout);
+		contentBodyTimeline.attachEvent('onmousedown', timelineOnMousedown);
+		contentBodyTimeline.attachEvent('onmouseup', timelineOnMouseup);
+		contentBodyTimelineHeader.attachEvent('onmousemove', timelineOnMousemove);
+		contentBodyTimelineHeader.attachEvent('onmouseup', timelineOnMouseup);
 	}
 	
 	// ビュー: スケジュール
-	function viewSchedule() {
+	var viewSchedule = function _viewSchedule() {
 		if (app.chinachu.schedule.length === 0) return;
 		
 		var loading = new app.ui.ContentLoading({
@@ -267,7 +310,10 @@
 					piece[program.id].title.color = '#f44';
 				});
 				
+				redrawTimelinePieces();
 				stage.update();
+				
+				scrollTimeline(param.scrolls[0], param.scrolls[1]);
 			}
 		}).render();
 		
@@ -275,10 +321,10 @@
 		var count  = 0;
 		var maxlen = 0;
 		
-		function counter() {
+		var counter = function _counter() {
 			++count;
 			loading.update(Math.floor(count / total * 100));
-		}
+		};
 		
 		param.cur = new Date().getTime();
 		
@@ -287,12 +333,13 @@
 		contentBodyTimeline.update();
 		contentBodyTimelineHeader.update();
 		
-		var piece = {};// piece of canvas programs
+		var piece  = param.piece  = {};// piece of canvas programs
+		var pieces = param.pieces = [];// array of program pieces
 		
 		var canvas = new Element('canvas');
 		contentBodyTimeline.insert(canvas);
 		
-		var stage = new createjs.Stage(canvas);
+		var stage = param.stage = new createjs.Stage(canvas);
 		
 		var k = 0;
 		app.chinachu.schedule.each(function(channel, i) {
@@ -338,14 +385,12 @@
 					var height = param.line;
 					
 					var rect = new createjs.Shape();
-					rect.graphics.beginFill(param.color[program.category] || '#fff').drawRect(posX, posY, width, height);
-					stage.addChild(rect);
+					rect.graphics.beginFill(param.color[program.category] || '#fff').drawRect(posX, posY, width - 1, height);
 					
 					var title = new createjs.Text(program.title, '10px', "#444");
 					title.mask = rect;
 					title.x    = posX + 5;
 					title.y    = posY + 5;
-					stage.addChild(title);
 					
 					if (param.line >= 50) {
 						var desc = new createjs.Text(program.detail || '', '10px', "rgba(0,0,0,0.4)");
@@ -354,12 +399,10 @@
 						desc.mask = rect;
 						desc.x    = posX + 5;
 						desc.y    = posY + 18;
-						stage.addChild(desc);
 					}
 					
 					var eop = new createjs.Shape();
-					eop.graphics.beginFill('rgba(0,0,0,0.2)').drawRect(posX + width - 1, posY, 1, height);
-					stage.addChild(eop);
+					eop.graphics.beginFill(param.color[program.category] || '#fff').drawRect(posX + width - 3, posY, 2, height);
 					
 					rect.onPress = function(e) {
 						points = [ e.nativeEvent.x || e.nativeEvent.pageX, e.nativeEvent.y || e.nativeEvent.pageY ];
@@ -377,15 +420,24 @@
 						rect.alpha  = 0.3;
 						title.alpha = 0.3;
 						if (desc) desc.alpha = 0.3;
+						eop.alpha  = 0.3;
 					}
 					
 					// add to piece
 					piece[program.id] = {
-						rect : rect,
-						title: title,
-						desc : desc || null,
-						eop  : eop
+						id     : program.id,
+						isAdded: false,
+						rect   : rect,
+						title  : title,
+						desc   : desc || null,
+						eop    : eop,
+						posX   : posX,
+						posY   : posY,
+						width  : width,
+						height : height
 					};
+					
+					pieces.push(piece[program.id]);
 					
 					counter();
 				}, 0);
@@ -406,17 +458,9 @@
 			setTimeout(function() {
 				var posY   = 5 + n * (5 + param.line);
 				
-				var b1 = new createjs.Shape();
-				b1.graphics.beginFill('rgba(0,0,0,0.21)').drawRect(0, posY, canvasWidth, 1);
-				stage.addChild(b1);
-				
-				var b2 = new createjs.Shape();
-				b2.graphics.beginFill('rgba(0,0,0,0.21)').drawRect(0, posY + param.line - 1, canvasWidth, 1);
-				stage.addChild(b2);
-				
-				var b3 = new createjs.Shape();
-				b3.graphics.beginFill('#f4f4f4').drawRect(0, posY + param.line, canvasWidth, 1);
-				stage.addChild(b3);
+				var dent = new createjs.Shape();
+				dent.graphics.beginFill('#656565').drawRect(0, posY, canvasWidth, param.line);
+				stage.addChild(dent);
 			}, 0);
 		});
 		
@@ -502,13 +546,12 @@
 		
 		contentBodyHead.insert(viewConfigBtn.observe('click', viewConfigBtnOnClick));
 		contentBodyTimescale.insert(pointer);
-	}
+	};
 	viewSchedule();
 	document.observe('chinachu:schedule', viewSchedule);
 	
-	// 日付の選択状態
-	
-	function viewScheduleDatePolling() {
+	// 表示調整用ポーリング
+	var viewSchedulePolling = function _viewSchedulePolling() {
 		var scrollLeft = contentBodyTimeline.scrollLeft;
 		
 		setTimeout(function() {
@@ -525,7 +568,14 @@
 				}
 			}
 		}, 0);
+		
+		redrawTimelinePieces() && param.stage.update();
+		
+		window.sessionStorage.setItem(
+			'schedule-param-scrolls',
+			'[' + contentBodyTimeline.scrollLeft + ',' + contentBodyTimeline.scrollTop + ']'
+		);
 	}
-	var viewScheduleDatePollingInterval = setInterval(viewScheduleDatePolling, 1000);
+	var viewSchedulePollingInterval = setInterval(viewSchedulePolling, 1000);
 	
 })();

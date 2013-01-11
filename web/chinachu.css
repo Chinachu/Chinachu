@@ -658,9 +658,8 @@ div#content-body > div#content-body-timeline-header {
 		div#content-body > div#content-body-timeline-header > div {
 			position  : relative;
 			overflow  : hidden;
-			background: rgba(0,0,0,0.5);
-			text-shadow: 0 -1px 0 #000;
-			color     : #fff;
+			background: rgba(255,255,255,0.8);
+			color     : #000;
 			height    : 50px;
 			padding   : 5px 0 0 0;
 			text-align: center;
