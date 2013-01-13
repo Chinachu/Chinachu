@@ -114,27 +114,34 @@
 		}
 		
 		if (program._isRecorded) {
-			new Ajax.Request('./api/recorded/' + program.id + '.json', {
+			new Ajax.Request('./api/recorded/' + program.id + '/file.json', {
 				method: 'get',
 				onSuccess: function(t) {
-					if (t.responseJSON.isRemoved) {
+					if (app.chinachu.status.feature.filer) {
+						$('program-view-sub').insert(
+							'<a onclick="new app.ui.RemoveRecordedFile(\'' + program.id + '\')">録画ファイルの削除</a>'
+						);
+					}
+					
+					if (app.chinachu.status.feature.streamer && !program.tuner.isScrambling) {
+						$('program-view-sub').insert(
+							'<a onclick="new app.ui.Streamer(\'' + program.id + '\')">ストリーミング再生</a>'
+						);
+					}
+					
+					$('program-view-main-status-list').insert(
+						'<dl>' +
+						'<dt>ファイルサイズ</dt><dd>' + (t.responseJSON.size / 1024 / 1024 / 1024 / 1).toFixed(2) + 'GB</dd>' +
+						'</dl>'
+					);
+				}.bind(this),
+				onFailure: function(t) {
+					if (t.status === 410) {
 						$('program-view-main-status-att').insert(
 							'<p class="color-red">※この番組の録画ファイルは移動または削除されています。</p>'
 						);
-					} else {
-						if (app.chinachu.status.feature.filer) {
-							$('program-view-sub').insert(
-								'<a onclick="new app.ui.RemoveRecordedFile(\'' + program.id + '\')">録画ファイルの削除</a>'
-							);
-						}
-						
-						if (app.chinachu.status.feature.streamer && !program.tuner.isScrambling) {
-							$('program-view-sub').insert(
-								'<a onclick="new app.ui.Streamer(\'' + program.id + '\')">ストリーミング再生</a>'
-							);
-						}
 					}
-				}.bind(this)
+				}
 			});
 		}
 		
