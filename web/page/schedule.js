@@ -385,7 +385,7 @@
 					var height = param.line;
 					
 					var rect = new createjs.Shape();
-					rect.graphics.beginFill(param.color[program.category] || '#fff').drawRect(posX, posY, width - 1, height);
+					rect.graphics.beginFill(param.color[program.category] || '#fff').drawRect(posX, posY, width - 0.5, height);
 					
 					var title = new createjs.Text(program.title, '10px', "#444");
 					title.mask = rect;
@@ -402,7 +402,7 @@
 					}
 					
 					var eop = new createjs.Shape();
-					eop.graphics.beginFill(param.color[program.category] || '#fff').drawRect(posX + width - 3, posY, 2, height);
+					eop.graphics.beginFill(param.color[program.category] || '#fff').drawRect(posX + width - 3, posY, 2.5, height);
 					
 					rect.onPress = function(e) {
 						points = [ e.nativeEvent.x || e.nativeEvent.pageX, e.nativeEvent.y || e.nativeEvent.pageY ];
@@ -420,7 +420,7 @@
 						rect.alpha  = 0.3;
 						title.alpha = 0.3;
 						if (desc) desc.alpha = 0.3;
-						eop.alpha  = 0.3;
+						eop.alpha  = 0;
 					}
 					
 					// add to piece
@@ -576,6 +576,6 @@
 			'[' + contentBodyTimeline.scrollLeft + ',' + contentBodyTimeline.scrollTop + ']'
 		);
 	}
-	var viewSchedulePollingInterval = setInterval(viewSchedulePolling, 1000);
+	var viewSchedulePollingInterval = setInterval(viewSchedulePolling, Prototype.Browser.IE ? 1000 : 500);
 	
 })();
