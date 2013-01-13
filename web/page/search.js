@@ -212,7 +212,7 @@
 				if (app.query.cat && app.query.cat !== program.category) return; 
 				if (app.query.type && app.query.type !== program.channel.type) return; 
 				if (app.query.title && program.title.match(app.query.title) === null) return;
-				if (!program.detail || app.query.desc && program.detail.match(app.query.desc) === null) return;
+				if (app.query.desc && (!program.detail || program.detail.match(app.query.desc) === null)) return;
 				
 				if (app.query.start || app.query.end) {
 					var ruleStart = parseInt(app.query.start || 0, 10);
