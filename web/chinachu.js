@@ -1873,7 +1873,7 @@ app.ui.CreateRuleByProgram = Class.create({
 						label : '対象CH',
 						input : {
 							type  : 'tag',
-							values: [program.channel.channel]
+							values: [program.channel.id]
 						}
 					},
 					{
