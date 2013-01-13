@@ -47,7 +47,8 @@
 			dateFormat(new Date(program.start), 'yyyy/mm/dd HH:MM') + ' &ndash; ' +
 			dateFormat(new Date(program.end), 'HH:MM') +
 			' (' + (program.seconds / 60) + '分間) #' + program.id +
-			'<br><small>' + program.category + ' / ' + program.channel.type + ': ' + program.channel.name +
+			'<br><small>' + program.category + ' / ' + program.channel.type + ': ' + 
+			'<a href="#/search?skip=1&chid=' + program.channel.id + '">' + program.channel.name + '</a>' +
 			'</small>'
 		);
 		
