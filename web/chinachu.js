@@ -1407,8 +1407,8 @@ app.ui.EditRule = Class.create({
 									width     : 25,
 									maxlength : 2,
 									appendText: '時',
-									value   : !!rule.hour ? rule.hour.start : '',
-									isNumber: true
+									value     : !!rule.hour ? rule.hour.start : '',
+									isNumber  : true
 								}
 							},
 							{
@@ -1419,8 +1419,8 @@ app.ui.EditRule = Class.create({
 									width     : 25,
 									maxlength : 2,
 									appendText: '時',
-									value   : !!rule.hour ? rule.hour.end : '',
-									isNumber: true
+									value     : !!rule.hour ? rule.hour.end : '',
+									isNumber  : true
 								}
 							},
 							{
@@ -1430,8 +1430,8 @@ app.ui.EditRule = Class.create({
 									type      : 'text',
 									width     : 60,
 									appendText: '秒',
-									value   : !!rule.duration ? rule.duration.min : '',
-									isNumber: true
+									value     : !!rule.duration ? rule.duration.min : '',
+									isNumber  : true
 								}
 							},
 							{
@@ -1441,8 +1441,8 @@ app.ui.EditRule = Class.create({
 									type      : 'text',
 									width     : 60,
 									appendText: '秒',
-									value   : !!rule.duration ? rule.duration.max : '',
-									isNumber: true
+									value     : !!rule.duration ? rule.duration.max : '',
+									isNumber  : true
 								}
 							},
 							{
@@ -1629,28 +1629,28 @@ app.ui.NewRule = Class.create({
 						key   : 'ch',
 						label : '対象CH',
 						input : {
-							type  : 'tag'
+							type: 'tag'
 						}
 					},
 					{
 						key   : '^ch',
 						label : '無視CH',
 						input : {
-							type  : 'tag'
+							type: 'tag'
 						}
 					},
 					{
 						key   : 'flag',
 						label : '対象フラグ',
 						input : {
-							type  : 'tag'
+							type: 'tag'
 						}
 					},
 					{
 						key   : '^flag',
 						label : '無視フラグ',
 						input : {
-							type  : 'tag'
+							type: 'tag'
 						}
 					},
 					{
@@ -1661,7 +1661,7 @@ app.ui.NewRule = Class.create({
 							width     : 25,
 							maxlength : 2,
 							appendText: '時',
-							isNumber: true
+							isNumber  : true
 						}
 					},
 					{
@@ -1672,7 +1672,7 @@ app.ui.NewRule = Class.create({
 							width     : 25,
 							maxlength : 2,
 							appendText: '時',
-							isNumber: true
+							isNumber  : true
 						}
 					},
 					{
@@ -1682,7 +1682,7 @@ app.ui.NewRule = Class.create({
 							type      : 'text',
 							width     : 60,
 							appendText: '秒',
-							isNumber: true
+							isNumber  : true
 						}
 					},
 					{
@@ -1692,35 +1692,35 @@ app.ui.NewRule = Class.create({
 							type      : 'text',
 							width     : 60,
 							appendText: '秒',
-							isNumber: true
+							isNumber  : true
 						}
 					},
 					{
 						key   : 'title',
 						label : '対象タイトル',
 						input : {
-							type  : 'tag'
+							type: 'tag'
 						}
 					},
 					{
 						key   : '^title',
 						label : '無視タイトル',
 						input : {
-							type  : 'tag'
+							type: 'tag'
 						}
 					},
 					{
 						key   : 'desc',
 						label : '対象説明文',
 						input : {
-							type  : 'tag'
+							type: 'tag'
 						}
 					},
 					{
 						key   : '^desc',
 						label : '無視説明文',
 						input : {
-							type  : 'tag'
+							type: 'tag'
 						}
 					},
 					{
@@ -1730,13 +1730,13 @@ app.ui.NewRule = Class.create({
 							type : 'radio',
 							items: [
 								{
-									label  : '有効',
-									value  : 0,
+									label     : '有効',
+									value     : 0,
 									isSelected: true
 								},
 								{
-									label  : '無効',
-									value  : 1
+									label: '無効',
+									value: 1
 								}
 							]
 						}
@@ -1777,14 +1777,14 @@ app.ui.CreateRuleByProgram = Class.create({
 							this.param = viewRuleForm.result();	
 							// 空文字列ルールを削除
 							for(var element in this.param){
-								if(this.param[element] == "") {
+								if(this.param[element] === '') {
 									delete this.param[element];
 								}
 							}
-
+							
 							delete this.param.isDisabled;
 							this.param.method = 'POST';
-						
+							
 							new Ajax.Request('./api/rules.json', {
 								method    : 'get',
 								parameters: this.param,
@@ -1819,8 +1819,7 @@ app.ui.CreateRuleByProgram = Class.create({
 					}
 				]
 			}).render();
-	
-	
+			
 			var viewRuleForm = new Hyperform({
 				formWidth  : '100%',
 				labelWidth : '100px',
@@ -1833,7 +1832,7 @@ app.ui.CreateRuleByProgram = Class.create({
 							type : 'checkbox',
 							items: (function() {
 								var array = [];
-	
+								
 								['GR', 'BS', 'CS', 'EX'].each(function(a) {
 									array.push({
 										label     : a,
@@ -1841,7 +1840,7 @@ app.ui.CreateRuleByProgram = Class.create({
 										isSelected: (program.channel.type.indexOf(a) !== -1)
 									});
 								});
-	
+								
 								return array;
 							})()
 						}
@@ -1853,7 +1852,7 @@ app.ui.CreateRuleByProgram = Class.create({
 							type : 'checkbox',
 							items: (function() {
 								var array = [];
-	
+								
 								[
 									'anime', 'information', 'news', 'sports',
 									'variety', 'drama', 'music', 'cinema', 'etc'
@@ -1862,10 +1861,9 @@ app.ui.CreateRuleByProgram = Class.create({
 										label     : a,
 										value     : a,
 										isSelected: (program.category.indexOf(a) !== -1)
-
 									});
 								});
-	
+								
 								return array;
 							})()
 						}
@@ -1882,7 +1880,7 @@ app.ui.CreateRuleByProgram = Class.create({
 						key   : '^ch',
 						label : '無視CH',
 						input : {
-							type  : 'tag'
+							type: 'tag'
 						}
 					},
 					{
@@ -1890,14 +1888,14 @@ app.ui.CreateRuleByProgram = Class.create({
 						label : '対象フラグ',
 						input : {
 							type  : 'tag',
-							values: program.flags
+							values: program.flags.without('新')
 						}
 					},
 					{
 						key   : '^flag',
 						label : '無視フラグ',
 						input : {
-							type  : 'tag'
+							type: 'tag'
 						}
 					},
 					{
@@ -1908,7 +1906,7 @@ app.ui.CreateRuleByProgram = Class.create({
 							width     : 25,
 							maxlength : 2,
 							appendText: '時',
-							isNumber: true
+							isNumber  : true
 						}
 					},
 					{
@@ -1919,7 +1917,7 @@ app.ui.CreateRuleByProgram = Class.create({
 							width     : 25,
 							maxlength : 2,
 							appendText: '時',
-							isNumber: true
+							isNumber  : true
 						}
 					},
 					{
@@ -1929,7 +1927,7 @@ app.ui.CreateRuleByProgram = Class.create({
 							type      : 'text',
 							width     : 60,
 							appendText: '秒',
-							isNumber: true
+							isNumber  : true
 						}
 					},
 					{
@@ -1939,7 +1937,7 @@ app.ui.CreateRuleByProgram = Class.create({
 							type      : 'text',
 							width     : 60,
 							appendText: '秒',
-							isNumber: true
+							isNumber  : true
 						}
 					},
 					{
@@ -1947,28 +1945,34 @@ app.ui.CreateRuleByProgram = Class.create({
 						label : '対象タイトル',
 						input : {
 							type  : 'tag',
-							values: [this.program.title.replace(/【[^】]*】/g,'').replace(/　＃[０１２３ ４５６７８９]*/g,'')]
+							values: [
+								this.program.title.replace(/【.+】/g, '')
+								                   .replace(/(#[0-9]+|＃[０１２３ ４５６７８９]+)/g, '')
+								                   .replace(/第([0-9]+|[０１２３ ４５６７８９]+)話/g, '')
+								                   .replace(/「.+」/g, '')
+								                   .strip()
+							]
 						}
 					},
 					{
 						key   : '^title',
 						label : '無視タイトル',
 						input : {
-							type  : 'tag'
+							type: 'tag'
 						}
 					},
 					{
 						key   : 'desc',
 						label : '対象説明文',
 						input : {
-							type  : 'tag'
+							type: 'tag'
 						}
 					},
 					{
 						key   : '^desc',
 						label : '無視説明文',
 						input : {
-							type  : 'tag'
+							type: 'tag'
 						}
 					},
 					{
@@ -1978,21 +1982,19 @@ app.ui.CreateRuleByProgram = Class.create({
 							type : 'radio',
 							items: [
 								{
-									label  : '有効',
-									value  : false,
+									label     : '有効',
+									value     : false,
 									isSelected: true
 								},
 								{
-									label  : '無効',
-									value  : true
+									label: '無効',
+									value: true
 								}
-								]
+							]
 						}
 					}
 				]
 			}).render(modal.content);
-
-
 		}
 		
 		return this;
