@@ -55,6 +55,8 @@
 		// detail
 		$('program-view-main-detail').update(program.detail || '説明なし');
 		
+		$('program-view-sub').insert('<a onclick="new app.ui.CreateRuleByProgram(\'' + program.id + '\')">ルールを作成</a>');
+		
 		if (program._isReserves) {
 			$('program-view-main-status-head').insert('この番組は予約済みです');
 		}
