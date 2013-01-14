@@ -1176,11 +1176,9 @@ app.ui.EditRule = Class.create({
 			this.rule = {};
 			var num = this.num;
 			new Ajax.Request('./api/rules/' + num + '.json', {
-				method    : 'get',
-				evalJSON  : false,
-				onSuccess: function(res) {
-					rule = JSON.parse(res.responseText);
-					this.rule = rule;
+				method   : 'get',
+				onSuccess: function(t) {
+					var rule = this.rule= t.responseJSON;
 					
 					var modal = new Hypermodal({
 						title  : 'ルール詳細',
@@ -1195,7 +1193,7 @@ app.ui.EditRule = Class.create({
 									this.param = viewRuleForm.result();
 									
 									// ルールのラベル名
-									var ruleLabel = [
+									var ruleLabels = [
 										'types', 'categories', 'channels', 'ignore_channels',
 										'reserve_flags', 'ignore_flags', 'hour.start', 'hour.end',
 										'duration.min', 'duration.max', 'reserve_titles', 'ignore_titles',
@@ -1203,7 +1201,7 @@ app.ui.EditRule = Class.create({
 									];
 									
 									// パラメータのラベル名
-									var paramLabel = [
+									var paramLabels = [
 										'type', 'cat', 'ch', '^ch', 'flag', '^flag',
 										'start', 'end', 'mini', 'maxi', 'title', '^title',
 										'desc', '^desc'
@@ -1212,17 +1210,22 @@ app.ui.EditRule = Class.create({
 									/** 
 									新旧ルールに相違なし： パラメータ削除
 									新ルールに変更あり：
-										新ルールが空：　パラメータにnullを指定
-									新ルールあり：　パラメータはそのまま
+									新ルールが空： パラメータにnullを指定
+									新ルールあり： パラメータはそのまま
 									*/
-									for (var i = 0; i < ruleLabel.length; i++){
-										var newRule = this.param[paramLabel[i]];
-										var oldRule = !!rule[ruleLabel[i].replace(/\..*/,'')] ? eval('rule.' + ruleLabel[i]) : '';
+									for (var i = 0; i < ruleLabels.length; i++){
+										if (paramLabels[i] === 'start' || paramLabels[i] === 'end') continue;
 										
-										if (newRule == oldRule) {
-											delete this.param[paramLabel[i]];
-										} else if (newRule == ''){
-											this.param[paramLabel[i]] = 'null';
+										var a = this.param[paramLabels[i]] || null;
+										var b = !!rule[ruleLabels[i].replace(/\..*/,'')] ? eval('rule.' + ruleLabels[i]) : null;
+										
+										if (Object.isArray(a) && a.length === 0) a = null;
+										if (Object.isNumber(b))                  b = b.toString(10);
+										
+										if (Object.toJSON(a) === Object.toJSON(b)) {
+											delete this.param[paramLabels[i]];
+										} else if (!a && a !== 0){
+											this.param[paramLabels[i]] = 'null';
 										}
 									}
 									
@@ -1317,7 +1320,6 @@ app.ui.EditRule = Class.create({
 							}
 						]
 					}).render();
-					
 					
 					var viewRuleForm = new Hyperform({
 						formWidth  : '100%',
@@ -1577,7 +1579,6 @@ app.ui.NewRule = Class.create({
 					}
 				]
 			}).render();
-			
 			
 			var viewRuleForm = new Hyperform({
 				formWidth  : '100%',
@@ -1873,7 +1874,7 @@ app.ui.CreateRuleByProgram = Class.create({
 						label : '対象CH',
 						input : {
 							type  : 'tag',
-							values: [program.channel.channel]
+							values: [program.channel.id]
 						}
 					},
 					{
@@ -1947,10 +1948,10 @@ app.ui.CreateRuleByProgram = Class.create({
 							type  : 'tag',
 							values: [
 								this.program.title.replace(/【.+】/g, '')
-								                   .replace(/(#[0-9]+|＃[０１２３ ４５６７８９]+)/g, '')
-								                   .replace(/第([0-9]+|[０１２３ ４５６７８９]+)話/g, '')
-								                   .replace(/「.+」/g, '')
-								                   .strip()
+								                  .replace(/「.+」/g, '')
+								                  .replace(/(#[0-9]+|＃[０１２３４５６７８９]+)/g, '')
+								                  .replace(/第([0-9]+|[０１２３４５６７８９]+)話/g, '')
+								                  .strip()
 							]
 						}
 					},

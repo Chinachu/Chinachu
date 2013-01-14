@@ -248,6 +248,6 @@
 		contentBodyHead.insert(viewExecuteSchedulerBtn.observe('click', viewExecuteSchedulerBtnOnClick));
 	}
 	viewRules();
-	document.observe('chinachu:recorded', viewRules);
+	document.observe('chinachu:rules', viewRules);
 	
 })();
