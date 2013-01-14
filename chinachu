@@ -170,7 +170,7 @@ chinachu_service () {
   case $action in
     initscript | execute )
       case $name in
-        operator | wui )
+        operator | wui | dlna )
           cmd="chinachu_service_$action"
           ;;
         * )
@@ -316,6 +316,7 @@ Names:
 
 operator    Chinachu Task Operator Service
 wui         Chinachu WebUI Server Service
+dlna        Chinachu DLNA Server Service
 
 Actions:
 
@@ -327,9 +328,10 @@ Examples:
 # Create a LSB init script and Install to system
 ./chinachu service operator initscript > /tmp/chinachu-operator
 ./chinachu service wui initscript > /tmp/chinachu-wui
-sudo chown root:root /tmp/chinachu-operator /tmp/chinachu-wui
-sudo chmod +x /tmp/chinachu-operator /tmp/chinachu-wui
-sudo mv /tmp/chinachu-operator /tmp/chinachu-wui /etc/init.d/
+./chinachu service dlna initscript > /tmp/chinachu-dlna
+sudo chown root:root /tmp/chinachu-operator /tmp/chinachu-wui /tmp/chinachu-dlna
+sudo chmod +x /tmp/chinachu-operator /tmp/chinachu-wui /tmp/chinachu-dlna
+sudo mv /tmp/chinachu-operator /tmp/chinachu-wui /tmp/chinachu-dlna /etc/init.d/
 
 EOF
 
