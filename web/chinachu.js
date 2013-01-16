@@ -1192,47 +1192,22 @@ app.ui.EditRule = Class.create({
 									
 									this.param = viewRuleForm.result();
 									
-									// ルールのラベル名
-									var ruleLabels = [
-										'types', 'categories', 'channels', 'ignore_channels',
-										'reserve_flags', 'ignore_flags', 'hour.start', 'hour.end',
-										'duration.min', 'duration.max', 'reserve_titles', 'ignore_titles',
-										'reserve_descriptions', 'ignore_descriptions'
-									];
-									
-									// パラメータのラベル名
-									var paramLabels = [
-										'type', 'cat', 'ch', '^ch', 'flag', '^flag',
-										'start', 'end', 'mini', 'maxi', 'title', '^title',
-										'desc', '^desc'
-									];
-									
-									/** 
-									新旧ルールに相違なし： パラメータ削除
-									新ルールに変更あり：
-									新ルールが空： パラメータにnullを指定
-									新ルールあり： パラメータはそのまま
-									*/
-									for (var i = 0; i < ruleLabels.length; i++){
-										if (paramLabels[i] === 'start' || paramLabels[i] === 'end') continue;
-										
-										var a = this.param[paramLabels[i]] || null;
-										var b = !!rule[ruleLabels[i].replace(/\..*/,'')] ? eval('rule.' + ruleLabels[i]) : null;
-										
-										if (Object.isArray(a) && a.length === 0) a = null;
-										if (Object.isNumber(b))                  b = b.toString(10);
-										
-										if (Object.toJSON(a) === Object.toJSON(b)) {
-											delete this.param[paramLabels[i]];
-										} else if (!a && a !== 0){
-											this.param[paramLabels[i]] = 'null';
+									for (var i in this.param) {
+										if (
+											(Object.isNumber(this.param[i]) && isNaN(this.param[i])) ||
+											(Object.isString(this.param[i]) && this.param[i].strip() === '') ||
+											(Object.isArray(this.param[i])  && this.param[i].length === 0)
+										) {
+											if ('start,end,mini,maxi'.split(',').indexOf(i) === -1) {
+												this.param[i] = 'null';
+											} else {
+												this.param[i] = '-1';
+											}
 										}
 									}
 									
 									!this.param.isDisabled && (this.param.en = '');
 									!!this.param.isDisabled && (this.param.dis = '');
-									delete this.param.isDisabled;
-									
 									delete this.param.isDisabled;
 									
 									new Ajax.Request('./api/rules/' + num + '.json', {
@@ -1410,7 +1385,7 @@ app.ui.EditRule = Class.create({
 									maxlength : 2,
 									appendText: '時',
 									value     : !!rule.hour ? rule.hour.start : '',
-									isNumber  : true
+									toNumber  : true
 								}
 							},
 							{
@@ -1422,7 +1397,7 @@ app.ui.EditRule = Class.create({
 									maxlength : 2,
 									appendText: '時',
 									value     : !!rule.hour ? rule.hour.end : '',
-									isNumber  : true
+									toNumber  : true
 								}
 							},
 							{
@@ -1433,7 +1408,7 @@ app.ui.EditRule = Class.create({
 									width     : 60,
 									appendText: '秒',
 									value     : !!rule.duration ? rule.duration.min : '',
-									isNumber  : true
+									toNumber  : true
 								}
 							},
 							{
@@ -1444,7 +1419,7 @@ app.ui.EditRule = Class.create({
 									width     : 60,
 									appendText: '秒',
 									value     : !!rule.duration ? rule.duration.max : '',
-									isNumber  : true
+									toNumber  : true
 								}
 							},
 							{
@@ -1535,13 +1510,22 @@ app.ui.NewRule = Class.create({
 							btn.disable();
 							
 							this.param = viewRuleForm.result();
-							// 空文字列ルールを削除
-							for (var element in this.param) {
-								if(this.param[element] === '') {
-									delete this.param[element];
+							
+							for (var i in this.param) {
+								if (
+									(Object.isNumber(this.param[i]) && isNaN(this.param[i])) ||
+									(Object.isString(this.param[i]) && this.param[i].strip() === '') ||
+									(Object.isArray(this.param[i])  && this.param[i].length === 0)
+								) {
+									if ('start,end,mini,maxi'.split(',').indexOf(i) === -1) {
+										this.param[i] = 'null';
+									} else {
+										this.param[i] = '-1';
+									}
 								}
 							}
 							
+							!this.param.isDisabled && (this.param.en = '');
 							!!this.param.isDisabled && (this.param.dis = '');
 							delete this.param.isDisabled;
 							
@@ -1662,7 +1646,7 @@ app.ui.NewRule = Class.create({
 							width     : 25,
 							maxlength : 2,
 							appendText: '時',
-							isNumber  : true
+							toNumber  : true
 						}
 					},
 					{
@@ -1673,7 +1657,7 @@ app.ui.NewRule = Class.create({
 							width     : 25,
 							maxlength : 2,
 							appendText: '時',
-							isNumber  : true
+							toNumber  : true
 						}
 					},
 					{
@@ -1683,7 +1667,7 @@ app.ui.NewRule = Class.create({
 							type      : 'text',
 							width     : 60,
 							appendText: '秒',
-							isNumber  : true
+							toNumber  : true
 						}
 					},
 					{
@@ -1693,7 +1677,7 @@ app.ui.NewRule = Class.create({
 							type      : 'text',
 							width     : 60,
 							appendText: '秒',
-							isNumber  : true
+							toNumber  : true
 						}
 					},
 					{
@@ -1775,19 +1759,28 @@ app.ui.CreateRuleByProgram = Class.create({
 						color  : '@pink',
 						onClick: function(e, btn, modal) {
 							btn.disable();
-							this.param = viewRuleForm.result();	
-							// 空文字列ルールを削除
-							for(var element in this.param){
-								if(this.param[element] === '') {
-									delete this.param[element];
+							this.param = viewRuleForm.result();
+							
+							for (var i in this.param) {
+								if (
+									(Object.isNumber(this.param[i]) && isNaN(this.param[i])) ||
+									(Object.isString(this.param[i]) && this.param[i].strip() === '') ||
+									(Object.isArray(this.param[i])  && this.param[i].length === 0)
+								) {
+									if ('start,end,mini,maxi'.split(',').indexOf(i) === -1) {
+										this.param[i] = 'null';
+									} else {
+										this.param[i] = '-1';
+									}
 								}
 							}
 							
+							!this.param.isDisabled && (this.param.en = '');
+							!!this.param.isDisabled && (this.param.dis = '');
 							delete this.param.isDisabled;
-							this.param.method = 'POST';
 							
 							new Ajax.Request('./api/rules.json', {
-								method    : 'get',
+								method    : 'post',
 								parameters: this.param,
 								onComplete: function() {
 									modal.close();
@@ -1907,7 +1900,7 @@ app.ui.CreateRuleByProgram = Class.create({
 							width     : 25,
 							maxlength : 2,
 							appendText: '時',
-							isNumber  : true
+							toNumber  : true
 						}
 					},
 					{
@@ -1918,7 +1911,7 @@ app.ui.CreateRuleByProgram = Class.create({
 							width     : 25,
 							maxlength : 2,
 							appendText: '時',
-							isNumber  : true
+							toNumber  : true
 						}
 					},
 					{
@@ -1928,7 +1921,7 @@ app.ui.CreateRuleByProgram = Class.create({
 							type      : 'text',
 							width     : 60,
 							appendText: '秒',
-							isNumber  : true
+							toNumber  : true
 						}
 					},
 					{
@@ -1938,7 +1931,7 @@ app.ui.CreateRuleByProgram = Class.create({
 							type      : 'text',
 							width     : 60,
 							appendText: '秒',
-							isNumber  : true
+							toNumber  : true
 						}
 					},
 					{
