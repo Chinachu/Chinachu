@@ -21,6 +21,57 @@
 		<pnpx:X_deviceCategory>Multimedia.DMS</pnpx:X_deviceCategory>
 		<microsoft:X_magicPacketWakeSupported>0</microsoft:X_magicPacketWakeSupported>
 		<microsoft:X_magicPacketSendSupported>0</microsoft:X_magicPacketSendSupported>
+		<iconList>
+			<icon>
+				<mimetype>image/jpeg</mimetype>
+				<width>120</width>
+				<height>120</height>
+				<depth>24</depth>
+				<url>icon120px24dep.jpg</url>
+			</icon>
+			<icon>
+				<mimetype>image/png</mimetype>
+				<width>120</width>
+				<height>120</height>
+				<depth>24</depth>
+				<url>icon120px24dep.png</url>
+			</icon>
+			<icon>
+				<mimetype>image/jpeg</mimetype>
+				<width>48</width>
+				<height>48</height>
+				<depth>24</depth>
+				<url>icon48px24dep.jpg</url>
+			</icon>
+			<icon>
+				<mimetype>image/png</mimetype>
+				<width>48</width>
+				<height>48</height>
+				<depth>24</depth>
+				<url>icon48px24dep.png</url>
+			</icon>
+			<icon>
+				<mimetype>image/bmp</mimetype>
+				<width>48</width>
+				<height>48</height>
+				<depth>16</depth>
+				<url>icon48px16dep.bmp</url>
+			</icon>
+			<icon>
+				<mimetype>image/jpeg</mimetype>
+				<width>32</width>
+				<height>32</height>
+				<depth>24</depth>
+				<url>icon32px24dep.jpg</url>
+			</icon>
+			<icon>
+				<mimetype>image/bmp</mimetype>
+				<width>32</width>
+				<height>32</height>
+				<depth>16</depth>
+				<url>icon32px16dep.bmp</url>
+			</icon>
+		</iconList>
 		<serviceList>
 			<service>
 				<serviceType>urn:schemas-upnp-org:service:ContentDirectory:1</serviceType>
