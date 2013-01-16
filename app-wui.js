@@ -23,6 +23,7 @@ var child_process = require('child_process');
 var url           = require('url');
 var querystring   = require('querystring');
 var vm            = require('vm');
+var os            = require('os');
 
 // ディレクトリチェック
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
@@ -169,14 +170,9 @@ var status = {
 		configurator: !!config.wuiConfigurator
 	},
 	system: {
-		core: 1
+		core: os.cpus().length
 	}
 };
-
-// CPUコア数取得
-child_process.exec('cat /proc/cpuinfo | grep "core id" | sort -i | uniq | wc -l', function(err, stdout) {
-	status.system.core = parseInt(stdout.trim(), 10);
-});
 
 //
 // http server

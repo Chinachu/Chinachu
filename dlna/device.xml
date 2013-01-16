@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0" xmlns:microsoft="urn:schemas-microsoft-com:WMPNSS-1-0" xmlns:pnpx="http://schemas.microsoft.com/windows/pnpx/2005/11">
+	<specVersion>
+		<major>1</major>
+		<minor>0</minor>
+	</specVersion>
+	<device>
+		<UDN>uuid:49ee272d-f140-4cf0-a8cf-b7caa23ff772</UDN>
+		<friendlyName>Chinachu</friendlyName>
+		<deviceType>urn:schemas-upnp-org:device:MediaServer:1</deviceType>
+		<manufacturer>Chinachu Project</manufacturer>
+		<manufacturerURL>http://chinachu.akkar.in/</manufacturerURL>
+		<modelName>Chinachu DLNA</modelName>
+		<modelDescription>Chinachu DLNA Server Service (Linux EPG Recorder)</modelDescription>
+		<modelNumber>beta</modelNumber>
+		<modelURL>http://chinachu.akkar.in/</modelURL>
+		<serialNumber>772</serialNumber>
+		<presentationURL>/</presentationURL>
+		<dlna:X_DLNADOC xmlns:dlna="urn:schemas-dlna-org:device-1-0">DMS-1.50</dlna:X_DLNADOC>
+		<pnpx:X_compatibleId>MS_DigitalMediaDeviceClass_DMS_V001</pnpx:X_compatibleId>
+		<pnpx:X_deviceCategory>Multimedia.DMS</pnpx:X_deviceCategory>
+		<microsoft:X_magicPacketWakeSupported>0</microsoft:X_magicPacketWakeSupported>
+		<microsoft:X_magicPacketSendSupported>0</microsoft:X_magicPacketSendSupported>
+		<serviceList>
+			<service>
+				<serviceType>urn:schemas-upnp-org:service:ContentDirectory:1</serviceType>
+				<serviceId>urn:upnp-org:serviceId:ContentDirectory</serviceId>
+				<SCPDURL>cd.xml</SCPDURL>
+				<controlURL>cd-control.xml</controlURL>
+				<eventSubURL>cd-event.xml</eventSubURL>
+			</service>
+			<service>
+				<serviceType>urn:schemas-upnp-org:service:ConnectionManager:1</serviceType>
+				<serviceId>urn:upnp-org:serviceId:ConnectionManager</serviceId>
+				<SCPDURL>cm.xml</SCPDURL>
+				<controlURL>cm-control.xml</controlURL>
+				<eventSubURL>cm-event.xml</eventSubURL>
+			</service>
+		</serviceList>
+	</device>
+</root>
