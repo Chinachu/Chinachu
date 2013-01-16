@@ -469,6 +469,22 @@ function chinachuRule() {
 			delete r[i];
 		} else if ((typeof r[i] === 'object') && !!r[i].length && (r[i].length === 1) && (r[i][0] === 'null')) {
 			delete r[i];
+		} else if ((typeof r[i] === 'object') && !r[i].length) {
+			for (var j in r[i]) {
+				if ((typeof r[i][j] === 'string') && (r[i][j] === 'null')) {
+					delete r[i][j];
+				} else if ((typeof r[i][j] === 'number') && (r[i][j] === -1)) {
+					delete r[i][j];
+				}
+			}
+			
+			if (i === 'hour' && (typeof r[i].start === 'undefined' || typeof r[i].end === 'undefined')) {
+				delete r[i];
+			}
+			
+			if (i === 'duration' && (typeof r[i].min === 'undefined' || typeof r[i].max === 'undefined')) {
+				delete r[i];
+			}
 		}
 	}
 	
