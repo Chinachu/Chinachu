@@ -89,13 +89,13 @@ var mediaServer = new SSDP;
 
 mediaServer.addUSN('upnp:rootdevice');
 mediaServer.addUSN('urn:schemas-upnp-org:device:MediaServer:1');
-mediaServer.addUSN('urn:microsoft-com:service:X_MS_MediaReceiverRegistrar:1');
 mediaServer.addUSN('urn:schemas-upnp-org:service:ContentDirectory:1');
 mediaServer.addUSN('urn:schemas-upnp-org:service:ConnectionManager:1');
-//mediaServer.addUSN('urn:schemas-wifialliance-org:device:WFADevice:1');
 
 mediaServer.on('advertise-alive', function (head) {
-	//
+	if (head.LOCATION === "http://192.168.1.101:20772/device.xml") return;
+	
+	util.log(JSON.stringify(head, null, '  '));
 });
 
 mediaServer.on('advertise-bye', function (head) {
@@ -281,5 +281,5 @@ function httpServerMain(req, res, query) {
 			responseStatic();
 	}
 	
-	query && console.log(query['s:Envelope']['s:Body']);
+	query && util.log(JSON.stringify(query, null, '  '));
 }
