@@ -75,7 +75,7 @@ chinachu.jsonWatcher(
 			return;
 		}
 		
-		recorded = data;
+		recorded = data.reverse();
 		
 		util.log(mes);
 	}
@@ -91,7 +91,7 @@ var mediaServer = new SSDP;
 mediaServer.addUSN('upnp:rootdevice');
 mediaServer.addUSN('urn:schemas-upnp-org:device:MediaServer:1');
 mediaServer.addUSN('urn:schemas-upnp-org:service:ContentDirectory:1');
-mediaServer.addUSN('urn:schemas-upnp-org:service:ConnectionManager:1');
+//mediaServer.addUSN('urn:schemas-upnp-org:service:ConnectionManager:1');
 
 mediaServer.on('advertise-alive', function (head) {
 	//util.log(JSON.stringify(head, null, '  '));
@@ -188,7 +188,7 @@ function httpServerMain(req, res, query) {
 		res.end();
 		
 		log(code);
-	}
+	};
 	
 	var writeHead = function _writeHead(code) {
 		
@@ -209,7 +209,7 @@ function httpServerMain(req, res, query) {
 			'content-type': type,
 			'server'      : [os.platform() + '/' + os.release(), 'UPnP/1.0', 'Chinachu-DLNA/beta'].join(' ')
 		});
-	}
+	};
 	
 	var responseStatic = function _responseStatic() {
 		
@@ -226,7 +226,64 @@ function httpServerMain(req, res, query) {
 			
 			return;
 		});
-	}
+	};
+	
+	var responseM2ts = function _respopnseM2ts(id) {
+		
+		var program = chinachu.getProgramById(id, recorded);
+		
+		if (program === null) return resErr(404);
+		
+		if (!fs.existsSync(program.recorded)) return resErr(410);
+		
+		var fstat = fs.statSync(program.recorded);
+		var total = fstat.size;
+		
+		// for debug
+		util.log(req.method);
+		util.log(JSON.stringify(req.headers, null, '  '));
+		
+		if (!!req.headers.range) {
+			
+			var range = req.headers.range;
+			var parts = range.replace(/bytes=/, '').split('-');
+			var partialstart = parts[0];
+			var partialend   = parts[1];
+			
+			var start     = parseInt(partialstart, 10);
+			var end       = partialend ? parseInt(partialend, 10) : total - 1;
+			var chunksize = (end-start) + 1;
+			
+			util.log('RANGE: ' + start + ' - ' + end + ' = ' + chunksize);
+			
+			var file = fs.createReadStream(program.recorded, {start: start, end: end});
+			
+			res.writeHead(206, {
+				'Content-Range'           : 'bytes ' + start + '-' + end + '/' + total,
+				'Accept-Ranges'           : 'bytes',
+				'Content-Length'          : chunksize,
+				'Content-Type'            : 'video/vnd.dlna.mpeg-tts',
+				'ContentFeatures.DLNA.ORG': 'DLNA.ORG_PN=MPEG_TS_JP_T;DLNA.ORG_OP=01;DLNA.ORG_CI=0',
+				'TransferMode.DLNA.ORG'   : 'Streaming',
+				'server'                  : 'Chinachu-DLNA/beta'
+			});
+			
+			file.pipe(res);
+		} else {
+			
+			res.writeHead(200, {
+				'Content-Length'          : fstat.size,
+				'Content-Type'            : 'video/vnd.dlna.mpeg-tts',
+				'ContentFeatures.DLNA.ORG': 'DLNA.ORG_PN=MPEG_TS_JP_T;DLNA.ORG_OP=01;DLNA.ORG_CI=0',
+				'TransferMode.DLNA.ORG'   : 'Streaming',
+				'server'                  : 'Chinachu-DLNA/beta'
+			});
+			
+			var readStream = fs.createReadStream(program.recorded).pipe(res);
+			
+			log(200);
+		}
+	};
 	
 	switch (req.url) {
 		case '/cd-control.xml':
@@ -234,8 +291,8 @@ function httpServerMain(req, res, query) {
 			var browse = query['s:Envelope']['s:Body'][0]['u:Browse'][0];
 			
 			var objectId = browse.ObjectID[0];
-			var start    = browse.StartingIndex[0];
-			var count    = browse.RequestedCount[0];
+			var start    = parseInt(browse.StartingIndex[0], 10);
+			var count    = parseInt(browse.RequestedCount[0], 10);
 			
 			var envelope = '';
 			var response = '';
@@ -260,15 +317,41 @@ function httpServerMain(req, res, query) {
 					results.push({
 						id        : 'C1',
 						class     : 'container',
-						parentId  : '0',
+						parentId  : objectId,
 						title     : 'Recorded',
 						childCount: recorded.length
 					});
 					
 					break;
+				
+				case 'C1':
+					
+					var matched = recorded.length;
+					
+					for (var i = 0; i < matched; i++) {
+						if (start > i) continue;
+						if (start + count < i) break;
+						
+						results.push({
+							id         : recorded[i].id,
+							class      : 'video',
+							parentId   : objectId,
+							title      : recorded[i].title,
+							start      : recorded[i].start,
+							//end        : recorded[i].end,
+							file       : recorded[i].recorded,
+							duration   : recorded[i].seconds,
+							channelType: recorded[i].channel.type,
+							channelName: recorded[i].channel.name,
+							genre      : recorded[i].category,
+							description: recorded[i].detail || ''
+						});
+					}
+					
+					break;
 			}
 			
-			result += '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">';
+			result += '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:arib="urn:schemas-arib-or-jp:elements-1-0/">';
 			
 			results.forEach(function(a, i) {
 				
@@ -280,6 +363,24 @@ function httpServerMain(req, res, query) {
 					result += '</container>';
 				}
 				
+				if (a. class === 'video') {
+					result += '<item id="' + a.id + '" restricted="1" parentID="' + a.parentId + '">';
+					result += '<dc:title>' + a.title + '</dc:title>';
+					result += '<dc:description>' + a.description + '</dc:description>';
+					result += '<dc:date>' + dateFormat(new Date(a.start), 'yyyy-mm-dd') + '</dc:date>';
+					result += '<arib:objectType>ARIB_' + (a.channelType === 'GR' ? 'TB' : a.channelType) + '</arib:objectType>';
+					result += '<upnp:genre>' + a.genre + '</upnp:genre>';
+					result += '<upnp:channelName>' + a.channelName + '</upnp:channelName>';
+					result += '<upnp:channelNr>0</upnp:channelNr>';
+					result += '<upnp:album></upnp:album>';
+					result += '<upnp:artist></upnp:artist>';
+					result += '<upnp:originalTrackNumber></upnp:originalTrackNumber>';
+					result += '<upnp:class>object.item.videoItem.videoBroadcast</upnp:class>';
+					
+					result += '<res duration="00:00:00.0" sampleFrequency="44100" nrAudioChannels="2" protocolInfo="http-get:*:video/vnd.dlna.mpeg-tts:DLNA.ORG_PN=MPEG_TS_JP_T;rate=44100;channels=1:DLNA.ORG_OP=01;DLNA.ORG_CI=0">http://192.168.1.101:20772/' + a.id + '.m2ts</res>';
+					
+					result += '</item>';
+				}
 				
 			});
 			
@@ -301,8 +402,12 @@ function httpServerMain(req, res, query) {
 			break;
 		
 		default:
-			responseStatic();
-	}
+			if (req.url.match(/^\/.+\.m2ts$/) !== null) {
+				responseM2ts(req.url.match(/^\/(.+)\.m2ts$/)[1]);
+			} else {
+				responseStatic();
+			}
+	};
 	
 	query && util.log(JSON.stringify(query, null, '  '));
 }
