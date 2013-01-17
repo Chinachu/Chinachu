@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<root xmlns="urn:schemas-upnp-org:device-1-0" xmlns:microsoft="urn:schemas-microsoft-com:WMPNSS-1-0" xmlns:pnpx="http://schemas.microsoft.com/windows/pnpx/2005/11">
+<root xmlns="urn:schemas-upnp-org:device-1-0">
 	<specVersion>
 		<major>1</major>
 		<minor>0</minor>
@@ -15,12 +15,7 @@
 		<modelNumber>beta</modelNumber>
 		<modelURL>http://chinachu.akkar.in/</modelURL>
 		<serialNumber>772</serialNumber>
-		<presentationURL>/</presentationURL>
 		<dlna:X_DLNADOC xmlns:dlna="urn:schemas-dlna-org:device-1-0">DMS-1.50</dlna:X_DLNADOC>
-		<pnpx:X_compatibleId>MS_DigitalMediaDeviceClass_DMS_V001</pnpx:X_compatibleId>
-		<pnpx:X_deviceCategory>Multimedia.DMS</pnpx:X_deviceCategory>
-		<microsoft:X_magicPacketWakeSupported>0</microsoft:X_magicPacketWakeSupported>
-		<microsoft:X_magicPacketSendSupported>0</microsoft:X_magicPacketSendSupported>
 		<iconList>
 			<icon>
 				<mimetype>image/jpeg</mimetype>
