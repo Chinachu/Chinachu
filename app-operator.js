@@ -35,14 +35,14 @@ var OAuth      = require('oauth').OAuth;
 var chinachu   = require('chinachu-common');
 
 // 設定の読み込み
-var config = JSON.parse( fs.readFileSync(CONFIG_FILE, 'ascii') );
+var config = require(CONFIG_FILE);
 
 // ファイル更新監視: ./data/reserves.json
 var reserves = [];
 chinachu.jsonWatcher(
 	RESERVES_DATA_FILE
 	,
-	function _onUpdated(data, err, mes) {
+	function _onUpdated(err, data, mes) {
 		if (err) {
 			util.error(err);
 			return;
@@ -60,7 +60,7 @@ var recorded = [];
 chinachu.jsonWatcher(
 	RECORDED_DATA_FILE
 	,
-	function _onUpdated(data, err, mes) {
+	function _onUpdated(err, data, mes) {
 		if (err) {
 			util.error(err);
 			return;
@@ -414,7 +414,7 @@ function formatRecordedName(program) {
 	
 	// strip
 	name = name.replace(/\//g, '／').replace(/\\/g, '＼').replace(/:/g, '：').replace(/\*/g, '＊').replace(/\?/g, '？');
-	name = name.replace(/"/g, '”').replace(/</g, '＜').replace(/>/g, '＞').replace(/\|/g, '｜');
+	name = name.replace(/"/g, '”').replace(/</g, '＜').replace(/>/g, '＞').replace(/\|/g, '｜').replace(/≫/g, '＞＞');
 	
 	return name;
 }

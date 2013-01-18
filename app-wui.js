@@ -23,6 +23,7 @@ var child_process = require('child_process');
 var url           = require('url');
 var querystring   = require('querystring');
 var vm            = require('vm');
+var os            = require('os');
 
 // ディレクトリチェック
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
@@ -43,7 +44,7 @@ var socketio = require('socket.io');
 var chinachu = require('chinachu-common');
 
 // 設定の読み込み
-var config = JSON.parse( fs.readFileSync(CONFIG_FILE, 'ascii') );
+var config = require(CONFIG_FILE);
 
 // https or http
 if (config.wuiTlsKeyPath && config.wuiTlsCertPath) {
@@ -62,7 +63,7 @@ var rules = [];
 chinachu.jsonWatcher(
 	RULES_FILE
 	,
-	function _onUpdated(data, err, mes) {
+	function _onUpdated(err, data, mes) {
 		if (err) {
 			util.error(err);
 			return;
@@ -81,7 +82,7 @@ var schedule = [];
 chinachu.jsonWatcher(
 	SCHEDULE_DATA_FILE
 	,
-	function _onUpdated(data, err, mes) {
+	function _onUpdated(err, data, mes) {
 		if (err) {
 			util.error(err);
 			return;
@@ -100,7 +101,7 @@ var reserves = [];
 chinachu.jsonWatcher(
 	RESERVES_DATA_FILE
 	,
-	function _onUpdated(data, err, mes) {
+	function _onUpdated(err, data, mes) {
 		if (err) {
 			util.error(err);
 			return;
@@ -119,7 +120,7 @@ var recording = [];
 chinachu.jsonWatcher(
 	RECORDING_DATA_FILE
 	,
-	function _onUpdated(data, err, mes) {
+	function _onUpdated(err, data, mes) {
 		if (err) {
 			util.error(err);
 			return;
@@ -138,7 +139,7 @@ var recorded = [];
 chinachu.jsonWatcher(
 	RECORDED_DATA_FILE
 	,
-	function _onUpdated(data, err, mes) {
+	function _onUpdated(err, data, mes) {
 		if (err) {
 			util.error(err);
 			return;
@@ -169,14 +170,9 @@ var status = {
 		configurator: !!config.wuiConfigurator
 	},
 	system: {
-		core: 1
+		core: os.cpus().length
 	}
 };
-
-// CPUコア数取得
-child_process.exec('cat /proc/cpuinfo | grep "core id" | sort -i | uniq | wc -l', function(err, stdout) {
-	status.system.core = parseInt(stdout.trim(), 10);
-});
 
 //
 // http server

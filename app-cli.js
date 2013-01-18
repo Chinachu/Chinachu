@@ -244,7 +244,7 @@ opts.parse([
 ].reverse(), true);
 
 // 設定の読み込み
-var config    = JSON.parse( fs.readFileSync(CONFIG_FILE, 'ascii') );
+var config    = require(CONFIG_FILE);
 var rules     = JSON.parse( fs.readFileSync(RULES_FILE, 'ascii') || '[]' );
 var schedule  = JSON.parse( fs.readFileSync(SCHEDULE_DATA_FILE, 'ascii') || '[]' );
 var reserves  = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE, 'ascii') || '[]' );
