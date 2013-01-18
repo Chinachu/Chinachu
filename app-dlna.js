@@ -383,7 +383,7 @@ function httpServerMain(req, res, query) {
 					
 					for (var i = 0; i < matched; i++) {
 						if (start > i) continue;
-						if (start + count < i) break;
+						if (start + count <= i) break;
 						
 						results.push({
 							id         : recorded[i].id,
@@ -409,7 +409,7 @@ function httpServerMain(req, res, query) {
 					
 					for (var i = 0; i < matched; i++) {
 						if (start > i) continue;
-						if (start + count < i) break;
+						if (start + count <= i) break;
 						
 						results.push({
 							id         : recording[i].id,
@@ -451,7 +451,7 @@ function httpServerMain(req, res, query) {
 					result += '<dc:title>' + a.title + '</dc:title>';
 					//result += '<dc:description>' + a.description + '</dc:description>';
 					result += '<dc:date>' + dateFormat(new Date(a.start), 'yyyy-mm-dd') + '</dc:date>';
-					result += '<arib:objectType>ARIB_' + (a.channelType === 'GR' ? 'TB' : a.channelType) + '</arib:objectType>';
+					result += '<arib:objectType>ARIB_' + (a.channelType === 'GR' ? 'TB' : (a.channelType === 'EX' ? 'CS' : a.channelType)) + '</arib:objectType>';
 					result += '<upnp:genre>' + a.genre + '</upnp:genre>';
 					result += '<upnp:channelName>' + a.channelName + '</upnp:channelName>';
 					result += '<upnp:channelNr>0</upnp:channelNr>';
@@ -469,6 +469,8 @@ function httpServerMain(req, res, query) {
 					result += '<res duration="' + HH + ':' + MM + ':' + SS + '.0" protocolInfo="http-get:*:video/m2ts:DLNA.ORG_PN=MPEG_TS_JP_T;DLNA.ORG_OP=01;DLNA.ORG_CI=0">http://' + host + ':' + port + '/' + a.id + '.m2ts</res>';
 					
 					result += '<res duration="' + HH + ':' + MM + ':' + SS + '.0" protocolInfo="http-get:*:video/mpeg:DLNA.ORG_PN=MPEG_TS_JP_T;DLNA.ORG_OP=01;DLNA.ORG_CI=0">http://' + host + ':' + port + '/' + a.id + '.m2ts</res>';
+					
+					result += '<res duration="' + HH + ':' + MM + ':' + SS + '.0" protocolInfo="http-get:*:video/mpeg:DLNA.ORG_PN=MPEG_TS_HD_JP_ISO;DLNA.ORG_OP=01;DLNA.ORG_CI=0">http://' + host + ':' + port + '/' + a.id + '.m2ts</res>';
 					
 					result += '</item>';
 				}
