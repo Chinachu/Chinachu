@@ -137,9 +137,9 @@ function httpServer(req, res) {
 		});
 		
 	} else {
-		util.log('Unknown HTTP Request (Tentatively 200 OK): ' + req.method + ' ' + req.url);
+		util.log('Unknown HTTP Request (Tentatively 500 Err): ' + req.method + ' ' + req.url);
 		
-		res.writeHead(200, {
+		res.writeHead(500, {
 			'Ccontent-Length': '0',
 			'SID'            : '49ee272d-f140-4cf0-a8cf-b7caa23ff772',
 			'Server'         : 'Chinachu-DLNA/beta',
@@ -265,7 +265,7 @@ function httpServerMain(req, res, query) {
 		
 		var header = {
 			'Content-Type'            : 'video/vnd.dlna.mpeg-tts',
-			'ContentFeatures.DLNA.ORG': 'DLNA.ORG_PN=MPEG_TS_JP_T;DLNA.ORG_OP=01;DLNA.ORG_CI=0',
+			'ContentFeatures.DLNA.ORG': 'DLNA.ORG_PN=MPEG_TS_JP_T;DLNA.ORG_OP=01',
 			'TransferMode.DLNA.ORG'   : 'Streaming',
 			'Server'                  : 'Chinachu-DLNA/beta'
 		};
@@ -295,7 +295,7 @@ function httpServerMain(req, res, query) {
 				});
 				
 				header['Content-Range']            = 'bytes ' + start + '-';
-				header['ContentFeatures.DLNA.ORG'] = 'DLNA.ORG_PN=MPEG_TS_JP_T;DLNA.ORG_OP=00;DLNA.ORG_CI=0';
+				header['ContentFeatures.DLNA.ORG'] = 'DLNA.ORG_PN=MPEG_TS_JP_T;DLNA.ORG_OP=00';
 			} else {
 				
 				
@@ -458,19 +458,13 @@ function httpServerMain(req, res, query) {
 					result += '<upnp:album></upnp:album>';
 					result += '<upnp:artist></upnp:artist>';
 					result += '<upnp:originalTrackNumber></upnp:originalTrackNumber>';
-					result += '<upnp:class>object.item.videoItem.videoBroadcast</upnp:class>';
+					result += '<upnp:class>object.item.videoItem</upnp:class>';
 					
 					var SS = a.seconds % 60;
 					var MM = ((a.seconds - SS) / 60) % 60;
 					var HH = (((a.seconds - SS) / 60) - MM) / 60;
 					
-					result += '<res duration="' + HH + ':' + MM + ':' + SS + '.0" protocolInfo="http-get:*:video/vnd.dlna.mpeg-tts:DLNA.ORG_PN=MPEG_TS_JP_T;DLNA.ORG_OP=01;DLNA.ORG_CI=0">http://' + host + ':' + port + '/' + a.id + '.m2ts</res>';
-					
-					result += '<res duration="' + HH + ':' + MM + ':' + SS + '.0" protocolInfo="http-get:*:video/m2ts:DLNA.ORG_PN=MPEG_TS_JP_T;DLNA.ORG_OP=01;DLNA.ORG_CI=0">http://' + host + ':' + port + '/' + a.id + '.m2ts</res>';
-					
-					result += '<res duration="' + HH + ':' + MM + ':' + SS + '.0" protocolInfo="http-get:*:video/mpeg:DLNA.ORG_PN=MPEG_TS_JP_T;DLNA.ORG_OP=01;DLNA.ORG_CI=0">http://' + host + ':' + port + '/' + a.id + '.m2ts</res>';
-					
-					result += '<res duration="' + HH + ':' + MM + ':' + SS + '.0" protocolInfo="http-get:*:video/mpeg:DLNA.ORG_PN=MPEG_TS_HD_JP_ISO;DLNA.ORG_OP=01;DLNA.ORG_CI=0">http://' + host + ':' + port + '/' + a.id + '.m2ts</res>';
+					result += '<res duration="' + HH + ':' + MM + ':' + SS + '.0" protocolInfo="http-get:*:video/mpeg:DLNA.ORG_PN=MPEG_TS_JP_T;DLNA.ORG_OP=01">http://' + host + ':' + port + '/' + a.id + '.m2ts</res>';
 					
 					result += '</item>';
 				}
