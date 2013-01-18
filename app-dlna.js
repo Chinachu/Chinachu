@@ -383,7 +383,7 @@ function httpServerMain(req, res, query) {
 					
 					for (var i = 0; i < matched; i++) {
 						if (start > i) continue;
-						if (start + count <= i) break;
+						if (count !== 0 && start + count <= i) break;
 						
 						results.push({
 							id         : recorded[i].id,
@@ -409,7 +409,7 @@ function httpServerMain(req, res, query) {
 					
 					for (var i = 0; i < matched; i++) {
 						if (start > i) continue;
-						if (start + count <= i) break;
+						if (count !== 0 && start + count <= i) break;
 						
 						results.push({
 							id         : recording[i].id,
