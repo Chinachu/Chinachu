@@ -42,7 +42,7 @@ var reserves = [];
 chinachu.jsonWatcher(
 	RESERVES_DATA_FILE
 	,
-	function _onUpdated(data, err, mes) {
+	function _onUpdated(err, data, mes) {
 		if (err) {
 			util.error(err);
 			return;
@@ -60,7 +60,7 @@ var recorded = [];
 chinachu.jsonWatcher(
 	RECORDED_DATA_FILE
 	,
-	function _onUpdated(data, err, mes) {
+	function _onUpdated(err, data, mes) {
 		if (err) {
 			util.error(err);
 			return;

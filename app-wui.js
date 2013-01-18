@@ -63,7 +63,7 @@ var rules = [];
 chinachu.jsonWatcher(
 	RULES_FILE
 	,
-	function _onUpdated(data, err, mes) {
+	function _onUpdated(err, data, mes) {
 		if (err) {
 			util.error(err);
 			return;
@@ -82,7 +82,7 @@ var schedule = [];
 chinachu.jsonWatcher(
 	SCHEDULE_DATA_FILE
 	,
-	function _onUpdated(data, err, mes) {
+	function _onUpdated(err, data, mes) {
 		if (err) {
 			util.error(err);
 			return;
@@ -101,7 +101,7 @@ var reserves = [];
 chinachu.jsonWatcher(
 	RESERVES_DATA_FILE
 	,
-	function _onUpdated(data, err, mes) {
+	function _onUpdated(err, data, mes) {
 		if (err) {
 			util.error(err);
 			return;
@@ -120,7 +120,7 @@ var recording = [];
 chinachu.jsonWatcher(
 	RECORDING_DATA_FILE
 	,
-	function _onUpdated(data, err, mes) {
+	function _onUpdated(err, data, mes) {
 		if (err) {
 			util.error(err);
 			return;
@@ -139,7 +139,7 @@ var recorded = [];
 chinachu.jsonWatcher(
 	RECORDED_DATA_FILE
 	,
-	function _onUpdated(data, err, mes) {
+	function _onUpdated(err, data, mes) {
 		if (err) {
 			util.error(err);
 			return;

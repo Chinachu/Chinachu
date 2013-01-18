@@ -61,7 +61,7 @@ var recording = [];
 chinachu.jsonWatcher(
 	RECORDING_DATA_FILE
 	,
-	function _onUpdated(data, err, mes) {
+	function _onUpdated(err, data, mes) {
 		
 		if (err) {
 			util.error(err);
@@ -81,7 +81,7 @@ var recorded = [];
 chinachu.jsonWatcher(
 	RECORDED_DATA_FILE
 	,
-	function _onUpdated(data, err, mes) {
+	function _onUpdated(err, data, mes) {
 		
 		if (err) {
 			util.error(err);
