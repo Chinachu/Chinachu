@@ -4,6 +4,19 @@
  *  Copyright (c) 2013 Yuki KAN and Chinachu Project Contributors
  *  http://chinachu.akkar.in/
 **/
+/*
+ *  **EXPERIMENTAL** DLNA Server (UPnP AV 1.0 DMS) **PARTIAL** Implementation.
+ *
+ *  To test run, do this:
+ *
+ *    ./chinachu service dlna execute
+ *
+ *  Or, install:
+ *
+ *    ./chinachu service dlna initscript > /tmp/chinachu-dlna
+ *    sudo chown root:root /tmp/chinachu-dlna && sudo mv /tmp/chinachu-dlna /etc/init.d/
+ *    sudo insserv chinachu-dlna
+**/
 'use strict';
 
 var CONFIG_FILE         = __dirname + '/config.json';
@@ -41,7 +54,7 @@ var xmlParser  = new xml2js.Parser();
 var dateFormat = require('dateformat');
 
 // 設定の読み込み
-var config = JSON.parse( fs.readFileSync(CONFIG_FILE, 'ascii') );
+var config = require(CONFIG_FILE);
 
 // ファイル更新監視: ./data/recording.json
 var recording = [];
