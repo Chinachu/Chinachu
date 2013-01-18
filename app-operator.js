@@ -35,7 +35,7 @@ var OAuth      = require('oauth').OAuth;
 var chinachu   = require('chinachu-common');
 
 // 設定の読み込み
-var config = JSON.parse( fs.readFileSync(CONFIG_FILE, 'ascii') );
+var config = require(CONFIG_FILE);
 
 // ファイル更新監視: ./data/reserves.json
 var reserves = [];

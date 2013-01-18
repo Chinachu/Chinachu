@@ -43,7 +43,7 @@ var socketio = require('socket.io');
 var chinachu = require('chinachu-common');
 
 // 設定の読み込み
-var config = JSON.parse( fs.readFileSync(CONFIG_FILE, 'ascii') );
+var config = require(CONFIG_FILE);
 
 // https or http
 if (config.wuiTlsKeyPath && config.wuiTlsCertPath) {
