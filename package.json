@@ -1,0 +1,35 @@
+{
+  "name": "Chinachu",
+  "description": "A open source EPG digital video recorder system for Linux.",
+  "version": "0.0.1",
+  "private": true,
+  "homepage": "http://chinachu.akkar.in/",
+  "author": {
+    "name": "Yuki KAN",
+    "email": "re@pixely.jp",
+    "url": "https://github.com/kanreisa"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kanreisa/Chinachu.git"
+  },
+  "licenses": [{
+    "type": "MIT",
+    "url": "https://github.com/kanreisa/Chinachu/blob/master/LICENSE"
+  }],
+  "bugs": {
+    "url": "https://github.com/kanreisa/Chinachu/issues"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*",
+    "sinon": "*"
+  },
+  "scripts": {
+    "test": "mocha -R spec"
+  },
+  "engines": {
+    "node": ">=0.8.18"
+  }
+}

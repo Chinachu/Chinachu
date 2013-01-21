@@ -1,0 +1,7 @@
+language: node_js
+
+before_script:
+  - "echo 1 | ./chinachu installer"
+
+notifications:
+  email: false

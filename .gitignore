@@ -20,3 +20,7 @@ node_modules/oauth
 node_modules/opts
 node_modules/socket.io
 node_modules/xml2js
+node_modules/.bin
+node_modules/mocha
+node_modules/should
+node_modules/sinon
