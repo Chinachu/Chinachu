@@ -10,10 +10,10 @@
 			
 			switch (request.param.action) {
 				case 'enable':
-					cmd = './.nave/node app-cli.js -mode rule --enable -n ' + request.param.num;
+					cmd = 'node app-cli.js -mode rule --enable -n ' + request.param.num;
 					break;
 				case 'disable':
-					cmd = './.nave/node app-cli.js -mode rule --disable -n ' + request.param.num;
+					cmd = 'node app-cli.js -mode rule --disable -n ' + request.param.num;
 					break;
 			}
 			

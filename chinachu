@@ -42,11 +42,11 @@ main () {
   # path
   CHINACHU_DIR=$(dirname -- "$SELF_PATH")
   NAVE_DIR=${CHINACHU_DIR}/.nave
-  EPGDUMP_DIR=${CHINACHU_DIR}/.epgdump
   NODE_PATH=${NAVE_DIR}/installed/${NODE_VER}/bin/node
   NPM_PATH=${NAVE_DIR}/installed/${NODE_VER}/bin/npm
   USR_DIR=${CHINACHU_DIR}/usr
   
+  export PATH=$USR_DIR/bin:${NAVE_DIR}/installed/${NODE_VER}/bin:$PATH
   export LD_LIBRARY_PATH=$USR_DIR/lib:$LD_LIBRARY_PATH
   
   cd $CHINACHU_DIR
@@ -174,19 +174,28 @@ chinachu_installer_node_modules () {
 
 chinachu_installer_node_modules_install () {
   remove_dir "$CHINACHU_DIR/node_modules/$1"
-  ${NAVE_DIR}/npm install "$1"
+  
+  npm install "$1"
+  
+  echo "node_modules:$1 --> done."
   
   return 0
 }
 
 chinachu_installer_epgdump () {
-  remove_dir "$EPGDUMP_DIR"
+  remove_dir "$USR_DIR/src/epgdump"
   
   local EPGDUMP_GIT="git://github.com/stz2012/epgdump.git"
   
   echo "Installing epgdump from $EPGDUMP_GIT"
-  git clone $EPGDUMP_GIT $EPGDUMP_DIR
-  cd $EPGDUMP_DIR && make && cd $CHINACHU_DIR
+  git clone $EPGDUMP_GIT "$USR_DIR/src/epgdump"
+  cd "$USR_DIR/src/epgdump"
+  
+  make && cp epgdump $USR_DIR/bin/
+  
+  cd $CHINACHU_DIR
+  
+  remove_dir "$USR_DIR/src/epgdump"
   
   echo "epgdump --> done."
   
@@ -564,7 +573,7 @@ chinachu_service_execute () {
   ensure_dir log
   ensure_dir data
   
-  ${NAVE_DIR}/node --expose_gc app-${name}.js > /dev/stdout 2>&1 | tee ./log/${name} && return 0
+  node --expose_gc app-${name}.js > /dev/stdout 2>&1 | tee ./log/${name} && return 0
 }
 
 chinachu_service_help () {
@@ -599,11 +608,11 @@ EOF
 }
 
 chinachu_update () {
-  ${NAVE_DIR}/node app-scheduler.js "$@" > /dev/stdout 2>&1 | tee ./log/scheduler && return 0
+  node app-scheduler.js "$@" > /dev/stdout 2>&1 | tee ./log/scheduler && return 0
 }
 
 chinachu_search () {
-  ${NAVE_DIR}/node app-cli.js -mode search "$@" && return 0
+  node app-cli.js -mode search "$@" && return 0
 }
 
 chinachu_reserve () {
@@ -611,14 +620,14 @@ chinachu_reserve () {
     fail "Usage: reserve <pgid>"
   fi
   
-  ${NAVE_DIR}/node app-cli.js -mode reserve -id "$1" || fail "couldn't reserve $1"
+  node app-cli.js -mode reserve -id "$1" || fail "couldn't reserve $1"
   
   while [ 1 ]; do
     echo -n "Run a scheduler [Y/n]? "
     read line
     case $line in
       [yY])
-        ${NAVE_DIR}/node app-scheduler.js > /dev/stdout 2>&1 | tee ./log/scheduler && return 0
+        node app-scheduler.js > /dev/stdout 2>&1 | tee ./log/scheduler && return 0
         ;;
       [nN])
         echo "Ok." && return 0
@@ -632,11 +641,11 @@ chinachu_unreserve () {
     fail "Usage: unreserve <pgid>"
   fi
   
-  ${NAVE_DIR}/node app-cli.js -mode unreserve -id "$1" || fail "couldn't unreserve $1"
+  node app-cli.js -mode unreserve -id "$1" || fail "couldn't unreserve $1"
 }
 
 chinachu_rule () {
-  ${NAVE_DIR}/node app-cli.js -mode rule "$@" && return 0
+  node app-cli.js -mode rule "$@" && return 0
 }
 
 chinachu_enrule () {
@@ -644,7 +653,7 @@ chinachu_enrule () {
     fail "Usage: enrule <ruleid>"
   fi
   
-  ${NAVE_DIR}/node app-cli.js -mode rule -n "$1" --enable && return 0
+  node app-cli.js -mode rule -n "$1" --enable && return 0
 }
 
 chinachu_disrule () {
@@ -652,7 +661,7 @@ chinachu_disrule () {
     fail "Usage: disrule <ruleid>"
   fi
   
-  ${NAVE_DIR}/node app-cli.js -mode rule -n "$1" --disable && return 0
+  node app-cli.js -mode rule -n "$1" --disable && return 0
 }
 
 chinachu_rmrule () {
@@ -660,23 +669,23 @@ chinachu_rmrule () {
     fail "Usage: rmrule <ruleid>"
   fi
   
-  ${NAVE_DIR}/node app-cli.js -mode rule -n "$1" --remove && return 0
+  node app-cli.js -mode rule -n "$1" --remove && return 0
 }
 
 chinachu_rules () {
-  ${NAVE_DIR}/node app-cli.js -mode rules "$@" && return 0
+  node app-cli.js -mode rules "$@" && return 0
 }
 
 chinachu_reserves () {
-  ${NAVE_DIR}/node app-cli.js -mode reserves "$@" && return 0
+  node app-cli.js -mode reserves "$@" && return 0
 }
 
 chinachu_recording () {
-  ${NAVE_DIR}/node app-cli.js -mode recording "$@" && return 0
+  node app-cli.js -mode recording "$@" && return 0
 }
 
 chinachu_recorded () {
-  ${NAVE_DIR}/node app-cli.js -mode recorded "$@" && return 0
+  node app-cli.js -mode recorded "$@" && return 0
 }
 
 chinachu_cleanup () {
@@ -687,7 +696,7 @@ chinachu_cleanup () {
     read line
     case $line in
       [yY])
-        ${NAVE_DIR}/node app-cli.js -mode cleanup && return 0
+        node app-cli.js -mode cleanup && return 0
         ;;
       [nN])
         echo "Abort." && return 0
@@ -715,7 +724,7 @@ chinachu_unlock () {
 }
 
 chinachu_ircbot () {
-  ${NAVE_DIR}/node app-cli.js -mode ircbot "$@" && return 0
+  node app-cli.js -mode ircbot "$@" && return 0
 }
 
 chinachu_test () {

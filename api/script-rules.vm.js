@@ -18,7 +18,7 @@
 				return response.error(400);
 			}
 			
-			child_process.exec('./.nave/node app-cli.js -mode rule ' + args.join(' '), function(err, stdout, stderr) {
+			child_process.exec('node app-cli.js -mode rule ' + args.join(' '), function(err, stdout, stderr) {
 				if (err) return response.error(500);
 				
 				response.head(200);
