@@ -376,7 +376,6 @@ chinachu_installer_libav () {
     --enable-libfdk-aac \
     --enable-libvorbis \
     --disable-debug \
-    --disable-zlib \
     --disable-decoders \
     --disable-encoders \
     --disable-demuxers \
@@ -393,7 +392,6 @@ chinachu_installer_libav () {
     --enable-decoder=pcm_bluray \
     --enable-decoder=h264 \
     --enable-encoder=aac \
-    --enable-encoder=gif \
     --enable-encoder=png \
     --enable-encoder=mjpeg \
     --enable-encoder=libx264 \
@@ -406,7 +404,6 @@ chinachu_installer_libav () {
     --enable-encoder=wmav2 \
     --enable-encoder=flv \
     --enable-demuxer=mpegts \
-    --enable-demuxer=mpegtsraw \
     --enable-muxer=gif \
     --enable-muxer=mjpeg \
     --enable-muxer=m4v \
@@ -415,7 +412,7 @@ chinachu_installer_libav () {
     --enable-muxer=mpegts \
     --enable-muxer=webm \
     --enable-muxer=flv \
-    --enable-muxer=image2pipe \
+    --enable-muxer=image2 \
     --enable-protocol=pipe \
     --enable-protocol=file \
     --extra-cflags="-I${USR_DIR}/include" \

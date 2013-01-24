@@ -783,11 +783,7 @@ app.ui.Streamer = Class.create({
 							},
 							{
 								label     : 'AAC',
-								value     : 'libfaac'
-							},
-							{
-								label     : 'MP3',
-								value     : 'libmp3lame'
+								value     : 'libfdk_aac'
 							}
 						]
 					},
@@ -809,11 +805,7 @@ app.ui.Streamer = Class.create({
 							},
 							{
 								label     : 'AAC',
-								value     : 'libfaac'
-							},
-							{
-								label     : 'MP3',
-								value     : 'libmp3lame'
+								value     : 'libfdk_aac'
 							}
 						]
 					},
