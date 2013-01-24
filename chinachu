@@ -47,6 +47,8 @@ main () {
   NPM_PATH=${NAVE_DIR}/installed/${NODE_VER}/bin/npm
   USR_DIR=${CHINACHU_DIR}/usr
   
+  export LD_LIBRARY_PATH=$USR_DIR/lib:$LD_LIBRARY_PATH
+  
   cd $CHINACHU_DIR
   
   export CHINACHU_DIR
@@ -59,7 +61,7 @@ main () {
     reserve | unreserve | \
     rule | enrule | disrule | rmrule | \
     rules | reserves | recording | recorded | \
-    cleanup | unlock | ircbot )
+    cleanup | unlock | ircbot | test )
       cmd="chinachu_$cmd"
       ;;
     * )
@@ -716,6 +718,14 @@ chinachu_ircbot () {
   ${NAVE_DIR}/node app-cli.js -mode ircbot "$@" && return 0
 }
 
+chinachu_test () {
+  if [ ! "$1" ]; then
+    fail "Usage: test <app> [options]"
+  fi
+  
+  ${USR_DIR}/bin/"$@" && return 0
+}
+
 chinachu_help () {
   cat <<EOF
 
@@ -746,6 +756,8 @@ cleanup                 Clean-up the recorded list.
 unlock                  Unlock the tuners.
 
 ircbot [options]        Connect to IRC server and run a ircbot. (Experimental)
+
+test <app> [options]    Run <app> in ${USR_DIR}/bin
 
 help                    Output this information.
 
