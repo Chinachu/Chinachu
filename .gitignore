@@ -12,6 +12,10 @@ log/*
 .nave/*
 .epgdump
 .epgdump/*
+tmp
+tmp/*
+usr
+usr/*
 node
 node_modules/dateformat
 node_modules/easy-table
