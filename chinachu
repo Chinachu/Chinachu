@@ -382,7 +382,6 @@ chinachu_installer_libav () {
     --disable-muxers \
     --disable-protocols \
     --enable-decoder=aac \
-    --enable-decoder=aac_latm \
     --enable-decoder=ac3 \
     --enable-decoder=mp2 \
     --enable-decoder=mp3 \
@@ -413,6 +412,8 @@ chinachu_installer_libav () {
     --enable-muxer=webm \
     --enable-muxer=flv \
     --enable-muxer=image2 \
+    --enable-muxer=asf \
+    --enable-muxer=asf_stream \
     --enable-protocol=pipe \
     --enable-protocol=file \
     --extra-cflags="-I${USR_DIR}/include" \
