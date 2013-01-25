@@ -100,7 +100,6 @@
 			var args = [];
 			
 			args.push('-v', '0');
-			//args.push('-threads', data.status.system.core.toString(10));
 			
 			args.push('-ss', (parseInt(start, 10) - 1) + '');
 			
@@ -111,6 +110,8 @@
 			
 			if (duration) { args.push('-t', duration); }
 			
+			args.push('-threads', data.status.system.core.toString(10));
+			
 			args.push('-codec:v', vcodec, '-codec:a', acodec);
 			//args.push('-map', '0:0', '-map', '0:1');
 			
@@ -120,31 +121,27 @@
 			if (acodec !== 'copy')    { args.push('-ar', ar, '-ab', ab); }
 			//if (format === 'mpegts')  { args.push('-copyts'); }
 			if (format === 'flv')     { args.push('-vsync', '2'); }
-			if (vcodec === 'libx264') { args.push('-coder', '0', '-bf', '0', '-subq', '1'); }
+			if (vcodec === 'libx264') { args.push('-preset', 'ultrafast'); }
+			if (vcodec === 'libvpx')  { args.push('-deadline', 'realtime'); }
 			
 			args.push('-y', '-f', format, 'pipe:1');
 			
-			var ffmpeg = child_process.spawn('avconv', args);
+			var avconv = child_process.spawn('avconv', args);
 			
-			ffmpeg.stdout.on('data', function(d) {
-				if (ffmpeg) response.write(d, 'binary');
+			avconv.stdout.pipe(response);
+			
+			avconv.stderr.on('data', function(d) {
+				util.log(d);
 			});
 			
-			ffmpeg.stderr.on('data', function(d) {
-				if (ffmpeg) util.puts(d);
-			});
-			
-			ffmpeg.on('exit', function(code) {
-				ffmpeg = null;
-				
-				response.exit();
+			avconv.on('exit', function(code) {
+				setTimeout(response.exit, 1000);
 			});
 			
 			request.on('close', function() {
-				ffmpeg.stdout.removeAllListeners('data');
-				ffmpeg.stderr.removeAllListeners('data');
-				ffmpeg.kill('SIGKILL');
-				ffmpeg = null;
+				avconv.stdout.removeAllListeners('data');
+				avconv.stderr.removeAllListeners('data');
+				avconv.kill('SIGKILL');
 			});
 			
 			return;
