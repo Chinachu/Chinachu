@@ -16,7 +16,7 @@ fi
 shopt -s extglob
 
 # variables
-NODE_VER=0.8.18
+NODE_VER=0.9.8
 
 main () {
   local SELF_PATH DIR SYM
@@ -166,6 +166,7 @@ chinachu_installer_node_modules () {
   chinachu_installer_node_modules_install opts
   chinachu_installer_node_modules_install socket.io
   chinachu_installer_node_modules_install xml2js
+  #chinachu_installer_node_modules_install spdy
   
   echo "done."
   
