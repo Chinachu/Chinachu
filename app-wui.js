@@ -336,10 +336,14 @@ function httpServerMain(req, res, query) {
 		if (ext === 'json') { type = 'application/json'; }
 		if (ext === 'xspf') { type = 'application/xspf+xml'; }
 		
-		res.writeHead(code, {
+		var head = {
 			'content-type': type,
 			'server'      : 'chinachu-wui'
-		});
+		};
+		
+		if (req.isSpdy) head['X-Chinachu-Spdy'] = req.spdyVersion;
+		
+		res.writeHead(code, head);
 	}
 	
 	// 静的ファイルまたはAPIレスポンスの分岐
@@ -470,9 +474,13 @@ function httpServerMain(req, res, query) {
 				resErr(code);
 				isClosed = true;
 			};
+			
 			sandbox.response.exit = function(data, encoding) {
-				res.end(data, encoding);
-				
+				try {
+					res.end(data, encoding);
+				} catch (e) {
+					util.log(e);
+				}
 				onEnd();
 			};
 			
@@ -483,12 +491,10 @@ function httpServerMain(req, res, query) {
 					log(res.statusCode);
 					
 					setTimeout(function() {
-						gc();
+						process.nextTick(gc);
 					}, 3000);
 				}
 			}
-			
-			req.on('close', onEnd);
 			
 			try {
 				vm.runInNewContext(fs.readFileSync(scriptFile), sandbox, scriptFile);

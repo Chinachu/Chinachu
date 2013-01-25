@@ -22,7 +22,7 @@
 				return response.error(400);
 			}
 			
-			child_process.exec('./.nave/node app-cli.js -mode rule -n ' + request.param.num + ' ' + args.join(' '), function(err, stdout, stderr) {
+			child_process.exec('node app-cli.js -mode rule -n ' + request.param.num + ' ' + args.join(' '), function(err, stdout, stderr) {
 				if (err) return response.error(500);
 				
 				response.head(200);
@@ -31,7 +31,7 @@
 			return;
 		
 		case 'DELETE':
-			child_process.exec('./.nave/node app-cli.js -mode rule --remove -n ' + request.param.num, function(err, stdout, stderr) {
+			child_process.exec('node app-cli.js -mode rule --remove -n ' + request.param.num, function(err, stdout, stderr) {
 				if (err) return response.error(500);
 				
 				response.head(200);

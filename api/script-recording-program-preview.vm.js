@@ -28,12 +28,13 @@
 	if (request.query.type && (request.query.type === 'png')) { vcodec = 'png'; }
 	if (request.type === 'jpg') { vcodec = 'mjpeg'; }
 	if (request.type === 'png') { vcodec = 'png'; }
+	if (request.type === 'txt') { vcodec = 'mjpeg'; }
 	
 	var ffmpeg = child_process.exec(
 		(
 			'tail -c 3200000 "' + program.recorded + '" | ' +
-			'ffmpeg -i pipe:0 -ss 1.3 -vframes 1 -f image2 -vcodec ' + vcodec +
-			' -s ' + width + 'x' + height + ' -map 0.0 -y pipe:1'
+			'avconv -f mpegts -r 10 -i pipe:0 -ss 1.5 -r 10 -frames:v 1 -f image2 -codec:v ' + vcodec +
+			' -an -s ' + width + 'x' + height + ' -map 0:0 -y pipe:1'
 		)
 		,
 		{
@@ -42,6 +43,11 @@
 		}
 		,
 		function(err, stdout, stderr) {
+			if (err) {
+				util.log(err);
+				return response.error(503);
+			}
+			
 			if (request.type === 'txt') {
 				if (vcodec === 'mjpeg') {
 					response.exit('data:image/jpeg;base64,' + new Buffer(stdout, 'binary').toString('base64'));

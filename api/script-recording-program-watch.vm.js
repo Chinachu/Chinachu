@@ -19,9 +19,9 @@
 			response.head(200);
 			
 			var current  = (new Date().getTime() - program.start) / 1000;
-			var duration = parseInt(request.query.duration || 10, 10);
+			var duration = parseInt(request.query.duration || 10, 5);
 			var vcodec   = request.query.vcodec   || 'libx264';
-			var acodec   = request.query.acodec   || 'libfaac';
+			var acodec   = request.query.acodec   || 'libfdk_aac';
 			var bitrate  = request.query.bitrate  || '1000k';
 			var ar       = request.query.ar       || '44100';
 			var ab       = request.query.ab       || '96k';
@@ -92,9 +92,9 @@
 				format = 'flv';
 				
 				if (vcodec === 'copy') { vcodec = 'libx264'; }
-				if (acodec === 'copy') { acodec = 'libfaac'; }
+				if (acodec === 'copy') { acodec = 'libfdk_aac'; }
 			} else if (request.type === 'webm') {
-				format = 'matroska';
+				format = 'webm';
 				
 				if (vcodec === 'copy') { vcodec = 'libvpx'; }
 				if (acodec === 'copy') { acodec = 'libvorbis'; }
@@ -103,31 +103,34 @@
 			var args = [];
 			
 			args.push('-v', '0');
-			args.push('-threads', data.status.system.core.toString(10));
 			
-			if (start !== 'live')    { args.push('-ss', start); }
-			if (duration) { args.push('-t', duration); }
+			if (start !== 'live')    { args.push('-ss', (parseInt(start, 10) - 1) + ''); }
 			
 			args.push('-re', '-i', (start === 'live') ? 'pipe:0' : program.recorded);
-			args.push('-vcodec', vcodec, '-acodec', acodec);
-			//args.push('-map', '0.0', '-map', '0.1');
+			args.push('-ss', '1');
+			
+			if (duration) { args.push('-t', duration); }
+			
+			args.push('-threads', data.status.system.core.toString(10));
+			
+			args.push('-codec:v', vcodec, '-codec:a', acodec);
+			//args.push('-map', '0:0', '-map', '0:1');
 			
 			if (size)                 { args.push('-s', size); }
 			if (rate)                 { args.push('-r', rate); }
 			if (bitrate)              { args.push('-b', bitrate); }
 			if (acodec !== 'copy')    { args.push('-ar', ar, '-ab', ab); }
-			if (format === 'mpegts')  { args.push('-copyts'); }
+			//if (format === 'mpegts')  { args.push('-copyts'); }
 			if (format === 'flv')     { args.push('-vsync', '2'); }
-			if (vcodec === 'libx264') { args.push('-coder', '0', '-bf', '0', '-subq', '1', '-intra'); }
+			if (vcodec === 'libx264') { args.push('-preset', 'ultrafast'); }
+			if (vcodec === 'libvpx')  { args.push('-deadline', 'realtime'); }
 			
 			args.push('-y', '-f', format, 'pipe:1');
 			
 			if ((start === 'live') && (vcodec === 'copy') && (acodec === 'copy') && (request.type === 'm2ts')) {
 				var tailf = child_process.spawn('tail', ['-f', '-c', '61440', program.recorded]);// 1KB
 				
-				tailf.stdout.on('data', function(d) {
-					response.write(d);
-				});
+				tailf.stdout.pipe(response);
 				
 				tailf.on('exit', function(code) {
 					response.exit();
@@ -142,40 +145,36 @@
 					}
 				});
 			} else {
-				var ffmpeg = child_process.spawn('ffmpeg', args);
+				var avconv = child_process.spawn('avconv', args);
 				
 				if (start === 'live') {
-					var tailf = child_process.spawn('tail', ['-f', '-c', '61440', program.recorded]);// 1KB
+					var tailf = child_process.spawn('tail', ['-f', program.recorded]);
 					
-					tailf.stdout.on('data', function(d) {
-						if (tailf && ffmpeg) ffmpeg.stdin.write(d);
-					});
+					tailf.stdout.pipe(avconv.stdin);
 					
 					tailf.on('exit', function(code) {
-						if (tailf && ffmpeg) ffmpeg.stdin.end();
+						if (avconv) avconv.kill('SIGKILL');
 						tailf = null;
 					});
 				}
 				
-				ffmpeg.stdout.on('data', function(d) {
-					if (ffmpeg) response.write(d, 'binary');
+				avconv.stdout.pipe(response);
+				
+				avconv.stderr.on('data', function(d) {
+					util.log(d);
 				});
 				
-				ffmpeg.stderr.on('data', function(d) {
-					if (ffmpeg) util.puts(d);
-				});
-				
-				ffmpeg.on('exit', function(code) {
+				avconv.on('exit', function(code) {
 					if (tailf) {
 						tailf.stdout.removeAllListeners('data');
 						tailf.stderr.removeAllListeners('data');
 						tailf.kill('SIGKILL');
 						tailf = null;
 					} else {
-						ffmpeg = null;
+						avconv = null;
 					}
 					
-					response.exit();
+					setTimeout(response.exit, 1000);
 				});
 				
 				request.on('close', function() {
@@ -184,10 +183,10 @@
 						tailf.stderr.removeAllListeners('data');
 						tailf.kill('SIGKILL');
 					} else {
-						ffmpeg.stdout.removeAllListeners('data');
-						ffmpeg.stderr.removeAllListeners('data');
-						ffmpeg.kill('SIGKILL');
-						ffmpeg = null;
+						avconv.stdout.removeAllListeners('data');
+						avconv.stderr.removeAllListeners('data');
+						avconv.kill('SIGKILL');
+						avconv = null;
 					}
 				});
 			}

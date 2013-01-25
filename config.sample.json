@@ -15,9 +15,6 @@
   "wuiFiler"       : true,
   "wuiConfigurator": true,
   
-  "nodejsPath"   : "./.nave/node",
-  "epgdumpPath"  : "./.epgdump/epgdump",
-  
   "recordedFormat": "[<date:yymmdd-HHMM>][<type><channel>][<tuner>]<title>.m2ts",
   
   "tuners": [
@@ -54,7 +51,7 @@
   ],
   
   "channels": [
-    { "type": "GR", "channel": "20" },
+    { "type": "GR", "channel": "16" },
     { "type": "GR", "channel": "21" },
     { "type": "GR", "channel": "22" },
     { "type": "GR", "channel": "23" },

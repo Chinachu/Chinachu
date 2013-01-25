@@ -17,9 +17,9 @@
 			response.head(200);
 			
 			var current  = (program.end - program.start) / 1000;
-			var duration = parseInt(request.query.duration || 10, 10);
+			var duration = parseInt(request.query.duration || 10, 5);
 			var vcodec   = request.query.vcodec   || 'libx264';
-			var acodec   = request.query.acodec   || 'libfaac';
+			var acodec   = request.query.acodec   || 'libfdk_aac';
 			var bitrate  = request.query.bitrate  || '1000k';
 			var ar       = request.query.ar       || '44100';
 			var ab       = request.query.ab       || '96k';
@@ -31,7 +31,7 @@
 			response.write('#EXT-X-MEDIA-SEQUENCE:0\n');
 			
 			var target = request.query.prefix || '';
-			target += 'watch.m2ts?duration=' + duration + '&vcodec=' + vcodec + '&acodec=' + acodec;
+			target += 'watch.m2ts?nore=1&duration=' + duration + '&vcodec=' + vcodec + '&acodec=' + acodec;
 			target += '&bitrate=' + bitrate + '&size=' + size + '&ar=' + ar + '&ab=' + ab + '&rate=' + rate;
 			
 			for (var i = 0; i < current; i += duration) {
@@ -70,7 +70,7 @@
 			
 			util.log('[streamer] streaming: ' + program.recorded);
 			
-			var start    = request.query.start    || '0';
+			var start    = request.query.start    || '1';
 			var duration = request.query.duration || null;
 			var vcodec   = request.query.vcodec   || 'copy';
 			var acodec   = request.query.acodec   || 'copy';
@@ -89,9 +89,9 @@
 				format = 'flv';
 				
 				if (vcodec === 'copy') { vcodec = 'libx264'; }
-				if (acodec === 'copy') { acodec = 'libfaac'; }
+				if (acodec === 'copy') { acodec = 'libfdk_aac'; }
 			} else if (request.type === 'webm') {
-				format = 'matroska';
+				format = 'webm';
 				
 				if (vcodec === 'copy') { vcodec = 'libvpx'; }
 				if (acodec === 'copy') { acodec = 'libvorbis'; }
@@ -100,46 +100,48 @@
 			var args = [];
 			
 			args.push('-v', '0');
-			args.push('-threads', data.status.system.core.toString(10));
 			
-			args.push('-ss', start);
+			args.push('-ss', (parseInt(start, 10) - 1) + '');
+			
+			if (!request.query.nore) args.push('-re');
+			
+			args.push('-i', program.recorded);
+			args.push('-ss', '1');
+			
 			if (duration) { args.push('-t', duration); }
 			
-			args.push('-re', '-i', program.recorded);
-			args.push('-vcodec', vcodec, '-acodec', acodec);
-			//args.push('-map', '0.0', '-map', '0.1');
+			args.push('-threads', data.status.system.core.toString(10));
+			
+			args.push('-codec:v', vcodec, '-codec:a', acodec);
+			//args.push('-map', '0:0', '-map', '0:1');
 			
 			if (size)                 { args.push('-s', size); }
 			if (rate)                 { args.push('-r', rate); }
 			if (bitrate)              { args.push('-b', bitrate); }
 			if (acodec !== 'copy')    { args.push('-ar', ar, '-ab', ab); }
-			if (format === 'mpegts')  { args.push('-copyts'); }
+			//if (format === 'mpegts')  { args.push('-copyts'); }
 			if (format === 'flv')     { args.push('-vsync', '2'); }
-			if (vcodec === 'libx264') { args.push('-coder', '0', '-bf', '0', '-subq', '1', '-intra'); }
+			if (vcodec === 'libx264') { args.push('-preset', 'ultrafast'); }
+			if (vcodec === 'libvpx')  { args.push('-deadline', 'realtime'); }
 			
 			args.push('-y', '-f', format, 'pipe:1');
 			
-			var ffmpeg = child_process.spawn('ffmpeg', args);
+			var avconv = child_process.spawn('avconv', args);
 			
-			ffmpeg.stdout.on('data', function(d) {
-				if (ffmpeg) response.write(d, 'binary');
+			avconv.stdout.pipe(response);
+			
+			avconv.stderr.on('data', function(d) {
+				util.log(d);
 			});
 			
-			ffmpeg.stderr.on('data', function(d) {
-				if (ffmpeg) util.puts(d);
-			});
-			
-			ffmpeg.on('exit', function(code) {
-				ffmpeg = null;
-				
-				response.exit();
+			avconv.on('exit', function(code) {
+				setTimeout(response.exit, 1000);
 			});
 			
 			request.on('close', function() {
-				ffmpeg.stdout.removeAllListeners('data');
-				ffmpeg.stderr.removeAllListeners('data');
-				ffmpeg.kill('SIGKILL');
-				ffmpeg = null;
+				avconv.stdout.removeAllListeners('data');
+				avconv.stderr.removeAllListeners('data');
+				avconv.kill('SIGKILL');
 			});
 			
 			return;

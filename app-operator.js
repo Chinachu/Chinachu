@@ -189,8 +189,8 @@ function isRecorded(program) {
 function startScheduler() {
 	if ((scheduler !== null) || (recording.length !== 0)) { return; }
 	
-	scheduler = child_process.spawn(config.nodejsPath, [ 'app-scheduler.js', '-f' ]);
-	util.log('SPAWN: ' + config.nodejsPath + ' app-scheduler.js -f (pid=' + scheduler.pid + ')');
+	scheduler = child_process.spawn('node', [ 'app-scheduler.js', '-f' ]);
+	util.log('SPAWN: node app-scheduler.js -f (pid=' + scheduler.pid + ')');
 	
 	// ログ用
 	var output = fs.createWriteStream('./log/scheduler');

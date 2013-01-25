@@ -247,7 +247,7 @@ function getEpg() {
 			
 			// epgdump
 			var epgdumpCmd = [
-				config.epgdumpPath,
+				'epgdump',
 				(function() {
 					switch (channel.type) {
 						case 'GR':
@@ -442,7 +442,7 @@ function getEpg() {
 					retry();
 				}
 			});
-			util.log('EXEC: ' + config.epgdumpPath + ' (pid=' + epgdumpProc.pid + ')');
+			util.log('EXEC: epgdump (pid=' + epgdumpProc.pid + ')');
 		});//<-- recProc.on(exit, ...)
 	})();//<-- _loop()
 }//<-- getEpg()
