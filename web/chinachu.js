@@ -10,6 +10,7 @@ var app = {
 	socket: null,
 	notify: null,
 	query : {},
+	viewId: 0,
 	chinachu: {
 		status   : {},
 		rules    : [],
@@ -33,13 +34,16 @@ YUI().use('get', 'node-load', 'router', function _initYUI(Y) {
 				callback: function _cbRouterRoot(a) {
 					var path = a.path;
 					
-					app.query = a.query;
+					app.query  = a.query;
+					app.viewId = new Date().getTime();
 					
 					if (path === '/') { path = '/dashboard'; }
 					
 					document.fire('chinachu:reload');
 					
 					Y.Node.one('section#content').load('./page' + path + '.html', function() {
+						Y.Node.all('section#content *').addClass(app.viewId);
+						
 						Y.Get.js('./page' + path + '.js', function(err) {
 							if (err) {
 								app.router.save('/');
