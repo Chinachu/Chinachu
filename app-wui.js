@@ -48,7 +48,7 @@ var config = require(CONFIG_FILE);
 
 // https or http
 if (config.wuiTlsKeyPath && config.wuiTlsCertPath) {
-	var https = require('https');
+	var https = require('spdy');
 	
 	var tlsOption = {
 		key : fs.readFileSync(config.wuiTlsKeyPath),
