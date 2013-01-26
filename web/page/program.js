@@ -21,29 +21,43 @@
 		}
 	};
 	
+	var contentBody               = $$('#content-body.' + app.viewId).first();
+	var programViewMain           = $$('#program-view-main-status-head.' + app.viewId).first();
+	var programViewMainHead       = $$('#program-view-main-head.' + app.viewId).first();
+	var programViewMainMeta       = $$('#program-view-main-meta.' + app.viewId).first();
+	var programViewMainDetail     = $$('#program-view-main-detail.' + app.viewId).first();
+	var programViewMainStatusList = $$('#program-view-main-status-list.' + app.viewId).first();
+	var programViewMainStatusAtt  = $$('#program-view-main-status-att.' + app.viewId).first();
+	var programViewSub            = $$('#program-view-sub.' + app.viewId).first();
+	
+	var loadCount = 0;
+	
 	// ビュー: プログラム
 	function viewProgram() {
 		if (app.chinachu.recorded.length === 0) return;
 		
-		$('program-view-main-status-head').update();
-		$('program-view-main-status-list').update();
-		$('program-view-main-status-att').update();
-		$('program-view-sub').update();
+		++loadCount;
+		var currentLoadCount = loadCount;
+		
+		programViewMain.update();
+		programViewMainStatusList.update();
+		programViewMainStatusAtt.update();
+		programViewSub.update();
 		
 		param.cur = new Date().getTime();
 		
 		var program = app.f.getProgramById(app.query.id);
 		
 		if (program === null) {
-			$('program-view-main-head').update('番組が見つかりません');
+			programViewMainHead.update('番組が見つかりません');
 			return this;
 		}
 		
 		// title
-		$('program-view-main-head').update(program.title);
+		programViewMainHead.update(program.title);
 		
 		// meta
-		$('program-view-main-meta').update(
+		programViewMainMeta.update(
 			dateFormat(new Date(program.start), 'yyyy/mm/dd HH:MM') + ' &ndash; ' +
 			dateFormat(new Date(program.end), 'HH:MM') +
 			' (' + (program.seconds / 60) + '分間) #' + program.id +
@@ -53,30 +67,30 @@
 		);
 		
 		// detail
-		$('program-view-main-detail').update(program.detail || '説明なし');
+		programViewMainDetail.update(program.detail || '説明なし');
 		
-		$('program-view-sub').insert('<a onclick="new app.ui.CreateRuleByProgram(\'' + program.id + '\')">ルールを作成</a>');
+		programViewSub.insert('<a onclick="new app.ui.CreateRuleByProgram(\'' + program.id + '\')">ルールを作成</a>');
 		
 		if (program._isReserves) {
-			$('program-view-main-status-head').insert('この番組は予約済みです');
+			programViewMain.insert('この番組は予約済みです');
 		}
 		
 		if (!program._isReserves && !program._isRecorded && !program._isRecording) {
-			$('program-view-sub').insert('<a onclick="new app.ui.Reserve(\'' + program.id + '\')">手動予約</a>');
+			programViewSub.insert('<a onclick="new app.ui.Reserve(\'' + program.id + '\')">手動予約</a>');
 		}
 		
 		if (program._isRecording) {
-			$('program-view-sub').insert('<a onclick="new app.ui.StopRecord(\'' + program.id + '\')">録画中止</a>');
+			programViewSub.insert('<a onclick="new app.ui.StopRecord(\'' + program.id + '\')">録画中止</a>');
 		}
 		
 		if (program._isReserves && !program._isRecorded && program.isManualReserved) {
-			$('program-view-sub').insert('<a onclick="new app.ui.Unreserve(\'' + program.id + '\')">手動予約の取消</a>');
+			programViewSub.insert('<a onclick="new app.ui.Unreserve(\'' + program.id + '\')">手動予約の取消</a>');
 		}
 		
 		if (program._isRecording) {
-			$('program-view-main-status-head').insert('この番組は現在録画中です');
+			programViewMain.insert('この番組は現在録画中です');
 			
-			$('program-view-main-status-list').insert(
+			programViewMainStatusList.insert(
 				'<dl>' +
 				'<dt>プロセスID</dt><dd>' + program.pid + '</dd>' +
 				'<dt>コマンド</dt><dd>' + program.command + '</dd>' +
@@ -88,15 +102,15 @@
 		}
 		
 		if (app.chinachu.status.feature.streamer && program._isRecording && !program.tuner.isScrambling) {
-			$('program-view-sub').insert(
+			programViewSub.insert(
 				'<a onclick="new app.ui.Streamer(\'' + program.id + '\')">ストリーミング再生</a>'
 			);
 		}
 		
 		if (program._isRecorded) {
-			$('program-view-main-status-head').insert('この番組は録画済みです');
+			programViewMain.insert('この番組は録画済みです');
 			
-			$('program-view-main-status-list').insert(
+			programViewMainStatusList.insert(
 				'<dl>' +
 				'<dt>コマンド</dt><dd>' + program.command + '</dd>' +
 				'<dt>保存先パス</dt><dd>' + program.recorded + '</dd>' +
@@ -105,41 +119,45 @@
 				'</dl>'
 			);
 			
-			$('program-view-main-status-att').insert(
+			programViewMainStatusAtt.insert(
 				'<small>この番組情報は録画履歴に保存されています。' +
 				'削除するには、<a onclick="new app.ui.Cleanup()">クリーンアップ</a>か' +
 				'個別に<a onclick="new app.ui.RemoveRecordedProgram(\'' + program.id + '\')">録画履歴の削除</a>' +
 				'を実行してください。</small>'
 			);
 			
-			$('program-view-sub').insert('<a onclick="new app.ui.RemoveRecordedProgram(\'' + program.id + '\')">録画履歴の削除</a>');
+			programViewSub.insert('<a onclick="new app.ui.RemoveRecordedProgram(\'' + program.id + '\')">録画履歴の削除</a>');
 		}
 		
 		if (program._isRecorded) {
 			new Ajax.Request('./api/recorded/' + program.id + '/file.json', {
 				method: 'get',
 				onSuccess: function(t) {
+					if (currentLoadCount !== loadCount) return;
+					
 					if (app.chinachu.status.feature.filer) {
-						$('program-view-sub').insert(
+						programViewSub.insert(
 							'<a onclick="new app.ui.RemoveRecordedFile(\'' + program.id + '\')">録画ファイルの削除</a>'
 						);
 					}
 					
 					if (app.chinachu.status.feature.streamer && !program.tuner.isScrambling) {
-						$('program-view-sub').insert(
+						programViewSub.insert(
 							'<a onclick="new app.ui.Streamer(\'' + program.id + '\')">ストリーミング再生</a>'
 						);
 					}
 					
-					$('program-view-main-status-list').insert(
+					programViewMainStatusList.insert(
 						'<dl>' +
 						'<dt>ファイルサイズ</dt><dd>' + (t.responseJSON.size / 1024 / 1024 / 1024 / 1).toFixed(2) + 'GB</dd>' +
 						'</dl>'
 					);
 				}.bind(this),
 				onFailure: function(t) {
+					if (currentLoadCount !== loadCount) return;
+					
 					if (t.status === 410) {
-						$('program-view-main-status-att').insert(
+						programViewMainStatusAtt.insert(
 							'<p class="color-red">※この番組の録画ファイルは移動または削除されています。</p>'
 						);
 					}
@@ -152,7 +170,9 @@
 				method    : 'get',
 				parameters: {width: 640, height: 360, nonce: new Date().getTime()},
 				onSuccess : function(t) {
-					$('content-body').style.backgroundImage = 'url(' + t.responseText + ')';
+					if (currentLoadCount !== loadCount) return;
+					
+					contentBody.style.backgroundImage = 'url(' + t.responseText + ')';
 				}
 			});
 		}
@@ -162,7 +182,9 @@
 				method    : 'get',
 				parameters: {width: 640, height: 360, pos: 32},
 				onSuccess : function(t) {
-					$('content-body').style.backgroundImage = 'url(' + t.responseText + ')';
+					if (currentLoadCount !== loadCount) return;
+					
+					contentBody.style.backgroundImage = 'url(' + t.responseText + ')';
 				}
 			});
 		}
