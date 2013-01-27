@@ -74,6 +74,7 @@ main () {
 chinachu_installer () {
   ensure_dir "$USR_DIR"
   ensure_dir "$USR_DIR/src"
+  ensure_dir "$USR_DIR/bin"
   
   echo "Chinachu Installer Menu:"
   echo "[!] These are installed under all ${CHINACHU_DIR}/..."
