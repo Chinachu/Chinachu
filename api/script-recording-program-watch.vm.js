@@ -69,6 +69,7 @@
 		case 'f4v':
 		case 'flv':
 		case 'webm':
+		case 'asf':
 			response.head(200);
 			
 			util.log('[streamer] streaming: ' + program.recorded);
@@ -98,11 +99,16 @@
 				
 				if (vcodec === 'copy') { vcodec = 'libvpx'; }
 				if (acodec === 'copy') { acodec = 'libvorbis'; }
+			} else if (request.type === 'asf') {
+				format = 'asf';
+				
+				if (vcodec === 'copy') { vcodec = 'wmv2'; }
+				if (acodec === 'copy') { acodec = 'libfdk_aac'; }
 			}
 			
 			var args = [];
 			
-			args.push('-v', '0');
+			if (!request.query.debug) args.push('-v', '0');
 			
 			if (start !== 'live')    { args.push('-ss', (parseInt(start, 10) - 1) + ''); }
 			

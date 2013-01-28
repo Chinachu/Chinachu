@@ -200,7 +200,7 @@ function startScheduler() {
 		try {
 			output.write(data);
 		} catch (e) {
-			util.log('ERROR: スケジューラーを中止 (' + e + ')');
+			util.log('ERROR: Scheduler -> Abort (' + e + ')');
 			finalize();
 		}
 	});
@@ -227,6 +227,7 @@ function stopScheduler() {
 	if (scheduler === null) { return; }
 	
 	scheduler.kill('SIGTERM');
+	util.log('KILL: SIGTERM -> Scheduler (pid=' + scheduler.pid + ')');
 }
 
 // 録画準備
@@ -239,7 +240,7 @@ function prepRecord(program) {
 	recording.push(program);
 	
 	var timeout = program.start - clock - offsetStart;
-	if (timeout < 0) { timeout = 0; }
+	if (timeout < 0) { timeout = 3000; }
 	
 	setTimeout(function() {
 		doRecord(program);
@@ -279,37 +280,22 @@ function doRecord(program) {
 	}
 	
 	// チューナーを選ぶ
-	var tuner = null;
-	for (var j = 0; config.tuners.length > j; j++) {
-		tuner = config.tuners[j];
-		tuner.n = j;
-		
-		if (
-			(tuner.types.indexOf(program.channel.type) === -1) ||
-			(fs.existsSync('./data/tuner.' + tuner.n.toString(10) + '.lock') === true)
-		) {
-			tuner = null;
-			continue;
-		}
-		
-		break;
-	}
+	var tuner = chinachu.getFreeTunerSync(config.tuners, program.channel.type);
 	
 	// チューナーが見つからない
 	if (tuner === null) {
-		util.log('WARNING: ' + program.channel.type + ' 利用可能なチューナーがありません (3秒後に再試行)');
+		util.log('WARNING: ' + program.channel.type + ' 利用可能なチューナーが見つかりません (存在しないかロックされています) (5秒後に再試行)');
 		setTimeout(function() {
 			doRecord(program);
-		}, 3000);
+		}, 5000);
 		return;
 	}
 	
 	// チューナーをロック
-	var tunerLockFile = './data/tuner.' + tuner.n.toString(10) + '.lock';
-	fs.writeFileSync(tunerLockFile, '');
-	util.log('LOCK: ' + tuner.name + ' (n=' + tuner.n.toString(10) + ')');
+	chinachu.lockTunerSync(tuner);
+	util.log('LOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
+	
 	program.tuner = tuner;
-	program.tuner.lock = tunerLockFile;
 	
 	// 保存先パス
 	var recPath = config.recordedDir + formatRecordedName(program);
@@ -336,9 +322,7 @@ function doRecord(program) {
 	util.log('STREAM: ' + recPath);
 	
 	// ts出力
-	recProc.stdout.on('data', function(data) {
-		recFile.write(data);
-	});
+	recProc.stdout.pipe(recFile);
 	
 	// ログ出力
 	recProc.stderr.on('data', function(data) {
@@ -356,8 +340,12 @@ function doRecord(program) {
 		recFile.end();
 		
 		// チューナーのロックを解除
-		try { fs.unlinkSync(tunerLockFile); } catch(e) {}
-		util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n.toString(10) + ')');
+		try {
+			chinachu.unlockTunerSync(tuner);
+			util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
+		} catch(e) {
+			util.log(e);
+		}
 		
 		// 状態を更新
 		delete program.pid;
