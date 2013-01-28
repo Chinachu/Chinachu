@@ -1,0 +1,13 @@
+{
+  "/:name": {
+    "script" : "log",
+    "methods": ["get"],
+    "types"  : ["txt"]
+  },
+  
+  "/:name/stream": {
+    "script" : "log-stream",
+    "methods": ["get"],
+    "types"  : ["txt"]
+  }
+}
