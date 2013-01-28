@@ -28,6 +28,7 @@ var opts       = require('opts');
 var xml2js     = require('xml2js');
 var xmlParser  = new xml2js.Parser();
 var dateFormat = require('dateformat');
+var chinachu   = require('chinachu-common');
 
 // 引数
 opts.parse([
@@ -177,41 +178,26 @@ function getEpg() {
 		}//<-- switch
 		
 		// チューナーを選ぶ
-		var tuner = null;
-		
-		for (var j = 0; config.tuners.length > j; j++) {
-			tuner = config.tuners[j];
-			tuner.n = j;
-			
-			if (
-				(tuner.types.indexOf(channel.type) === -1) ||
-				(fs.existsSync('./data/tuner.' + tuner.n.toString(10) + '.lock') === true)
-			) {
-				tuner = null;
-				continue;
-			}
-			
-			break;
-		}
+		var tuner = chinachu.getFreeTunerSync(config.tuners, channel.type);
 		
 		// チューナーが見つからない
 		if (tuner === null) {
-			util.log('WARNING: 利用可能なチューナーが見つかりませんでした (存在しないか、ロックされています)');
+			util.log('WARNING: 利用可能なチューナーが見つかりませんでした (存在しないかロックされています)');
 			process.nextTick(retry);
 			
 			return;
 		}
 		
 		// チューナーをロック
-		fs.writeFileSync('./data/tuner.' + tuner.n.toString(10) + '.lock', '');
-		util.log('LOCK: ' + tuner.name + ' (n=' + tuner.n.toString(10) + ')');
+		chinachu.lockTunerSync(tuner);
+		util.log('LOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
 		
 		var unlockTuner = function _unlockTuner() {
 			
 			// チューナーのロックを解除
 			try {
-				fs.unlinkSync('./data/tuner.' + tuner.n.toString(10) + '.lock');
-				util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n.toString(10) + ')');
+				chinachu.unlockTunerSync(tuner);
+				util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
 			} catch(e) {
 				util.log(e);
 			}
