@@ -548,7 +548,7 @@ function ioServer(socket) {
 	}
 	
 	// 認証
-	if (config.wuiUsers.indexOf(auth) === -1) {
+	if (config.wuiUsers && config.wuiUsers.indexOf(auth) === -1) {
 		socket.disconnect();
 		return;
 	}
