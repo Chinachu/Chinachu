@@ -7,7 +7,7 @@
   ],
   
   "wuiPort"        : 10772,
-  "wuiHost"        : "::",
+  "wuiHost"        : null,
   "wuiTlsKeyPath"  : null,
   "wuiTlsCertPath" : null,
   "wuiPreviewer"   : true,
