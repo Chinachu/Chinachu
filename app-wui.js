@@ -179,7 +179,12 @@ var status = {
 //
 if (http)  { var app = http.createServer(httpServer); }
 if (https) { var app = https.createServer(tlsOption, httpServer); }
-app.listen(config.wuiPort, config.wuiHost || '::');
+
+if (config.wuiHost != null) {
+	app.listen(config.wuiPort, config.wuiHost);
+} else {
+	app.listen(config.wuiPort);
+}
 
 function httpServer(req, res) {
 	if (req.method === 'GET') {
