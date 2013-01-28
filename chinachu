@@ -193,7 +193,9 @@ chinachu_installer_epgdump () {
   git clone $EPGDUMP_GIT "$USR_DIR/src/epgdump"
   cd "$USR_DIR/src/epgdump"
   
-  make && cp epgdump $USR_DIR/bin/
+  make || fail "couldn't make epgdump"
+  
+  cp epgdump $USR_DIR/bin/
   
   cd $CHINACHU_DIR
   
@@ -223,7 +225,8 @@ chinachu_installer_libx264 () {
     --disable-lavf \
     --disable-swscale
   
-  make && make install && make clean
+  make || fail "couldn't make libx264"
+  make install && make clean
   
   cd $CHINACHU_DIR
   
@@ -252,7 +255,8 @@ chinachu_installer_libvpx () {
     --disable-vp9 \
     --disable-unit-tests
   
-  make && make install && make clean
+  make || fail "couldn't make libvpx"
+  make install && make clean
   
   cd $CHINACHU_DIR
   
@@ -278,7 +282,8 @@ chinachu_installer_libfdk-aac () {
     --prefix=$USR_DIR \
     --enable-shared
   
-  make && make install-strip && make clean
+  make || fail "couldn't make libfdk-aac"
+  make install-strip && make clean
   
   cd $CHINACHU_DIR
   
@@ -306,7 +311,8 @@ chinachu_installer_libogg () {
     --prefix=$USR_DIR \
     --enable-shared
   
-  make && make install && make clean
+  make || fail "couldn't make libogg"
+  make install && make clean
   
   cd $LIBOGG_DIR
   remove_dir libogg-1.3.0
@@ -339,7 +345,8 @@ chinachu_installer_libvorbis () {
     --enable-shared \
     --with-ogg=$LIBOGG_DIR
   
-  make && make install-strip && make clean
+  make || fail "couldn't make libvorbis"
+  make install-strip && make clean
   
   cd "$USR_DIR/src/libvorbis"
   remove_dir libvorbis-1.3.3
@@ -421,7 +428,8 @@ chinachu_installer_libav () {
     --extra-cflags="-I${USR_DIR}/include" \
     --extra-ldflags="-L${USR_DIR}/lib"
   
-  make && make install && make clean
+  make || fail "couldn't make libav"
+  make install && make clean
   
   cd $CHINACHU_DIR
   
@@ -783,7 +791,8 @@ ensure_dir () {
 
 remove_dir () {
   if [ -d "$1" ]; then
-    rm -rfv -- "$1" || fail "couldn't remove $1"
+    rm -rf -- "$1" || fail "couldn't remove $1"
+    echo "removed \`$1'"
   fi
 }
 
