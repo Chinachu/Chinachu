@@ -20,6 +20,6 @@
   "/:id/watch": {
     "script" : "recording-program-watch",
     "methods": ["get"],
-    "types"  : ["txt", "m3u8", "xspf", "m2ts", "f4v", "flv", "webm"]
+    "types"  : ["txt", "m3u8", "xspf", "m2ts", "f4v", "flv", "webm", "asf"]
   }
 }
