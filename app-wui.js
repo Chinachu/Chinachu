@@ -329,10 +329,13 @@ function httpServerMain(req, res, query) {
 		if (ext === 'gif')  { type = 'image/gif'; }
 		if (ext === 'jpg')  { type = 'image/jpeg'; }
 		if (ext === 'f4v')  { type = 'video/mp4'; }
+		if (ext === 'm4v')  { type = 'video/mp4'; }
+		if (ext === 'mp4')  { type = 'video/mp4'; }
 		if (ext === 'flv')  { type = 'video/x-flv'; }
 		if (ext === 'webm') { type = 'video/webm'; }
 		if (ext === 'm2ts') { type = 'video/MP2T'; }
 		if (ext === 'm3u8') { type = 'video/x-mpegURL'; }
+		if (ext === 'asf')  { type = 'video/x-ms-asf'; }
 		if (ext === 'json') { type = 'application/json'; }
 		if (ext === 'xspf') { type = 'application/xspf+xml'; }
 		
