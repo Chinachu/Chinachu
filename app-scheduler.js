@@ -71,28 +71,95 @@ function getEpg() {
 	
 	util.log('GETTING EPG.');
 	
-	var i = 0;
+	// リトライ回数
+	var retryCount = (typeof config.schedulerGetEpgRetryCount === 'undefined') ? 3 : config.schedulerGetEpgRetryCount;
+	
+	// 仮
+	var s = [];
+	var c = [];
+	var r = [];
+	
+	var isFinished = false;
 	
 	var tick = function _tick() {
 		
-		// ぜんぶおわりか
-		if (channels.length === i) {
-			// 書き出してからスケジューラー実行
-			writeOut(scheduler);
-		} else {
-			// get
-			get(
-				i,
-				(!config.schedulerGetEpgRetryCount && config.schedulerGetEpgRetryCount !== 0) ? 3 : config.schedulerGetEpgRetryCount,
-				tick
-			);
+		// 取得すべきチャンネルリスト
+		var chs = [];
+		
+		// 未取得のチャンネルを探す
+		for (var i = 0; i < channels.length; i++) {
+			var ch = channels[i];// このチャンネルは
+			ch.n = i;// numbering
 			
-			++i;
+			var isTarget = true;// 対象か？
+			
+			// 取得済みスケジュールループ
+			for (var j = 0; j < c.length; j++) {
+				if (c[j] === i) {
+					isTarget = false;// 違った
+					break;
+				}
+			}
+			
+			if (isTarget) chs.push(ch);// 取得すべし
 		}
+		
+		// 終わるか？
+		if (chs.length === 0 && r.length === 0 && !isFinished) {
+			isFinished = true;
+			
+			writeOut(scheduler);
+			
+			return;
+		}
+		
+		// 取得開始処理
+		for (var i = 0; i < chs.length; i++) {
+			var ch = chs[i];
+			
+			if (chinachu.getFreeTunerSync(config.tuners, ch.type) === null) {
+				continue;
+			}
+			
+			if (ch.type !== 'GR') {
+				var isTarget = true;
+				
+				for (var j = 0; j < r.length; j++) {
+					if (channels[r[j]].type === ch.type) {
+						isTarget = false;
+						break;
+					}
+				}
+				
+				if (!isTarget) continue;
+			}
+			
+			c.push(ch.n);
+			r.push(ch.n);
+			get(ch.n, retryCount, function() {
+				setTimeout(function() {
+					r.splice(r.indexOf(ch.n), 1);
+					tick();
+				}, 3000);
+			});
+			
+			if (ch.type === 'GR') {
+				setTimeout(tick, 5000);
+			}
+			
+			break;
+		}
+		
+		util.log(util.inspect(
+			{
+				'完了'  : s.length,
+				'未完了': chs.length,
+				'要求済': c.length,
+				'処理中': r.length
+			}
+		));
 	};
 	process.nextTick(tick);
-	
-	var s = [];
 	
 	var get = function _get(i, c, callback) {
 		
@@ -104,18 +171,17 @@ function getEpg() {
 			
 			// 取得あきらめる
 			if (residue <= 0) {
-				var ch = null;
+				var chs = [];
 				
 				// 古いスケジュールから探してくる
 				for (var j = 0; j < schedule.length; j++) {
 					if (schedule[j].n === i) {
-						ch = schedule[j];
-						break;
+						chs.push(schedule[j]);
 					}
 				}
 				
 				// あれば使う
-				if (ch !== null) s.push(ch);
+				if (chs.length !== 0) s = s.concat(chs);
 				
 				// おわり
 				process.nextTick(callback);
@@ -390,7 +456,7 @@ function getEpg() {
 									if (isFound === false) { return; }
 									
 									var ch = {
-										n      : i,
+										n      : j,
 										type   : channel.type,
 										channel: a['service_id'][0],
 										name   : a['display-name'][0]['_'],
@@ -432,7 +498,7 @@ function getEpg() {
 									if (isFound === false) { return; }
 									
 									var ch = {
-										n      : i,
+										n      : j,
 										type   : channel.type,
 										channel: channels[j].channel,
 										name   : a['display-name'][0]['_'],
@@ -474,7 +540,7 @@ function getEpg() {
 									if (isFound === false) { return; }
 									
 									var ch = {
-										n      : i,
+										n      : j,
 										type   : channel.type,
 										channel: channels[j].channel,
 										name   : a['display-name'][0]['_'],
@@ -517,6 +583,10 @@ function getEpg() {
 		
 		schedule = s;
 		
+		schedule.sort(function(a, b) {
+			return a.n - b.n;
+		});
+		
 		if (!opts.get('s')) {
 			fs.writeFileSync(SCHEDULE_DATA_FILE, JSON.stringify(schedule));
 			util.log('WRITE: ' + SCHEDULE_DATA_FILE);
@@ -524,8 +594,6 @@ function getEpg() {
 		
 		process.nextTick(callback);
 	};
-	
-	
 }//<-- getEpg()
 
 // scheduler
