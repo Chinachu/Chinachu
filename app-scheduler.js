@@ -318,7 +318,7 @@ function getEpg() {
 			util.log('UNLINK: ' + recPath);
 			
 			// 終了
-			process.exit();
+			process.nextTick(process.exit);
 		};
 		
 		var removeSignalListener = function _removeSignalListener() {
