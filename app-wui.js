@@ -363,7 +363,34 @@ function httpServerMain(req, res, query) {
 		}
 	} else {
 		if (basic) {
-			basic.apply(req, res, responseApi);
+			if (!!query._auth) {
+				// Base64文字列を取り出す
+				var auths = query._auth.split(':');
+				
+				// バリデーション
+				if (auths[0] !== 'basic' || auths.length !== 2) {
+					return resErr(400);
+				}
+				
+				var auth = decodeURIComponent(auths[1]);
+				
+				// Base64デコード
+				try {
+					auth = new Buffer(auth, 'base64').toString('ascii');
+				} catch (e) {
+					return resErr(401);
+				}
+				
+				// 認証
+				if (config.wuiUsers && config.wuiUsers.indexOf(auth) === -1) {
+					return resErr(401);
+				}
+				
+				// 通ってよし
+				responseApi();
+			} else {
+				basic.apply(req, res, responseApi);
+			}
 		} else {
 			responseApi();
 		}
