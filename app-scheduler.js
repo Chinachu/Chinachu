@@ -138,7 +138,7 @@ function getEpg() {
 			r.push(ch.n);
 			get(ch.n, retryCount, function() {
 				setTimeout(function() {
-					r.splice(r.indexOf(ch.n));
+					r.splice(r.indexOf(ch.n), 1);
 					tick();
 				}, 3000);
 			});
@@ -149,6 +149,15 @@ function getEpg() {
 			
 			break;
 		}
+		
+		util.log(util.inspect(
+			{
+				'完了'  : s.length,
+				'未完了': chs.length,
+				'要求済': c.length,
+				'処理中': r.length
+			}
+		));
 	};
 	process.nextTick(tick);
 	
