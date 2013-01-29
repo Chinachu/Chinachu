@@ -217,17 +217,17 @@ function startScheduler() {
 	
 	scheduler.on('exit', finalize);
 	
-	process.on('SIGINT', finalize);
-	process.on('SIGQUIT', finalize);
-	process.on('SIGTERM', finalize);
+	process.on('SIGINT', stopScheduler);
+	process.on('SIGQUIT', stopScheduler);
+	process.on('SIGTERM', stopScheduler);
 }
 
 // スケジューラーを停止
 function stopScheduler() {
 	if (scheduler === null) { return; }
 	
-	scheduler.kill('SIGTERM');
-	util.log('KILL: SIGTERM -> Scheduler (pid=' + scheduler.pid + ')');
+	scheduler.kill('SIGQUIT');
+	util.log('KILL: SIGQUIT -> Scheduler (pid=' + scheduler.pid + ')');
 }
 
 // 録画準備
