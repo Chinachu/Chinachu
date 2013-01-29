@@ -453,6 +453,10 @@ function getEpg() {
 										}
 									}
 									
+									for (var k = 0; k < s.length; k++) {
+										if (s[k].n === j) isFound = false;
+									}
+									
 									if (isFound === false) { return; }
 									
 									var ch = {
@@ -495,6 +499,10 @@ function getEpg() {
 										}
 									}
 									
+									for (var k = 0; k < s.length; k++) {
+										if (s[k].n === j) isFound = false;
+									}
+									
 									if (isFound === false) { return; }
 									
 									var ch = {
@@ -535,6 +543,10 @@ function getEpg() {
 										} else {
 											continue;
 										}
+									}
+									
+									for (var k = 0; k < s.length; k++) {
+										if (s[k].n === j) isFound = false;
 									}
 									
 									if (isFound === false) { return; }
