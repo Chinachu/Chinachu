@@ -135,6 +135,7 @@
 			
 			if ((start === 'live') && (vcodec === 'copy') && (acodec === 'copy') && (request.type === 'm2ts')) {
 				var tailf = child_process.spawn('tail', ['-f', '-c', '61440', program.recorded]);// 1KB
+				children.push(tailf);// 安全対策
 				
 				tailf.stdout.pipe(response);
 				
@@ -152,9 +153,11 @@
 				});
 			} else {
 				var avconv = child_process.spawn('avconv', args);
+				children.push(avconv);// 安全対策
 				
 				if (start === 'live') {
 					var tailf = child_process.spawn('tail', ['-f', program.recorded]);
+					children.push(tailf);// 安全対策
 					
 					tailf.stdout.pipe(avconv.stdin);
 					
