@@ -492,7 +492,9 @@ function httpServerMain(req, res, query) {
 				setInterval: setInterval,
 				setTimeout : setTimeout,
 				clearInterval: clearInterval,
-				clearTimeout : clearTimeout
+				clearTimeout : clearTimeout,
+				
+				children: []
 			};
 			
 			var isClosed = false;
@@ -506,13 +508,13 @@ function httpServerMain(req, res, query) {
 				isClosed = true;
 			};
 			
+			// DEPRECATED
 			sandbox.response.exit = function(data, encoding) {
 				try {
 					res.end(data, encoding);
 				} catch (e) {
 					util.log(e);
 				}
-				onEnd();
 			};
 			
 			function onEnd() {
@@ -522,8 +524,16 @@ function httpServerMain(req, res, query) {
 					log(res.statusCode);
 					
 					setTimeout(function() {
-						process.nextTick(gc);
+						sandbox.children.forEach(function(child) {
+							if (!!req.query.debug) util.log('SIGKILL: pid=' + child.pid);
+							child.kill('SIGKILL');
+						});
 					}, 3000);
+					
+					setTimeout(function() {
+						sandbox = null;
+						process.nextTick(gc);
+					}, 5000);
 				}
 			}
 			
@@ -537,6 +547,17 @@ function httpServerMain(req, res, query) {
 				
 				util.error(e);
 			}
+			
+			req.connection.on('close', onEnd);
+			
+			req.connection.on('error', function() {
+				if (!isClosed) {
+					req.emit('close');
+					
+					resErr(500);
+					isClosed = true;
+				}
+			});
 			
 			return;
 		});

@@ -71,7 +71,7 @@
 			
 			util.log('[streamer] streaming: ' + program.recorded);
 			
-			var start    = request.query.start    || '1';
+			var start    = request.query.start    || '3';
 			var duration = request.query.duration || null;
 			var vcodec   = request.query.vcodec   || 'copy';
 			var acodec   = request.query.acodec   || 'copy';
@@ -149,6 +149,8 @@
 				avconv.stderr.removeAllListeners('data');
 				avconv.kill('SIGKILL');
 			});
+			
+			children.push(avconv);// 安全対策
 			
 			return;
 	}//<--switch
