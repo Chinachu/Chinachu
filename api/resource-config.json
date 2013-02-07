@@ -1,0 +1,7 @@
+{
+  "/": {
+    "script" : "config",
+    "methods": ["get", "put"],
+    "types"  : ["json"]
+  }
+}
