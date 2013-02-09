@@ -10,7 +10,7 @@ html, body {
 	right           : 0;
 	bottom          : 0;
 	left            : 0;
-	background-color: #fff; }
+	background-color: #d67fae; }
 
 body, input {
 	font-family     : "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ",
@@ -19,17 +19,52 @@ body, input {
 a {
 	cursor: pointer; }
 
-/* Color */
-.color-red {
-	color: #ff6e88 !important; }
+div.fullmask {
+	z-index            : 20000;
+	position           : absolute;
+	top                : 0;
+	right              : 0;
+	bottom             : 0;
+	left               : 0;
+	background-color   : #000;
+	background-color   : rgba(0,0,0,0.5);
+	background-repeat  : no-repeat;
+	background-position: center center; }
 
-.color-green {
-	color: #7bfa5a !important; }
+div.fullmask.loading {
+	background-image   : url(./loading-circular-d67fae-444444.gif); }
 
-.color-orange {
-	color: #faae5a !important; }
+div.fullmask.panic {
+	background-image   : none;
+	background-color   : rgba(255,0,0,0.5); }
 
-/* Background */
+div.fullscreen {
+	z-index            : 10;
+	position           : absolute;
+	top                : 0;
+	right              : 0;
+	bottom             : 0;
+	left               : 0;
+	overflow           : hidden;
+	padding            : 0 !important;
+	margin             : 0; }
+
+/* muted */
+.muted {
+	opacity: 0.4 !important; }
+
+/* color */
+.color-red    { color: #ff0053 !important; }
+.color-orange { color: #ff9700 !important; }
+.color-green  { color: #7ab624 !important; }
+.color-white  { color: #ffffff !important; }
+.color-warning{ color: rgb(191,0,41) !important; }
+
+/* bg (background) */
+.bg-green  { background-color: #7ab624 !important; }
+.bg-smoke  { background-color: rgba(0,0,0,0.05) !important; }
+.bg-warning{ background-color: rgba(191,0,41,0.6) !important; }
+
 .bg-chinachu {
 	background-color: #d67fae;
 	
@@ -66,295 +101,467 @@ div#loading {
 	background-position: center center;
 	background-image   : url(loading.gif); }
 
-header {
-	position: absolute;
-	top     : 0;
-	right   : 0;
-	left    : 0;
-	height  : 40px;
-	padding : 0;
-	overflow: hidden;
-	z-index : 100; }
-	
-	header > div {
-		position           : absolute;
-		top                : 0;
-		right              : 0;
-		bottom             : 0;
-		left               : 0;
-		background-color   : #d67fae;
-		background-image   : url(./chinachu.png);
-		background-repeat  : no-repeat;
-		background-position: 10px center;
-		padding            : 0 10px 0 50px;
-		border-bottom      : 1px solid #c24186; }
-		
-		header > div > ul {
-			display    : inline-block;
-			margin     : 0;
-			padding    : 0;
-			font-weight: normal;
-			color      : #fff;
-			text-shadow: 0 -1px 0 #ad3777;
-			list-style : none; }
-		
-		header > div > ul.right {
-			float: right; }
-			
-			header > div > ul > li {
-				float      : left;
-				margin-left: 0;
-				font-size  : 12px;
-				line-height: 39px; }
-			
-			header > div > ul > li:first-child {
-				margin-left: 0; }
-			
-				header > div > ul > li > a {
-					display        : block;
-					padding        : 1px 10px 0 10px;
-					cursor         : pointer;
-					color          : #eee;
-					color          : rgba(255,255,255,0.85);
-					text-decoration: none; }
-				
-				header > div > ul > li > a:hover {
-					color          : #fff; }
-				
-				header > div > ul > li > a.selected {
-					color          : #fff;
-					background     : #c24186; }
-					
-					header > div > ul > li > a > span {
-						font-size      : 10px;
-						color          : #fff;
-						background     : #c24186;
-						margin-left    : 2px;
-						padding        : 0 2px;
-						border-radius  : 2px;
-						vertical-align : top;
-						text-shadow    : none; }
-					
-					header > div > ul > li > a.selected > span {
-						background     : #d67fae; }
+/**
+ *  main styles ----------------------------------------------------------------------------------------------------
+**/
+/* common */
+div.header,
+div.middle,
+div.footer {
+	position        : absolute;
+	right           : 0;
+	left            : 0;
+	margin          : 0;
+	padding         : 0;
+	/* width           : 100%; */ }
 
-section {
-	position: absolute;
-	padding : 0;
-	margin  : 0;
-	z-index : 50;
-	top     : 40px;
-	right   : 0;
-	bottom  : 20px;
-	left    : 0;
-	overflow: hidden; }
+div.header > div,
+div.middle > div,
+div.footer > div {
+	position        : absolute;
+	top             : 0;
+	right           : 0;
+	bottom          : 0;
+	left            : 0;
+	margin          : 0;
+	padding         : 0; }
+
+/* header */
+div.header {
+	top             : 0;
+	height          : 20px;
+	box-shadow      : inset 0 -2px 0 rgba(194,65,134,0.5);
+	color           : #fff;
 	
-	section > div#content-loading {
-		z-index         : 100;
-		position        : absolute;
-		top             : 0;
-		right           : 0;
-		bottom          : 0;
-		left            : 0;
-		background-color: #aaa;
-		background-color: rgba(0,0,0,0.2); }
+	background-image   : url(./chinachu.png);
+	background-repeat  : no-repeat;
+	background-position: 10px center;
+	padding            : 10px 10px 10px 50px; }
+	
+	div.header > a.button-dent,
+	div.header > a.button-action {
+		padding         : 2px 5px 1px 5px;
+		font-size       : 11px;
+		border          : none;
+		margin-left     : 5px;
+		background-color: transparent;
+		box-shadow      : none;
+		-webkit-transition: all 0.1s ease;
+		-moz-transition   : all 0.1s ease;
+		-ms-transition    : all 0.1s ease;
+		-o-transition     : all 0.1s ease;
+		transition        : all 0.1s ease; }
+	
+	div.header > a.region-pulldown {
+		background-color: rgba(255,255,255,0.1);
+		box-shadow      : inset 0 0 3px rgba(0,0,0,0.7); }
 		
-		section > div#content-loading > div {
-			position        : absolute;
-			top             : 50%;
-			left            : 50%;
-			margin-left     : -51px;
-			margin-top      : -5px;
-			width           : 100px;
-			height          : 8px;
-			background-color: #ddd;
-			background-color: rgba(255,255,255,0.4);
-			border          : 1px solid #fff;
-			border-color    : rgba(255,255,255,0.5); }
-			
-			section > div#content-loading > div > div {
-				height          : 8px;
-				background-color: #c24186; }
+		div.header > a.region-pulldown > span {
+			color: rgba(255,255,255,0.5); }
+		
+		div.header > a.region-pulldown:hover > span {
+			color: rgba(255,255,255,0.8); }
 	
-	section > div.program-view{
-		z-index         : 200;
-		position        : absolute;
-		top             : 0;
-		right           : 0;
-		bottom          : 0;
-		left            : 0;
-		background-color: #fff;
-		background-size : cover;
+	div.header > a.button-dent:hover {
+		background-color: rgba(194,65,134,0.5); }
+	
+	div.header > a.button-dent:first-child {
+		margin-left: 0; }
+	
+	div.header > a.button-action {
+		background-color: #2165c2;
+		color           : #fff;
+		box-shadow      : 0 0 2px rgba(0,0,0,0.5), inset -1px -1px 0 rgba(0,0,0,0.7), inset 0 0 0 rgba(0,0,0,0.3); }
+	
+	div.header > a.button-action.action-logout {
+		background-color: #bb1f55; }
+	
+	div.header > a.button-action:hover {
+		box-shadow      : 0 0 2px #000, inset -1px -1px 0 #222, inset 0 20px 0 rgba(0,0,0,0.3); }
+	
+	div.header > a.button-dent.sakura-button.sakura-button-icon,
+	div.header > a.button-action.sakura-button.sakura-button-icon {
+		padding-left       : 22px;
+		background-position: 4px center;
+		background-repeat  : no-repeat; }
+	
+	div.header > a.button-dent.sakura-button.sakura-button-selected {
+		position        : relative;
+		text-shadow     : none;
+		background-color: rgba(194,65,134,0.5);
+		box-shadow      : inset 0 0 3px #000; }
+	
+	div.header > a.button-dent.sakura-button.sakura-button-selected:before {
+		content     : ' ';
+		display     : block;
+		position    : absolute;
+		top         : 18px;
+		left        : 50%;
+		margin-left : -6px;
+		width       : 0px;
+		height      : 0px;
+		border-color: transparent transparent rgb(194,65,134) transparent;
+		border-width: 6px;
+		border-style: solid; }
+	
+	div.header > a.button-dent.sakura-button.category-search,
+	div.header > a.button-dent.sakura-button.category-pref,
+	div.header > a.button-dent.sakura-button.category-manual,
+	div.header > a.button-action.sakura-button {
+		float: right; }
+
+@media screen and (max-width: 680px){
+	div.header > a.button-dent.sakura-button.category-search,
+	div.header > a.button-dent.sakura-button.category-pref,
+	div.header > a.button-dent.sakura-button.category-manual {
+		overflow           : hidden;
+		width              : 0px;
+		white-space        : nowrap;
 		background-position: center center;
+		text-indent        : 100px; }
+}
+
+@media screen and (max-width: 600px){
+	div.header > a.button-dent.sakura-button.sakura-button-icon {
+		overflow           : hidden;
+		width              : 24px;
+		padding-left       : 0;
+		padding-right      : 0;
+		white-space        : nowrap;
+		background-position: center center;
+		text-indent        : 100px; }
+}
+
+@media screen and (max-width: 430px){
+	div.header > a.button-action.sakura-button.sakura-button-icon {
+		overflow           : hidden;
+		width              : 24px;
+		padding-left       : 0;
+		padding-right      : 0;
+		white-space        : nowrap;
+		background-position: center center;
+		text-indent        : 100px; }
+}
+
+@media screen and (max-width: 400px){
+	div.header {
+		padding-left       : 10px;
 		background-image: none; }
 	
-	section > div.program-view.black {
-		background-color: #111; }
-		
-		section > div.program-view > a.program-view-close-button {
-			position        : absolute;
-			top             : 20px;
-			left            : 20px;
-			line-height     : 25px;
-			font-size       : 25px;
-			display         : block;
-			cursor          : pointer;
-			color           : #555;
-			z-index         : 100; }
-		
-		section > div.program-view > a.program-view-close-button:hover {
-			color           : #c24186; }
-		
-		section > div.program-view > div.main {
-			position        : absolute;
-			top             : 10px;
-			left            : 10px;
-			right           : 220px;
-			bottom          : 10px;
-			padding         : 10px;
-			line-height     : 25px;
-			color           : #555;
-			text-shadow     : 0 1px 0 #fff;
-			overflow        : auto;
-			background-color: rgba(255,255,255,0.8); }
-			
-			section > div.program-view > div > h1 {
-				margin          : 0 0 10px 0;
-				padding         : 0;
-				font-size       : 20px;
-				font-weight     : normal;
-				color           : #2b2b2b;
-				line-height     : 27px; }
-			
-			section > div.program-view > div > h2 {
-				margin          : 0 0 10px 0;
-				padding         : 0;
-				font-size       : 16px;
-				color           : #2b2b2b;
-				line-height     : 25px; }
-			
-			section > div.program-view > div > div.meta {
-				margin          : 0 0 10px 0;
-				padding         : 0;
-				font-size       : 14px;
-				color           : #2b2b2b;
-				line-height     : 20px; }
-				
-				section > div.program-view > div > div.meta > small {
-					color           : #777; }
-			
-			section > div.program-view > div > p {
-				margin          : 0 0 10px 0; }
-				
-				section > div.program-view > div > p a {
-					color           : #c24186;
-					text-decoration : underline; }
-				
-				section > div.program-view > div > p a:hover {
-					text-decoration : none; }
-			
-			section > div.program-view > div dl {
-				font-size  : 12px;
-				line-height: 18px; }
-				
-				section > div.program-view > div dl > dt {
-					clear       : left;
-					float       : left;
-					margin      : 0 0 5px;
-					width       : 140px;
-					border-left : 2px solid #d67fae;
-					padding-left: 8px; }
-				
-				section > div.program-view > div dl > dd {
-					margin      : 0 0 5px 150px;
-					font-family : monospace; }
-		
-		section > div.program-view > div.sub {
-			position        : absolute;
-			top             : 10px;
-			right           : 10px;
-			bottom          : 10px;
-			padding         : 10px;
-			width           : 190px;
-			line-height     : 25px;
-			color           : #555;
-			overflow        : auto;
-			background-color: rgba(255,255,255,0.5); }
-			
-			section > div.program-view > div.sub > a {
-				display         : block;
-				line-height     : 25px;
-				color           : #c24186;
-				background-color: #f1d4e3;
-				margin-bottom   : 1px;
-				padding         : 2px 10px 1px 10px;
-				text-decoration : none;
-				font-size       : 12px; }
-			
-			section > div.program-view > div.sub > a:hover {
-				color           : #f1d4e3;
-				background-color: #c24186; }
-		
-		section > div.program-view.black > div {
-			color           : #ddd; }
-			
-			section > div.program-view.black > div > h1,
-			section > div.program-view.black > div > h2 {
-				color           : #fff; }
-			
-			section > div.program-view.black > div > .meta {
-				color           : #ccc; }
-	
-	section > div#content-toolbar {
-		background-color: #444; }
-	
-	section > div#content-body {
-		position: absolute;
-		top     : 0;
-		right   : 0;
-		bottom  : 0;
-		left    : 0;
-		padding : 0;
-		overflow: auto; }
+	div.header > a.button-action.action-logout.sakura-button {
+		overflow           : hidden;
+		width              : 24px;
+		padding-left       : 0;
+		padding-right      : 0;
+		white-space        : nowrap;
+		text-indent        : 100px; }
+}
 
-footer {
-	position: absolute;
-	right   : 0;
-	bottom  : 0;
-	left    : 0;
-	height  : 20px;
-	padding : 0;
-	margin  : 0;
-	overflow: hidden;
-	z-index : 100; }
+/* middle */
+div.middle {
+	top             : 40px;
+	bottom          : 25px;
+	background-color: #fff; }
 	
-	footer > div {
-		position        : absolute;
-		top             : 0;
-		right           : 0;
-		bottom          : 0;
-		left            : 0;
-		background-color: #444;
-		padding         : 0 10px;
-		border-top      : 1px solid #2b2b2b; }
+	div.middle > div {
+		position : absolute; }
+	
+	div.middle > div.side {
+		top      : 0;
+		left     : 0;
+		bottom   : 0;
+		width    : 140px;
+		overflow : hidden;
+		-webkit-transition: all 0.25s ease;
+		-moz-transition   : all 0.25s ease;
+		-ms-transition    : all 0.25s ease;
+		-o-transition     : all 0.25s ease;
+		transition        : all 0.25s ease; }
+	
+	div.middle.extend > div.side {
+		width    : 40px; }
 		
-		footer > div > p {
-			margin     : 0;
-			line-height: 20px;
-			font-size  : 12px;
-			font-weight: normal;
-			color      : #bbb;
-			text-shadow: 0 1px 0 #000; }
+		div.middle > div.side > div {
+			position  : absolute;
+			box-shadow: inset -1px 0 0 rgba(0,0,0,0.2),
+			            inset -4px 0 0 rgba(0,0,0,0.05);
+			-webkit-transition: all 0.25s ease;
+			-moz-transition   : all 0.25s ease;
+			-ms-transition    : all 0.25s ease;
+			-o-transition     : all 0.25s ease;
+			transition        : all 0.25s ease;
+			/*
+			box-shadow: inset -1px 0 0 rgba(0,0,0,0.4),
+			            inset -2px 0 0 rgba(0,0,0,0.2),
+			            inset -4px 0 0 rgba(0,0,0,0.01),
+			            inset -6px 0 0 rgba(0,0,0,0.01),
+			            inset -8px 0 0 rgba(0,0,0,0.01);
+			*/ }
 		
-		footer > div > p.right {
-			float: right; }
+		div.middle > div.side > div.side-head {
+			z-index   : 5;
+			top       : 0;
+			right     : 0;
+			left      : 0;
+			height    : 25px;
+			padding   : 5px 10px 10px 0;
+			background: rgb(194,65,134);
+			line-height: 10px; }
+		
+		div.middle.extend > div.side > div.side-head {
+			height    : 70px; }
 			
-			footer > div > p > a {
-				text-decoration: none;
-				color          : #709cff; }
+			div.middle > div.side > div.side-head > a.sakura-button.sakura-button-icon {
+				border             : none;
+				background-position: center center;
+				height             : 16px;
+				width              : 16px;
+				padding            : 2px;
+				background-color   : transparent;
+				box-shadow         : none;
+				margin             : 5px 0 0 10px; }
 			
-			footer > div > p > a:hover {
-				color          : #fff; }
+			div.middle > div.side > div.side-head > a.sakura-button.sakura-button-icon:hover {
+				background-color   : rgba(0,0,0,0.1); }
+		
+		div.middle > div.side > div.side-body {
+			top       : 40px;
+			right     : 0;
+			bottom    : 0;
+			left      : 0;
+			padding   : 10px 0 10px 10px;
+			overflow  : auto;
+			overflow-x: hidden;
+			overflow-y: auto; }
+		
+		div.middle.extend > div.side > div.side-body {
+			top       : 85px;
+			padding   : 5px 0; }
+			
+			div.middle > div.side > div.side-body > a.sakura-button {
+				display      : block;
+				border       : none;
+				background   : transparent no-repeat 10px center;
+				text-shadow  : none;
+				color        : #999;
+				text-align   : right;
+				font-size    : 13px;
+				padding      : 6px 10px 5px 30px;
+				border-left  : 1px solid transparent;
+				border-top   : 1px solid transparent;
+				border-bottom: 1px solid transparent;
+				box-shadow   : none;
+				white-space  : nowrap; }
+			
+			div.middle.extend > div.side > div.side-body > a.sakura-button {
+				text-indent  : 50px;
+				color        : transparent; }
+			
+			div.middle > div.side > div.side-body > a.sakura-button:hover {
+				color        : #2b2b2b; }
+			
+			div.middle > div.side > div.side-body > a.sakura-button.sakura-button-selected {
+				color            : #2b2b2b;
+				background-color : white;
+				border-color     : #ccc;
+				border-left-color: #999;
+				box-shadow       : -1px 0 0 rgba(0,0,0,0.1); }
+	
+	div.middle > div.main {
+		top      : 0;
+		right    : 0;
+		bottom   : 0;
+		left     : 140px;
+		-webkit-transition: all 0.25s ease;
+		-moz-transition   : all 0.25s ease;
+		-ms-transition    : all 0.25s ease;
+		-o-transition     : all 0.25s ease;
+		transition        : all 0.25s ease; }
+	
+	div.middle.extend > div.main {
+		left     : 40px; }
+		
+		div.middle > div.main > div {
+			position: absolute; }
+		
+		div.middle > div.main > div.main-head {
+			z-index   : 5;
+			top       : 0;
+			right     : 0;
+			left      : 0;
+			height    : 40px;
+			background: rgb(194,65,134);
+			color     : #fff;
+			/* background: rgba(0,0,0,0.05); */ }
+		
+		div.middle > div.main.nohead > div.main-head {
+			height    : 1px;
+			overflow  : hidden; }
+		
+		div.middle > div.main > div.main-head.overline {
+			border-bottom: 1px solid rgba(0,0,0,0.2);
+			box-shadow   : 0 3px 0 rgba(0,0,0,0.05); }
+			
+			div.middle > div.main > div.main-head > div.main-head-title {
+				margin: 10px 10px 0 10px; }
+				
+				div.middle > div.main > div.main-head > div.main-head-title > h1 {
+					margin     : 0;
+					line-height: 22px;
+					font-weight: normal;
+					font-size  : 19px; }
+			
+			div.middle > div.main > div.main-head > div.main-head-toolbar {
+				position  : absolute;
+				top       : 0;
+				right     : 0;
+				bottom    : 0;
+				padding   : 10px;
+				background: rgb(194,65,134);
+				box-shadow: -2px 0 0 rgba(194,65,134,0.7),
+				            -4px 0 0 rgba(194,65,134,0.7),
+				            -6px 0 0 rgba(194,65,134,0.7); }
+				
+				div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar {}
+				
+					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button {
+						border     : none;
+						background : transparent no-repeat 5px center;
+						font-size  : 13px;
+						color      : #555;
+						box-shadow : none;
+						line-height: 14px;
+						padding    : 2px 5px 0px 5px;
+						border     : 2px solid transparent;
+						text-shadow: none;
+						
+						-webkit-transition: background 0.25s ease;
+						-moz-transition   : background 0.25s ease;
+						-ms-transition    : background 0.25s ease;
+						-o-transition     : background 0.25s ease;
+						transition        : background 0.25s ease; }
+					
+						div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button > span {
+							color         : #aaa;
+							font-size     : 10px;
+							line-height   : 10px;
+							vertical-align: top; }
+					
+						div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button:hover > span {
+							color         : #555; }
+					
+					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button.sakura-button-icon {
+						padding-left: 25px; }
+				
+					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button:hover {
+						background-color: #fff;
+						color           : #222; }
+				
+					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button.sakura-button-disabled {
+						cursor          : default;
+						color           : #aaa;
+						opacity         : 0.5; }
+				
+					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button.sakura-button-disabled:hover {
+						background-color: transparent; }
+
+@media screen and (max-width: 880px){
+					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button {
+						font-size  : 11px; }
+}
+
+@media screen and (max-width: 800px){
+					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button {
+						overflow           : hidden;
+						width              : 0px;
+						white-space        : nowrap;
+						background-position: center center;
+						text-indent        : 100px; }
+						
+					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button:hover {
+						overflow           : visible;
+						width              : auto;
+						white-space        : nowrap;
+						background-position: 5px center;
+						text-indent        : 0; }
+}
+
+@media screen and (max-width: 500px){
+					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button-icon {
+						padding-left       : 20px !important; }
+}
+		
+		div.middle > div.main > div.main-body {
+			top     : 40px;
+			right   : 0;
+			bottom  : 0;
+			left    : 0;
+			overflow: auto; }
+			
+		div.middle > div.main.nohead > div.main-body {
+			top     : 1px; }
+		
+		div.middle > div.main > div.main-body.overline::after {
+			height    : 4px;
+			display   : block;
+			content   : "";
+			position  : absolute;
+			bottom    : 0;
+			right     : 0;
+			left      : 0;
+			background: rgba(0,0,0,0.15); }
+		
+			div.middle > div.main > div.main-body > div {
+				position: absolute;
+				top     : 0;
+				right   : 0;
+				bottom  : 0;
+				left    : 0;
+				overflow: auto;
+				padding : 10px; }
+			
+			div.middle > div.main > div.main-body > div.loading {
+				background: no-repeat center center url(./loading-circular-2b2b2b-ffffff.gif); }
+			
+			div.middle > div.main > div.main-body > div.failure {
+				background: rgba(255,0,0,0.1); }
+
+/* footer */
+div.footer {
+	bottom          : 0;
+	height          : 25px;
+	background-color: rgba(0,0,0,0.4);
+	box-shadow      : inset 0 2px 0 rgba(0,0,0,0.4);
+	padding         : 0 10px; }
+	
+	div.footer > a.sakura-button {
+		margin-right    : 3px;
+		border          : none;
+		display         : block;
+		float           : left;
+		width           : auto;
+		font-size       : 11px;
+		line-height     : 15px;
+		height          : 15px;
+		padding         : 5px 10px;
+		background-color: rgba(194,65,134,0.3);
+		box-shadow      : 1px 0 0 rgba(0,0,0,0.25),
+		                  -1px 0 0 rgba(0,0,0,0.25),
+		                  inset 1px 0 0 rgba(255,255,255,0.15),
+		                  inset -1px 0 0 rgba(255,255,255,0.15),
+		                  inset 0 1px 0 rgba(0,0,0,0.35);
+		text-shadow     : 0 -1px 0 rgba(0,0,0,0.4); }
+	
+	div.footer > a.sakura-button.sakura-button-icon {
+		padding-left    : 25px; }
+	
+	div.footer > a.sakura-button:hover {
+		color           : white;
+		background-color: rgba(194,65,134,1); }
+	
+	div.footer > a.sakura-button.sakura-button-selected {
+		color           : white;
+		background-color: rgba(194,65,134,1); }
 
 /* hypermodal */
 div.hypermodal-footer .hypermodal-button {

@@ -1132,6 +1132,7 @@
 					this.self  = opt.self;
 					this.data  = {};
 					this.timer = {};
+					this.id    = new Date().getTime();
 					
 					// init
 					this.init();

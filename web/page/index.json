@@ -1,0 +1,150 @@
+{
+	"categoryIndex": ["dashboard", "schedules", "rules", "reserves", "recording", "recorded", "pref", "search"],
+	
+	"defaultCategory": "dashboard",
+	
+	"category": {
+		"dashboard": {
+			"icon"       : "./icons/dummy.png",
+			"label"      : "dashboard",
+			"defaultPage": "top",
+			"pageIndex"  : ["top", "status", "log"],
+			"page"       : {
+				"top": {
+					"label" : "Dashboard",
+					"title" : "Dashboard",
+					"icon"  : "./icons/dummy.png",
+					"nohead": true
+				},
+				
+				"status": {
+					"label": "Status",
+					"title": "System Status",
+					"icon" : "./icons/dummy.png"
+				},
+				
+				"log": {
+					"label": "Log",
+					"title": "System Log",
+					"icon" : "./icons/dummy.png"
+				}
+			}
+		},
+		
+		"schedules": {
+			"icon"       : "./icons/dummy.png",
+			"label"      : "schedules",
+			"defaultPage": "timeline",
+			"pageIndex"  : ["timeline"],
+			"page"       : {
+				"timeline": {
+					"label": "Timeline",
+					"title": "Timeline",
+					"icon" : "./icons/dummy.png"
+				},
+				
+				"program": {
+					"label": "Program",
+					"title": "Program",
+					"icon" : "./icons/dummy.png"
+				}
+			}
+		},
+		
+		"rules": {
+			"icon"       : "./icons/dummy.png",
+			"label"      : "rules",
+			"defaultPage": "list",
+			"pageIndex"  : ["list"],
+			"page"       : {
+				"list": {
+					"label": "List",
+					"title": "List",
+					"icon" : "./icons/dummy.png"
+				},
+				
+				"add": {
+					"label": "Add",
+					"title": "Add",
+					"icon" : "./icons/dummy.png"
+				},
+				
+				"edit": {
+					"label": "Edit",
+					"title": "Edit",
+					"icon" : "./icons/dummy.png"
+				}
+			}
+		},
+		
+		"reserves": {
+			"icon"       : "./icons/dummy.png",
+			"label"      : "reserves",
+			"defaultPage": "list",
+			"pageIndex"  : ["list"],
+			"page"       : {
+				"list": {
+					"label": "List",
+					"title": "List",
+					"icon" : "./icons/dummy.png"
+				}
+			}
+		},
+		
+		"recording": {
+			"icon"       : "./icons/dummy.png",
+			"label"      : "recording",
+			"defaultPage": "list",
+			"pageIndex"  : ["list"],
+			"page"       : {
+				"list": {
+					"label": "List",
+					"title": "List",
+					"icon" : "./icons/dummy.png"
+				}
+			}
+		},
+		
+		"recorded": {
+			"icon"       : "./icons/dummy.png",
+			"label"      : "recorded",
+			"defaultPage": "list",
+			"pageIndex"  : ["list"],
+			"page"       : {
+				"list": {
+					"label": "List",
+					"title": "List",
+					"icon" : "./icons/dummy.png"
+				}
+			}
+		},
+		
+		"search": {
+			"icon"       : "./icons/dummy.png",
+			"label"      : "search",
+			"defaultPage": "top",
+			"pageIndex"  : ["top"],
+			"page"       : {
+				"list": {
+					"label": "Top",
+					"title": "Top",
+					"icon" : "./icons/dummy.png"
+				}
+			}
+		},
+		
+		"pref": {
+			"icon"       : "./icons/dummy.png",
+			"label"      : "preference",
+			"defaultPage": "config",
+			"pageIndex"  : ["config"],
+			"page"       : {
+				"list": {
+					"label": "Config",
+					"title": "Config",
+					"icon" : "./icons/dummy.png"
+				}
+			}
+		}
+	}
+}
