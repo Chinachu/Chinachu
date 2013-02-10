@@ -33,16 +33,6 @@
 		connectTimeout: 3000
 	});
 	
-	app.socket.on('connect'   , app.f.socketOnConnect);
-	app.socket.on('disconnect', app.f.socketOnDisconnect);
-	
-	app.socket.on('status'    , app.f.socketOnStatus);
-	app.socket.on('rules'     , app.f.socketOnRules);
-	app.socket.on('reserves'  , app.f.socketOnReserves);
-	app.socket.on('schedule'  , app.f.socketOnSchedule);
-	app.socket.on('recording' , app.f.socketOnRecording);
-	app.socket.on('recorded'  , app.f.socketOnRecorded);
-	
 	// コントロールビュー初期化
 	app.f.enterControlView = function _enterControlView() {
 		console.log('entering to control view');
@@ -79,6 +69,12 @@
 				app.view.main.entity.removeClassName('nohead');
 			}
 			
+			if (app.pm.pageData.background) {
+				app.view.mainBody.entity.style.background = app.pm.pageData.background;
+			} else {
+				app.view.mainBody.entity.style.background = '';
+			}
+			
 			app.pm.title.update(app.pm.title.innerHTML.__());
 			document.title = 'Chinachu: ' + [app.pm.page.__(), app.pm.category.__()].join(' - ');
 			
@@ -86,22 +82,35 @@
 			app.view.header.one(app.pm.category).select();
 			
 			app.view.sideBody.removeAll();
-			app.pm.index.category[app.pm.category].pageIndex.each(function(pageName)  {
-				var page = app.pm.index.category[app.pm.category].page[pageName];
+			
+			if (app.pm.index.category[app.pm.category].pageIndex) {
+				app.view.middle.entity.removeClassName('noside');
 				
-				app.view.sideBody.add({
-					key: 'page-index-' + pageName,
-					ui : new sakura.ui.Button({
-						label  : page.label.__(),
-						icon   : page.icon || null,
-						onClick: function() {
-							window.location.hash = '!/' + app.pm.category + '/' + pageName + '/';
+				app.pm.index.category[app.pm.category].pageIndex.each(function(pageName)  {
+					var page = app.pm.index.category[app.pm.category].page[pageName];
+					
+					app.view.sideBody.add({
+						key: 'page-index-' + pageName,
+						ui : new sakura.ui.Button({
+							label  : page.label.__(),
+							icon   : page.icon || null,
+							onClick: function() {
+								window.location.hash = '!/' + app.pm.category + '/' + pageName + '/';
+							}
+						})
+					});//<--app.view.sideBody.add
+					
+					if (pageName === app.pm.page) {
+						app.view.sideBody.one('page-index-' + pageName).select();
+						
+						if (app.pm.pageData.background) {
+							app.view.sideBody.one('page-index-' + pageName).entity.style.boxShadow = 'inset -2px 0 0 ' + app.pm.pageData.background;
 						}
-					})
-				});//<--app.view.sideBody.add
-				
-				if (pageName === app.pm.page) app.view.sideBody.one('page-index-' + pageName).select();
-			});//<--each category
+					}
+				});//<--each category
+			} else {
+				app.view.middle.entity.addClassName('noside');
+			}
 		});//<--observe sakurapanel:pm:load
 		
 		document.observe('sakurapanel:pm:complete', function() {
@@ -138,6 +147,12 @@
 				key: categoryName,
 				ui : button
 			});
+			
+			if (['rules', 'reserves', 'recording', 'recorded'].indexOf(categoryName) !== -1) {
+				app.view.header.one(categoryName).badge = new sakura.ui.Element({
+					tagName: 'span'
+				}).render(app.view.header.one(categoryName).entity);
+			}
 		});
 		
 		//
@@ -225,6 +240,7 @@
 			key: 'chinachu',
 			ui : new sakura.ui.Button({
 				label  : 'Chinachu',
+				icon   : './icons/status-offline.png',
 				style  : { 'float': 'right' },
 				onClick: function() {
 					new Hypermodal({
@@ -258,8 +274,6 @@
 		// タブシステム(仮)
 		if (!app.tab) app.f.initTabSystem();
 		app.f.drawTabSystem();
-		
-		app.view.loadingMask.hide();
 	};
 	
 	// オーバーラインハンドラ
@@ -400,76 +414,102 @@
 		return null;
 	};
 	
-	app.f.socketOnConnect = function _socketOnConnect() {
-		$('loading').hide();
+	var socketOnConnect = function _socketOnConnect() {
+		app.view.loadingMask.hide();
+		
 		document.fire('chinachu:connect');
 		
-		app.notify.create({ title: 'Chinachu', message: '接続されました' });
-	}
+		app.view.footer.one('chinachu').entity.style.backgroundImage = 'url(./icons/status.png)';
+		
+		app.notify.create({ title: 'Chinachu', message: 'CONNECTED'.__() });
+	};
 	
-	app.f.socketOnDisconnect = function _socketOnDisconnect() {
-		$('loading').show();
+	var socketOnDisconnect = function _socketOnDisconnect() {
+		app.view.loadingMask.show();
+		
 		document.fire('chinachu:disconnect');
 		
-		$('footer-status').update('<span class="color-red">切断</span>');
-		app.notify.create({ title: 'Chinachu', message: '切断されました' });
-	}
+		app.view.footer.one('chinachu').entity.style.backgroundImage = 'url(./icons/status-offline.png)';
+		
+		app.notify.create({ title: 'Chinachu', message: 'DISCONNECTED'.__() });
+	};
 	
-	app.f.socketOnStatus = function _socketOnStatus(data) {
+	var socketOnStatus = function _socketOnStatus(data) {
 		app.chinachu.status = data;
-		document.fire('chinachu:status');
+		document.fire('chinachu:status', app.chinachu.status);
 		
-		$('footer-status').update('<span class="color-green">接続済</span>(' + data.connectedCount + ')');
-	}
+		app.view.footer.remove('count');
+		
+		app.view.footer.add({
+			key: 'count',
+			ui : new sakura.ui.Button({
+				style: { 'float': 'right', 'cursor': 'default' },
+				label: data.connectedCount,
+				icon : './icons/user-medium-silhouette.png'
+			})
+		});
+	};
 	
-	app.f.socketOnRules = function _socketOnRules(data) {
+	var socketOnRules = function _socketOnRules(data) {
 		app.chinachu.rules = data;
-		document.fire('chinachu:rules');
+		document.fire('chinachu:rules', app.chinachu.rules);
 		
-		$('rules-count').update(data.length.toString(10));
-	}
+		app.view.header.one('rules').badge.update(data.length.toString(10));
+	};
 	
-	app.f.socketOnReserves = function _socketOnReserves(data) {
+	var socketOnReserves = function _socketOnReserves(data) {
 		var dt = new Date().getTime();
 		data.each(function(program, i) {
-			if (program.start - dt < 0) {
+			if (program.start - dt < 1000 * 60) {
 				delete data[i];
 			}
 		});
 		data = data.compact();
 		
 		app.chinachu.reserves = data;
-		document.fire('chinachu:reserves');
+		document.fire('chinachu:reserves', app.chinachu.reserves);
 		
-		$('reserves-count').update(data.length.toString(10));
-	}
+		app.view.header.one('reserves').badge.update(data.length.toString(10));
+	};
 	
-	app.f.socketOnSchedule = function _socketOnSchedule(data) {
+	var socketOnSchedule = function _socketOnSchedule(data) {
 		app.chinachu.schedule = data;
-		document.fire('chinachu:schedule');
-	}
+		document.fire('chinachu:schedule', app.chinachu.schedule);
+	};
 	
-	app.f.socketOnRecording = function _socketOnRecording(data) {
+	var socketOnRecording = function _socketOnRecording(data) {
 		app.chinachu.recording = data;
-		document.fire('chinachu:recording');
+		document.fire('chinachu:recording', app.chinachu.recording);
 		
-		$('recording-count').update(data.length.toString(10));
+		app.view.header.one('recording').badge.update(data.length.toString(10));
 		
 		if (data.length === 0) {
 			$('favicon').href = './favicon.ico';
 		} else {
 			$('favicon').href = './favicon-active.ico';
 		}
-	}
+		
+		setTimeout(socketOnReserves, 0, app.chinachu.reserves);
+	};
 	
-	app.f.socketOnRecorded = function _socketOnRecorded(data) {
+	var socketOnRecorded = function _socketOnRecorded(data) {
 		data = data.reverse();
 		
 		app.chinachu.recorded = data;
-		document.fire('chinachu:recorded');
+		document.fire('chinachu:recorded', app.chinachu.recorded);
 		
-		$('recorded-count').update(data.length.toString(10));
-	}
+		app.view.header.one('recorded').badge.update(data.length.toString(10));
+	};
+	
+	app.socket.on('connect'   , socketOnConnect);
+	app.socket.on('disconnect', socketOnDisconnect);
+	
+	app.socket.on('status'    , socketOnStatus);
+	app.socket.on('rules'     , socketOnRules);
+	app.socket.on('reserves'  , socketOnReserves);
+	app.socket.on('schedule'  , socketOnSchedule);
+	app.socket.on('recording' , socketOnRecording);
+	app.socket.on('recorded'  , socketOnRecorded);
 	
 	// go
 	app.f.enterControlView();

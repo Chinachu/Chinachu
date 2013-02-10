@@ -32,7 +32,7 @@
 	};
 	
 	// Dateオブジェクトを見やすい文字列に変換する
-	var dateToString = chinachu.dateToString = function _dateToString(date, isShort) {
+	var dateToString = chinachu.dateToString = function _dateToString(date, type) {
 		var d = date;
 		
 		var dStr = [
@@ -44,36 +44,62 @@
 			d.getMinutes().toPaddedString(2)
 		].join(':');
 		
-		if (!isShort) {
+		if (type !== 'short') {
 			dStr += ':' + d.getSeconds().toPaddedString(2);
 		}
 		
-		var dAgo = ((new Date().getTime() - d.getTime()) / 1000);
+		var dDelta = ((new Date().getTime() - d.getTime()) / 1000);
 		
-		if (dAgo < 60) {
-			var dAgoStr = '{0} seconds ago'.__([Math.round(dAgo) || '0']);
-		} else {
-			dAgo = dAgo / 60;
+		if (dDelta < 0) {
+			dDelta -= dDelta * 2;
 			
-			if (dAgo < 60) {
-				var dAgoStr = '{0} minutes ago'.__([Math.round(dAgo) || '0']);
+			if (dDelta < 60) {
+				var dDeltaStr = 'after {0} seconds'.__([Math.round(dDelta) || '0']);
 			} else {
-				dAgo = dAgo / 60;
+				dDelta = dDelta / 60;
 				
-				if (dAgo < 24) {
-					var dAgoStr = '{0} hours ago'.__([Math.round(dAgo) || '0']);
+				if (dDelta < 60) {
+					var dDeltaStr = 'after {0} minutes'.__([Math.round(dDelta * 10) / 10 || '0']);
 				} else {
-					dAgo = dAgo / 24;
+					dDelta = dDelta / 60;
 					
-					var dAgoStr = '{0} days ago'.__([Math.round(dAgo) || '0']);
+					if (dDelta < 24) {
+						var dDeltaStr = 'after {0} hours'.__([Math.round(dDelta * 10) / 10 || '0']);
+					} else {
+						dDelta = dDelta / 24;
+						
+						var dDeltaStr = 'after {0} days'.__([Math.round(dDelta * 10) / 10 || '0']);
+					}
+				}
+			}
+		} else {
+			if (dDelta < 60) {
+				var dDeltaStr = '{0} seconds ago'.__([Math.round(dDelta) || '0']);
+			} else {
+				dDelta = dDelta / 60;
+				
+				if (dDelta < 60) {
+					var dDeltaStr = '{0} minutes ago'.__([Math.round(dDelta * 10) / 10 || '0']);
+				} else {
+					dDelta = dDelta / 60;
+					
+					if (dDelta < 24) {
+						var dDeltaStr = '{0} hours ago'.__([Math.round(dDelta * 10) / 10 || '0']);
+					} else {
+						dDelta = dDelta / 24;
+						
+						var dDeltaStr = '{0} days ago'.__([Math.round(dDelta * 10) / 10 || '0']);
+					}
 				}
 			}
 		}
 		
-		if (isShort) {
+		if (typeof type === 'undefined' || type === 'full') {
+			return dStr + ' (' + dDeltaStr + ')';
+		} else if (type === 'short') {
 			return dStr;
-		} else {
-			return dStr + ' (' + dAgoStr + ')';
+		} else if (type === 'delta') {
+			return dDeltaStr;
 		}
 	};
 	
@@ -226,7 +252,7 @@
 			if (!opt) { var opt = {}; }
 			
 			this.progress   = 0;
-			this.target     = $('content');
+			this.target     = document.body
 			this.onComplete = opt.onComplete || function _empty() {};
 			
 			this.create();
@@ -235,7 +261,7 @@
 		},
 		create: function _draw() {
 			this.entity = {
-				container: new Element('div', {id: 'content-loading'}),
+				container: new Element('div', {className: 'content-loading'}),
 				frame    : new Element('div'),
 				bar      : new Element('div')
 			};
@@ -265,8 +291,8 @@
 			
 			return this;
 		},
-		render: function _render() {
-			this.target.insert({top: this.entity.container});
+		render: function _render(target) {
+			$(target.entity || target || this.target).insert({top: this.entity.container});
 			
 			return this;
 		},
@@ -285,6 +311,68 @@
 			delete this;
 			
 			return true;
+		}
+	});
+	
+	ui.DynamicTime = Class.create(sakura.ui.Element, {
+		
+		init: function(opt) {
+			
+			this.tagName = opt.tagName || 'span';
+			
+			this.time  = opt.time;
+			this.timer = 0;
+			this.type  = opt.type || 'delta';
+			
+			return this;
+		},
+		
+		create: function() {
+			
+			var wait = 1;
+			
+			this.entity = this.entity || new Element(this.tagName, this.attr);
+			
+			if (this.id !== null) this.entity.id = this.id;
+			
+			if (this.style !== null) this.entity.setStyle(this.style);
+			
+			this.entity.className = 'dynamic-time';
+			
+			if (this.className !== null) this.entity.addClassName(this.className);
+			
+			this.entity.update(chinachu.dateToString(new Date(this.time), this.type));
+			
+			var delta = ((new Date().getTime() - this.time) / 1000);
+			
+			if (delta < 0) delta -= delta * 2;
+			
+			if (delta > 60) {
+				wait = 10;
+				this.entity.addClassName('now');
+			}
+			if (delta > 120) wait = 30;
+			if (delta > 360) {
+				wait = 60;
+				this.entity.addClassName('soon');
+			}
+			if (delta > 1200) wait = 60 * 5;
+			if (delta > 2400) wait = 60 * 10;
+			if (delta > 4800) wait = 60 * 30;
+			if (delta > 9600) wait = 60 * 60;
+			
+			this.timer = setTimeout(this.create.bind(this), wait * 1000);
+			
+			return this;
+		},
+		
+		remove: function() {
+			
+			clearTimeout(this.timer);
+			
+			this.entity.remove();
+			
+			return this;
 		}
 	});
 	

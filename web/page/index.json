@@ -1,46 +1,46 @@
 {
-	"categoryIndex": ["dashboard", "schedules", "rules", "reserves", "recording", "recorded", "pref", "search"],
+	"categoryIndex": ["dashboard", "schedule", "rules", "reserves", "recording", "recorded", "pref", "search"],
 	
 	"defaultCategory": "dashboard",
 	
 	"category": {
 		"dashboard": {
-			"icon"       : "./icons/dummy.png",
+			"icon"       : "./icons/home-medium.png",
 			"label"      : "dashboard",
 			"defaultPage": "top",
 			"pageIndex"  : ["top", "status", "log"],
 			"page"       : {
 				"top": {
-					"label" : "Dashboard",
-					"title" : "Dashboard",
-					"icon"  : "./icons/dummy.png",
-					"nohead": true
+					"label"     : "Top",
+					"title"     : "Top",
+					"icon"      : "./icons/home-medium.png",
+					"nohead"    : true,
+					"background": "#d67fae"
 				},
 				
 				"status": {
 					"label": "Status",
 					"title": "System Status",
-					"icon" : "./icons/dummy.png"
+					"icon" : "./icons/system-monitor.png"
 				},
 				
 				"log": {
 					"label": "Log",
 					"title": "System Log",
-					"icon" : "./icons/dummy.png"
+					"icon" : "./icons/clock-history.png"
 				}
 			}
 		},
 		
-		"schedules": {
-			"icon"       : "./icons/dummy.png",
-			"label"      : "schedules",
+		"schedule": {
+			"icon"       : "./icons/calendar-medium.png",
+			"label"      : "schedule",
 			"defaultPage": "timeline",
-			"pageIndex"  : ["timeline"],
 			"page"       : {
 				"timeline": {
 					"label": "Timeline",
 					"title": "Timeline",
-					"icon" : "./icons/dummy.png"
+					"icon" : "./icons/calendar-medium.png"
 				},
 				
 				"program": {
@@ -52,7 +52,7 @@
 		},
 		
 		"rules": {
-			"icon"       : "./icons/dummy.png",
+			"icon"       : "./icons/regular-expression.png",
 			"label"      : "rules",
 			"defaultPage": "list",
 			"pageIndex"  : ["list"],
@@ -60,7 +60,7 @@
 				"list": {
 					"label": "List",
 					"title": "List",
-					"icon" : "./icons/dummy.png"
+					"icon" : "./icons/regular-expression.png"
 				},
 				
 				"add": {
@@ -78,7 +78,7 @@
 		},
 		
 		"reserves": {
-			"icon"       : "./icons/dummy.png",
+			"icon"       : "./icons/bookmarks.png",
 			"label"      : "reserves",
 			"defaultPage": "list",
 			"pageIndex"  : ["list"],
@@ -86,13 +86,13 @@
 				"list": {
 					"label": "List",
 					"title": "List",
-					"icon" : "./icons/dummy.png"
+					"icon" : "./icons/bookmarks.png"
 				}
 			}
 		},
 		
 		"recording": {
-			"icon"       : "./icons/dummy.png",
+			"icon"       : "./icons/control-record-small.png",
 			"label"      : "recording",
 			"defaultPage": "list",
 			"pageIndex"  : ["list"],
@@ -100,13 +100,13 @@
 				"list": {
 					"label": "List",
 					"title": "List",
-					"icon" : "./icons/dummy.png"
+					"icon" : "./icons/control-record-small.png"
 				}
 			}
 		},
 		
 		"recorded": {
-			"icon"       : "./icons/dummy.png",
+			"icon"       : "./icons/television-medium.png",
 			"label"      : "recorded",
 			"defaultPage": "list",
 			"pageIndex"  : ["list"],
@@ -114,13 +114,13 @@
 				"list": {
 					"label": "List",
 					"title": "List",
-					"icon" : "./icons/dummy.png"
+					"icon" : "./icons/television-medium.png"
 				}
 			}
 		},
 		
 		"search": {
-			"icon"       : "./icons/dummy.png",
+			"icon"       : "./icons/calendar-search-result.png",
 			"label"      : "search",
 			"defaultPage": "top",
 			"pageIndex"  : ["top"],
@@ -128,13 +128,13 @@
 				"list": {
 					"label": "Top",
 					"title": "Top",
-					"icon" : "./icons/dummy.png"
+					"icon" : "./icons/calendar-search-result.png"
 				}
 			}
 		},
 		
 		"pref": {
-			"icon"       : "./icons/dummy.png",
+			"icon"       : "./icons/controller-d-pad.png",
 			"label"      : "preference",
 			"defaultPage": "config",
 			"pageIndex"  : ["config"],
@@ -142,6 +142,24 @@
 				"list": {
 					"label": "Config",
 					"title": "Config",
+					"icon" : "./icons/controller-d-pad.png"
+				}
+			}
+		},
+		
+		"program": {
+			"icon"       : "./icons/dummy.png",
+			"label"      : "program",
+			"page"       : {
+				"view": {
+					"label": "Program",
+					"title": "Program",
+					"icon" : "./icons/dummy.png"
+				},
+				
+				"watch": {
+					"label": "Watch",
+					"title": "Watch",
 					"icon" : "./icons/dummy.png"
 				}
 			}

@@ -14,7 +14,7 @@
 			setTimeout(function() {
 				loading.remove();
 				loading = null;
-			}, 50);
+			}, 1000);
 		}
 	}).render();
 	

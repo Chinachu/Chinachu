@@ -958,6 +958,7 @@
 			}
 			
 			this.hashControlInterval = setInterval(this.realizeHash.bind(this), 250);
+			setTimeout(this.realizeHash.bind(this), 0);
 			
 			if (reload && !!this.category && !!this.page) {
 				this._lastHash = '';

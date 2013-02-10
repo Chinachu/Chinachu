@@ -88,18 +88,36 @@ div.fullscreen {
 .bg-silver {
 	background-color: #ddd; }
 
-div#loading {
-	position           : absolute;
-	top                : 0;
-	right              : 0;
-	bottom             : 0;
-	left               : 0;
-	z-index            : 200;
-	background-color   : #000;
-	background-color   : rgba(0,0,0,0.5);
-	background-repeat  : no-repeat;
-	background-position: center center;
-	background-image   : url(loading.gif); }
+div.content-loading {
+	z-index         : 100;
+	position        : absolute;
+	top             : 0;
+	right           : 0;
+	bottom          : 0;
+	left            : 0;
+	background-color: #aaa;
+	background-color: rgba(0,0,0,0.2); }
+	
+	div.content-loading > div {
+		position        : absolute;
+		top             : 50%;
+		left            : 50%;
+		margin-left     : -51px;
+		margin-top      : -5px;
+		width           : 100px;
+		height          : 8px;
+		background-color: #ddd;
+		background-color: rgba(255,255,255,0.4);
+		border          : 1px solid #fff;
+		border-color    : rgba(255,255,255,0.5);
+		box-shadow      : -1px -1px 0 rgba(0,0,0,0.1),
+		                  -1px 1px 0 rgba(0,0,0,0.1),
+		                  1px -1px 0 rgba(0,0,0,0.1),
+		                  1px 1px 0 rgba(0,0,0,0.1); }
+		
+		div.content-loading > div > div {
+			height          : 8px;
+			background-color: #c24186; }
 
 /**
  *  main styles ----------------------------------------------------------------------------------------------------
@@ -130,7 +148,7 @@ div.footer > div {
 div.header {
 	top             : 0;
 	height          : 20px;
-	box-shadow      : inset 0 -2px 0 rgba(194,65,134,0.5);
+	box-shadow      : inset 0 -2px 0 rgba(194,65,134,0.25);
 	color           : #fff;
 	
 	background-image   : url(./chinachu.png);
@@ -138,12 +156,11 @@ div.header {
 	background-position: 10px center;
 	padding            : 10px 10px 10px 50px; }
 	
-	div.header > a.button-dent,
-	div.header > a.button-action {
+	div.header > a.button-dent {
 		padding         : 2px 5px 1px 5px;
 		font-size       : 11px;
 		border          : none;
-		margin-left     : 5px;
+		margin-left     : 2px;
 		background-color: transparent;
 		box-shadow      : none;
 		-webkit-transition: all 0.1s ease;
@@ -151,6 +168,12 @@ div.header {
 		-ms-transition    : all 0.1s ease;
 		-o-transition     : all 0.1s ease;
 		transition        : all 0.1s ease; }
+	
+		div.header > a.button-dent > span {
+			text-shadow     : none;
+			color           : rgba(255,255,255,0.5);
+			font-size       : 10px;
+			margin-left     : 5px; }
 	
 	div.header > a.region-pulldown {
 		background-color: rgba(255,255,255,0.1);
@@ -168,19 +191,7 @@ div.header {
 	div.header > a.button-dent:first-child {
 		margin-left: 0; }
 	
-	div.header > a.button-action {
-		background-color: #2165c2;
-		color           : #fff;
-		box-shadow      : 0 0 2px rgba(0,0,0,0.5), inset -1px -1px 0 rgba(0,0,0,0.7), inset 0 0 0 rgba(0,0,0,0.3); }
-	
-	div.header > a.button-action.action-logout {
-		background-color: #bb1f55; }
-	
-	div.header > a.button-action:hover {
-		box-shadow      : 0 0 2px #000, inset -1px -1px 0 #222, inset 0 20px 0 rgba(0,0,0,0.3); }
-	
-	div.header > a.button-dent.sakura-button.sakura-button-icon,
-	div.header > a.button-action.sakura-button.sakura-button-icon {
+	div.header > a.button-dent.sakura-button.sakura-button-icon {
 		padding-left       : 22px;
 		background-position: 4px center;
 		background-repeat  : no-repeat; }
@@ -188,7 +199,7 @@ div.header {
 	div.header > a.button-dent.sakura-button.sakura-button-selected {
 		position        : relative;
 		text-shadow     : none;
-		background-color: rgba(194,65,134,0.5);
+		background-color: rgba(194,65,134,1);
 		box-shadow      : inset 0 0 3px #000; }
 	
 	div.header > a.button-dent.sakura-button.sakura-button-selected:before {
@@ -205,9 +216,7 @@ div.header {
 		border-style: solid; }
 	
 	div.header > a.button-dent.sakura-button.category-search,
-	div.header > a.button-dent.sakura-button.category-pref,
-	div.header > a.button-dent.sakura-button.category-manual,
-	div.header > a.button-action.sakura-button {
+	div.header > a.button-dent.sakura-button.category-pref {
 		float: right; }
 
 @media screen and (max-width: 680px){
@@ -272,24 +281,27 @@ div.middle {
 		bottom   : 0;
 		width    : 140px;
 		overflow : hidden;
-		-webkit-transition: all 0.25s ease;
-		-moz-transition   : all 0.25s ease;
-		-ms-transition    : all 0.25s ease;
-		-o-transition     : all 0.25s ease;
-		transition        : all 0.25s ease; }
+		-webkit-transition: all 0.25s ease 0.25s;
+		-moz-transition   : all 0.25s ease 0.25s;
+		-ms-transition    : all 0.25s ease 0.25s;
+		-o-transition     : all 0.25s ease 0.25s;
+		transition        : all 0.25s ease 0.25s; }
 	
 	div.middle.extend > div.side {
 		width    : 40px; }
+	
+	div.middle.noside > div.side {
+		width    : 0; }
 		
 		div.middle > div.side > div {
 			position  : absolute;
 			box-shadow: inset -1px 0 0 rgba(0,0,0,0.2),
 			            inset -4px 0 0 rgba(0,0,0,0.05);
-			-webkit-transition: all 0.25s ease;
-			-moz-transition   : all 0.25s ease;
-			-ms-transition    : all 0.25s ease;
-			-o-transition     : all 0.25s ease;
-			transition        : all 0.25s ease;
+			-webkit-transition: all 0.25s ease 0.1s;
+			-moz-transition   : all 0.25s ease 0.1s;
+			-ms-transition    : all 0.25s ease 0.1s;
+			-o-transition     : all 0.25s ease 0.1s;
+			transition        : all 0.25s ease 0.1s;
 			/*
 			box-shadow: inset -1px 0 0 rgba(0,0,0,0.4),
 			            inset -2px 0 0 rgba(0,0,0,0.2),
@@ -299,17 +311,18 @@ div.middle {
 			*/ }
 		
 		div.middle > div.side > div.side-head {
-			z-index   : 5;
-			top       : 0;
-			right     : 0;
-			left      : 0;
-			height    : 25px;
-			padding   : 5px 10px 10px 0;
-			background: rgb(194,65,134);
-			line-height: 10px; }
+			z-index    : 5;
+			top        : 0;
+			right      : 0;
+			left       : 0;
+			height     : 25px;
+			padding    : 5px 10px 10px 0;
+			background : rgb(194,65,134);
+			line-height: 10px;
+			overflow   : hidden; }
 		
 		div.middle.extend > div.side > div.side-head {
-			height    : 70px; }
+			height    : 50px; }
 			
 			div.middle > div.side > div.side-head > a.sakura-button.sakura-button-icon {
 				border             : none;
@@ -320,6 +333,9 @@ div.middle {
 				background-color   : transparent;
 				box-shadow         : none;
 				margin             : 5px 0 0 10px; }
+			
+			div.middle.noside > div.side > div.side-head > a.sakura-button.sakura-button-icon {
+				opacity            : 0; }
 			
 			div.middle > div.side > div.side-head > a.sakura-button.sakura-button-icon:hover {
 				background-color   : rgba(0,0,0,0.1); }
@@ -332,10 +348,11 @@ div.middle {
 			padding   : 10px 0 10px 10px;
 			overflow  : auto;
 			overflow-x: hidden;
-			overflow-y: auto; }
+			overflow-y: auto;
+			background: #e0e0e0; }
 		
 		div.middle.extend > div.side > div.side-body {
-			top       : 85px;
+			top       : 65px;
 			padding   : 5px 0; }
 			
 			div.middle > div.side > div.side-body > a.sakura-button {
@@ -343,7 +360,7 @@ div.middle {
 				border       : none;
 				background   : transparent no-repeat 10px center;
 				text-shadow  : none;
-				color        : #999;
+				color        : #777;
 				text-align   : right;
 				font-size    : 13px;
 				padding      : 6px 10px 5px 30px;
@@ -358,13 +375,13 @@ div.middle {
 				color        : transparent; }
 			
 			div.middle > div.side > div.side-body > a.sakura-button:hover {
-				color        : #2b2b2b; }
+				color        : black; }
 			
 			div.middle > div.side > div.side-body > a.sakura-button.sakura-button-selected {
 				color            : #2b2b2b;
 				background-color : white;
-				border-color     : #ccc;
-				border-left-color: #999;
+				border-color     : #999;
+				border-left-color: #777;
 				box-shadow       : -1px 0 0 rgba(0,0,0,0.1); }
 	
 	div.middle > div.main {
@@ -372,14 +389,17 @@ div.middle {
 		right    : 0;
 		bottom   : 0;
 		left     : 140px;
-		-webkit-transition: all 0.25s ease;
-		-moz-transition   : all 0.25s ease;
-		-ms-transition    : all 0.25s ease;
-		-o-transition     : all 0.25s ease;
-		transition        : all 0.25s ease; }
+		-webkit-transition: all 0.25s ease 0.25s;
+		-moz-transition   : all 0.25s ease 0.25s;
+		-ms-transition    : all 0.25s ease 0.25s;
+		-o-transition     : all 0.25s ease 0.25s;
+		transition        : all 0.25s ease 0.25s; }
 	
 	div.middle.extend > div.main {
 		left     : 40px; }
+	
+	div.middle.noside > div.main {
+		left     : 0; }
 		
 		div.middle > div.main > div {
 			position: absolute; }
@@ -392,11 +412,16 @@ div.middle {
 			height    : 40px;
 			background: rgb(194,65,134);
 			color     : #fff;
-			/* background: rgba(0,0,0,0.05); */ }
+			overflow  : hidden;
+			-webkit-transition: all 0.25s ease 0.25s;
+			-moz-transition   : all 0.25s ease 0.25s;
+			-ms-transition    : all 0.25s ease 0.25s;
+			-o-transition     : all 0.25s ease 0.25s;
+			transition        : all 0.25s ease 0.25s; }
 		
 		div.middle > div.main.nohead > div.main-head {
 			height    : 1px;
-			overflow  : hidden; }
+			color     : rgb(194,65,134); }
 		
 		div.middle > div.main > div.main-head.overline {
 			border-bottom: 1px solid rgba(0,0,0,0.2);
@@ -496,7 +521,12 @@ div.middle {
 			right   : 0;
 			bottom  : 0;
 			left    : 0;
-			overflow: auto; }
+			overflow: auto;
+			-webkit-transition: all 0.25s ease 0.25s;
+			-moz-transition   : all 0.25s ease 0.25s;
+			-ms-transition    : all 0.25s ease 0.25s;
+			-o-transition     : all 0.25s ease 0.25s;
+			transition        : all 0.25s ease 0.25s; }
 			
 		div.middle > div.main.nohead > div.main-body {
 			top     : 1px; }
@@ -531,7 +561,7 @@ div.footer {
 	bottom          : 0;
 	height          : 25px;
 	background-color: rgba(0,0,0,0.4);
-	box-shadow      : inset 0 2px 0 rgba(0,0,0,0.4);
+	box-shadow      : inset 0 2px 0 rgba(0,0,0,0.2);
 	padding         : 0 10px; }
 	
 	div.footer > a.sakura-button {
@@ -923,6 +953,73 @@ div#content-body > div#content-body-timeline {
 	-ms-user-select: none;
 	-o-user-select: none;
 	user-select: none; }
+
+div.dashboard-timelist {
+	position  : relative;
+	display   : block;
+	float     : left;
+	width     : 32%;
+	height    : 100%;
+	overflow  : hidden;
+	margin    : 0 10px 0 0;
+	box-shadow: inset 0 -1px 0 rgba(0,0,0,0.2); }
+	
+	div.dashboard-timelist > div.head {
+		position   : absolute;
+		top        : 0;
+		right      : 0;
+		left       : 0;
+		z-index    : 5;
+		padding    : 0;
+		margin     : 0;
+		height     : 29px;
+		line-height: 20px;
+		font-size  : 16px;
+		color      : white;
+		box-shadow : 0 2px 0 rgba(0,0,0,0.2); }
+	
+	div.dashboard-timelist > div.main {
+		position   : absolute;
+		padding    : 10px 0;
+		margin     : 0;
+		top        : 29px;
+		right      : 0;
+		bottom     : 0;
+		left       : 0;
+		overflow   : hidden;
+		overflow-y : auto;
+		background : rgba(0,0,0,0.2); }
+		
+		div.dashboard-timelist > div.main > a {
+			position       : relative;
+			display        : block;
+			text-decoration: none;
+			color          : rgba(255,255,255,0.8);
+			word-break     : keep-all;
+			white-space    : nowrap;
+			line-height    : 16px;
+			font-size      : 11px;
+			padding        : 5px 5px 4px;
+			overflow       : hidden;
+			margin         : 0 5px; }
+		
+		div.dashboard-timelist > div.main > a:hover {
+			background     : rgba(0,0,0,0.3);
+			color          : white; }
+			
+			div.dashboard-timelist > div.main > a > span.dynamic-time {
+				margin-right: 5px;
+				color       : rgba(255,255,255,0.5);
+				font-size   : 10px; }
+			
+			div.dashboard-timelist > div.main > a > span.channel {
+				position    : absolute;
+				top         : 0;
+				right       : 0;
+				margin-left : 5px;
+				color       : rgba(255,255,255,0.5);
+				font-size   : 10px;
+				padding     : 5px 5px 4px; }
 
 div#content-body.dashboard {
 	padding: 10px; }
