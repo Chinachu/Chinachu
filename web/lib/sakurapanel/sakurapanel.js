@@ -1377,7 +1377,83 @@
 	//
 	// ui.Popover
 	//
-	ui.Popover = Class.create({
+	ui.Popover = Class.create(ui.Element, {
+		
+		init: function _init(opt) {
+			this.target = opt.target.entity || opt.target;
+			this.html   = opt.html || opt.body || opt.content || opt.message;
+			
+			this.isShowing = false;
+			
+			this.target.observe('mouseover', function(e) {
+				
+				this.isShowing = true;
+				
+				$(document.body).insert(this.entity);
+				this.render();
+				
+				var offset = this.target.cumulativeOffset();
+				var scrl   = this.target.cumulativeScrollOffset();
+				var width  = this.target.getWidth();
+				var height = this.target.getHeight();
+				
+				var posX = offset.left - scrl.left + (width / 2) - (this.entity.getWidth() / 2);
+				
+				this.entity.style.left  = posX + 'px';
+				this.entity.style.right = 'auto';
+				
+				if ($(document).height - this.target.getHeight() - 100 < e.y) {
+					var posY = offset.top - scrl.top - 9;
+					
+					this.entity.addClassName('tail');
+					this.entity.style.top    = 'auto';
+					this.entity.style.bottom = ($(document).height - posY) + 'px';
+				} else {
+					var posY = offset.top - scrl.top + height + 9;
+					
+					this.entity.removeClassName('tail');
+					this.entity.style.top    = posY + 'px';
+					this.entity.style.bottom = 'auto';
+				}
+			}.bind(this));
+			
+			this.target.observe('mouseout', function(e) {
+				
+				this.isShowing = false;
+				this.remove();
+			}.bind(this));
+			
+			this.target.observe('remove', function(e) {
+				
+				this.isShowing = false;
+				this.remove();
+			}.bind(this));
+			
+			return this;
+		},
+		
+		create: function _create() {
+			
+			this.entity = new Element('div', this.attr);
+			
+			this.entity.addClassName('sakura-popover');
+			
+			this.update(this.html);
+			
+			return this;
+		},
+		
+		render: function _render() {
+			
+			return this;
+		},
+		
+		remove: function() {
+			
+			try { this.entity.remove(); } catch (e) {}
+			
+			return this;
+		}
 	});//<--ui.Popover
 	
 	//
@@ -1389,18 +1465,9 @@
 			this.target = opt.target.entity || opt.target;
 			this.html   = opt.html || opt.body || opt.content || opt.message;
 			
-			return this;
-		},
-		
-		create: function _create() {
-			
-			this.entity = new Element('div', this.attr).hide();
-			
-			this.entity.insert(this.html);
-			
-			this.entity.addClassName('sakura-tooltip');
-			
 			this.target.observe('mouseover', function(e) {
+				
+				$(document.body).insert(this.entity);
 				
 				if ($(document).width - 300 < e.x) {
 					this.entity.style.left  = 'auto';
@@ -1418,7 +1485,7 @@
 					this.entity.style.bottom = 'auto';
 				}
 				
-				this.show();
+				this.render();
 			}.bind(this));
 			
 			this.target.observe('mousemove', function(e) {
@@ -1442,7 +1509,7 @@
 			
 			this.target.observe('mouseout', function(e) {
 				
-				this.hide();
+				this.remove();
 			}.bind(this));
 			
 			this.target.observe('remove', function(e) {
@@ -1453,12 +1520,25 @@
 			return this;
 		},
 		
+		create: function _create() {
+			
+			this.entity = new Element('div', this.attr);
+			
+			this.entity.insert(this.html);
+			
+			this.entity.addClassName('sakura-tooltip');
+			
+			return this;
+		},
+		
 		render: function _renderDropdown() {
-			var container = $(document.body);
 			
-			container.insert(this.entity);
+			return this;
+		},
+		
+		remove: function() {
 			
-			if (this.onRendered) this.onRendered();
+			try { this.entity.remove(); } catch (e) {}
 			
 			return this;
 		}

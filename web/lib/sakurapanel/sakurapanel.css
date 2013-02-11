@@ -453,6 +453,39 @@ div.sakura-tooltip {
 	margin          : 20px;
 	padding         : 10px; }
 
+/* popover */
+
+div.sakura-popover {
+	z-index         : 500;
+	position        : absolute;
+	max-width       : 320px;
+	background-color: rgba(0,0,0,0.8);
+	color           : white;
+	word-break      : break-all;
+	white-space     : normal;
+	margin          : 0px;
+	padding         : 10px;
+	width           : auto;
+	height          : auto; }
+	
+	div.sakura-popover::before {
+		position        : absolute;
+		top             : -7px;
+		left            : 50%;
+		left            : -webkit-calc(50% - 7px);
+		left            :         calc(50% - 7px);
+		display         : inline-block;
+		border-right    : 7px solid transparent;
+		border-bottom   : 7px solid rgba(0,0,0,0.8);
+		border-left     : 7px solid transparent;
+		content         : ''; }
+	
+	div.sakura-popover.tail::before {
+		top             : auto;
+		bottom          : -7px;
+		border-top      : 7px solid rgba(0,0,0,0.8);
+		border-bottom   : none; }
+
 /* help */
 
 div.sakura-help {

@@ -37,9 +37,10 @@ P = Class.create(P, {
 			
 			init: function(opt) {
 				
-				this.name   = opt.name;
-				this.list   = opt.initialList;
-				this.notify = opt.notify;
+				this.name     = opt.name;
+				this.list     = opt.initialList;
+				this.notify   = opt.notify;
+				this.interval = 0;
 				
 				this.onNotify = this.refresh.bindAsEventListener(this);
 				
@@ -50,7 +51,9 @@ P = Class.create(P, {
 			
 			refresh: function(e) {
 				this.list.each(function(program) {
-					if (program._dt) program._dt.remove();
+					if (program._dt) program._dt.remove() && delete program._dt;
+					if (program._tt) program._tt.remove() && delete program._tt;
+					if (program._pt) clearTimeout(program._pt);
 				});
 				
 				this.list = e.memo;
@@ -66,19 +69,19 @@ P = Class.create(P, {
 				
 				this.entity.show().update();
 				
-				if (this.className !== null) this.entity.className = this.className;
+				this.entity.className = '';
 				
 				if (this.id !== null) this.entity.id = this.id;
 				
 				if (this.style !== null) this.entity.setStyle(this.style);
-				
-				this.entity.addClassName('dashboard-timelist');
 				
 				if (this.list.length === 0) {
 					this.entity.hide();
 					
 					return this;
 				}
+				
+				this.entity.addClassName('dashboard-timelist');
 				
 				new sakura.ui.Container({className: 'head'}).insert(
 					'OF{0} {1}'.__([this.list.length.toString(10), this.name])
@@ -91,32 +94,77 @@ P = Class.create(P, {
 				this.list.each(function(program) {
 					
 					var dynamicTime = program._dt = new chinachu.ui.DynamicTime({
-						time: (currentTime > program.end) ? program.end : program.start
+						tagName: 'div',
+						type   : 'full',
+						time   : (currentTime > program.end) ? program.end : program.start
 					});
 					
-					new sakura.ui.Element({
-						tagName: 'a',
-						attr: { href: '#!/program/view/id=' + program.id + '/' }
-					}).insert(dynamicTime).insert(program.title.truncate(16)).insert(
+					var it = new sakura.ui.Element({
+						tagName  : 'a',
+						className: 'color-cat-' + program.category,
+						attr     : { href: '#!/program/view/id=' + program.id + '/' }
+					}).insert('<div class="title">' + program.title + '</div>').insert(
 						new sakura.ui.Element({
-							tagName  : 'span',
+							tagName  : 'div',
 							className: 'channel'
-						}).insert(program.channel.name.truncate(8))
-					).render(container);
-				});
+						}).insert(program.channel.type + ': ' + program.channel.name)
+					).insert(dynamicTime).render(container);
+					
+					var html = new Element('div').insert(program.detail || '');
+					
+					program._tt = new sakura.ui.Popover({
+						target: it,
+						html  : html
+					}).render();
+					
+					if (program.pid && !program.tuner.isScrambling && global.chinachu.status.feature.streamer) {
+						var preview = function() {
+							if (program._tt.isShowing === false) {
+								program._pt = setTimeout(preview, 500);
+								return;
+							}
+							
+							new Ajax.Request('./api/recording/' + program.id + '/preview.txt', {
+								method    : 'get',
+								parameters: {width: 320, height: 180, nonce: new Date().getTime()},
+								onSuccess : function(t) {
+									html.update('<img src="' + t.responseText + '"><br>' + (program.detail || ''));
+									
+									delete t.responseText;
+									t = null;
+									
+									if (!this.isRemoved) {
+										program._pt = setTimeout(preview, 3000);
+									}
+								}.bind(this)
+							});
+						}.bind(this);
+						
+						program._pt = setTimeout(preview, 1000);
+					}
+				}.bind(this));
+				
+				clearInterval(this.interval);
+				this.interval = setInterval(function() {
+					this.entity.setAttribute('rel', $$('.dashboard-timelist').length);
+				}.bind(this), 500);
 				
 				return this;
 			},
 			
 			remove: function() {
 				
+				clearInterval(this.interval);
 				document.stopObserving(this.notify, this.onNotify);
 				
 				this.list.each(function(program) {
-					if (program._dt) program._dt.remove();
+					if (program._dt) program._dt.remove() && delete program._dt;
+					if (program._tt) program._tt.remove() && delete program._tt;
+					if (program._pt) clearTimeout(program._pt);
 				});
 				
 				this.entity.remove();
+				this.isRemoved = true;
 				
 				return this;
 			}
@@ -124,19 +172,19 @@ P = Class.create(P, {
 		
 		this.view.reservesTl = new Timelist({
 			name       : 'RESERVES'.__(),
-			initialList: this.app.chinachu.reserves,
+			initialList: global.chinachu.reserves,
 			notify     : 'chinachu:reserves'
 		}).render(this.view.content);
 		
 		this.view.recordingTl = new Timelist({
 			name       : 'RECORDING'.__(),
-			initialList: this.app.chinachu.recording,
+			initialList: global.chinachu.recording,
 			notify     : 'chinachu:recording'
 		}).render(this.view.content);
 		
 		this.view.recordedTl = new Timelist({
 			name       : 'RECORDED'.__(),
-			initialList: this.app.chinachu.recorded,
+			initialList: global.chinachu.recorded,
 			notify     : 'chinachu:recorded'
 		}).render(this.view.content);
 		

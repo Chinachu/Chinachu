@@ -96,6 +96,12 @@
 			recorded : []
 		}
 		
+		
+		// global
+		window.global = {
+			chinachu: app.chinachu
+		};
+		
 		// misc
 		app.def.apiRoot = API_ROOT;
 		

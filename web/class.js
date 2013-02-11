@@ -44,10 +44,6 @@
 			d.getMinutes().toPaddedString(2)
 		].join(':');
 		
-		if (type !== 'short') {
-			dStr += ':' + d.getSeconds().toPaddedString(2);
-		}
-		
 		var dDelta = ((new Date().getTime() - d.getTime()) / 1000);
 		
 		if (dDelta < 0) {
@@ -347,19 +343,21 @@
 			
 			if (delta < 0) delta -= delta * 2;
 			
-			if (delta > 60) {
-				wait = 10;
-				this.entity.addClassName('now');
-			}
-			if (delta > 120) wait = 30;
-			if (delta > 360) {
-				wait = 60;
+			if (delta < 9600) wait = 60 * 60;
+			if (delta < 4800) wait = 60 * 30;
+			if (delta < 2400) wait = 60 * 10;
+			if (delta < 1200) {
+				wait = 60 * 5;
 				this.entity.addClassName('soon');
 			}
-			if (delta > 1200) wait = 60 * 5;
-			if (delta > 2400) wait = 60 * 10;
-			if (delta > 4800) wait = 60 * 30;
-			if (delta > 9600) wait = 60 * 60;
+			if (delta < 360) wait = 60;
+			if (delta < 120) {
+				wait = 30;
+				this.entity.addClassName('now');
+			}
+			if (delta < 60) wait = 10;
+			if (delta < 30) wait = 5;
+			if (delta < 10) wait = 1;
 			
 			this.timer = setTimeout(this.create.bind(this), wait * 1000);
 			
