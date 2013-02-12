@@ -1389,6 +1389,7 @@
 				
 				this.isShowing = true;
 				
+				this.entity.style.opacity = '0';
 				$(document.body).insert(this.entity);
 				this.render();
 				
@@ -1415,6 +1416,8 @@
 					this.entity.style.top    = posY + 'px';
 					this.entity.style.bottom = 'auto';
 				}
+				
+				this.entity.style.opacity = '1';
 			}.bind(this));
 			
 			this.target.observe('mouseout', function(e) {

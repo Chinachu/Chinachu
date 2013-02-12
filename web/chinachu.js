@@ -107,6 +107,11 @@
 							app.view.sideBody.one('page-index-' + pageName).entity.style.boxShadow = 'inset -2px 0 0 ' + app.pm.pageData.background;
 						}
 					}
+					
+					new sakura.ui.Tooltip({
+						target: app.view.sideBody.one('page-index-' + pageName).entity,
+						html  : page.label.__()
+					}).render();
 				});//<--each category
 			} else {
 				app.view.middle.entity.addClassName('noside');
@@ -223,11 +228,9 @@
 			}).hide()
 		});
 		
-		if (Prototype.Browser.MobileSafari) {
-			app.view.sideHead.one('collapse').hide();
-			app.view.sideHead.one('expand').show();
-			app.view.middle.entity.addClassName('extend');
-		}
+		app.view.sideHead.one('collapse').hide();
+		app.view.sideHead.one('expand').show();
+		app.view.middle.entity.addClassName('extend');
 		
 		if (!Prototype.Browser.IE) {
 			app.pm.content.stopObserving('scroll');

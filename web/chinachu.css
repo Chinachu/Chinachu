@@ -10,7 +10,9 @@ html, body {
 	right           : 0;
 	bottom          : 0;
 	left            : 0;
-	background-color: #d67fae; }
+	background-color: #d67fae;
+	-webkit-text-size-adjust: none;
+	scrollbar-base-color    : #d67fae; }
 
 body, input {
 	font-family     : "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ",
@@ -972,7 +974,7 @@ div.dashboard-timelist {
 	height    : 100%;
 	overflow  : visible;
 	margin    : 0 0 0 5px;
-	-webkit-transition: all 0.2s ease;
+	-webkit-transition: none;/* これとcalc()でsafariがクラッシュするバグがある... */
 	-moz-transition   : all 0.2s ease;
 	-ms-transition    : all 0.2s ease;
 	-o-transition     : all 0.2s ease;
@@ -991,10 +993,49 @@ div.dashboard-timelist[rel="3"] {
 	width     : -webkit-calc((100% - 10px) / 3);
 	width     :         calc((100% - 10px) / 3); }
 
+/*
 div.dashboard-timelist[rel="4"] {
 	width     : 20%;
 	width     : -webkit-calc((100% - 15px) / 4);
 	width     :         calc((100% - 15px) / 4); }
+
+*/
+
+@media screen and (max-width: 880px){
+div.dashboard-timelist[rel="3"] {
+	width     : 40%;
+	width     : -webkit-calc((100% - 5px) / 2);
+	width     :         calc((100% - 5px) / 2);
+	height    : 50%;
+	height    : -webkit-calc((100% - 10px) / 2);
+	height    :         calc((100% - 10px) / 2);
+	margin-bottom: 10px; }
+
+div.dashboard-timelist[rel="3"]:nth-child(3) {
+	margin-bottom: 0; }
+}
+
+@media screen and (max-width: 600px){
+div.dashboard-timelist[rel="2"] {
+	width     : 100%;
+	height    : 50%;
+	height    : -webkit-calc((100% - 15px) / 2);
+	height    :         calc((100% - 15px) / 2);
+	margin    : 0 0 10px 0; }
+
+div.dashboard-timelist[rel="2"]:last-child {
+	margin-bottom: 0; }
+
+div.dashboard-timelist[rel="3"] {
+	width     : 100%;
+	height    : 30%;
+	height    : -webkit-calc((100% - 20px) / 3);
+	height    :         calc((100% - 20px) / 3);
+	margin    : 0 0 10px 0; }
+
+div.dashboard-timelist[rel="3"]:last-child {
+	margin-bottom: 0; }
+}
 	
 	div.dashboard-timelist > div.head {
 		position   : absolute;
@@ -1038,9 +1079,9 @@ div.dashboard-timelist[rel="4"] {
 			text-shadow    : 0 -1px 0 rgba(0,0,0,0.5); }
 		
 		div.dashboard-timelist > div.main > a:hover {
-			background     : rgba(0,0,0,0.3);
+			background     : rgba(0,0,0,0.8);
 			color          : white;
-			box-shadow     : 2px 2px 0 rgba(0,0,0,0.1); }
+			box-shadow     : 2px 2px 0 rgba(0,0,0,0.2); }
 			
 			div.dashboard-timelist > div.main > a > div.title {
 				overflow    : hidden; }
@@ -1062,3 +1103,24 @@ div.dashboard-timelist[rel="4"] {
 				
 			div.dashboard-timelist > div.main > a > div.dynamic-time.now {
 				color       : orange; }
+
+@media screen and (max-height: 600px){
+		div.dashboard-timelist > div.main > a {
+			line-height    : 15px;
+			font-size      : 11px;
+			padding        : 6px 5px 4px;
+			margin         : 0 0 2px 0; }
+			
+			div.dashboard-timelist > div.main > a > div.dynamic-time {
+				font-size   : 10px; }
+}
+
+@media screen and (max-height: 500px){
+			div.dashboard-timelist > div.main > a > div.channel {
+				display: inline-block; }
+			
+			div.dashboard-timelist > div.main > a > div.dynamic-time {
+				color      : rgba(255,255,255,0.3);
+				display    : inline-block;
+				margin-left: 5px; }
+}
