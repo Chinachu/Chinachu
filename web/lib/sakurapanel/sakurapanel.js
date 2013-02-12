@@ -1322,6 +1322,7 @@
 		**/
 		show: function _showElement() {
 			this.entity.show();
+			this.entity.fire('sakura:show');
 			
 			return this;
 		},
@@ -1335,6 +1336,7 @@
 		**/
 		hide: function _hideElement() {
 			this.entity.hide();
+			this.entity.fire('sakura:hide');
 			
 			return this;
 		},
@@ -1347,7 +1349,11 @@
 		 *  This method is wrapper for [Element.remove](http://api.prototypejs.org/dom/Element/remove/)
 		**/
 		remove: function _removeElement() {
-			this.entity.remove();
+			try {
+				this.entity.remove() && this.entity.fire('sakura:remove');
+			} catch (e) {
+				//console.debug(e);
+			}
 			
 			return this;
 		}
@@ -1511,12 +1517,14 @@
 			}.bind(this));
 			
 			this.target.observe('mouseout', function(e) {
-				
 				this.remove();
 			}.bind(this));
 			
 			this.target.observe('remove', function(e) {
-				
+				this.remove();
+			}.bind(this));
+			
+			this.target.observe('sakura:remove', function(e) {
 				this.remove();
 			}.bind(this));
 			
@@ -1535,13 +1543,6 @@
 		},
 		
 		render: function _renderDropdown() {
-			
-			return this;
-		},
-		
-		remove: function() {
-			
-			try { this.entity.remove(); } catch (e) {}
 			
 			return this;
 		}
