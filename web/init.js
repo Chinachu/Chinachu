@@ -58,13 +58,6 @@
 		/* stats.js */
 		'./lib/stats.min.js',
 		
-		/* three.js */
-		'./lib/three.js',
-		'./lib/three.TrackballControls.js',
-		
-		/* easeljs */
-		'./lib/easeljs.min.js',
-		
 		/* date.format */
 		'./lib/date.format.js',
 		
