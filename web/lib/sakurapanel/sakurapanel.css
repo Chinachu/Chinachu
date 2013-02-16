@@ -1,0 +1,560 @@
+/*!
+ *  sakurapanel JavaScript Control Panel UI Class-object Library
+ *
+ *  Copyright 2012, SAKURA Internet Inc and Contributors.
+ *  sakurapanel is freely distributable under the terms of an MIT-style license.
+**/
+html {
+	overflow           : hidden;
+	-ms-content-zooming: none; }
+
+body {
+	padding         : 0;
+	margin          : 0;
+	background-color: #eee;
+	overflow        : hidden;
+	font-size       : 12px;
+	font-family     : "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", Meiryo,
+	                  Osaka, "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
+	line-height     : 18px; }
+
+@media print {
+	* {
+		text-shadow: none; }
+}
+
+img { border:0; }
+
+input.checkbox, input[type="checkbox"] {
+	padding : 0;
+	margin  : 0; }
+
+/* ui:sakura-button */
+a.sakura-button {
+	display         : inline-block;
+	cursor          : pointer;
+	text-decoration : none;
+	font-size       : 14px;
+	padding         : 3px 8px 2px 8px;
+	border          : 2px solid rgba(0,0,0,0.2);
+	color           : #ddd;
+	color           : rgba(255,255,255,0.8);
+	text-shadow     : 0 1px 0 rgba(0,0,0,0.25);
+	box-shadow      : inset 0 -30px 0 rgba(255,255,255,0.2);
+	background-color: #555;
+	
+	-webkit-transition: all 0.3s ease;
+	-moz-transition   : all 0.3s ease;
+	-ms-transition    : all 0.3s ease;
+	-o-transition     : all 0.3s ease;
+	transition        : all 0.3s ease; }
+	
+	a.sakura-button > .remove {
+		margin-left: 5px;
+		text-shadow: none;
+		color      : #ccc; }
+	
+	a.sakura-button > .remove:hover {
+		color      : rgb(204,44,43); }
+
+a.sakura-button:hover {
+	border-color    : rgba(0,0,0,0.2);
+	color           : #fff;
+	box-shadow      : inset 0 0 0 rgba(255,255,255,0.2); }
+
+a.sakura-button:active {
+	border-color    : #000; }
+
+a.sakura-button.sakura-button-icon {
+	padding-left       : 24px;
+	background-position: 5px center;
+	background-repeat  : no-repeat; }
+
+a.sakura-button.sakura-button-selected {
+	color           : #fff;
+	color           : rgba(255,255,255,1);
+	border-color    : rgba(0,0,0,1);
+	text-shadow     : none;
+	box-shadow      : inset 0 -30px 0 rgba(0,0,0,0.3); }
+
+a.sakura-button.sakura-button-disabled {
+	cursor          : not-allowed;
+	color           : #ccc;
+	color           : rgba(255,255,255,0.5);
+	border-color    : rgba(0,0,0,1);
+	text-shadow     : none;
+	box-shadow      : inset 0 -30px 0 rgba(0,0,0,0.3); }
+
+a.sakura-button.sakura-button-color-red    { background-color: #bd362f !important; }
+a.sakura-button.sakura-button-color-blue   { background-color: #04c !important; }
+a.sakura-button.sakura-button-color-green  { background-color: #5bb75b !important; }
+a.sakura-button.sakura-button-color-orange { background-color: #faa732 !important; }
+
+a.sakura-button.sakura-button-color-silver {
+	background-color: #eeeeee !important;
+	color           : #555555;
+	text-shadow     : none; }
+
+/* ui:sakura-square-button */
+a.sakura-square-button {
+	position    : relative;
+	box-shadow  : none;
+	font-size   : 12px;
+	border      : none;
+	padding     : 0;
+	margin      : 0 5px 5px 0;
+	text-shadow : none;
+	line-height : 14px; }
+	
+a.sakura-square-button.sakura-button-icon {
+	padding            : 0;
+	background-position: center center; }
+	
+	a.sakura-square-button > span.label {
+		position  : absolute;
+		bottom    : 5px;
+		right     : 5px;
+		left      : 5px;
+		text-align: left; }
+	
+	a.sakura-square-button > span.note {
+		position   : absolute;
+		top        : 5px;
+		right      : 5px;
+		left       : 5px;
+		text-align : right;
+		font-weight: bold;
+		font-family: Arial, Helvetica, sans-serif;
+		font-size  : 14px; }
+
+/* ui:sakura-tab */
+div.sakura-tab {
+	 }
+	
+	div.sakura-tab > div.sakura-tab-bar {
+		padding-left: 0px;
+		box-shadow  : inset 0 -3px 0 rgba(0,0,0,0.1), inset 0 -1px 0 rgba(0,0,0,0.25); }
+		
+		div.sakura-tab > div.sakura-tab-bar > a.sakura-button {
+			border          : 1px solid transparent;
+			border-bottom   : none;
+			background-color: transparent;
+			box-shadow      : none;
+			font-size       : 13px;
+			line-height     : 17px;
+			text-shadow     : none;
+			color           : #999;
+			padding-bottom  : 3px;
+			padding-top     : 4px;
+			margin-left     : 2px; }
+		
+		div.sakura-tab > div.sakura-tab-bar > a.sakura-button:hover {
+			color           : #2b2b2b;
+			background-color: rgba(0,0,0,0.1); }
+		
+		div.sakura-tab > div.sakura-tab-bar > a.sakura-button.sakura-button-selected {
+			background-color   : white;
+			border-color       : rgba(0,0,0,0.35);
+			color              : #2b2b2b; }
+	
+	div.sakura-tab > div.sakura-tab-content {
+		margin-top: 5px; }
+
+/* ui:sakura-dropdown */
+div.sakura-dropdown {
+	z-index         : 10001;
+	position        : absolute;
+	top             : 0;
+	right           : 0;
+	bottom          : 0;
+	left            : 0;
+	background-color: rgba(255,255,255,0.1); }
+	
+	div.sakura-dropdown > div {
+		position        : absolute;
+		width           : auto;
+		height          : auto;
+		background-color: #fff;
+		padding         : 3px 0;
+		border          : 1px solid #ccc;
+		border-color    : rgba(0,0,0,0.3);
+		border-radius   : 2px;
+		box-shadow      : 0 0 10px rgba(0,0,0,0.3) }
+	
+	div.sakura-dropdown > div::before {
+		position        : absolute;
+		top             : -7px;
+		left            : 9px;
+		display         : inline-block;
+		border-right    : 7px solid transparent;
+		border-bottom   : 7px solid #ccc;
+		border-left     : 7px solid transparent;
+		border-bottom-color: rgba(0,0,0,0.2);
+		content         : ''; }
+	
+	div.sakura-dropdown > div::after {
+		position        : absolute;
+		top             : -6px;
+		left            : 10px;
+		display         : inline-block;
+		border-right    : 6px solid transparent;
+		border-bottom   : 6px solid #fff;
+		border-left     : 6px solid transparent;
+		content         : ''; }
+		
+		div.sakura-dropdown > div > div {
+			cursor             : pointer;
+			background-repeat  : no-repeat;
+			background-position: 10px center;
+			padding            : 5px 20px 4px 15px;
+			font-size          : 12px;
+			color              : #222; }
+		
+		div.sakura-dropdown > div > div:hover {
+			background-color   : #777;
+			color              : #fff; }
+		
+		div.sakura-dropdown > div > div.sakura-dropdown-icon {
+			padding-left       : 33px; }
+		
+		div.sakura-dropdown > div > hr {
+			border             : none;
+			border-top         : 1px dashed #bbb;
+			margin             : 5px 0; }
+
+/* ui:sakura-alert */
+div.sakura-alert {
+	margin-bottom   : 5px;
+	background-color: rgba(0,0,0,0.6);
+	color           : white; }
+
+div.sakura-alert-white {
+	background-color: rgba(255,255,255,0.6); }
+
+div.sakura-alert-info,
+div.sakura-alert-blue {
+	background-color: rgba(0,103,191,0.6); }
+
+div.sakura-alert-caution,
+div.sakura-alert-yellow {
+	background-color: rgba(191,175,0,0.6); }
+
+div.sakura-alert-warning,
+div.sakura-alert-red {
+	background-color: rgba(191,0,41,0.6); }
+
+div.sakura-alert-success,
+div.sakura-alert-green {
+	background-color: rgba(79,204,43,0.6); }
+	
+	div.sakura-alert > div {
+		padding         : 8px 8px 7px;
+		border          : 2px solid transparent;
+		font-size       : 13px; }
+	
+	div.sakura-alert > div:hover {
+		border-color    : rgba(0,0,0,0.3); }
+		
+		div.sakura-alert > div > button {
+			cursor          : pointer;
+			float           : right;
+			background      : none;
+			color           : #ddd;
+			color           : rgba(255,255,255,0.7);
+			border          : none;
+			padding         : 0;
+			margin          : 0;
+			font            : 15px bold "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", Meiryo,
+			                            Osaka, "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
+			line-height     : 15px; }
+		
+		div.sakura-alert-white > div > button {
+			color           : #777;
+			color           : rgba(0,0,0,0.7); }
+		
+		div.sakura-alert > div > button:hover {
+			color           : white; }
+		
+		div.sakura-alert-white > div > button:hover {
+			color           : #000; }
+		
+		div.sakura-alert > div > strong {
+			margin-right    : 5px; }
+		
+		div.sakura-alert > div > strong,
+		div.sakura-alert > div > span {
+			text-shadow     : 0 -1px 0 rgba(0,0,0,0.3); }
+
+/* ui:sakura-color-samples */
+div.sakura-color-samples {
+	margin-bottom   : 10px;
+	background-color: rgba(0,0,0,0.05);
+	color           : #555; }
+	
+	div.sakura-color-samples > div {
+		padding          : 10px 10px 9px;
+		font-size        : 11px; }
+		
+		div.sakura-color-samples > div > strong {
+			margin-right    : 10px; }
+		
+		div.sakura-color-samples > div > span {
+			border-left    : 10px solid #ccc;
+			margin-right   : 10px;
+			padding-left   : 5px; }
+
+/* feedback */
+div.sakura-feedback {
+	cursor          : pointer;
+	z-index         : 100000;
+	background-color: #999;
+	background-color: rgba(0,0,0,0.4);
+	color           : #ccc;
+	color           : rgba(255,255,255,0.5);
+	font-size       : 10px;
+	position        : fixed;
+	right           : -170px;
+	bottom          : 30px;
+	width           : auto;
+	padding         : 2px 10px 0px 5px;
+	-webkit-transition: all 0.2s ease;
+	-moz-transition   : all 0.2s ease;
+	-ms-transition    : all 0.2s ease;
+	-o-transition     : all 0.2s ease;
+	transition        : all 0.2s ease;
+	
+	-webkit-animation: 0.5s 3s feedback-blink ease 10 alternate;
+	-moz-animation: 0.5s 3s feedback-blink ease 10 alternate;
+	-ms-animation: 0.5s 3s feedback-blink ease 10 alternate;
+	-o-animation: 0.5s 3s feedback-blink ease 10 alternate;
+	animation: 0.5s 3s feedback-blink ease 10 alternate; }
+	
+div.sakura-feedback::before {
+	content     : "[＋]";
+	margin-right: 20px; }
+
+div.sakura-feedback:hover {
+	right           : 0px;
+	background-color: #000;
+	color           : #fff; }
+
+div.sakura-feedback:hover::before {
+	margin-right: 5px; }
+
+@-webkit-keyframes feedback-blink {
+	from {
+		background-color: #222;
+		color           : #fff;
+		right           : 0;
+		background      : rgba(0,0,255,0.5); }
+	to   {
+		background-color: #222;
+		color           : #fff;
+		right           : 0;
+		background      : rgba(0,0,255,0.8); }
+}
+
+@-moz-keyframes feedback-blink {
+	from {
+		background-color: #222;
+		color           : #fff;
+		right           : 0;
+		background      : rgba(0,0,255,0.5); }
+	to   {
+		background-color: #222;
+		color           : #fff;
+		right           : 0;
+		background      : rgba(0,0,255,0.8); }
+}
+
+@-ms-keyframes feedback-blink {
+	from {
+		background-color: #222;
+		color           : #fff;
+		right           : 0;
+		background      : rgba(0,0,255,0.5); }
+	to   {
+		background-color: #222;
+		color           : #fff;
+		right           : 0;
+		background      : rgba(0,0,255,0.8); }
+}
+
+@-o-keyframes feedback-blink {
+	from {
+		background-color: #222;
+		color           : #fff;
+		right           : 0;
+		background      : rgba(0,0,255,0.5); }
+	to   {
+		background-color: #222;
+		color           : #fff;
+		right           : 0;
+		background      : rgba(0,0,255,0.8); }
+}
+
+@keyframes feedback-blink {
+	from {
+		background-color: #222;
+		color           : #fff;
+		right           : 0;
+		background      : rgba(0,0,255,0.5); }
+	to   {
+		background-color: #222;
+		color           : #fff;
+		right           : 0;
+		background      : rgba(0,0,255,0.8); }
+}
+
+@media print {
+	div.sakura-feedback {
+		display: none; }
+}
+
+.feedback-form {
+	z-index   : 100002;
+	
+	position: fixed;
+	right   : 0;
+	bottom  : 0;
+	
+	font-size : 11px;
+	box-shadow: 0 0 10px rgba(0,0,0,0.5);
+	
+	background: #fff;
+	background: rgba(255,255,255,0.8);
+	color     : #333;
+	padding   : 10px;
+	width     : 200px; }
+
+.feedback-form h2 {
+	font-size  : 18px;
+	margin     : 5px 0 10px;}
+
+.feedback-form textarea {
+	border    : 1px solid #777;
+	margin    : 0;
+	padding   : 2px;
+	font-size : 12px;
+	margin-top: 10px;
+	width     : 90%;
+	height    : 30px; }
+
+/* tooltip */
+
+div.sakura-tooltip {
+	z-index         : 500;
+	position        : absolute;
+	max-width       : 250px;
+	background-color: rgba(0,0,0,0.5);
+	color           : white;
+	word-break      : break-all;
+	white-space     : normal;
+	margin          : 20px;
+	padding         : 10px; }
+
+/* help */
+
+div.sakura-help {
+	z-index         : 100;
+	position        : absolute;
+	top             : 0;
+	right           : 0;
+	bottom          : 0;
+	left            : 0;
+	background-color: rgba(255,255,255,0.5); }
+	
+	div.sakura-help > .head {
+		z-index         : 2;
+		position        : absolute;
+		top             : 0;
+		right           : 0;
+		left            : 0;
+		background-color: rgba(0,103,255,0.5);
+		line-height     : 30px;
+		font-size       : 14px;
+		font-weight     : bold;
+		height          : 30px;
+		color           : #eee;
+		padding         : 5px 10px;
+		text-align      : center; }
+	
+	div.sakura-help > .head:hover {
+		cursor          : pointer;
+		background-color: rgba(0,103,255,0.7);
+		color           : white; }
+		
+	div.sakura-help > .main {
+		z-index         : 1;
+		position        : absolute;
+		top             : 0;
+		right           : 0;
+		bottom          : 0;
+		left            : 0; }
+		
+		div.sakura-help > .main > div {
+			position        : absolute;
+			background-color: rgba(0,0,0,0.05);
+			overflow        : hidden;
+			color           : white;
+			box-shadow      : -1px -1px 0 rgb(255,100,100),
+			                  -1px  1px 0 rgb(255,100,100),
+			                   1px -1px 0 rgb(255,100,100),
+			                   1px  1px 0 rgb(255,100,100),
+			                  inset 2px 2px 0px rgba(0,0,0,0.1); }
+		
+		div.sakura-help > .main > div:hover {
+			cursor          : help;
+			box-shadow      : -2px -2px 0 rgb(255,0,0),
+			                  -2px  2px 0 rgb(255,0,0),
+			                   2px -2px 0 rgb(255,0,0),
+			                   2px  2px 0 rgb(255,0,0),
+			                  inset 2px 2px 0px rgba(0,0,0,0.1) }
+			
+			div.sakura-help > .main > div > div {
+				background-color: rgba(255,0,0,0.4);
+				width           : auto;
+				display         : inline-block;
+				padding         : 0 4px 0 2px;
+				font-size       : 12px;
+				font-weight     : bold;
+				box-shadow      : 2px 2px 0 rgba(0,0,0,0.1); }
+				
+				div.sakura-help > .main > div:hover > div {
+					background-color: rgb(255,0,0); }
+
+/* hypernotifier */
+div.hypernotifier-notify {
+	z-index           : 100001 !important; }
+
+/* hypermodal */
+
+div.sakura-hypermodal-red .hypermodal-header {
+	color: #ce5242; }
+
+div.sakura-hypermodal-orange .hypermodal-header {
+	color: #f6ad49; }
+
+div.sakura-hypermodal-blue .hypermodal-header {
+	color: #4c6cb3; }
+
+div.sakura-hypermodal-green .hypermodal-header {
+	color: #aed100; }
+
+@media screen and (max-width: 580px){
+	div.hypermodal > div {
+		left : 0 !important;
+		right: 0 !important; }
+	
+	div.hypermodal > div > div {
+		width : 100% !important;
+		margin: 0; }
+}
+
+@media print {
+	table.hyperform {
+		border: 1px solid #aaa; }
+	
+	table.hypergrid {
+		border: 1px solid #aaa !important; }
+}

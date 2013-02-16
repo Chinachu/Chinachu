@@ -34,8 +34,6 @@
 	
 	// ビュー: プログラム
 	function viewProgram() {
-		if (app.chinachu.recorded.length === 0) return;
-		
 		++loadCount;
 		var currentLoadCount = loadCount;
 		
