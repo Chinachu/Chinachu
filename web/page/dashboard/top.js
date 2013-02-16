@@ -20,19 +20,6 @@ P = Class.create(P, {
 		this.view.content.className = 'bg-chinachu';
 		this.view.content.update();
 		
-		/*
-		var loading = new chinachu.ui.ContentLoading({
-			onComplete: function() {
-				setTimeout(function() {
-					loading.remove();
-					loading = null;
-				}, 50);
-			}
-		}).render(app.view.main);
-		
-		loading.update(20);
-		*/
-		
 		var Timelist = Class.create(sakura.ui.Container, {
 			
 			init: function(opt) {

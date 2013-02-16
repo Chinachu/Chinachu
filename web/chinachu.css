@@ -51,6 +51,10 @@ div.fullscreen {
 	padding            : 0 !important;
 	margin             : 0; }
 
+/* noscroll */
+.noscroll {
+	overflow: hidden !important; }
+
 /* muted */
 .muted {
 	opacity: 0.4 !important; }
