@@ -368,7 +368,7 @@
 			
 			clearTimeout(this.timer);
 			
-			this.entity.remove();
+			try { this.entity.remove(); } catch (e) {}
 			
 			return this;
 		}

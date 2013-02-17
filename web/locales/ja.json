@@ -9,12 +9,15 @@
   "{0} HOURS AGO"    : "{0}時間前",
   "{0} DAYS AGO"     : "{0}日前",
   "CONFIG {0}"       : "{0}設定",
+  "TO {0}"           : "{0}へ",
   
   "CONNECTED"   : "接続されました",
   "DISCONNECTED": "切断されました",
   
   "VIEW"     : "ビュー",
   "CLOSE"    : "閉じる",
+  "YESTERDAY": "昨日",
+  "TOMORROW" : "明日",
   
   "DASHBOARD"    : "ダッシュボード",
   "TOP"          : "トップ",

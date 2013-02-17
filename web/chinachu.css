@@ -105,6 +105,17 @@ div.fullscreen {
 .bg-silver {
 	background-color: #ddd; }
 
+
+.bg-cat-anime { background: #fcbde1 !important; }
+.bg-cat-information { background: #bdfce8 !important; }
+.bg-cat-news { background: #d7fcbd !important; }
+.bg-cat-sports { background: #bdf1fc !important; }
+.bg-cat-variety { background: #fbfcbd !important; }
+.bg-cat-drama { background: #fce1c4 !important; }
+.bg-cat-music { background: #bdc9fc !important; }
+.bg-cat-cinema { background: #d6bdfc !important; }
+.bg-cat-etc { background: #eeeeee !important; }
+
 div.content-loading {
 	z-index         : 100;
 	position        : absolute;
@@ -1079,15 +1090,174 @@ div.dashboard-timelist[rel="3"]:last-child {
 				margin-left: 5px; }
 }
 
-div.timeline > div.head {
+div.timeline > div.board {
+	z-index    : 10;
+	position   : absolute;
+	top        : 0;
+	right      : 0;
+	bottom     : 20px;
+	left       : 0;
+	background : #ddd;
+	overflow   : hidden; }
+	
+	div.timeline > div.board > div.handline {
+		z-index   : 2;
+		position  : absolute;
+		top       : 0;
+		bottom    : 0;
+		width     : 2px;
+		background: rgba(255,0,0,0.5); }
+	
+	div.timeline > div.board > div.cutline {
+		z-index     : 1;
+		position    : absolute;
+		top         : 0;
+		bottom      : 0;
+		width       : 0;
+		border-right: 1px dashed rgba(255,0,0,0.5); }
+	
+	div.timeline > div.board > div.rect {
+		z-index     : 0;
+		position    : absolute;
+		background  : #ccc;
+		cursor      : pointer;
+		box-shadow  : inset 0 0 0 rgba(255,255,255,0);
+		-webkit-transition: all 0.25s ease;
+		-moz-transition   : all 0.25s ease;
+		-ms-transition    : all 0.25s ease;
+		-o-transition     : all 0.25s ease;
+		transition        : all 0.25s ease; }
+	
+	div.timeline > div.board > div.rect:hover {
+		box-shadow  : inset 0 50px 0 rgba(255,255,255,0.5); }
+	
+	div.timeline > div.board > div.rect.reserved {
+		background  : red !important; }
+	
+	div.timeline > div.board > div.rect.reserved:hover {
+		background  : white !important; }
+	
+	div.timeline > div.board > div.rect.muted {
+		opacity     : 0.5; }
+		
+		div.timeline > div.board > div.rect > div {
+			position   : absolute;
+			top        : 0;
+			right      : 5px;
+			bottom     : 0;
+			left       : 5px;
+			overflow   : hidden;
+			line-height: 2.4em;
+			white-space: nowrap;
+			font-size  : 10px;
+			font-family: "Meiryo UI", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ",
+			             Meiryo, Osaka, "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
+			color      : #444; }
+		
+		div.timeline > div.board > div.rect:hover > div {
+			color      : #000;
+			text-shadow: 0 1px 0 #fff; }
+		
+		div.timeline > div.board > div.rect.reserved > div {
+			color      : white; }
+		
+		div.timeline > div.board > div.rect.reserved:hover > div {
+			color      : red;
+			text-shadow: none; }
+
+div.timeline > div.drawer {
 	z-index   : 100;
 	position  : absolute;
+	top       : 5px;
+	right     : 5px;
+	bottom    : 5px;
+	width     : 200px;
+	overflow  : hidden;
+	background: rgba(0,0,0,0.8);
+	-webkit-transition: all 0.25s ease;
+	-moz-transition   : all 0.25s ease;
+	-ms-transition    : all 0.25s ease;
+	-o-transition     : all 0.25s ease;
+	transition        : all 0.25s ease; }
+	
+div.timeline > div.drawer.hide {
+	right     : -200px; }
+	
+	div.timeline > div.drawer > div.head {
+		position  : absolute;
+		top       : 5px;
+		right     : 5px;
+		left      : 5px;
+		height    : 60px;
+		background: rgba(255,255,255,0.8);
+		text-align: center; }
+		
+		div.timeline > div.drawer > div.head > div.date {
+			text-align : center;
+			font-family: "Arial Black", Gadget, sans-serif;
+			font-size  : 20px;
+			line-height: 20px;
+			color      : #222;
+			margin     : 10px 0 2px 0; }
+			
+			div.timeline > div.drawer > div.head > div.date > small {
+				font-size  : 12px;
+				color      : #777;
+				margin-left: 2px;
+				line-height: 15px; }
+		
+		div.timeline > div.drawer > div.head > span.dynamic-time,
+		div.timeline > div.drawer > div.head > span.channel {
+			color    : #777;
+			font-size: 10px; }
+	
+	div.timeline > div.drawer > div.body {
+		position   : absolute;
+		top        : 75px;
+		right      : 5px;
+		bottom     : 40px;
+		left       : 5px;
+		overflow   : auto;
+		word-break : break-all;
+		white-space: normal;
+		background : rgba(0,0,0,0.2);
+		text-align : left;
+		color      : #ccc;
+		font-family: "Meiryo UI", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ",
+		             Meiryo, Osaka, "ＭＳ Ｐゴシック", "MS PGothic", sans-serif; }
+		
+		div.timeline > div.drawer > div.body > div.title {
+			font-size  : 14px;
+			font-weight: bold;
+			margin     : 0 0 10px 0;
+			color      : white; }
+			
+			div.timeline > div.drawer > div.body > div.title > span[class*="bg-cat-"] {
+				font          : 10px normal "arial";
+				color         : rgba(0,0,0,0.7);
+				margin-right  : 2px;
+				vertical-align: middle;
+				border-radius : 1px;
+				padding       : 0 2px; }
+		
+		div.timeline > div.drawer > div.body > div.detail {
+			margin     : 0 0 5px 0; }
+		
+		div.timeline > div.drawer > div.body > div.id {
+			font-size  : 10px;
+			color      : #aaa;
+			font-family: Arial, Helvetica, sans-serif; }
+
+div.timeline > div.head {
+	z-index   : 98;
+	position  : absolute;
 	top       : 0;
-	bottom    : 0;
+	bottom    : 20px;
 	left      : 0;
 	width     : 140px;
 	overflow  : hidden;
-	background: rgba(0,0,0,0.5); }
+	background: rgba(0,0,0,0.5);
+	border-bottom: 5px solid transparent; }
 	
 	div.timeline > div.head > div {
 		position   : absolute;
@@ -1103,24 +1273,8 @@ div.timeline > div.head {
 	div.timeline > div.head > div:hover {
 		color      : white; }
 
-div.timeline > div.handline {
-	z-index   : 99;
-	position  : absolute;
-	top       : 0;
-	bottom    : 0;
-	width     : 2px;
-	background: rgba(255,0,0,0.5); }
-
-div.timeline > div.cutline {
-	z-index     : 97;
-	position    : absolute;
-	top         : 0;
-	bottom      : 0;
-	width       : 0;
-	border-right: 1px dashed rgba(0,0,0,0.5); }
-
 div.timeline > div.timescale {
-	z-index   : 98;
+	z-index   : 99;
 	position  : absolute;
 	height    : 20px;
 	right     : 0;
@@ -1134,17 +1288,24 @@ div.timeline > div.timescale {
 	div.timeline > div.timescale > div {
 		position   : absolute;
 		margin-left: 150px;
-		top        : 1px; }
+		top        : 1px;
+		font-size  : 10px;
+		font-family: monospace;
+		line-height: 10px; }
+	
+	div.timeline > div.timescale > div.date {
+		padding     : 5px 0 0 2px;
+		z-index     : 2;
+		color       : red !important;
+		border-color: red !important;
+		background  : #eee; }
 	
 	div.timeline > div.timescale > div.long {
 		height     : 10px;
 		padding    : 5px 0 0 2px;
 		border-left: 1px solid #aaa;
-		font-size  : 10px;
-		font-family: monospace;
 		color      : #777;
-		box-shadow : inset 1px 0 0 #fff;
-		line-height: 10px; }
+		box-shadow : inset 1px 0 0 #fff; }
 	
 	div.timeline > div.timescale > div.middle {
 		width      : 1px;
