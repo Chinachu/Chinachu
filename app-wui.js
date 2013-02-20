@@ -583,30 +583,32 @@ io.set('transports', ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'js
 io.sockets.on('connection', ioServer);
 
 function ioServer(socket) {
-	// ヘッダを確認
-	if (
-		!socket.handshake.headers.authorization ||
-		(socket.handshake.headers.authorization.match(/^Basic .+$/) === null)
-	) {
-		socket.disconnect();
-		return;
-	}
-	
-	// Base64文字列を取り出す
-	var auth = socket.handshake.headers.authorization.split(' ')[1];
-	
-	// Base64デコード
-	try {
-		auth = new Buffer(auth, 'base64').toString('ascii');
-	} catch (e) {
-		socket.disconnect();
-		return;
-	}
-	
-	// 認証
-	if (config.wuiUsers && config.wuiUsers.indexOf(auth) === -1) {
-		socket.disconnect();
-		return;
+	if (basic) {
+		// ヘッダを確認
+		if (
+			!socket.handshake.headers.authorization ||
+			(socket.handshake.headers.authorization.match(/^Basic .+$/) === null)
+		) {
+			socket.disconnect();
+			return;
+		}
+		
+		// Base64文字列を取り出す
+		var auth = socket.handshake.headers.authorization.split(' ')[1];
+		
+		// Base64デコード
+		try {
+			auth = new Buffer(auth, 'base64').toString('ascii');
+		} catch (e) {
+			socket.disconnect();
+			return;
+		}
+		
+		// 認証
+		if (config.wuiUsers && config.wuiUsers.indexOf(auth) === -1) {
+			socket.disconnect();
+			return;
+		}
 	}
 	
 	// 通ってよし
