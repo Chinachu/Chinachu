@@ -406,7 +406,7 @@ P = Class.create(P, {
 			this.view.board.entity.observe('touchend',   onTouchend);
 		} else {
 			this.view.board.entity.observe('click', onClick);
-			this.view.board.entity.observe('mousemove',  onMousemove);
+			this.view.board.entity.observe('mousedown',  onMousedown);
 		}
 		
 		// start
