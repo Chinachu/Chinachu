@@ -333,14 +333,81 @@ P = Class.create(P, {
 				setTimeout(viewDrawer, 100);
 			}
 			
-			console.log(this.data.scrollDelta);
+			if (
+				this.data.scrollDelta[0] !== 0 ||
+				this.data.scrollDelta[1] !== 0
+			) {
+				clearTimeout(this.timer.inertiaScroll);
+				var inertiaScroll = function() {
+					var x = this.data.scrollDelta[0] * 0.75;
+					var y = this.data.scrollDelta[1] * 0.75;
+					
+					if ((x > 1 || x < -1) || (y > 1 || y < -1)) {
+						this.data.scrollEnd[0] += x;
+						this.data.scrollEnd[1] += y;
+						this.scroller();
+						this.timer.inertiaScrollX = setTimeout(inertiaScroll, 30);
+					}
+				}.bind(this);
+				inertiaScroll();
+			}
 			
 			$(document.body).stopObserving('mousemove', onMousemove);
 			$(document.body).stopObserving('mouseup',   onMouseup);
 		}.bind(this);
 		
-		this.view.board.entity.observe('click', onClick);
-		this.view.board.entity.observe('mousedown', onMousedown);
+		var onTouchstart = function(e) {
+			
+			this.data.scrollStat  = 0;
+			this.data.scrollStart = this.data.scrollEnd = [e.touches[0].pageX, e.touches[0].pageY];
+		}.bind(this);
+		
+		var onTouchmove = function(e) {
+			
+			e.preventDefault();
+			e.stopPropagation();
+			
+			this.data.scrollStat = 1;
+			this.data.scrollEnd  = [e.touches[0].pageX, e.touches[0].pageY];
+			
+			this.scroller();
+		}.bind(this);
+		
+		var onTouchend = function(e) {
+			
+			if (this.data.scrollStat === 0) {
+				onClick(e);
+				setTimeout(viewDrawer, 100);
+			}
+			
+			if (
+				this.data.scrollDelta[0] !== 0 ||
+				this.data.scrollDelta[1] !== 0
+			) {
+				clearTimeout(this.timer.inertiaScroll);
+				var inertiaScroll = function() {
+					var x = this.data.scrollDelta[0] * 0.5;
+					var y = this.data.scrollDelta[1] * 0.5;
+					
+					if ((x > 1 || x < -1) || (y > 1 || y < -1)) {
+						this.data.scrollEnd[0] += x;
+						this.data.scrollEnd[1] += y;
+						this.scroller();
+						this.timer.inertiaScrollX = setTimeout(inertiaScroll, 25);
+					}
+				}.bind(this);
+				inertiaScroll();
+			}
+		}.bind(this);
+		
+		if (Prototype.Browser.MobileSafari) {
+			this.view.board.entity.observe('touchstart', onTouchstart);
+			this.view.board.entity.observe('touchmove',  onTouchmove);
+			this.view.board.entity.observe('touchend',   onTouchend);
+		} else {
+			this.view.board.entity.observe('click', onClick);
+			this.view.board.entity.observe('mousemove',  onMousemove);
+		}
 		
 		// start
 		this.tick();
@@ -412,18 +479,40 @@ P = Class.create(P, {
 					a._rect.setAttribute('rel', a.id);
 					
 					if (a.isReserved) a._rect.addClassName('reserved');
-					this.view.board.entity.appendChild(a._rect);
+					
+					if (Prototype.Browser.MobileSafari) {
+						clearTimeout(this.timer['appendChild_' + a.id]);
+						this.timer['appendChild_' + a.id] = setTimeout(function() {
+							this.view.board.entity.appendChild(a._rect);
+						}.bind(this), 100);
+					} else {
+						this.view.board.entity.appendChild(a._rect);
+					}
 					
 					a.isVisible = true;
 				}
 				
 				if (a.isVisible === false) {
-					a._rect.style.display = '';
+					if (Prototype.Browser.MobileSafari) {
+						clearTimeout(this.timer['show_' + a.id]);
+						this.timer['show_' + a.id] = setTimeout(function() {
+							a._rect.style.display = '';
+						}.bind(this), 100);
+					} else {
+						a._rect.style.display = '';
+					}
 					a.isVisible = true;
 				}
 			} else {
 				if (a._rect && a.isVisible === true) {
-					a._rect.style.display = 'none';
+					if (Prototype.Browser.MobileSafari) {
+						clearTimeout(this.timer['hide_' + a.id]);
+						this.timer['hide_' + a.id] = setTimeout(function() {
+							a._rect.style.display = 'none';
+						}.bind(this), 100);
+					} else {
+						a._rect.style.display = 'none';
+					}
 					a.isVisible = false;
 				}
 			}
