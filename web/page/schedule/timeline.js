@@ -320,6 +320,8 @@ P = Class.create(P, {
 			e.stopPropagation();
 			
 			this.data.scrollEnd = [e.clientX, e.clientY];
+			
+			this.scroller();
 		}.bind(this);
 		
 		var onMouseup = function(e) {
@@ -330,6 +332,8 @@ P = Class.create(P, {
 			if (this.data.scrollStat === [e.clientX, e.clientY].join(',')) {
 				setTimeout(viewDrawer, 100);
 			}
+			
+			console.log(this.data.scrollDelta);
 			
 			$(document.body).stopObserving('mousemove', onMousemove);
 			$(document.body).stopObserving('mouseup',   onMouseup);
@@ -344,9 +348,30 @@ P = Class.create(P, {
 		return this;
 	},//<--draw
 	
-	tick: function _tick() {
+	scroller: function _scroller() {
+		if (
+			(this.data.scrollStart[0] - this.data.scrollEnd[0] !== 0) ||
+			(this.data.scrollStart[1] - this.data.scrollEnd[1] !== 0)
+		) {
+			this.data.scrollDelta = [
+				this.data.scrollEnd[0] - this.data.scrollStart[0],
+				this.data.scrollEnd[1] - this.data.scrollStart[1]
+			];
+			
+			this.view.timescale.entity.scrollLeft = this.view.board.entity.scrollLeft -= this.data.scrollDelta[0];
+			this.view.head.entity.scrollTop = this.view.board.entity.scrollTop -= this.data.scrollDelta[1];
+			
+			this.data.scrollStart = [this.data.scrollEnd[0], this.data.scrollEnd[1]];
+			
+			//console.log(delta);
+		} else {
+			this.data.scrollDelta = [0, 0];
+		}
 		
-		this.render();
+		return this;
+	},//<--scroller
+	
+	tick: function _tick() {
 		
 		// window.requestAnimationFrame
 		(
@@ -356,60 +381,49 @@ P = Class.create(P, {
 			this.tick.bind(this)
 		);
 		
+		this.render();
+		
 		return this;
 	},//<--tick
 	
 	render: function _render() {
 		
-		if (
-			(this.data.scrollStart[0] - this.data.scrollEnd[0] !== 0) ||
-			(this.data.scrollStart[1] - this.data.scrollEnd[1] !== 0)
-		) {
-			var delta = [
-				this.data.scrollEnd[0] - this.data.scrollStart[0],
-				this.data.scrollEnd[1] - this.data.scrollStart[1]
-			];
-			
-			this.view.timescale.entity.scrollLeft = this.view.board.entity.scrollLeft -= delta[0];
-			this.view.head.entity.scrollTop = this.view.board.entity.scrollTop -= delta[1];
-			
-			this.data.scrollStart = [this.data.scrollEnd[0], this.data.scrollEnd[1]];
-			
-			//console.log(delta);
-		}
+		
 		
 		var left   = this.view.board.entity.scrollLeft - 200;
 		var top    = this.view.board.entity.scrollTop - 200;
 		var right  = left + this.view.content.getWidth() + 400;
 		var bottom = top + this.view.content.getHeight() + 400;
 		
-		this.data.pieces.each(function(a) {
+		this.data.pieces.forEach(function(a, i) {
 			// 表示範囲か
 			if ((a.posX > left) && (a.posY > top) && (a.posX < right) && (a.posY < bottom)) {
-				if (!a._rect) {
+				if (typeof a._rect === 'undefined') {
 					a._rect              = document.createElement('div');
 					a._rect.className    = 'rect bg-cat-' + a.program.category + ((this.categories.indexOf(a.program.category) === -1) ? ' muted' : '');
 					a._rect.style.left   = a.posX + 'px';
 					a._rect.style.top    = a.posY + 'px';
 					a._rect.style.width  = a.width + 'px';
 					a._rect.style.height = a.height + 'px';
-					a._rect.title        = a.program.detail || '';
 					a._rect.innerHTML    = '<div>' + a.program.title + '</div>';
+					
+					if (a.program.detail) a._rect.title = a.program.detail;
 					
 					a._rect.setAttribute('rel', a.id);
 					
 					if (a.isReserved) a._rect.addClassName('reserved');
-					
 					this.view.board.entity.appendChild(a._rect);
+					
+					a.isVisible = true;
 				}
 				
-				if (!a.isVisible) {
-					a._rect.show();
+				if (a.isVisible === false) {
+					a._rect.style.display = '';
 					a.isVisible = true;
 				}
 			} else {
-				if (a._rect && a.isVisible) {
-					a._rect.hide();
+				if (a._rect && a.isVisible === true) {
+					a._rect.style.display = 'none';
 					a.isVisible = false;
 				}
 			}
