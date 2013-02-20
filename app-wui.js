@@ -54,6 +54,13 @@ if (config.wuiTlsKeyPath && config.wuiTlsCertPath) {
 		key : fs.readFileSync(config.wuiTlsKeyPath),
 		cert: fs.readFileSync(config.wuiTlsCertPath)
 	};
+	
+	// 秘密鍵または pfx のパスフレーズを表す文字列
+	if (config.wuiTlsPassphrase) tlsOption.passphrase = config.wuiTlsPassphrase;
+	
+	if (config.wuiTlsRequestCert) tlsOption.requestCert = config.wuiTlsRequestCert;
+	if (config.wuiTlsRejectUnauthorized) tlsOption.rejectUnauthorized = config.wuiTlsRejectUnauthorized;
+	if (config.wuiTlsCaPath) tlsOption.ca = [ fs.readFileSync(config.wuiTlsCaPath) ];
 } else {
 	var http = require('http');
 }
