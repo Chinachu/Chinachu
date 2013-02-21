@@ -404,8 +404,14 @@ P = Class.create(P, {
 			this.view.board.entity.observe('touchstart', onTouchstart);
 			this.view.board.entity.observe('touchmove',  onTouchmove);
 			this.view.board.entity.observe('touchend',   onTouchend);
+		} else if (Prototype.Browser.WebKit) {
+			this.view.board.entity.observe('touchstart', onTouchstart);
+			this.view.board.entity.observe('touchmove',  onTouchmove);
+			this.view.board.entity.observe('touchend',   onTouchend);
+			this.view.board.entity.observe('click',      onClick);
+			this.view.board.entity.observe('mousedown',  onMousedown);
 		} else {
-			this.view.board.entity.observe('click', onClick);
+			this.view.board.entity.observe('click',      onClick);
 			this.view.board.entity.observe('mousedown',  onMousedown);
 		}
 		
