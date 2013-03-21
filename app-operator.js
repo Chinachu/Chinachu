@@ -194,7 +194,7 @@ function startScheduler() {
 	
 	// ログ用
 	var output = fs.createWriteStream('./log/scheduler');
-	util.log('STREAM: ./log/scheduler');
+	util.log('STREAM: ./log/scheduler', {'flags': 'a'});
 	
 	scheduler.stdout.on('data', function(data) {
 		try {
