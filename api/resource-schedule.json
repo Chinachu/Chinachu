@@ -17,8 +17,20 @@
     "types"  : ["json"]
   },
   
+  "/broadcasting": {
+    "script" : "schedule-broadcasting",
+    "methods": ["get"],
+    "types"  : ["json"]
+  },
+  
   "/:chid/programs": {
     "script" : "schedule-channel-programs",
+    "methods": ["get"],
+    "types"  : ["json"]
+  },
+  
+  "/:chid/broadcasting": {
+    "script" : "schedule-channel-broadcasting",
     "methods": ["get"],
     "types"  : ["json"]
   }
