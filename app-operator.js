@@ -193,8 +193,8 @@ function startScheduler() {
 	util.log('SPAWN: node app-scheduler.js -f (pid=' + scheduler.pid + ')');
 	
 	// ログ用
-	var output = fs.createWriteStream('./log/scheduler');
-	util.log('STREAM: ./log/scheduler', {'flags': 'a'});
+	var output = fs.createWriteStream('./log/scheduler', {'flags': 'a'});
+	util.log('STREAM: ./log/scheduler');
 	
 	scheduler.stdout.on('data', function(data) {
 		try {
