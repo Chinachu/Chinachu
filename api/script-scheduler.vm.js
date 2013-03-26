@@ -31,7 +31,15 @@
 			
 			result.time = fs.statSync(define.SCHEDULER_LOG_FILE).mtime.getTime();
 			
-			fs.readFileSync(define.SCHEDULER_LOG_FILE, 'ascii').split('\n').forEach(function(line) {
+			var lines = fs.readFileSync(define.SCHEDULER_LOG_FILE, 'ascii').split('\n').reverse();
+			
+			for (var k = 0; k < lines.length; k++) {
+				var line = lines[k] || '';
+				
+				if (line.match('RUNNING SCHEDULER.') !== null) {
+					break;
+				}
+				
 				if ((line.match('CONFLICT:') !== null) || (line.match('RESERVE:') !== null)) {
 					var id = line.match(/(RESERVE|CONFLICT): ([a-z0-9-]+)/)[2];
 					var t  = line.match(/(RESERVE|CONFLICT): ([a-z0-9-]+)/)[1];
@@ -54,7 +62,10 @@
 						result.reserves.push(f);
 					}
 				}
-			});
+			}
+			
+			result.conflicts.reverse();
+			result.reserves.reverse();
 			
 			response.head(200);
 			response.exit(JSON.stringify(result, null, '  '));
