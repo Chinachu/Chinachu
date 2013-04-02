@@ -245,11 +245,11 @@ opts.parse([
 
 // 設定の読み込み
 var config    = require(CONFIG_FILE);
-var rules     = JSON.parse( fs.readFileSync(RULES_FILE, 'ascii') || '[]' );
-var schedule  = JSON.parse( fs.readFileSync(SCHEDULE_DATA_FILE, 'ascii') || '[]' );
-var reserves  = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE, 'ascii') || '[]' );
-var recording = JSON.parse( fs.readFileSync(RECORDING_DATA_FILE, 'ascii') || '[]' );
-var recorded  = JSON.parse( fs.readFileSync(RECORDED_DATA_FILE, 'ascii') || '[]' );
+var rules     = JSON.parse( fs.readFileSync(RULES_FILE,          { encoding: 'utf8' }) || '[]' );
+var schedule  = JSON.parse( fs.readFileSync(SCHEDULE_DATA_FILE,  { encoding: 'utf8' }) || '[]' );
+var reserves  = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE,  { encoding: 'utf8' }) || '[]' );
+var recording = JSON.parse( fs.readFileSync(RECORDING_DATA_FILE, { encoding: 'utf8' }) || '[]' );
+var recorded  = JSON.parse( fs.readFileSync(RECORDED_DATA_FILE,  { encoding: 'utf8' }) || '[]' );
 var channels  = JSON.parse( JSON.stringify(config.channels) );
 
 var clock     = new Date().getTime();
