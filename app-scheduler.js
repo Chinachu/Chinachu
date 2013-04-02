@@ -50,8 +50,8 @@ opts.parse([
 
 // 設定の読み込み
 var config   = require(CONFIG_FILE);
-var rules    = JSON.parse( fs.readFileSync(RULES_FILE, 'ascii') || '[]' );
-var reserves = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE, 'ascii') || '[]' );
+var rules    = JSON.parse( fs.readFileSync(RULES_FILE,         { encoding: 'utf8' }) || '[]' );
+var reserves = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE, { encoding: 'utf8' }) || '[]' );
 
 // チャンネルリスト
 var channels = JSON.parse(JSON.stringify(config.channels));
