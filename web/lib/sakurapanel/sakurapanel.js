@@ -29,7 +29,7 @@
 		return false;
 	}
 	var sakura = window.sakura = {
-		version: 'beta1'
+		version: 'beta2'
 	};
 	
 	console.info('[welcome]', 'initializing sakurapanel.');
@@ -440,6 +440,14 @@
 		 *  Requester#enqueue(queue) -> sakura.api.Requester
 		**/
 		enqueue: function _enqueue(queue) {
+			
+			return this.push(queue);
+		}
+		,
+		/**
+		 *  Requester#push(queue) -> sakura.api.Requester
+		**/
+		push: function _push(queue) {
 			queue.stat = 'waiting';
 			
 			this.queues.push(queue);
@@ -447,6 +455,39 @@
 			this.onEnqueue();
 			
 			document.fire('sakurapanel:api:requester:enqueue', this);
+			document.fire('sakurapanel:api:requester:push', this);
+			
+			return queue;
+		}
+		,
+		/**
+		 *  Requester#unshift(queue) -> sakura.api.Requester
+		**/
+		unshift: function _unshift(queue) {
+			queue.stat = 'waiting';
+			
+			this.queues.unshift(queue);
+			
+			this.onEnqueue();
+			
+			document.fire('sakurapanel:api:requester:enqueue', this);
+			document.fire('sakurapanel:api:requester:unshift', this);
+			
+			return queue;
+		}
+		,
+		/**
+		 *  Requester#insert(pos, queue) -> sakura.api.Requester
+		**/
+		insert: function _insert(pos, queue) {
+			queue.stat = 'waiting';
+			
+			this.queues.splice(pos, 0, queue);
+			
+			this.onEnqueue();
+			
+			document.fire('sakurapanel:api:requester:enqueue', this);
+			document.fire('sakurapanel:api:requester:insert', this);
 			
 			return queue;
 		}
@@ -719,6 +760,31 @@
 			var onSuccess  = opt.onSuccess  || function(){};
 			var onFailure  = opt.onFailure  || function(){};
 			
+			var isDisableCache           = opt.isDisableCache           || false;
+			var optionalRequestParameter = opt.optionalRequestParameter || null;
+			
+			// querystring
+			if (isDisableCache || optionalRequestParameter !== null) {
+				var qss = url.match(/\?([^#]+)/);
+				var q   = {};
+				
+				if (qss !== null) {
+					q = qss[1].toQueryParams();
+				}
+				
+				if (isDisableCache) {
+					q._nonce = new Date().getTime();
+				}
+				
+				if (optionalRequestParameter !== null) {
+					Object.extend(q, optionalRequestParameter);
+				}
+				
+				var qs = Object.toQueryString(q);
+				
+				url = url.replace(/(\?[^#]*)?(#.+)?$/, '?' + qs + '$2');
+			}
+			
 			if ((ext === 'js') && (!callback)) {
 			
 				var sc    = new Element('script', {
@@ -839,13 +905,21 @@
 	util.Requires = Class.create({
 		
 		/**
-		 *  new sakura.util.Requires(requires, onComplete) -> sakura.util.Requires
-		 *  - requires   (Array) - array of resource required.
-		 *  - onComplete (Function) - optional callback function.
+		 *  new sakura.util.Requires(requires, option) -> sakura.util.Requires
+		 *  - requires (Array) - array of resource required.
+		 *  - option   (Object | Function) - optional parameter or callback function.
 		**/
-		initialize: function(requires, onComplete) {
+		initialize: function(requires, option) {
 			this.requires   = requires || [];
-			this.onComplete = onComplete || null;
+			this.onComplete = null;
+			
+			if (Object.isFunction(option) === true) {
+				this.onComplete = option || null;
+			} else if (typeof option === 'object') {
+				this.onComplete               = option.onComplete || null;
+				this.isDisableCache           = option.isDisableCache || false;
+				this.optionalRequestParameter = option.optionalRequestParameter || null;
+			}
 			
 			this.load();
 			
@@ -860,8 +934,10 @@
 			}
 			
 			new sakura.util.Loader({
-				url       : this.requires.shift(),
-				onComplete: this.load.bind(this)
+				url                     : this.requires.shift(),
+				onComplete              : this.load.bind(this),
+				isDisableCache          : this.isDisableCache,
+				optionalRequestParameter: this.optionalRequestParameter
 			});
 			
 			return this;
@@ -1093,6 +1169,7 @@
 				if (this.p.timer && Object.keys(this.p.timer).length >= 0) {
 					for (var i in this.p.timer) {
 						try {
+							console.debug('clearing timer', i, this.p.timer[i]);
 							clearTimeout(this.p.timer[i]);
 							clearInterval(this.p.timer[i]);
 						} catch (e) {
@@ -1995,6 +2072,14 @@
 			return this;
 		}
 	});//<--ui.Dropdown
+	
+	//
+	// ui.ContextMenu
+	//
+	ui.ContextMenu = Class.create(ui.Element, {
+		
+		//
+	});//<--ui.ContextMenu
 	
 	//
 	// ui.Headbar
