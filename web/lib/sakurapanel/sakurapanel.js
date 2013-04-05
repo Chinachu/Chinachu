@@ -1509,7 +1509,7 @@
 				this.remove();
 			}.bind(this));
 			
-			this.target.observe('remove', function(e) {
+			this.target.observe('sakura:remove', function(e) {
 				
 				this.isShowing = false;
 				this.remove();
@@ -2078,7 +2078,100 @@
 	//
 	ui.ContextMenu = Class.create(ui.Element, {
 		
-		//
+		init: function _init(opt) {
+			this.target = opt.target.entity || opt.target;
+			this.items  = opt.items;
+			
+			return this;
+		},
+		
+		create: function _create() {
+			
+			this.entity = new Element('div', this.attr);
+			
+			if (this.className !== null) this.entity.className = this.className;
+			
+			if (this.id !== null) this.entity.id = this.id;
+			
+			if (this.style !== null) this.entity.setStyle(this.style);
+			
+			this.entity.addClassName('sakura-context-menu');
+			
+			this.target.observe('contextmenu', function(e) {
+				
+				e.stop();
+				
+				var container = new Element('div');
+				this.entity.update(container);
+				
+				$(document.body).insert(this.entity);
+				
+				this.items.each(function(a, i) {
+					if (typeof a === 'string') {
+						var btn = new Element('hr');
+					} else {
+						var btn = new Element('div').insert(a.label);
+						
+						if (a.icon) {
+							btn.setStyle({ backgroundImage: 'url(' + a.icon + ')' });
+							btn.addClassName('sakura-context-menu-icon');
+						}
+						
+						btn.observe('click', function(e) {
+							if (a.onSelect) a.onSelect(e);
+						}.bind(this));
+					}
+					
+					container.insert(btn);
+				}.bind(this));
+				
+				var offset = $(document.body).cumulativeOffset();
+				var scrl   = $(document.body).cumulativeScrollOffset();
+				var vw     = document.viewport.getWidth();
+				var vh     = document.viewport.getHeight();
+				var w      = container.getWidth();
+				var h      = container.getHeight();
+				var x      = e.pointerX();
+				var y      = e.pointerY();
+				
+				var posX = offset.left - scrl.left + x;
+				var posY = offset.top  - scrl.top  + y;
+				
+				if (vw < x + w) posX -= w;
+				if (vh < y + h) posY -= h;
+				
+				this.entity.style.left = posX + 'px';
+				this.entity.style.top  = posY + 'px';
+				
+				var remover = function() {
+					$(document.body).stopObserving('mouseup', remover);
+					
+					container.remove();
+					container = null;
+				};
+				
+				$(document.body).observe('mouseup', remover);
+			}.bind(this));
+			
+			this.target.observe('sakura:remove', function(e) {
+				
+				this.remove();
+			}.bind(this));
+			
+			return this;
+		},
+		
+		render: function _render() {
+			
+			return this;
+		},
+		
+		remove: function() {
+			
+			try { this.entity.remove(); } catch (e) {}
+			
+			return this;
+		}
 	});//<--ui.ContextMenu
 	
 	//

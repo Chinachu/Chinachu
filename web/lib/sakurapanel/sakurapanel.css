@@ -356,6 +356,32 @@ div.sakura-popover.tail::before {
 	div.sakura-popover img {
 		max-width: 100%; }
 
+/* context-menu */
+
+div.sakura-context-menu {
+	position        : absolute; }
+	
+	div.sakura-context-menu > div {
+		padding         : 5px 0;
+		border          : 1px solid gray;
+		background      : white; }
+		
+		div.sakura-context-menu > div > hr {
+			border             : none;
+			border-top         : 1px solid lightgray; }
+		
+		div.sakura-context-menu > div > div {
+			cursor             : pointer;
+			padding            : 5px 15px;
+			background-repeat  : no-repeat;
+			background-position: 10px center; }
+		
+		div.sakura-context-menu > div > div.sakura-context-menu-icon {
+			padding-left       : 31px; }
+		
+		div.sakura-context-menu > div > div:hover {
+			background-color   : gainsboro; }
+
 /* help */
 
 div.sakura-help {
