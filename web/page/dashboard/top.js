@@ -39,7 +39,7 @@ P = Class.create(P, {
 			refresh: function(e) {
 				this.list.each(function(program) {
 					if (program._dt) program._dt.remove() && delete program._dt;
-					if (program._tt) program._tt.remove() && delete program._tt;
+					if (program._it) program._it.remove() && delete program._it;
 					if (program._pt) clearTimeout(program._pt);
 				});
 				
@@ -80,13 +80,13 @@ P = Class.create(P, {
 				
 				this.list.each(function(program) {
 					
-					var dynamicTime = program._dt = new chinachu.ui.DynamicTime({
+					program._dt = new chinachu.ui.DynamicTime({
 						tagName: 'div',
 						type   : 'full',
 						time   : (currentTime > program.end) ? program.end : program.start
 					});
 					
-					var it = new sakura.ui.Element({
+					program._it = new sakura.ui.Element({
 						tagName  : 'a',
 						className: 'color-cat-' + program.category,
 						attr     : { href: '#!/program/view/id=' + program.id + '/' }
@@ -95,18 +95,60 @@ P = Class.create(P, {
 							tagName  : 'div',
 							className: 'channel'
 						}).insert(program.channel.type + ': ' + program.channel.name)
-					).insert(dynamicTime).render(container);
+					).insert(program._dt).render(container);
 					
-					var html = new Element('div').insert(program.detail || '');
+					var html = new Element('div').insert(program.detail || '(説明なし)');
 					
-					program._tt = new sakura.ui.Popover({
-						target: it,
+					new sakura.ui.ContextMenu({
+						target: program._it,
+						items : [
+							{
+								label   : '詳細を表示',
+								icon    : './icons/magnifier-zoom.png',
+								onSelect: Prototype.emptyFunction
+							},
+							'------------------------------------------',
+							{
+								label   : 'コピー',
+								onSelect: Prototype.emptyFunction
+							},
+							{
+								label   : 'IDをコピー',
+								onSelect: Prototype.emptyFunction
+							},
+							{
+								label   : 'タイトルをコピー',
+								onSelect: Prototype.emptyFunction
+							},
+							{
+								label   : '説明をコピー',
+								onSelect: Prototype.emptyFunction
+							},
+							'------------------------------------------',
+							{
+								label   : 'ツイート...',
+								icon    : 'https://abs.twimg.com/favicons/favicon.ico',
+								onSelect: Prototype.emptyFunction
+							},
+							{
+								label   : 'Google検索',
+								onSelect: Prototype.emptyFunction
+							},
+							{
+								label   : 'Wikipedia',
+								onSelect: Prototype.emptyFunction
+							}
+						]
+					});
+					
+					var po = new sakura.ui.Popover({
+						target: program._it,
 						html  : html
-					}).render();
+					});
 					
 					if (program.pid && !program.tuner.isScrambling && global.chinachu.status.feature.streamer) {
 						var preview = function() {
-							if (program._tt.isShowing === false) {
+							if (po.isShowing === false) {
 								program._pt = setTimeout(preview, 500);
 								return;
 							}
@@ -146,7 +188,7 @@ P = Class.create(P, {
 				
 				this.list.each(function(program) {
 					if (program._dt) program._dt.remove() && delete program._dt;
-					if (program._tt) program._tt.remove() && delete program._tt;
+					if (program._it) program._it.remove() && delete program._it;
 					if (program._pt) clearTimeout(program._pt);
 				});
 				

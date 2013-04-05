@@ -368,7 +368,11 @@
 			
 			clearTimeout(this.timer);
 			
-			try { this.entity.remove(); } catch (e) {}
+			try {
+				this.entity.remove() && this.entity.fire('sakura:remove');
+			} catch (e) {
+				//console.debug(e);
+			}
 			
 			return this;
 		}
