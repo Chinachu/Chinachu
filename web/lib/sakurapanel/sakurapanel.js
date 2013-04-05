@@ -29,7 +29,7 @@
 		return false;
 	}
 	var sakura = window.sakura = {
-		version: 'beta2'
+		version: 'beta2.chii'
 	};
 	
 	console.info('[welcome]', 'initializing sakurapanel.');
