@@ -103,32 +103,43 @@ P = Class.create(P, {
 						target: program._it,
 						items : [
 							{
-								label   : '詳細を表示',
-								icon    : './icons/magnifier-zoom.png',
-								onSelect: Prototype.emptyFunction
-							},
-							'------------------------------------------',
-							{
-								label   : 'コピー',
-								onSelect: Prototype.emptyFunction
-							},
-							{
-								label   : 'IDをコピー',
-								onSelect: Prototype.emptyFunction
-							},
-							{
-								label   : 'タイトルをコピー',
-								onSelect: Prototype.emptyFunction
-							},
-							{
-								label   : '説明をコピー',
-								onSelect: Prototype.emptyFunction
-							},
-							'------------------------------------------',
-							{
 								label   : 'ツイート...',
 								icon    : 'https://abs.twimg.com/favicons/favicon.ico',
-								onSelect: Prototype.emptyFunction
+								onSelect: function() {
+									var left = (screen.width - 640) / 2;
+									var top  = (screen.height - 265) / 2;
+									
+									var tweetWindow = window.open(
+										'https://twitter.com/share?url=&text=' + encodeURIComponent(chinachu.util.scotify(program)),
+										'chinachu-tweet-' + program.id,
+										'width=640,height=265,left=' + left + ',top=' + top + ',menubar=no'
+									);
+								}
+							},
+							'------------------------------------------',
+							{
+								label   : 'SCOT形式でコピー...',
+								onSelect: function(e) {
+									window.prompt('コピーしてください:', chinachu.util.scotify(program));
+								}
+							},
+							{
+								label   : 'IDをコピー...',
+								onSelect: function() {
+									window.prompt('コピーしてください:', program.id);
+								}
+							},
+							{
+								label   : 'タイトルをコピー...',
+								onSelect: function() {
+									window.prompt('コピーしてください:', program.title);
+								}
+							},
+							{
+								label   : '説明をコピー...',
+								onSelect: function() {
+									window.prompt('コピーしてください:', program.detail);
+								}
 							},
 							'------------------------------------------',
 							{

@@ -99,6 +99,28 @@
 		}
 	};
 	
+	var util = chinachu.util = {};
+	
+	/** section: util
+	 * class util
+	**/
+	
+	/**
+	 *  util.scotify(program) -> String
+	 *  - program (Object | Program): Program Data.
+	 *
+	 *  プログラムデータをSCOT形式の文字列にします
+	**/
+	util.scotify = function(program) {
+		var scot = '';
+		
+		scot = program.channel.name + ': ' + program.title +
+			' (' + dateToString(new Date(program.start), 'short') + ') ' + 
+			'[chinachu://' + program.id + ']';
+		
+		return scot;
+	};
+	
 	var api = chinachu.api = {};
 	
 	/** section: api
