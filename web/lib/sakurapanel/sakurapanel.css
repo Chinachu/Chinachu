@@ -359,6 +359,7 @@ div.sakura-popover.tail::before {
 /* context-menu */
 
 div.sakura-context-menu {
+	z-index         : 10001;
 	position        : absolute; }
 	
 	div.sakura-context-menu > div {
