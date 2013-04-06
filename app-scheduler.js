@@ -805,13 +805,14 @@ function convertPrograms(p, ch) {
 		if (flags.indexOf('新') !== -1) {
 			episodeNumber = 1;
 		} else {
-			var episodeNumberMatch = (c.title[0]._ + desc).match(/(#[0-9]+|＃[０１２３４５６７８９]+|第([0-9]+|[０１２３４５６７８９零一二三四五六七八九十]+)話)|([0-9]+|[０１２３４５６７８９]+)品目|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
+			var episodeNumberMatch = (c.title[0]._ + desc).match(/(#[0-9]+|(＃|♯)[０１２３４５６７８９]+|第([0-9]+|[０１２３４５６７８９零一二三四五六七八九十]+)話)|([0-9]+|[０１２３４５６７８９]+)品目|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
 			if (episodeNumberMatch !== null) {
 				var episodeNumberString = episodeNumberMatch[0];
 				
 				episodeNumberString = episodeNumberString
 					.replace('#', '')
 					.replace('＃', '')
+					.replace('♯', '')
 					.replace('第', '')
 					.replace('話', '')
 					.replace('品目', '')
