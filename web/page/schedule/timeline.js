@@ -302,6 +302,27 @@ P = Class.create(P, {
 			this.data.target = piece[targetId].program;
 		}.bind(this);
 		
+		var onMousewheel = function(e) {
+			
+			e.preventDefault();
+			e.stopPropagation();
+			
+			var deltaX = 0;
+			var deltaY = 0;
+			
+			if (e.wheelDeltaX) deltaX = e.wheelDeltaX / 2;
+			if (e.wheelDeltaY) deltaY = e.wheelDeltaY / 2;
+			
+			if (e.deltaX) deltaX = - (e.deltaX * 20);
+			if (e.deltaY) deltaY = - (e.deltaY * 20);
+			
+			this.data.scrollStat  = 0;
+			this.data.scrollStart = [0, 0];
+			this.data.scrollEnd   = [deltaX, deltaY];
+			
+			this.scroller();
+		}.bind(this);
+		
 		var onMousedown = function(e) {
 			
 			e.preventDefault();
@@ -404,13 +425,22 @@ P = Class.create(P, {
 			this.view.board.entity.observe('touchstart', onTouchstart);
 			this.view.board.entity.observe('touchmove',  onTouchmove);
 			this.view.board.entity.observe('touchend',   onTouchend);
-		} else if (Prototype.Browser.WebKit) {
-			this.view.board.entity.observe('touchstart', onTouchstart);
-			this.view.board.entity.observe('touchmove',  onTouchmove);
-			this.view.board.entity.observe('touchend',   onTouchend);
-			this.view.board.entity.observe('click',      onClick);
-			this.view.board.entity.observe('mousedown',  onMousedown);
 		} else {
+			if (Prototype.Browser.WebKit) {
+				this.view.board.entity.observe('touchstart', onTouchstart);
+				this.view.board.entity.observe('touchmove',  onTouchmove);
+				this.view.board.entity.observe('touchend',   onTouchend);
+				this.view.board.entity.observe('mousewheel', onMousewheel);
+			}
+			
+			if (Prototype.Browser.Gecko) {
+				this.view.board.entity.observe('wheel', onMousewheel);
+			}
+			
+			if (Prototype.Browser.IE) {
+				this.view.board.entity.addEventListener('mousewheel', onMousewheel);
+			}
+			
 			this.view.board.entity.observe('click',      onClick);
 			this.view.board.entity.observe('mousedown',  onMousedown);
 		}
