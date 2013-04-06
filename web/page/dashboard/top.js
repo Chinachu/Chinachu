@@ -130,13 +130,27 @@ P = Class.create(P, {
 								icon    : 'https://abs.twimg.com/favicons/favicon.ico',
 								onSelect: Prototype.emptyFunction
 							},
+							'------------------------------------------',
+							{
+								label   : '関連サイト',
+								icon    : './icons/document-page-next.png',
+								onSelect: function() {
+									window.open("https://www.google.com/search?btnI=I'm+Feeling+Lucky&q=" + program.title);
+								}
+							},
 							{
 								label   : 'Google検索',
-								onSelect: Prototype.emptyFunction
+								icon    : './icons/ui-search-field.png',
+								onSelect: function() {
+									window.open("https://www.google.com/search?q=" + program.title);
+								}
 							},
 							{
 								label   : 'Wikipedia',
-								onSelect: Prototype.emptyFunction
+								icon    : './icons/book-open-text-image.png',
+								onSelect: function() {
+									window.open("https://ja.wikipedia.org/wiki/" + program.title);
+								}
 							}
 						]
 					});
