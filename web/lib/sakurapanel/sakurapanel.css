@@ -373,7 +373,7 @@ div.sakura-context-menu {
 		
 		div.sakura-context-menu > div > div {
 			cursor             : pointer;
-			padding            : 5px 15px;
+			padding            : 5px 15px 4px;
 			background-repeat  : no-repeat;
 			background-position: 10px center; }
 		

@@ -29,7 +29,7 @@
 		return false;
 	}
 	var sakura = window.sakura = {
-		version: 'beta2.chii'
+		version: 'beta3'
 	};
 	
 	console.info('[welcome]', 'initializing sakurapanel.');
@@ -2145,20 +2145,32 @@
 				this.entity.style.top  = posY + 'px';
 				
 				var remover = function() {
+					clearTimeout(timerMouseObservingDelay);
+					$(document.body).stopObserving('mouseup', remover);
 					$(document.body).stopObserving('click', remover);
 					$(document.body).stopObserving('contextmenu', remover);
 					$(document.body).stopObserving('sakura:contextmenu', remover);
 					
-					container.remove();
-					container = null;
+					setTimeout(function() {
+						try { container.remove(); } catch (e) {}
+						container = null;
+					}, 10);
 				};
 				
+				var timerMouseObservingDelay = setTimeout(function() {
+					$(document.body).observe('mouseup', remover);
+				}, 100);
 				$(document.body).observe('click', remover);
 				$(document.body).observe('contextmenu', remover);
 				$(document.body).observe('sakura:contextmenu', remover);
 			}.bind(this));
 			
 			this.target.observe('sakura:remove', function(e) {
+				
+				this.remove();
+			}.bind(this));
+			
+			this.target.observe('remove', function(e) {
 				
 				this.remove();
 			}.bind(this));
