@@ -99,71 +99,81 @@ P = Class.create(P, {
 					
 					var html = new Element('div').insert(program.detail || '(説明なし)');
 					
+					var contextMenuItems = [
+						{
+							label   : 'ルール作成...',
+							icon    : './icons/regular-expression.png',
+							onSelect: function() {
+								new chinachu.ui.CreateRuleByProgram(program.id);
+							}
+						},
+						'------------------------------------------',
+						{
+							label   : 'ツイート...',
+							icon    : 'https://abs.twimg.com/favicons/favicon.ico',
+							onSelect: function() {
+								var left = (screen.width - 640) / 2;
+								var top  = (screen.height - 265) / 2;
+								
+								var tweetWindow = window.open(
+									'https://twitter.com/share?url=&text=' + encodeURIComponent(chinachu.util.scotify(program)),
+									'chinachu-tweet-' + program.id,
+									'width=640,height=265,left=' + left + ',top=' + top + ',menubar=no'
+								);
+							}
+						},
+						'------------------------------------------',
+						{
+							label   : 'SCOT形式でコピー...',
+							onSelect: function(e) {
+								window.prompt('コピーしてください:', chinachu.util.scotify(program));
+							}
+						},
+						{
+							label   : 'IDをコピー...',
+							onSelect: function() {
+								window.prompt('コピーしてください:', program.id);
+							}
+						},
+						{
+							label   : 'タイトルをコピー...',
+							onSelect: function() {
+								window.prompt('コピーしてください:', program.title);
+							}
+						},
+						{
+							label   : '説明をコピー...',
+							onSelect: function() {
+								window.prompt('コピーしてください:', program.detail);
+							}
+						},
+						'------------------------------------------',
+						{
+							label   : '関連サイト',
+							icon    : './icons/document-page-next.png',
+							onSelect: function() {
+								window.open("https://www.google.com/search?btnI=I'm+Feeling+Lucky&q=" + program.title);
+							}
+						},
+						{
+							label   : 'Google検索',
+							icon    : './icons/ui-search-field.png',
+							onSelect: function() {
+								window.open("https://www.google.com/search?q=" + program.title);
+							}
+						},
+						{
+							label   : 'Wikipedia',
+							icon    : './icons/book-open-text-image.png',
+							onSelect: function() {
+								window.open("https://ja.wikipedia.org/wiki/" + program.title);
+							}
+						}
+					];
+					
 					new sakura.ui.ContextMenu({
 						target: program._it,
-						items : [
-							{
-								label   : 'ツイート...',
-								icon    : 'https://abs.twimg.com/favicons/favicon.ico',
-								onSelect: function() {
-									var left = (screen.width - 640) / 2;
-									var top  = (screen.height - 265) / 2;
-									
-									var tweetWindow = window.open(
-										'https://twitter.com/share?url=&text=' + encodeURIComponent(chinachu.util.scotify(program)),
-										'chinachu-tweet-' + program.id,
-										'width=640,height=265,left=' + left + ',top=' + top + ',menubar=no'
-									);
-								}
-							},
-							'------------------------------------------',
-							{
-								label   : 'SCOT形式でコピー...',
-								onSelect: function(e) {
-									window.prompt('コピーしてください:', chinachu.util.scotify(program));
-								}
-							},
-							{
-								label   : 'IDをコピー...',
-								onSelect: function() {
-									window.prompt('コピーしてください:', program.id);
-								}
-							},
-							{
-								label   : 'タイトルをコピー...',
-								onSelect: function() {
-									window.prompt('コピーしてください:', program.title);
-								}
-							},
-							{
-								label   : '説明をコピー...',
-								onSelect: function() {
-									window.prompt('コピーしてください:', program.detail);
-								}
-							},
-							'------------------------------------------',
-							{
-								label   : '関連サイト',
-								icon    : './icons/document-page-next.png',
-								onSelect: function() {
-									window.open("https://www.google.com/search?btnI=I'm+Feeling+Lucky&q=" + program.title);
-								}
-							},
-							{
-								label   : 'Google検索',
-								icon    : './icons/ui-search-field.png',
-								onSelect: function() {
-									window.open("https://www.google.com/search?q=" + program.title);
-								}
-							},
-							{
-								label   : 'Wikipedia',
-								icon    : './icons/book-open-text-image.png',
-								onSelect: function() {
-									window.open("https://ja.wikipedia.org/wiki/" + program.title);
-								}
-							}
-						]
+						items : contextMenuItems
 					});
 					
 					var po = new sakura.ui.Popover({

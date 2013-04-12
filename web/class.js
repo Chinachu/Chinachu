@@ -423,8 +423,6 @@
 									modal.close();
 								},
 								onSuccess: function() {
-									app.router.save(window.location.hash.replace('#', ''));
-									
 									new Hypermodal({
 										title  : '成功',
 										content: 'スケジューラは完了しました'
@@ -486,8 +484,6 @@
 										modal.close();
 									},
 									onSuccess: function() {
-										app.router.save(window.location.hash.replace('#', ''));
-										
 										new Hypermodal({
 											title  : '成功',
 											content: '手動予約に成功しました'
@@ -550,8 +546,6 @@
 										modal.close();
 									},
 									onSuccess: function() {
-										app.router.save(window.location.hash.replace('#', ''));
-										
 										new Hypermodal({
 											title  : '成功',
 											content: '手動予約の取消に成功しました'
@@ -614,8 +608,6 @@
 										modal.close();
 									},
 									onSuccess: function() {
-										app.router.save(window.location.hash.replace('#', ''));
-										
 										new Hypermodal({
 											title  : '成功',
 											content: '録画中止に成功しました'
@@ -679,8 +671,6 @@
 										modal.close();
 									},
 									onSuccess: function() {
-										app.router.save(window.location.hash.replace('#', ''));
-										
 										new Hypermodal({
 											title  : '成功',
 											content: '録画履歴の削除に成功しました'
@@ -743,8 +733,6 @@
 										modal.close();
 									},
 									onSuccess: function() {
-										app.router.save(window.location.hash.replace('#', ''));
-										
 										new Hypermodal({
 											title  : '成功',
 											content: '録画ファイルの削除に成功しました'
@@ -798,8 +786,6 @@
 									modal.close();
 								},
 								onSuccess: function() {
-									app.router.save(window.location.hash.replace('#', ''));
-									
 									new Hypermodal({
 										title  : '成功',
 										content: 'クリーンアップに成功しました'
@@ -1292,8 +1278,6 @@
 				delete this.program;
 				delete this.entity;
 				delete this.target;
-				
-				app.router.save(window.location.hash.replace('#', ''));
 			} catch (e) { /* has been removed */ }
 			
 			return true;
@@ -1364,9 +1348,7 @@
 												new Hypermodal({
 													title  : '成功',
 													content: 'ルール変更に成功しました',
-													onClose: function(){
-														app.router.save(window.location.hash.replace('#', ''));
-													}
+													onClose: function(){}
 												}).render();
 											},
 											onFailure: function(t) {
@@ -1404,10 +1386,7 @@
 															onSuccess: function() {
 																new Hypermodal({
 																	title  : '成功',
-																	content: 'ルール削除に成功しました',
-																	onClose: function(){
-																		app.router.save(window.location.hash.replace('#', ''));
-																	}
+																	content: 'ルール削除に成功しました'
 																}).render();
 															},
 															onFailure: function(t) {
@@ -1682,9 +1661,7 @@
 										new Hypermodal({
 											title  : '成功',
 											content: 'ルール作成に成功しました',
-											onClose: function(){
-												app.router.save(window.location.hash.replace('#', ''));
-											}
+											onClose: function(){}
 										}).render();
 									},
 									onFailure: function(t) {
@@ -1932,9 +1909,7 @@
 										new Hypermodal({
 											title  : '成功',
 											content: 'ルール作成に成功しました',
-											onClose: function(){
-												app.router.save(window.location.hash.replace('#', ''));
-											}
+											onClose: function(){}
 										}).render();
 									},
 									onFailure: function(t) {

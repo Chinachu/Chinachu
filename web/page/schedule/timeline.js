@@ -91,6 +91,7 @@ P = Class.create(P, {
 		var isScrolling = false;
 		this.data.scrollStart = [0, 0];
 		this.data.scrollEnd   = [0, 0];
+		this.data.target      = null;
 		
 		var unitlen      = 25;
 		var linelen      = 25;
@@ -174,7 +175,7 @@ P = Class.create(P, {
 		global.chinachu.recording.forEach(function(program) {
 			if (typeof piece[program.id] === 'undefined') return;
 			
-			piece[program.id].isReserved = true;
+			piece[program.id].isRecording = true;
 		});
 		
 		// 現在時刻表示線
@@ -294,8 +295,9 @@ P = Class.create(P, {
 			
 			var targetId = e.target.getAttribute('rel') || (e.target.parentNode || e.target.parentElement).getAttribute('rel') || null;
 			
+			this.data.target = null;
+			
 			if (targetId === null) {
-				this.data.target = null;
 				return;
 			};
 			
@@ -333,6 +335,8 @@ P = Class.create(P, {
 			
 			$(document.body).observe('mousemove', onMousemove);
 			$(document.body).observe('mouseup',   onMouseup);
+			
+			this.scroller();
 		}.bind(this);
 		
 		var onMousemove = function(e) {
@@ -515,6 +519,7 @@ P = Class.create(P, {
 					a._rect.setAttribute('rel', a.id);
 					
 					if (a.isReserved) a._rect.addClassName('reserved');
+					if (a.isRecording) a._rect.addClassName('recording');
 					
 					if (Prototype.Browser.MobileSafari) {
 						clearTimeout(this.timer['appendChild_' + a.id]);
@@ -523,6 +528,111 @@ P = Class.create(P, {
 						}.bind(this), 100);
 					} else {
 						this.view.board.entity.appendChild(a._rect);
+						
+						var contextMenuItems = [
+							{
+								label   : 'ルール作成...',
+								icon    : './icons/regular-expression.png',
+								onSelect: function() {
+									new chinachu.ui.CreateRuleByProgram(a.program.id);
+								}
+							},
+							'------------------------------------------',
+							{
+								label   : 'ツイート...',
+								icon    : 'https://abs.twimg.com/favicons/favicon.ico',
+								onSelect: function() {
+									var left = (screen.width - 640) / 2;
+									var top  = (screen.height - 265) / 2;
+									
+									var tweetWindow = window.open(
+										'https://twitter.com/share?url=&text=' + encodeURIComponent(chinachu.util.scotify(a.program)),
+										'chinachu-tweet-' + a.program.id,
+										'width=640,height=265,left=' + left + ',top=' + top + ',menubar=no'
+									);
+								}
+							},
+							'------------------------------------------',
+							{
+								label   : 'SCOT形式でコピー...',
+								onSelect: function(e) {
+									window.prompt('コピーしてください:', chinachu.util.scotify(a.program));
+								}
+							},
+							{
+								label   : 'IDをコピー...',
+								onSelect: function() {
+									window.prompt('コピーしてください:', a.program.id);
+								}
+							},
+							{
+								label   : 'タイトルをコピー...',
+								onSelect: function() {
+									window.prompt('コピーしてください:', a.program.title);
+								}
+							},
+							{
+								label   : '説明をコピー...',
+								onSelect: function() {
+									window.prompt('コピーしてください:', a.program.detail);
+								}
+							},
+							'------------------------------------------',
+							{
+								label   : '関連サイト',
+								icon    : './icons/document-page-next.png',
+								onSelect: function() {
+									window.open("https://www.google.com/search?btnI=I'm+Feeling+Lucky&q=" + a.program.title);
+								}
+							},
+							{
+								label   : 'Google検索',
+								icon    : './icons/ui-search-field.png',
+								onSelect: function() {
+									window.open("https://www.google.com/search?q=" + a.program.title);
+								}
+							},
+							{
+								label   : 'Wikipedia',
+								icon    : './icons/book-open-text-image.png',
+								onSelect: function() {
+									window.open("https://ja.wikipedia.org/wiki/" + a.program.title);
+								}
+							}
+						];
+						
+						if (a.isReserved) {
+							contextMenuItems.unshift({
+								label   : '予約取消...',
+								icon    : './icons/cross-script.png',
+								onSelect: function() {
+									new chinachu.ui.Unreserve(a.program.id);
+								}
+							});
+						} else {
+							contextMenuItems.unshift({
+								label   : '予約...',
+								icon    : './icons/plus-circle.png',
+								onSelect: function() {
+									new chinachu.ui.Reserve(a.program.id);
+								}
+							});
+						}
+						
+						if (a.isRecording) {
+							contextMenuItems.unshift({
+								label   : '録画中止...',
+								icon    : './icons/cross.png',
+								onSelect: function() {
+									new chinachu.ui.StopRecord(a.program.id);
+								}
+							});
+						}
+						
+						new sakura.ui.ContextMenu({
+							target: a._rect,
+							items : contextMenuItems
+						});
 					}
 					
 					a.isVisible = true;
