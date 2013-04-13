@@ -1139,6 +1139,11 @@ div.timeline > div.board {
 	
 	div.timeline > div.board > div.rect.muted {
 		opacity     : 0.5; }
+	
+	div.timeline > div.board > div.rect.spot {
+		z-index     : 1;
+		box-shadow  : inset 0 50px 0 rgba(255,255,255,0.5),
+		              0 0 15px rgb(194,65,134); }
 		
 		div.timeline > div.board > div.rect > div {
 			position   : absolute;

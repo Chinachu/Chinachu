@@ -107,7 +107,7 @@
 	
 	/**
 	 *  util.scotify(program) -> String
-	 *  - program (Object | Program): Program Data.
+	 *  - program (Program Object): Program Data.
 	 *
 	 *  プログラムデータをSCOT形式の文字列にします
 	**/
@@ -119,6 +119,89 @@
 			'[chinachu://' + program.id + ']';
 		
 		return scot;
+	};
+	
+	/**
+	 *  util.getProgramById(programId) -> Program Object | null
+	 *  - programId (String): Program ID.
+	 *
+	 *  プログラムIDでプログラムデータを取得します
+	**/
+	util.getProgramById = function _getProgramById(id) {
+		for (var i = 0; i < global.chinachu.recording.length; i++) {
+			if ((global.chinachu.recording[i].id === id) && (global.chinachu.recording[i].pid)) {
+				global.chinachu.recording[i]._isRecording = true;
+				return global.chinachu.recording[i];
+			}
+		}
+		
+		for (var i = 0; i < global.chinachu.recorded.length; i++) {
+			if (global.chinachu.recorded[i].id === id) {
+				global.chinachu.recorded[i]._isRecorded = true;
+				return global.chinachu.recorded[i];
+			}
+		}
+		
+		for (var i = 0; i < global.chinachu.reserves.length; i++) {
+			if (global.chinachu.reserves[i].id === id) {
+				global.chinachu.reserves[i]._isReserves = true;
+				return global.chinachu.reserves[i];
+			}
+		}
+		
+		for (var i = 0; i < global.chinachu.schedule.length; i++) {
+			for (var j = 0; j < global.chinachu.schedule[i].programs.length; j++) {
+				if (global.chinachu.schedule[i].programs[j].id === id) {
+					return global.chinachu.schedule[i].programs[j];
+				}
+			}
+		}
+		
+		return null;
+	};
+	
+	/**
+	 *  util.getNextProgramById(programId) -> Program Object | null
+	 *  - programId (String): Program ID.
+	 *
+	 *  プログラムIDの次のプログラムを取得します
+	**/
+	util.getNextProgramById = function _getNextProgramById(id) {
+		
+		for (var i = 0; i < global.chinachu.schedule.length; i++) {
+			for (var j = 0; j < global.chinachu.schedule[i].programs.length; j++) {
+				if (global.chinachu.schedule[i].programs[j].id === id) {
+					if (typeof global.chinachu.schedule[i].programs[j + 1] !== 'undefined') {
+						return util.getProgramById(global.chinachu.schedule[i].programs[j + 1].id);
+					}
+				}
+			}
+		}
+		
+		return null;
+	};
+	
+	/**
+	 *  util.getPrevProgramById(programId) -> Program Object | null
+	 *  - programId (String): Program ID.
+	 *
+	 *  プログラムIDの前のプログラムを取得します
+	**/
+	util.getPrevProgramById = function _getPrevProgramById(id) {
+		
+		for (var i = 0; i < global.chinachu.schedule.length; i++) {
+			for (var j = 0; j < global.chinachu.schedule[i].programs.length; j++) {
+				if (global.chinachu.schedule[i].programs[j].id === id) {
+					if (j - 1 < 0) return null;
+					
+					if (typeof global.chinachu.schedule[i].programs[j - 1] !== 'undefined') {
+						return util.getProgramById(global.chinachu.schedule[i].programs[j - 1].id);
+					}
+				}
+			}
+		}
+		
+		return null;
 	};
 	
 	var api = chinachu.api = {};
@@ -454,7 +537,7 @@
 	
 	ui.Reserve = Class.create({
 		initialize: function _init(id) {
-			this.program = app.f.getProgramById(id);
+			this.program = util.getProgramById(id);
 			
 			this.create();
 			
@@ -516,7 +599,7 @@
 	
 	ui.Unreserve = Class.create({
 		initialize: function _init(id) {
-			this.program = app.f.getProgramById(id);
+			this.program = util.getProgramById(id);
 			
 			this.create();
 			
@@ -578,7 +661,7 @@
 
 	ui.StopRecord = Class.create({
 		initialize: function _init(id) {
-			this.program = app.f.getProgramById(id);
+			this.program = util.getProgramById(id);
 			
 			this.create();
 			
@@ -640,7 +723,7 @@
 	
 	ui.RemoveRecordedProgram = Class.create({
 		initialize: function _init(id) {
-			this.program = app.f.getProgramById(id);
+			this.program = util.getProgramById(id);
 			
 			this.create();
 			
@@ -703,7 +786,7 @@
 	
 	ui.RemoveRecordedFile = Class.create({
 		initialize: function _init(id) {
-			this.program = app.f.getProgramById(id);
+			this.program = util.getProgramById(id);
 			
 			this.create();
 			
@@ -817,7 +900,7 @@
 	
 	ui.Streamer = Class.create({
 		initialize: function _init(id) {
-			this.program = app.f.getProgramById(id);
+			this.program = util.getProgramById(id);
 			
 			this.create();
 			
@@ -1179,7 +1262,7 @@
 	
 	ui.StreamerPlayer = Class.create({
 		initialize: function _init(id, d) {
-			this.program = app.f.getProgramById(id);
+			this.program = util.getProgramById(id);
 			this.target  = $('content');
 			this.d       = d;
 			
@@ -1856,7 +1939,7 @@
 	
 	ui.CreateRuleByProgram = Class.create({
 		initialize: function _init(id) {
-			this.program = app.f.getProgramById(id);
+			this.program = util.getProgramById(id);
 			
 			this.create();
 			
