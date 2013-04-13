@@ -315,14 +315,77 @@ P = Class.create(P, {
 			if (e.wheelDeltaX) deltaX = e.wheelDeltaX / 2;
 			if (e.wheelDeltaY) deltaY = e.wheelDeltaY / 2;
 			
-			if (e.deltaX) deltaX = - (e.deltaX * 20);
-			if (e.deltaY) deltaY = - (e.deltaY * 20);
+			if (e.deltaX) deltaX = -(e.deltaX * 20);
+			if (e.deltaY) deltaY = -(e.deltaY * 20);
 			
 			this.data.scrollStat  = 0;
 			this.data.scrollStart = [0, 0];
-			this.data.scrollEnd   = [deltaX, deltaY];
+			this.data.scrollEnd   = [0, 0];
+			this.data.scrollDelta = [deltaX, deltaY];
 			
-			this.scroller();
+			clearTimeout(this.timer.inertiaScroll);
+			var inertiaScroll = function() {
+				var x = this.data.scrollDelta[0] * 0.75;
+				var y = this.data.scrollDelta[1] * 0.75;
+				
+				if ((x > 1 || x < -1) || (y > 1 || y < -1)) {
+					this.data.scrollEnd[0] += x;
+					this.data.scrollEnd[1] += y;
+					this.scroller();
+					this.timer.inertiaScroll = setTimeout(inertiaScroll, 30);
+				}
+			}.bind(this);
+			inertiaScroll();
+		}.bind(this);
+		
+		var onKeydown = function(e) {
+			
+			console.log(e.keyCode);
+			
+			var deltaX = 0;
+			var deltaY = 0;
+			
+			if (e.keyCode === 37 || e.keyCode === 65) deltaX = 40;
+			if (e.keyCode === 38 || e.keyCode === 87) deltaY = 40;
+			if (e.keyCode === 39 || e.keyCode === 68) deltaX = -40;
+			if (e.keyCode === 40 || e.keyCode === 83) deltaY = -40;
+			
+			if (this.data.target !== null) {
+				if (e.keyCode === 27) {
+					this.data.target = null;
+				}
+				
+				if (e.keyCode === 37 || e.keyCode === 65) {
+					this.data.target = chinachu.util.getPrevProgramById(this.data.target.id);
+					deltaX = this.data.piece[this.data.target.id]._rect.getWidth() * 0.365 + 1;
+				}
+				
+				if (e.keyCode === 39 || e.keyCode === 68) {
+					deltaX = -(this.data.piece[this.data.target.id]._rect.getWidth() * 0.365 + 1);
+					this.data.target = chinachu.util.getNextProgramById(this.data.target.id);
+				}
+				
+				viewDrawer();
+			}
+			
+			this.data.scrollStat  = 0;
+			this.data.scrollStart = [0, 0];
+			this.data.scrollEnd   = [0, 0];
+			this.data.scrollDelta = [deltaX, deltaY];
+			
+			clearTimeout(this.timer.inertiaScroll);
+			var inertiaScroll = function() {
+				var x = this.data.scrollDelta[0] * 0.75;
+				var y = this.data.scrollDelta[1] * 0.75;
+				
+				if ((x > 1 || x < -1) || (y > 1 || y < -1)) {
+					this.data.scrollEnd[0] += x;
+					this.data.scrollEnd[1] += y;
+					this.scroller();
+					this.timer.inertiaScroll = setTimeout(inertiaScroll, 30);
+				}
+			}.bind(this);
+			inertiaScroll();
 		}.bind(this);
 		
 		var onMousedown = function(e) {
@@ -355,7 +418,7 @@ P = Class.create(P, {
 			e.stopPropagation();
 			
 			if (this.data.scrollStat === [e.clientX, e.clientY].join(',')) {
-				setTimeout(viewDrawer, 100);
+				setTimeout(viewDrawer, 25);
 			}
 			
 			if (
@@ -371,7 +434,7 @@ P = Class.create(P, {
 						this.data.scrollEnd[0] += x;
 						this.data.scrollEnd[1] += y;
 						this.scroller();
-						this.timer.inertiaScrollX = setTimeout(inertiaScroll, 30);
+						this.timer.inertiaScroll = setTimeout(inertiaScroll, 30);
 					}
 				}.bind(this);
 				inertiaScroll();
@@ -418,7 +481,7 @@ P = Class.create(P, {
 						this.data.scrollEnd[0] += x;
 						this.data.scrollEnd[1] += y;
 						this.scroller();
-						this.timer.inertiaScrollX = setTimeout(inertiaScroll, 25);
+						this.timer.inertiaScroll = setTimeout(inertiaScroll, 25);
 					}
 				}.bind(this);
 				inertiaScroll();
@@ -448,6 +511,13 @@ P = Class.create(P, {
 			this.view.board.entity.observe('click',      onClick);
 			this.view.board.entity.observe('mousedown',  onMousedown);
 		}
+		
+		Event.observe(window, 'keydown', onKeydown);
+		var removeListenerOnUnload = function() {
+			Event.stopObserving(window, 'keydown', onKeydown);
+			document.stopObserving('sakurapanel:pm:unload', removeListenerOnUnload);
+		};
+		document.observe('sakurapanel:pm:unload', removeListenerOnUnload);
 		
 		// start
 		this.tick();
@@ -648,6 +718,12 @@ P = Class.create(P, {
 						a._rect.style.display = '';
 					}
 					a.isVisible = true;
+				}
+				
+				if (this.data.target !== null && this.data.target.id === a.id) {
+					a._rect.addClassName('spot');
+				} else if (a._rect.hasClassName('spot') === true) {
+					a._rect.removeClassName('spot');
 				}
 			} else {
 				if (a._rect && a.isVisible === true) {
