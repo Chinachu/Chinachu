@@ -283,6 +283,7 @@ function httpServerMain(req, res, query) {
 	
 	// エラーレスポンス用
 	function resErr(code) {
+		
 		res.writeHead(code, {'content-type': 'text/plain'});
 		if (req.method !== 'HEAD') {
 			switch (code) {
