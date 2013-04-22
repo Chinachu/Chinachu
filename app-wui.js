@@ -191,22 +191,58 @@ if (https) { var app = https.createServer(tlsOption, httpServer); }
 app.listen(config.wuiPort, (typeof config.wuiHost === 'undefined') ? '::' : config.wuiHost);
 
 function httpServer(req, res) {
-	if (req.method === 'GET') {
+	
+	switch (req.method) {
+		case 'GET':
+		case 'HEAD':
+			
+			var q = url.parse(req.url, false).query || '';
+			
+			if (q.match(/^\{.*\}$/) === null) {
+				q = querystring.parse(q);
+			} else {
+				try {
+					q = JSON.parse(q);
+				} catch (e) {
+					q = {};
+				}
+			}
+			
+			httpServerMain(req, res, q);
+			
+			break;
 		
-		httpServerMain(req, res, url.parse(req.url, true).query);
+		case 'POST':
+		case 'PUT':
+		case 'DELETE':
+			
+			var q = '';
+			
+			req.on('data', function(chunk) {
+				q += chunk.toString();
+			});
+			
+			req.on('end', function() {
+				if (q.trim().match(/^\{(\n|.)*\}$/) === null) {
+					q = querystring.parse(q);
+				} else {
+					try {
+						q = JSON.parse(q.trim());
+					} catch (e) {
+						q = {};
+					}
+				}
+				
+				httpServerMain(req, res, q);
+			});
+			
+			break;
 		
-	} else if (req.method === 'POST') {
-		
-		var postBody = '';
-		
-		req.on('data', function(chunk) {
-			postBody += chunk.toString();
-		});
-		
-		req.on('end', function() {
-			httpServerMain(req, res, querystring.parse(postBody));
-		});
-		
+		default:
+			
+			res.writeHead(400, {'content-type': 'text/plain'});
+			res.end('400 Bad Request\n');
+			util.log('400');
 	}
 }
 
@@ -347,12 +383,18 @@ function httpServerMain(req, res, query) {
 		if (ext === 'm2ts') { type = 'video/MP2T'; }
 		if (ext === 'm3u8') { type = 'video/x-mpegURL'; }
 		if (ext === 'asf')  { type = 'video/x-ms-asf'; }
-		if (ext === 'json') { type = 'application/json'; }
+		if (ext === 'json') { type = 'application/json; charset=utf-8'; }
 		if (ext === 'xspf') { type = 'application/xspf+xml'; }
 		
 		var head = {
-			'content-type': type,
-			'server'      : 'chinachu-wui'
+			'connection'               : 'close',
+			'content-type'             : type,
+			'date'                     : new Date().toUTCString(),
+			'server'                   : 'chinachu-wui',
+			'x-content-type-options'   : 'nosniff',
+			'x-frame-options'          : 'DENY',
+			'x-ua-compatible'          : 'IE=Edge,chrome=1',
+			'x-xss-protection'         : '1; mode=block'
 		};
 		
 		if (req.isSpdy) head['X-Chinachu-Spdy'] = req.spdyVersion;
@@ -410,19 +452,51 @@ function httpServerMain(req, res, query) {
 	}
 	
 	function responseStatic() {
-		fs.readFile(filename, function(err, data) {
-			if (err) return resErr(500);
-			if (req.method !== 'HEAD' && req.method !== 'GET') {
-				res.setHeader('allow', 'HEAD, GET');
-				return resErr(405);
+		
+		if (fs.existsSync(filename) === false) return resErr(404);
+		
+		if (req.method !== 'HEAD' && req.method !== 'GET') {
+			res.setHeader('allow', 'HEAD, GET');
+			return resErr(405);
+		};
+		
+		if (['ico'].indexOf(ext) !== -1) res.setHeader('cache-control', 'private, max-age=86400');
+		
+		var fstat = fs.statSync(filename);
+		
+		res.setHeader('accept-ranges', 'bytes');
+		res.setHeader('last-modified', new Date(fstat.mtime).toUTCString());
+		
+		if (req.headers['if-modified-since'] && req.headers['if-modified-since'] === new Date(fstat.mtime).toUTCString()) {
+			writeHead(304);
+			log(304);
+			return res.end();
+		}
+		
+		if (req.headers.range) {
+			var bytes = req.headers.range.replace(/bytes=/, '').split('-');
+			var range = {
+				start: parseInt(bytes[0], 10),
+				end  : parseInt(bytes[1], 10)
 			};
 			
+			res.setHeader('content-range', 'bytes ' + range.start + '-' + range.end + '/' + fstat.size);
+			res.setHeader('content-length', range.end - range.start + 1);
+			
+			writeHead(206);
+			log(206);
+		} else {
+			res.setHeader('content-length', fstat.size);
+			
 			writeHead(200);
-			if (req.method === 'GET') res.write(data);
-			res.end();
 			log(200);
-			return;
-		});
+		}
+		
+		if (req.method === 'GET') {
+			fs.createReadStream(filename, range || {}).pipe(res);
+		} else {
+			res.end();
+		}
 	}
 	
 	function responseApi() {
