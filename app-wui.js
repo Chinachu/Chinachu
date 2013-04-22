@@ -4,6 +4,7 @@
  *  Copyright (c) 2012 Yuki KAN and Chinachu Project Contributors
  *  http://chinachu.akkar.in/
 **/
+'use strict';
 
 var CONFIG_FILE         = __dirname + '/config.json';
 var RULES_FILE          = __dirname + '/rules.json';
@@ -190,22 +191,58 @@ if (https) { var app = https.createServer(tlsOption, httpServer); }
 app.listen(config.wuiPort, (typeof config.wuiHost === 'undefined') ? '::' : config.wuiHost);
 
 function httpServer(req, res) {
-	if (req.method === 'GET') {
+	
+	switch (req.method) {
+		case 'GET':
+		case 'HEAD':
+			
+			var q = url.parse(req.url, false).query || '';
+			
+			if (q.match(/^\{.*\}$/) === null) {
+				q = querystring.parse(q);
+			} else {
+				try {
+					q = JSON.parse(q);
+				} catch (e) {
+					q = {};
+				}
+			}
+			
+			httpServerMain(req, res, q);
+			
+			break;
 		
-		httpServerMain(req, res, url.parse(req.url, true).query);
+		case 'POST':
+		case 'PUT':
+		case 'DELETE':
+			
+			var q = '';
+			
+			req.on('data', function(chunk) {
+				q += chunk.toString();
+			});
+			
+			req.on('end', function() {
+				if (q.trim().match(/^\{(\n|.)*\}$/) === null) {
+					q = querystring.parse(q);
+				} else {
+					try {
+						q = JSON.parse(q.trim());
+					} catch (e) {
+						q = {};
+					}
+				}
+				
+				httpServerMain(req, res, q);
+			});
+			
+			break;
 		
-	} else if (req.method === 'POST') {
-		
-		var postBody = '';
-		
-		req.on('data', function(chunk) {
-			postBody += chunk.toString();
-		});
-		
-		req.on('end', function() {
-			httpServerMain(req, res, querystring.parse(postBody));
-		});
-		
+		default:
+			
+			res.writeHead(400, {'content-type': 'text/plain'});
+			res.end('400 Bad Request\n');
+			util.log('400');
 	}
 }
 
@@ -247,79 +284,81 @@ function httpServerMain(req, res, query) {
 	// エラーレスポンス用
 	function resErr(code) {
 		res.writeHead(code, {'content-type': 'text/plain'});
-		switch (code) {
-			case 400:
-				res.write('400 Bad Request\n');
-				break;
-			case 402:
-				res.write('402 Payment Required\n');
-				break;
-			case 401:
-				res.write('401 Unauthorized\n');
-				break;
-			case 403:
-				res.write('403 Forbidden\n');
-				break;
-			case 404:
-				res.write('404 Not Found\n');
-				break;
-			case 405:
-				res.write('405 Method Not Allowed\n');
-				break;
-			case 406:
-				res.write('406 Not Acceptable\n');
-				break;
-			case 407:
-				res.write('407 Proxy Authentication Required\n');
-				break;
-			case 408:
-				res.write('408 Request Timeout\n');
-				break;
-			case 409:
-				res.write('409 Conflict\n');
-				break;
-			case 410:
-				res.write('410 Gone\n');
-				break;
-			case 411:
-				res.write('411 Length Required\n');
-				break;
-			case 412:
-				res.write('412 Precondition Failed\n');
-				break;
-			case 413:
-				res.write('413 Request Entity Too Large\n');
-				break;
-			case 414:
-				res.write('414 Request-URI Too Long\n');
-				break;
-			case 415:
-				res.write('415 Unsupported Media Type\n');
-				break;
-			case 416:
-				res.write('416 Requested Range Not Satisfiable\n');
-				break;
-			case 417:
-				res.write('417 Expectation Failed\n');
-				break;
-			case 429:
-				res.write('429 Too Many Requests\n');
-				break;
-			case 451:
-				res.write('451 Unavailable For Legal Reasons\n');
-				break;
-			case 500:
-				res.write('500 Internal Server Error\n');
-				break;
-			case 501:
-				res.write('501 Not Implemented\n');
-				break;
-			case 502:
-				res.write('502 Bad Gateway\n');
-				break;
-			case 503:
-				res.write('503 Service Unavailable\n');
-				break;
+		if (req.method !== 'HEAD') {
+			switch (code) {
+				case 400:
+					res.write('400 Bad Request\n');
+					break;
+				case 402:
+					res.write('402 Payment Required\n');
+					break;
+				case 401:
+					res.write('401 Unauthorized\n');
+					break;
+				case 403:
+					res.write('403 Forbidden\n');
+					break;
+				case 404:
+					res.write('404 Not Found\n');
+					break;
+				case 405:
+					res.write('405 Method Not Allowed\n');
+					break;
+				case 406:
+					res.write('406 Not Acceptable\n');
+					break;
+				case 407:
+					res.write('407 Proxy Authentication Required\n');
+					break;
+				case 408:
+					res.write('408 Request Timeout\n');
+					break;
+				case 409:
+					res.write('409 Conflict\n');
+					break;
+				case 410:
+					res.write('410 Gone\n');
+					break;
+				case 411:
+					res.write('411 Length Required\n');
+					break;
+				case 412:
+					res.write('412 Precondition Failed\n');
+					break;
+				case 413:
+					res.write('413 Request Entity Too Large\n');
+					break;
+				case 414:
+					res.write('414 Request-URI Too Long\n');
+					break;
+				case 415:
+					res.write('415 Unsupported Media Type\n');
+					break;
+				case 416:
+					res.write('416 Requested Range Not Satisfiable\n');
+					break;
+				case 417:
+					res.write('417 Expectation Failed\n');
+					break;
+				case 429:
+					res.write('429 Too Many Requests\n');
+					break;
+				case 451:
+					res.write('451 Unavailable For Legal Reasons\n');
+					break;
+				case 500:
+					res.write('500 Internal Server Error\n');
+					break;
+				case 501:
+					res.write('501 Not Implemented\n');
+					break;
+				case 502:
+					res.write('502 Bad Gateway\n');
+					break;
+				case 503:
+					res.write('503 Service Unavailable\n');
+					break;
+			}
 		}
 		res.end();
 		log(code);
@@ -344,18 +383,27 @@ function httpServerMain(req, res, query) {
 		if (ext === 'm2ts') { type = 'video/MP2T'; }
 		if (ext === 'm3u8') { type = 'video/x-mpegURL'; }
 		if (ext === 'asf')  { type = 'video/x-ms-asf'; }
-		if (ext === 'json') { type = 'application/json'; }
+		if (ext === 'json') { type = 'application/json; charset=utf-8'; }
 		if (ext === 'xspf') { type = 'application/xspf+xml'; }
 		
 		var head = {
-			'content-type': type,
-			'server'      : 'chinachu-wui'
+			'connection'               : 'close',
+			'content-type'             : type,
+			'date'                     : new Date().toUTCString(),
+			'server'                   : 'chinachu-wui',
+			'x-content-type-options'   : 'nosniff',
+			'x-frame-options'          : 'DENY',
+			'x-ua-compatible'          : 'IE=Edge,chrome=1',
+			'x-xss-protection'         : '1; mode=block'
 		};
 		
 		if (req.isSpdy) head['X-Chinachu-Spdy'] = req.spdyVersion;
 		
 		res.writeHead(code, head);
 	}
+	
+	// ヘッダの確認
+	if (!req.headers['host']) return resErr(400);
 	
 	// 静的ファイルまたはAPIレスポンスの分岐
 	if (req.url.match(/^\/api\/.*$/) === null) {
@@ -404,14 +452,51 @@ function httpServerMain(req, res, query) {
 	}
 	
 	function responseStatic() {
-		fs.readFile(filename, function(err, data) {
-			if (err) return resErr(500);
+		
+		if (fs.existsSync(filename) === false) return resErr(404);
+		
+		if (req.method !== 'HEAD' && req.method !== 'GET') {
+			res.setHeader('allow', 'HEAD, GET');
+			return resErr(405);
+		};
+		
+		if (['ico'].indexOf(ext) !== -1) res.setHeader('cache-control', 'private, max-age=86400');
+		
+		var fstat = fs.statSync(filename);
+		
+		res.setHeader('accept-ranges', 'bytes');
+		res.setHeader('last-modified', new Date(fstat.mtime).toUTCString());
+		
+		if (req.headers['if-modified-since'] && req.headers['if-modified-since'] === new Date(fstat.mtime).toUTCString()) {
+			writeHead(304);
+			log(304);
+			return res.end();
+		}
+		
+		if (req.headers.range) {
+			var bytes = req.headers.range.replace(/bytes=/, '').split('-');
+			var range = {
+				start: parseInt(bytes[0], 10),
+				end  : parseInt(bytes[1], 10)
+			};
+			
+			res.setHeader('content-range', 'bytes ' + range.start + '-' + range.end + '/' + fstat.size);
+			res.setHeader('content-length', range.end - range.start + 1);
+			
+			writeHead(206);
+			log(206);
+		} else {
+			res.setHeader('content-length', fstat.size);
 			
 			writeHead(200);
-			res.end(data);
 			log(200);
-			return;
-		});
+		}
+		
+		if (req.method === 'GET') {
+			fs.createReadStream(filename, range || {}).pipe(res);
+		} else {
+			res.end();
+		}
 	}
 	
 	function responseApi() {
@@ -459,7 +544,10 @@ function httpServerMain(req, res, query) {
 			}
 			
 			if (target === null) return resErr(400);
-			if (target.methods.indexOf(req.method.toLowerCase()) === -1) return resErr(405);
+			if (target.methods.indexOf(req.method.toLowerCase()) === -1) {
+				res.setHeader('allow', target.methods.join(', ').toUpperCase());
+				return resErr(405);
+			}
 			if (target.types.indexOf(ext) === -1) return resErr(415);
 			
 			var scriptFile = './api/script-' + target.script + '.vm.js';
