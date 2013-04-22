@@ -217,6 +217,9 @@ section {
 			text-shadow     : 0 1px 0 #fff;
 			overflow        : auto;
 			background-color: rgba(255,255,255,0.8); }
+		
+		section > div.program-view.black > div.main {
+			background-color: rgba(0,0,0,0.8); }
 			
 			section > div.program-view > div > h1 {
 				margin          : 0 0 10px 0;
@@ -280,6 +283,9 @@ section {
 			color           : #555;
 			overflow        : auto;
 			background-color: rgba(255,255,255,0.5); }
+		
+		section > div.program-view.black > div.sub {
+			background-color: rgba(0,0,0,0.5); }
 			
 			section > div.program-view > div.sub > a {
 				display         : block;
