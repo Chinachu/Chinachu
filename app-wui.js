@@ -260,8 +260,8 @@ function httpServerMain(req, res, query) {
 	
 	// serve static file
 	var location = req.url;
-	if (location.match(/\/$/) !== null)     { location += 'index.html'; }
 	if (location.match(/(\?.*)$/) !== null) { location = location.match(/^(.+)\?.*$/)[1]; }
+	if (location.match(/\/$/) !== null)     { location += 'index.html'; }
 	
 	// HTTPメソッド指定を上書き
 	if (query.method) {
@@ -283,6 +283,7 @@ function httpServerMain(req, res, query) {
 	
 	// エラーレスポンス用
 	function resErr(code) {
+		
 		res.writeHead(code, {'content-type': 'text/plain'});
 		if (req.method !== 'HEAD') {
 			switch (code) {
