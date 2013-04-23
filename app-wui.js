@@ -260,8 +260,8 @@ function httpServerMain(req, res, query) {
 	
 	// serve static file
 	var location = req.url;
-	if (location.match(/\/$/) !== null)     { location += 'index.html'; }
 	if (location.match(/(\?.*)$/) !== null) { location = location.match(/^(.+)\?.*$/)[1]; }
+	if (location.match(/\/$/) !== null)     { location += 'index.html'; }
 	
 	// HTTPメソッド指定を上書き
 	if (query.method) {
