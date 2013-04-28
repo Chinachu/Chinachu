@@ -400,6 +400,18 @@ function formatRecordedName(program) {
 	// <title>
 	name = name.replace('<title>', program.title);
 	
+	// <fulltitle>
+	name = name.replace('<fulltitle>', program.fullTitle || '');
+	
+	// <subtitle>
+	name = name.replace('<subtitle>', program.subtitle || '');
+	
+	// <episode>
+	name = name.replace('<episode>', program.episode || 'n');
+	
+	// <category>
+	name = name.replace('<category>', program.category);
+	
 	// strip
 	name = name.replace(/\//g, '／').replace(/\\/g, '＼').replace(/:/g, '：').replace(/\*/g, '＊').replace(/\?/g, '？');
 	name = name.replace(/"/g, '”').replace(/</g, '＜').replace(/>/g, '＞').replace(/\|/g, '｜').replace(/≫/g, '＞＞');
