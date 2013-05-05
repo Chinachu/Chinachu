@@ -435,6 +435,7 @@ chinachu_installer_libav () {
     --enable-filter=setpts \
     --enable-filter=settb \
     --enable-filter=yadif \
+    --enable-filter=trim \
     --extra-cflags="-I${USR_DIR}/include" \
     --extra-ldflags="-L${USR_DIR}/lib"
   
