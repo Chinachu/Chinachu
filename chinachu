@@ -16,7 +16,7 @@ fi
 shopt -s extglob
 
 # variables
-NODE_VER=0.10.4
+NODE_VER=0.10.5
 
 main () {
   local SELF_PATH DIR SYM
@@ -435,6 +435,7 @@ chinachu_installer_libav () {
     --enable-filter=setpts \
     --enable-filter=settb \
     --enable-filter=yadif \
+    --enable-filter=trim \
     --extra-cflags="-I${USR_DIR}/include" \
     --extra-ldflags="-L${USR_DIR}/lib"
   
