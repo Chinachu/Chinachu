@@ -49,7 +49,7 @@ var config = require(CONFIG_FILE);
 
 // https or http
 if (config.wuiTlsKeyPath && config.wuiTlsCertPath) {
-	var https = require('spdy');
+	var https = require('https');
 	
 	var tlsOption = {
 		key : fs.readFileSync(config.wuiTlsKeyPath),
@@ -388,7 +388,6 @@ function httpServerMain(req, res, query) {
 		if (ext === 'xspf') { type = 'application/xspf+xml'; }
 		
 		var head = {
-			'connection'               : 'close',
 			'content-type'             : type,
 			'date'                     : new Date().toUTCString(),
 			'server'                   : 'chinachu-wui',
@@ -397,8 +396,6 @@ function httpServerMain(req, res, query) {
 			'x-ua-compatible'          : 'IE=Edge,chrome=1',
 			'x-xss-protection'         : '1; mode=block'
 		};
-		
-		if (req.isSpdy) head['X-Chinachu-Spdy'] = req.spdyVersion;
 		
 		res.writeHead(code, head);
 	}
