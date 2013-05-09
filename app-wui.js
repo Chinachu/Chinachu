@@ -552,6 +552,13 @@ function httpServerMain(req, res, query) {
 			
 			if (fs.existsSync(scriptFile) === false) return resErr(501);
 			
+			res._end = res.end;
+			res.end  = function() {
+				res.end = res._end;
+				res.end.apply(res, arguments);
+				res.emit('end');
+			};
+			
 			var sandbox = {
 				request      : req,
 				response     : res,
@@ -642,6 +649,7 @@ function httpServerMain(req, res, query) {
 			}
 			
 			req.connection.on('close', onEnd);
+			res.on('end', onEnd);
 			
 			req.connection.on('error', function() {
 				if (!isClosed) {
