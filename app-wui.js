@@ -635,6 +635,10 @@ function httpServerMain(req, res, query) {
 						process.nextTick(gc);
 					}, 5000);
 				}
+				
+				req.connection.removeListener('close', onEnd);
+				req.connection.removeListener('error', onEnd);
+				req.removeListener('end', onEnd);
 			}
 			
 			try {
