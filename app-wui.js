@@ -604,12 +604,19 @@ function httpServerMain(req, res, query) {
 			sandbox.request.type   = ext;
 			sandbox.response.head  = writeHead;
 			sandbox.response.error = function(code) {
-				resErr(code);
+				
 				isClosed = true;
+				
+				resErr(code);
+				
+				cleanup();
 			};
 			
 			// DEPRECATED
 			sandbox.response.exit = function(data, encoding) {
+				
+				util.log('response.exit is DEPRECATED: ' + scriptFile);
+				
 				try {
 					res.end(data, encoding);
 				} catch (e) {
@@ -617,29 +624,54 @@ function httpServerMain(req, res, query) {
 				}
 			};
 			
-			function onEnd() {
+			var onEnd = function() {
+				
 				if (!isClosed) {
 					isClosed = true;
 					
 					log(res.statusCode);
-					
-					setTimeout(function() {
-						sandbox.children.forEach(function(child) {
-							if (!!req.query.debug) util.log('SIGKILL: pid=' + child.pid);
-							child.kill('SIGKILL');
-						});
-					}, 3000);
-					
-					setTimeout(function() {
-						sandbox = null;
-						process.nextTick(gc);
-					}, 5000);
 				}
 				
+				cleanup();
+			};
+			
+			var onError = function() {
+				
+				if (!isClosed) {
+					isClosed = true;
+					
+					req.emit('close');
+					
+					resErr(500);
+				}
+				
+				cleanup();
+			};
+			
+			var cleanup = function() {
+				
+				setTimeout(function() {
+					sandbox.children.forEach(function(child) {
+						//if (!!req.query.debug) util.log('SIGKILL: pid=' + child.pid);
+						child.kill('SIGKILL');
+					});
+				}, 3000);
+				
+				setTimeout(function() {
+					sandbox = null;
+					if (typeof global.gc !== 'undefined') process.nextTick(gc);
+				}, 5000);
+				
 				req.connection.removeListener('close', onEnd);
-				req.connection.removeListener('error', onEnd);
+				req.connection.removeListener('error', onError);
 				req.removeListener('end', onEnd);
-			}
+				
+				cleanup = function _emptyFunction() {};
+			};
+			
+			req.connection.on('close', onEnd);
+			req.connection.on('error', onError);
+			res.on('end', onEnd);
 			
 			try {
 				vm.runInNewContext(fs.readFileSync(scriptFile), sandbox, scriptFile);
@@ -651,18 +683,6 @@ function httpServerMain(req, res, query) {
 				
 				util.error(e);
 			}
-			
-			req.connection.on('close', onEnd);
-			res.on('end', onEnd);
-			
-			req.connection.on('error', function() {
-				if (!isClosed) {
-					req.emit('close');
-					
-					resErr(500);
-					isClosed = true;
-				}
-			});
 			
 			return;
 		});
