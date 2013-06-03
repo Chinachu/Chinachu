@@ -16,7 +16,7 @@ fi
 shopt -s extglob
 
 # variables
-NODE_VER=0.10.5
+NODE_VER=0.10.9
 
 main () {
   local SELF_PATH DIR SYM
@@ -189,7 +189,7 @@ chinachu_installer_epgdump () {
   local EPGDUMP_GIT="git://github.com/stz2012/epgdump.git"
   
   echo "Installing epgdump from $EPGDUMP_GIT"
-  git clone $EPGDUMP_GIT "$USR_DIR/src/epgdump"
+  git clone --depth=50 --branch=master $EPGDUMP_GIT "$USR_DIR/src/epgdump"
   cd "$USR_DIR/src/epgdump"
   
   make || fail "couldn't make epgdump"
@@ -211,7 +211,7 @@ chinachu_installer_libx264 () {
   local LIBX264_GIT="git://git.videolan.org/x264.git"
   
   echo "Installing libx264 from $LIBX264_GIT"
-  git clone $LIBX264_GIT "$USR_DIR/src/libx264"
+  git clone --depth=50 --branch=master $LIBX264_GIT "$USR_DIR/src/libx264"
   cd "$USR_DIR/src/libx264"
   
   ./configure \
@@ -224,7 +224,7 @@ chinachu_installer_libx264 () {
     --disable-lavf \
     --disable-swscale
   
-  make || fail "couldn't make libx264"
+  make -j || fail "couldn't make libx264"
   make install && make clean
   
   cd $CHINACHU_DIR
@@ -254,7 +254,7 @@ chinachu_installer_libvpx () {
     --disable-vp9 \
     --disable-unit-tests
   
-  make || fail "couldn't make libvpx"
+  make -j || fail "couldn't make libvpx"
   make install && make clean
   
   cd $CHINACHU_DIR
@@ -281,7 +281,7 @@ chinachu_installer_libfdk-aac () {
     --prefix=$USR_DIR \
     --enable-shared
   
-  make || fail "couldn't make libfdk-aac"
+  make -j || fail "couldn't make libfdk-aac"
   make install-strip && make clean
   
   cd $CHINACHU_DIR
@@ -310,7 +310,7 @@ chinachu_installer_libogg () {
     --prefix=$USR_DIR \
     --enable-shared
   
-  make || fail "couldn't make libogg"
+  make -j || fail "couldn't make libogg"
   make install && make clean
   
   cd $LIBOGG_DIR
@@ -344,7 +344,7 @@ chinachu_installer_libvorbis () {
     --enable-shared \
     --with-ogg=$LIBOGG_DIR
   
-  make || fail "couldn't make libvorbis"
+  make -j || fail "couldn't make libvorbis"
   make install-strip && make clean
   
   cd "$USR_DIR/src/libvorbis"
@@ -366,8 +366,9 @@ chinachu_installer_libav () {
   local LIBAV_GIT="git://git.libav.org/libav.git"
   
   echo "Installing libav from $LIBAV_GIT"
-  git clone $LIBAV_GIT "$USR_DIR/src/libav"
+  git clone --depth=50 --branch=master $LIBAV_GIT "$USR_DIR/src/libav"
   cd "$USR_DIR/src/libav"
+  git checkout -qf 89806691b1c39181c63d95e0fddc30f11e2a7b04
   
   ./configure \
     --prefix=$USR_DIR \
@@ -438,7 +439,7 @@ chinachu_installer_libav () {
     --extra-cflags="-I${USR_DIR}/include" \
     --extra-ldflags="-L${USR_DIR}/lib"
   
-  make || fail "couldn't make libav"
+  make -j || fail "couldn't make libav"
   make install && make clean
   
   cd $CHINACHU_DIR
