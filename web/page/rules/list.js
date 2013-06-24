@@ -30,25 +30,12 @@ P = Class.create(P, {
 	initToolbar: function _initToolbar() {
 		
 		this.view.toolbar.add({
-			key: 'add',
-			ui : new sakura.ui.Button({
-				label  : 'ADD'.__(),
-				icon   : './icons/plus-circle.png',
-				onClick: function() {
-					
-				}.bind(this)
-			})
-		});
-		
-		this.view.toolbar.add({ key: '--', ui: new sakura.ui.Element({ tagName: 'hr' }) });
-		
-		this.view.toolbar.add({
 			key: 'execute-scheduler',
 			ui : new sakura.ui.Button({
 				label  : 'EXECUTE {0}'.__('SCHEDULER'.__()),
 				icon   : './icons/calendar-import.png',
 				onClick: function() {
-					
+					new chinachu.ui.ExecuteScheduler();
 				}.bind(this)
 			})
 		});
@@ -56,26 +43,38 @@ P = Class.create(P, {
 		this.view.toolbar.add({ key: '--', ui: new sakura.ui.Element({ tagName: 'hr' }) });
 		
 		this.view.toolbar.add({
-			key: 'modify',
+			key: 'add',
 			ui : new sakura.ui.Button({
-				label  : 'MODIFY'.__(),
-				icon   : './icons/hammer.png',
+				label  : 'ADD'.__(),
+				icon   : './icons/plus-circle.png',
 				onClick: function() {
-					
+					new chinachu.ui.NewRule();
 				}.bind(this)
 			})
 		});
 		
 		this.view.toolbar.add({
+			key: 'edit',
+			ui : new sakura.ui.Button({
+				label  : 'EDIT'.__(),
+				icon   : './icons/hammer.png',
+				onClick: function() {
+					new chinachu.ui.EditRule(global.chinachu.rules.indexOf(this.grid.getSelectedRows().first().data));
+				}.bind(this)
+			}).disable()
+		});
+		
+		/*this.view.toolbar.add({
 			key: 'copy',
 			ui : new sakura.ui.Button({
 				label  : 'COPY'.__(),
 				icon   : './icons/document-copy.png',
 				onClick: function() {
-					
+					//console.log(this.grid.getSelectedRows().first());
+					//new chinachu.ui.CreateRuleByProgram(this.grid.getSelectedRows().first().data.id);
 				}.bind(this)
-			})
-		});
+			}).disable()
+		});*/
 		
 		this.view.toolbar.add({
 			key: 'delete',
@@ -84,11 +83,95 @@ P = Class.create(P, {
 				icon   : './icons/cross-script.png',
 				onClick: function() {
 					
+					var selected = this.grid.getSelectedRows();
+					var nums = [];
+					selected.each(function(row) {
+						nums.push(global.chinachu.rules.indexOf(row.data));
+					});
+					nums.sort();
+					
+					var modal  = new flagrate.Modal({
+						title: 'ルール削除',
+						text : 'これらの ' + selected.length + ' ルールを削除します',
+						buttons: [
+							{
+								label: '削除',
+								color: '@red',
+								onSelect: function(e, modal) {
+									
+									modal.buttons.each(function(a) {
+										a.button.disable();
+									});
+									
+									main();
+								}
+							},
+							{
+								label: 'キャンセル',
+								onSelect: function(e, modal) {
+									modal.close();
+								}
+							}
+						]
+					}).show();
+					
+					var main = function() {
+						
+						document.stopObserving('chinachu:rules', main);
+						
+						if (nums.length === 0) {
+							modal.close();
+							return;
+						}
+						
+						var num  = nums.pop();
+						console.log(num, nums);
+						
+						modal.content.updateText('ルール#' + num.toString(10) + ' を削除しています...');
+						
+						new Ajax.Request('./api/rules/' + num.toString(10) + '.json', {
+							method    : 'delete',
+							onComplete: function() {
+								document.observe('chinachu:rules', main);
+							},
+							onSuccess: function() {
+								
+								modal.content.updateText('ルール#' + num.toString(10) + ' を削除しました');
+							},
+							onFailure: function(t) {
+								
+								new flagrate.Modal({
+									title: '失敗',
+									text : 'ルール#' + num.toString(10) + ' の削除に失敗しました (' + t.status + ')'
+								}).show();
+							}
+						});
+					};
 				}.bind(this)
-			})
+			}).disable()
 		});
 		
 		return this;
+	}
+	,
+	updateToolbar: function() {
+		
+		if (!this.grid) return;
+		
+		var selected = this.grid.getSelectedRows();
+		
+		if (selected.length === 0) {
+			this.view.toolbar.one('edit').disable();
+			//this.view.toolbar.one('copy').disable();
+			this.view.toolbar.one('delete').disable();
+		} else if (selected.length === 1) {
+			this.view.toolbar.one('edit').enable();
+			//this.view.toolbar.one('copy').enable();
+			this.view.toolbar.one('delete').enable();
+		} else {
+			this.view.toolbar.one('edit').disable();
+			//this.view.toolbar.one('copy').disable();
+		}
 	}
 	,
 	draw: function() {
@@ -161,7 +244,12 @@ P = Class.create(P, {
 					key  : 'ignore_descriptions',
 					label: '無視説明文'
 				}
-			]
+			],
+			onSelect  : this.updateToolbar.bind(this),
+			onDeselect: this.updateToolbar.bind(this),
+			onDblClick: function(e, row) {
+				new chinachu.ui.EditRule(global.chinachu.rules.indexOf(row.data));
+			}.bind(this)
 		}).insertTo(this.view.content);
 		
 		this.drawMain();
@@ -176,6 +264,7 @@ P = Class.create(P, {
 		global.chinachu.rules.each(function(rule, i) {
 			
 			var row = {
+				data: rule,
 				cell: {
 					n: {
 						sortAlt: i,
@@ -183,6 +272,8 @@ P = Class.create(P, {
 					}
 				}
 			};
+			
+			if (rule.isDisabled) row.className = 'disabled';
 			
 			if (rule.types) {
 				row.cell.types = {
@@ -396,7 +487,9 @@ P = Class.create(P, {
 			rows.push(row);
 		});
 		
-		this.grid.splice(0, null, rows);
+		this.grid.splice(0, null, rows).each(function(row) {
+			this.grid.deselect(row);
+		}.bind(this));
 		
 		return this;
 	}

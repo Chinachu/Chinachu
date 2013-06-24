@@ -482,7 +482,7 @@ div.middle {
 						color      : #ccc;
 						box-shadow : none;
 						line-height: 14px;
-						padding    : 2px 5px 0px 5px;
+						padding    : 2px 5px 1px 5px;
 						border     : 2px solid transparent;
 						text-shadow: none;
 						
@@ -1417,15 +1417,20 @@ div.timeline > div.timescale {
 		border-color: #63c;
 		color       : #63c; }
 
+tr.disabled > td {
+	background-color: rgba(0,0,0,0.2); }
+
 td.default > div {
-	color     : #999;
-	font-style: italic; }
+	color     : #aaa;
+	font-style: italic;
+	font-size : 11px; }
 
 td.types > div > span {
-	padding     : 0 3px;
-	font-size   : 11px;
-	margin-right: 2px;
-	color       : #eee; }
+	padding      : 0 3px;
+	font-size    : 11px;
+	margin-right : 2px;
+	color        : #eee;
+	border-radius: 2px; }
 
 td.types > div > span.GR { background-color: #930; }
 td.types > div > span.BS { background-color: #03c; }
@@ -1433,6 +1438,7 @@ td.types > div > span.CS { background-color: #f00; }
 td.types > div > span.EX { background-color: #222; }
 
 td.categories > div > span {
-	padding     : 0 2px;
-	font-size   : 11px;
-	margin-right: 2px; }
+	padding      : 0 2px;
+	font-size    : 11px;
+	margin-right : 2px;
+	border-radius: 2px; }

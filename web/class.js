@@ -492,7 +492,7 @@
 		create: function _create() {
 			this.modal = new flagrate.Modal({
 				title: 'スケジューラーの実行',
-				text : '全てのルールと手動予約を元に競合を検出してスケジューリングを行います',
+				text : '全てのルールと手動予約から競合を検出してスケジューリングを行います',
 				buttons: [
 					{
 						label   : '実行',
@@ -731,22 +731,22 @@
 		},
 		create: function _create() {
 			if (this.program === null) {
-				this.modal = new Hypermodal({
-					title  : 'エラー',
-					content: '番組が見つかりませんでした'
+				this.modal = new flagrate.Modal({
+					title: 'エラー',
+					text : '番組が見つかりませんでした'
 				});
 			} else {
-				this.modal = new Hypermodal({
-					title  : '録画履歴の削除',
-					description: this.program.title + ' #' + this.program.id,
-					content: '本当によろしいですか？<br>システムはこの録画ファイルを見失います。',
+				this.modal = new flagrate.Modal({
+					title   : '録画履歴の削除',
+					subtitle: this.program.title + ' #' + this.program.id,
+					text    : '本当によろしいですか？<br>システムはこの録画ファイルを見失います。',
 	
 					buttons: [
 						{
 							label  : '削除',
 							color  : '@red',
-							onClick: function(e, btn, modal) {
-								btn.disable();
+							onSelect: function(e, modal) {
+								e.target.disable();
 								
 								new Ajax.Request('./api/recorded/' + this.program.id + '.json', {
 									method    : 'delete',
@@ -754,23 +754,23 @@
 										modal.close();
 									},
 									onSuccess: function() {
-										new Hypermodal({
-											title  : '成功',
-											content: '録画履歴の削除に成功しました'
-										}).render();
+										new flagrate.Modal({
+											title: '成功',
+											text : '録画履歴の削除に成功しました'
+										}).show();
 									},
 									onFailure: function(t) {
-										new Hypermodal({
-											title  : '失敗',
-											content: '録画履歴の削除に失敗しました (' + t.status + ')'
-										}).render();
+										new flagrate.Modal({
+											title: '失敗',
+											text : '録画履歴の削除に失敗しました (' + t.status + ')'
+										}).show();
 									}
 								});
 							}.bind(this)
 						},
 						{
 							label  : 'キャンセル',
-							onClick: function(e, btn, modal) {
+							onSelect: function(e, modal) {
 								modal.close();
 							}
 						}
@@ -778,7 +778,7 @@
 				});
 			}
 			
-			this.modal.render();
+			this.modal.show();
 			
 			return this;
 		}
@@ -794,21 +794,21 @@
 		},
 		create: function _create() {
 			if (this.program === null) {
-				this.modal = new Hypermodal({
-					title  : 'エラー',
-					content: '番組が見つかりませんでした'
+				this.modal = new flagrate.Modal({
+					title: 'エラー',
+					text : '番組が見つかりませんでした'
 				});
 			} else {
-				this.modal = new Hypermodal({
-					title  : '録画ファイルの削除',
-					description: this.program.title + ' #' + this.program.id,
-					content: '本当によろしいですか？<br>一度削除された録画ファイルは復元できません。',
+				this.modal = new flagrate.Modal({
+					title: '録画ファイルの削除',
+					subtitle: this.program.title + ' #' + this.program.id,
+					text : '本当によろしいですか？<br>一度削除された録画ファイルは復元できません。',
 					buttons: [
 						{
 							label  : '削除',
 							color  : '@red',
-							onClick: function(e, btn, modal) {
-								btn.disable();
+							onSelect: function(e, modal) {
+								e.target.disable();
 								
 								new Ajax.Request('./api/recorded/' + this.program.id + '/file.json', {
 									method    : 'delete',
@@ -816,23 +816,23 @@
 										modal.close();
 									},
 									onSuccess: function() {
-										new Hypermodal({
-											title  : '成功',
-											content: '録画ファイルの削除に成功しました'
-										}).render();
+										new flagrate.Modal({
+											title: '成功',
+											text : '録画ファイルの削除に成功しました'
+										}).show();
 									},
 									onFailure: function(t) {
-										new Hypermodal({
-											title  : '失敗',
-											content: '録画ファイルの削除に失敗しました (' + t.status + ')'
-										}).render();
+										new flagrate.Modal({
+											title: '失敗',
+											text : '録画ファイルの削除に失敗しました (' + t.status + ')'
+										}).show();
 									}
 								});
 							}.bind(this)
 						},
 						{
 							label  : 'キャンセル',
-							onClick: function(e, btn, modal) {
+							onSelect: function(e, modal) {
 								modal.close();
 							}
 						}
@@ -840,7 +840,7 @@
 				});
 			}
 			
-			this.modal.render();
+			this.modal.show();
 			
 			return this;
 		}
@@ -853,15 +853,15 @@
 			return this;
 		},
 		create: function _create() {
-			this.modal = new Hypermodal({
-				title  : 'クリーンアップ',
-				content: '本当によろしいですか？<br>全ての録画履歴から録画ファイルを見失った項目を削除します。',
+			this.modal = new flagrate.Modal({
+				title: 'クリーンアップ',
+				text : '全ての録画履歴の中から録画ファイルを見失った項目を削除します。',
 				buttons: [
 					{
 						label  : 'クリーンアップ',
 						color  : '@red',
-						onClick: function(e, btn, modal) {
-							btn.disable();
+						onSelect: function(e, modal) {
+							e.target.disable();
 							
 							new Ajax.Request('./api/recorded.json', {
 								method    : 'put',
@@ -869,30 +869,30 @@
 									modal.close();
 								},
 								onSuccess: function() {
-									new Hypermodal({
-										title  : '成功',
-										content: 'クリーンアップに成功しました'
-									}).render();
+									new flagrate.Modal({
+										title: '成功',
+										text : 'クリーンアップに成功しました'
+									}).show();
 								},
 								onFailure: function(t) {
-									new Hypermodal({
-										title  : '失敗',
-										content: 'クリーンアップに失敗しました (' + t.status + ')'
-									}).render();
+									new flagrate.Modal({
+										title: '失敗',
+										text : 'クリーンアップに失敗しました (' + t.status + ')'
+									}).show();
 								}
 							});
 						}.bind(this)
 					},
 					{
 						label  : 'キャンセル',
-						onClick: function(e, btn, modal) {
+						onSelect: function(e, modal) {
 							modal.close();
 						}
 					}
 				]
 			});
 			
-			this.modal.render();
+			this.modal.show();
 			
 			return this;
 		}
@@ -908,9 +908,9 @@
 		},
 		create: function _create() {
 			if (this.program === null) {
-				this.modal = new Hypermodal({
-					title  : 'エラー',
-					content: '番組が見つかりませんでした'
+				this.modal = new flagrate.Modal({
+					title: 'エラー',
+					text : '番組が見つかりませんでした'
 				});
 				
 				return this;
@@ -1192,32 +1192,32 @@
 			
 			this.form.render(this.formContainer);
 			
-			this.modal = new Hypermodal({
-				title  : 'ストリーミング再生',
-				description: this.program.title + ' #' + this.program.id,
-				content: this.formContainer,
+			this.modal = new flagrate.Modal({
+				title: 'ストリーミング再生',
+				subtitle: this.program.title + ' #' + this.program.id,
+				element: this.formContainer,
 				buttons: [
 					{
 						label  : '再生',
 						color  : '@pink',
-						onClick: function(e, btn, modal) {
+						onSelect: function(e, modal) {
 							if (this.form.validate() === false) { return; }
 							
 							var d = this.form.result();
 							
 							/*if ((d.format === 'm2ts') && (!window.navigator.plugins['VLC Web Plugin'])) {
-								new Hypermodal({
-									title  : 'エラー',
-									content: 'MPEG-2 TSコンテナの再生にはVLC Web Pluginが必要です。'
-								}).render();
+								new flagrate.Modal({
+									title: 'エラー',
+									text : 'MPEG-2 TSコンテナの再生にはVLC Web Pluginが必要です。'
+								}).show();
 								return;
 							}*/
 							
 							if (d.format === 'm2ts') {
-								new Hypermodal({
-									title  : 'エラー',
-									content: 'MPEG-2 TSコンテナの再生は未サポートです。XSPFが利用できます。'
-								}).render();
+								new flagrate.Modal({
+									title: 'エラー',
+									text : 'MPEG-2 TSコンテナの再生は未サポートです。XSPFが利用できます。'
+								}).show();
 								return;
 							}
 							
@@ -1229,7 +1229,7 @@
 					{
 						label  : 'XSPF',
 						color  : '@orange',
-						onClick: function(e, btn, modal) {
+						onSelect: function(e, modal) {
 							if (this.form.validate() === false) { return; }
 							
 							var d = this.form.result();
@@ -1245,12 +1245,12 @@
 					},
 					{
 						label  : 'キャンセル',
-						onClick: function(e, btn, modal) {
+						onSelect: function(e, modal) {
 							modal.close();
 						}
 					}
 				]
-			}).render();
+			}).show();
 			
 			if (Prototype.Browser.MobileSafari) {
 				this.modal.buttons[1].disable();
@@ -1267,7 +1267,7 @@
 			this.d       = d;
 			
 			this.create();
-			this.render();
+			this.show();
 			
 			return this;
 		},
@@ -1377,28 +1377,27 @@
 		},
 		create: function _create() {
 			if (this.num == null) {
-				var modal = new Hypermodal({
-					title  : 'エラー',
-					content: 'ルールの指定が不正です。'
-				}).render(); 
+				var modal = new flagrate.Modal({
+					title: 'エラー',
+					text : 'ルールの指定が不正です。'
+				}).show(); 
 			} else {
 				// フォームに表示させるルールを読み込む
-				this.rule = {};
 				var num = this.num;
 				new Ajax.Request('./api/rules/' + num + '.json', {
 					method   : 'get',
 					onSuccess: function(t) {
-						var rule = this.rule= t.responseJSON;
 						
-						var modal = new Hypermodal({
-							title  : 'ルール詳細',
-							content: new Element('div'),
+						var rule = t.responseJSON;
+						
+						var modal = new flagrate.Modal({
+							title: 'ルール編集',
 							buttons: [
 								{
 									label  : '変更',
 									color  : '@pink',
-									onClick: function(e, btn, modal) {
-										btn.disable();
+									onSelect: function(e, modal) {
+										e.target.disable();
 										
 										this.param = viewRuleForm.result();
 										
@@ -1428,78 +1427,30 @@
 											},
 											onSuccess: function() {
 												
-												new Hypermodal({
-													title  : '成功',
-													content: 'ルール変更に成功しました',
+												new flagrate.Modal({
+													title: '成功',
+													text : 'ルール変更に成功しました',
 													onClose: function(){}
-												}).render();
+												}).show();
 											},
 											onFailure: function(t) {
-												new Hypermodal({
-													title  : '失敗',
-													content: 'ルール変更に失敗しました (' + t.status + ')',
+												new flagrate.Modal({
+													title: '失敗',
+													text : 'ルール変更に失敗しました (' + t.status + ')',
 													onClose: function(){}
-												}).render();
+												}).show();
 											}
 										});
 									}
 								},
 								{
-									label  : '削除',
-									color: '@red',
-									onClick: function(e, btn, modal) {
-										btn.disable();
-										// ルールの削除確認
-										this.modal = new Hypermodal({
-											title  : '削除',
-											description: 'Rule #' + num,
-											content: '本当によろしいですか？',
-											buttons: [
-												{
-													label  : '削除',
-													color  : '@red',
-													onClick: function(e, btn, modal) {
-														btn.disable();
-														
-														new Ajax.Request('./api/rules/' + num + '.json', {
-															method    : 'delete',
-															onComplete: function() {
-																modal.close();
-															},
-															onSuccess: function() {
-																new Hypermodal({
-																	title  : '成功',
-																	content: 'ルール削除に成功しました'
-																}).render();
-															},
-															onFailure: function(t) {
-																new Hypermodal({
-																	title  : '失敗',
-																	content: 'ルール削除に失敗しました (' + t.status + ')'
-																}).render();
-															}
-														});
-													}.bind(this)
-												},
-												{
-													label  : 'キャンセル',
-													onClick: function(e, btn, modal) {
-														modal.close();
-													}
-												}
-											]
-										}).render();
-										modal.close();
-									}
-								},
-								{
 									label  : 'キャンセル',
-									onClick: function(e, btn, modal) {
+									onSelect: function(e, modal) {
 										modal.close();
 									}
 								}
 							]
-						}).render();
+						}).show();
 						
 						var viewRuleForm = new Hyperform({
 							formWidth  : '100%',
@@ -1680,7 +1631,7 @@
 								}
 							]
 						}).render(modal.content);
-					},
+					}.bind(this),
 					onFailure: function(t) {
 					}
 				});
@@ -1699,20 +1650,20 @@
 		},
 		create: function _create() {
 			if (false) { //のちにエラー処理を追加
-				var modal = new Hypermodal({
-					title  : 'エラー',
-					content: '不正なアクセスです。'
-				}).render(); 
+				var modal = new flagrate.Modal({
+					title: 'エラー',
+					text : '不正なアクセスです。'
+				}).show(); 
 			} else {
-				var modal = new Hypermodal({
-					title  : '新規作成',
-					content: new Element('div'),
+				var modal = new flagrate.Modal({
+					title: '新規作成',
+					element: new Element('div'),
 					buttons: [
 						{
 							label  : '作成',
 							color  : '@pink',
-							onClick: function(e, btn, modal) {
-								btn.disable();
+							onSelect: function(e, modal) {
+								e.target.disable();
 								
 								this.param = viewRuleForm.result();
 								
@@ -1741,18 +1692,18 @@
 										modal.close();
 									},
 									onSuccess: function() {
-										new Hypermodal({
-											title  : '成功',
-											content: 'ルール作成に成功しました',
+										new flagrate.Modal({
+											title: '成功',
+											text : 'ルール作成に成功しました',
 											onClose: function(){}
-										}).render();
+										}).show();
 									},
 									onFailure: function(t) {
-										new Hypermodal({
-											title  : '失敗',
-											content: 'ルール作成に失敗しました (' + t.status + ')',
+										new flagrate.Modal({
+											title: '失敗',
+											text : 'ルール作成に失敗しました (' + t.status + ')',
 											onClose: function(){}
-										}).render();
+										}).show();
 									}
 								});
 								
@@ -1760,12 +1711,12 @@
 						},
 						{
 							label  : 'キャンセル',
-							onClick: function(e, btn, modal) {
+							onSelect: function(e, modal) {
 								modal.close();
 							}
 						}
 					]
-				}).render();
+				}).show();
 				
 				var viewRuleForm = new Hyperform({
 					formWidth  : '100%',
@@ -1947,21 +1898,21 @@
 		},
 		create: function _create() {
 			if (this.program === null) { //のちにエラー処理を追加
-				var modal = new Hypermodal({
-					title  : 'エラー',
-					content: '不正なアクセスです。'
-				}).render(); 
+				var modal = new flagrate.Modal({
+					title: 'エラー',
+					text : '不正なアクセスです。'
+				}).show(); 
 			} else {
 				var program = this.program;
-				var modal = new Hypermodal({
-					title  : '新規作成',
-					content: new Element('div'),
+				var modal = new flagrate.Modal({
+					title: '新規作成',
+					element: new Element('div'),
 					buttons: [
 						{
 							label  : '作成',
 							color  : '@pink',
-							onClick: function(e, btn, modal) {
-								btn.disable();
+							onSelect: function(e, modal) {
+								e.target.disable();
 								this.param = viewRuleForm.result();
 								
 								for (var i in this.param) {
@@ -1989,18 +1940,18 @@
 										modal.close();
 									},
 									onSuccess: function() {
-										new Hypermodal({
-											title  : '成功',
-											content: 'ルール作成に成功しました',
+										new flagrate.Modal({
+											title: '成功',
+											text : 'ルール作成に成功しました',
 											onClose: function(){}
-										}).render();
+										}).show();
 									},
 									onFailure: function(t) {
-										new Hypermodal({
-											title  : '失敗',
-											content: 'ルール作成に失敗しました (' + t.status + ')',
+										new flagrate.Modal({
+											title: '失敗',
+											text : 'ルール作成に失敗しました (' + t.status + ')',
 											onClose: function(){}
-										}).render();
+										}).show();
 									}
 								});
 								
@@ -2008,12 +1959,12 @@
 						},
 						{
 							label  : 'キャンセル',
-							onClick: function(e, btn, modal) {
+							onSelect: function(e, modal) {
 								modal.close();
 							}
 						}
 					]
-				}).render();
+				}).show();
 				
 				var viewRuleForm = new Hyperform({
 					formWidth  : '100%',
