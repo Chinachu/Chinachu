@@ -128,17 +128,17 @@
 	 *  プログラムIDでプログラムデータを取得します
 	**/
 	util.getProgramById = function _getProgramById(id) {
-		for (var i = 0; i < global.chinachu.recording.length; i++) {
-			if ((global.chinachu.recording[i].id === id) && (global.chinachu.recording[i].pid)) {
-				global.chinachu.recording[i]._isRecording = true;
-				return global.chinachu.recording[i];
-			}
-		}
-		
 		for (var i = 0; i < global.chinachu.recorded.length; i++) {
 			if (global.chinachu.recorded[i].id === id) {
 				global.chinachu.recorded[i]._isRecorded = true;
 				return global.chinachu.recorded[i];
+			}
+		}
+		
+		for (var i = 0; i < global.chinachu.recording.length; i++) {
+			if ((global.chinachu.recording[i].id === id) && (global.chinachu.recording[i].pid)) {
+				global.chinachu.recording[i]._isRecording = true;
+				return global.chinachu.recording[i];
 			}
 		}
 		
@@ -490,15 +490,15 @@
 			return this;
 		},
 		create: function _create() {
-			this.modal = new Hypermodal({
-				title  : 'スケジューラの実行',
-				content: '本当によろしいですか？<br>スケジューラはルールを適用し、手動予約との競合も検出します。',
+			this.modal = new flagrate.Modal({
+				title: 'スケジューラーの実行',
+				text : '全てのルールと手動予約を元に競合を検出してスケジューリングを行います',
 				buttons: [
 					{
-						label  : '実行',
-						color  : '@orange',
-						onClick: function(e, btn, modal) {
-							btn.disable();
+						label   : '実行',
+						color   : '@orange',
+						onSelect: function(e, modal) {
+							this.button.disable();
 							
 							new Ajax.Request('./api/scheduler.json', {
 								method    : 'put',
@@ -506,30 +506,30 @@
 									modal.close();
 								},
 								onSuccess: function() {
-									new Hypermodal({
-										title  : '成功',
-										content: 'スケジューラは完了しました'
-									}).render();
+									new flagrate.Modal({
+										title: '成功',
+										text : 'スケジューラーを実行しました'
+									}).show();
 								},
 								onFailure: function(t) {
-									new Hypermodal({
-										title  : '失敗',
-										content: 'スケジューラは失敗しました (' + t.status + ')'
-									}).render();
+									new flagrate.Modal({
+										title: '失敗',
+										text : 'スケジューラーが失敗しました (' + t.status + ')'
+									}).show();
 								}
 							});
-						}.bind(this)
+						}
 					},
 					{
-						label  : 'キャンセル',
-						onClick: function(e, btn, modal) {
+						label   : '中止',
+						onSelect: function(e, modal) {
 							modal.close();
 						}
 					}
 				]
 			});
 			
-			this.modal.render();
+			this.modal.show();
 			
 			return this;
 		}
@@ -545,21 +545,21 @@
 		},
 		create: function _create() {
 			if (this.program === null) {
-				this.modal = new Hypermodal({
-					title  : 'エラー',
-					content: '番組が見つかりませんでした'
+				this.modal = new flagrate.Modal({
+					title: 'エラー',
+					text : '番組が見つかりませんでした'
 				}); 
 			} else {
-				this.modal = new Hypermodal({
-					title  : '手動予約',
-					description: this.program.title + ' #' + this.program.id,
-					content: '本当によろしいですか？',
+				this.modal = new flagrate.Modal({
+					title   : '手動予約',
+					subtitle: this.program.title + ' #' + this.program.id,
+					text    : '予約しますか？',
 					buttons: [
 						{
-							label  : '手動予約',
-							color  : '@red',
-							onClick: function(e, btn, modal) {
-								btn.disable();
+							label   : '予約',
+							color   : '@red',
+							onSelect: function(e, modal) {
+								e.target.disable();
 								
 								new Ajax.Request('./api/program/' + this.program.id + '.json', {
 									method    : 'put',
@@ -567,23 +567,23 @@
 										modal.close();
 									},
 									onSuccess: function() {
-										new Hypermodal({
-											title  : '成功',
-											content: '手動予約に成功しました'
-										}).render();
+										new flagrate.Modal({
+											title: '成功',
+											text : '予約しました'
+										}).show();
 									},
 									onFailure: function(t) {
-										new Hypermodal({
-											title  : '失敗',
-											content: '手動予約に失敗しました (' + t.status + ')'
-										}).render();
+										new flagrate.Modal({
+											title: '失敗',
+											text : '予約に失敗しました (' + t.status + ')'
+										}).show();
 									}
 								});
 							}.bind(this)
 						},
 						{
-							label  : 'キャンセル',
-							onClick: function(e, btn, modal) {
+							label   : 'キャンセル',
+							onSelect: function(e, modal) {
 								modal.close();
 							}
 						}
@@ -591,7 +591,7 @@
 				});
 			}
 			
-			this.modal.render();
+			this.modal.show();
 			
 			return this;
 		}
@@ -607,21 +607,21 @@
 		},
 		create: function _create() {
 			if (this.program === null) {
-				this.modal = new Hypermodal({
-					title  : 'エラー',
-					content: '番組が見つかりませんでした'
+				this.modal = new flagrate.Modal({
+					title: 'エラー',
+					text : '番組が見つかりませんでした'
 				}); 
 			} else {
-				this.modal = new Hypermodal({
-					title  : '手動予約の取消',
-					description: this.program.title + ' #' + this.program.id,
-					content: '本当によろしいですか？',
+				this.modal = new flagrate.Modal({
+					title   : '手動予約の取消',
+					subtitle: this.program.title + ' #' + this.program.id,
+					text    : '予約を取り消しますか？',
 					buttons: [
 						{
-							label  : '手動予約の取消',
-							color  : '@red',
-							onClick: function(e, btn, modal) {
-								btn.disable();
+							label   : '予約取消',
+							color   : '@red',
+							onSelect: function(e, modal) {
+								e.target.disable();
 								
 								new Ajax.Request('./api/reserves/' + this.program.id + '.json', {
 									method    : 'delete',
@@ -629,23 +629,23 @@
 										modal.close();
 									},
 									onSuccess: function() {
-										new Hypermodal({
-											title  : '成功',
-											content: '手動予約の取消に成功しました'
-										}).render();
+										new flagrate.Modal({
+											title: '成功',
+											text : '予約を取り消しました'
+										}).show();
 									},
 									onFailure: function(t) {
-										new Hypermodal({
-											title  : '失敗',
-											content: '手動予約の取消に失敗しました (' + t.status + ')'
-										}).render();
+										new flagrate.Modal({
+											title: '失敗',
+											text : '予約の取消に失敗しました (' + t.status + ')'
+										}).show();
 									}
 								});
 							}.bind(this)
 						},
 						{
-							label  : 'キャンセル',
-							onClick: function(e, btn, modal) {
+							label   : 'キャンセル',
+							onSelect: function(e, modal) {
 								modal.close();
 							}
 						}
@@ -653,7 +653,7 @@
 				});
 			}
 			
-			this.modal.render();
+			this.modal.show();
 			
 			return this;
 		}
@@ -669,21 +669,21 @@
 		},
 		create: function _create() {
 			if (this.program === null) {
-				this.modal = new Hypermodal({
-					title  : 'エラー',
-					content: '番組が見つかりませんでした'
+				this.modal = new flagrate.Modal({
+					title: 'エラー',
+					text : '番組が見つかりませんでした'
 				});
 			} else {
-				this.modal = new Hypermodal({
-					title  : '録画中止',
-					description: this.program.title + ' #' + this.program.id,
-					content: '本当によろしいですか？',
+				this.modal = new flagrate.Modal({
+					title   : '録画中止',
+					subtitle: this.program.title + ' #' + this.program.id,
+					text    : '本当によろしいですか？',
 					buttons: [
 						{
-							label  : '録画中止',
-							color  : '@red',
-							onClick: function(e, btn, modal) {
-								btn.disable();
+							label   : '録画中止',
+							color   : '@red',
+							onSelect: function(e, modal) {
+								e.target.disable();
 								
 								new Ajax.Request('./api/recording/' + this.program.id + '.json', {
 									method    : 'delete',
@@ -691,23 +691,23 @@
 										modal.close();
 									},
 									onSuccess: function() {
-										new Hypermodal({
-											title  : '成功',
-											content: '録画中止に成功しました'
-										}).render();
+										new flagrate.Modal({
+											title: '成功',
+											text : '録画を中止しました'
+										}).show();
 									},
 									onFailure: function(t) {
-										new Hypermodal({
-											title  : '失敗',
-											content: '録画中止に失敗しました (' + t.status + ')'
-										}).render();
+										new flagrate.Modal({
+											title: '失敗',
+											text : '録画中止に失敗しました (' + t.status + ')'
+										}).show();
 									}
 								});
 							}.bind(this)
 						},
 						{
-							label  : 'キャンセル',
-							onClick: function(e, btn, modal) {
+							label   : 'キャンセル',
+							onSelect: function(e, modal) {
 								modal.close();
 							}
 						}
@@ -715,7 +715,7 @@
 				});
 			}
 			
-			this.modal.render();
+			this.modal.show();
 			
 			return this;
 		}

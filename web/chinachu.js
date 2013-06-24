@@ -5,9 +5,9 @@
 	console.log('----', 'launched', '----');
 	
 	// notify
-	app.notify = new Hypernotifier(null, {
-		desktopNotify: false,
-		hMargin      : (10 + 25)
+	app.notify = new flagrate.Notify({
+		title  : 'Chinachu',
+		hMargin: (10 + 25)
 	});
 	
 	// apiクライアントの初期化
@@ -246,30 +246,13 @@
 				icon   : './icons/status-offline.png',
 				style  : { 'float': 'right' },
 				onClick: function() {
-					new Hypermodal({
-						title: 'Chinachu WebUI Client Application v3',
-						description: (
-							'chinachu-wui-client/beta, sakurapanel/' + sakura.version +
-							', Prototype/' + Prototype.Version
-						),
-						content: 'ABSOLUTELY NO WARRANTY.',
-						buttons: [
-							{
-								color: '@blue',
-								label: 'CLOSE'.__(),
-								onClick: function (e, btn, modal) {
-									modal.close();
-								}
-							},
-							{
-								color: '@pink',
-								label: 'chinachu.akkar.in',
-								onClick: function (e, btn, modal) {
-									window.open('http://chinachu.akkar.in/', 'chinachu-project-website');
-								}
-							}
-						]
-					}).render();
+					new flagrate.Modal({
+						title   : 'Chinachu',
+						subtitle: 'Copyright (c) 2012 Yuki KAN and Chinachu Project Contributors.',
+						html    : '<a href="http://chinachu.akkar.in/" target="new">Chinachu Project Website</a>, ' +
+						          '<a href="https://github.com/kanreisa/Chinachu" target="new">GitHub</a>, ' +
+						          '<a href="https://github.com/kanreisa/Chinachu/issues" target="new">Issues</a>'
+					}).show();
 				}
 			})
 		});
@@ -424,7 +407,7 @@
 		
 		app.view.footer.one('chinachu').entity.style.backgroundImage = 'url(./icons/status.png)';
 		
-		app.notify.create({ title: 'Chinachu', message: 'CONNECTED'.__() });
+		//app.notify.create({ title: 'Chinachu', message: 'CONNECTED'.__() });
 	};
 	
 	var socketOnDisconnect = function _socketOnDisconnect() {

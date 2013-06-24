@@ -10,6 +10,7 @@
   "{0} DAYS AGO"     : "{0}日前",
   "CONFIG {0}"       : "{0}設定",
   "TO {0}"           : "{0}へ",
+  "EXECUTE {0}"      : "{0}の実行",
   
   "CONNECTED"   : "接続されました",
   "DISCONNECTED": "切断されました",
@@ -26,6 +27,7 @@
   "STATUS"       : "ステータス",
   "SCHEDULE"     : "番組表",
   "SCHEDULES"    : "番組表",
+  "SCHEDULER"    : "スケジューラー",
   "TIMELINE"     : "タイムライン",
   "RULE"         : "ルール",
   "RULES"        : "ルール",
@@ -36,5 +38,12 @@
   "RECORDED"     : "録画済",
   "SEARCH"       : "検索",
   "PREF"         : "設定",
-  "REFRESH"      : "更新"
+  "REFRESH"      : "更新",
+  "LIST"         : "リスト",
+  
+  "ADD"          : "追加",
+  "COPY"         : "コピー",
+  "EDIT"         : "編集",
+  "MODIFY"       : "変更",
+  "DELETE"       : "削除"
 }

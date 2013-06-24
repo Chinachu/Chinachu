@@ -1,6 +1,7 @@
 P = Class.create(P, {
 	
 	init: function _initPage() {
+		
 		this.view.content.className = 'loading';
 		
 		this.time = new Date().getTime();
@@ -16,13 +17,17 @@ P = Class.create(P, {
 	
 	deinit: function _deinit() {
 		
+		document.stopObserving('chinachu:schedule', this.onNotify);
+		
 		this.tick = Prototype.emptyFunction;
 		if (this.view.drawerDt) this.view.drawerDt.remove();
+		if (this.view.clock) this.view.clock.remove();
 		
 		return this;
 	},
 	
 	refresh: function _refresh() {
+		
 		document.stopObserving('chinachu:schedule', this.onNotify);
 		
 		this.app.pm.realizeHash(true);
@@ -69,6 +74,9 @@ P = Class.create(P, {
 	},
 	
 	draw: function _draw() {
+		
+		this.view.clock = new sakura.ui.Container({className: 'clock'}).render(this.app.view.mainHead);
+		
 		this.view.content.className = 'fullscreen timeline noscroll';
 		this.view.content.update();
 		
@@ -78,22 +86,13 @@ P = Class.create(P, {
 			return;
 		}
 		
-		/*var loading = new chinachu.ui.ContentLoading({
-			onComplete: function() {
-				setTimeout(function() {
-					loading.remove();
-					loading = null;
-				}, 50);
-			}
-		}).render(this.view.content);*/
-		
 		//this.data.scrolls     = eval(window.sessionStorage.getItem('schedule-param-scrolls') || "[0, 0]");
 		var isScrolling = false;
 		this.data.scrollStart = [0, 0];
 		this.data.scrollEnd   = [0, 0];
 		this.data.target      = null;
 		
-		var unitlen      = 25;
+		var unitlen = this.unitlen = 25;
 		var linelen      = 25;
 		var types        = eval(window.localStorage.getItem('schedule-param-types') || "['GR','BS','CS','EX']");
 		var categories = this.categories = eval(window.localStorage.getItem('schedule-param-categories') || "['anime', 'information', 'news', 'sports', 'variety', 'drama', 'music', 'cinema', 'etc']");
@@ -105,11 +104,6 @@ P = Class.create(P, {
 		
 		var piece  = this.data.piece  = {};// piece of canvas programs
 		var pieces = this.data.pieces = [];// array of program pieces
-		
-		var counter = function _counter() {
-			++count;
-			loading.update(Math.floor(count / total * 100));
-		};
 		
 		var k = 0;
 		
@@ -340,8 +334,6 @@ P = Class.create(P, {
 		
 		var onKeydown = function(e) {
 			
-			console.log(e.keyCode);
-			
 			var deltaX = 0;
 			var deltaY = 0;
 			
@@ -565,8 +557,6 @@ P = Class.create(P, {
 	
 	render: function _render() {
 		
-		
-		
 		var left   = this.view.board.entity.scrollLeft - 200;
 		var top    = this.view.board.entity.scrollTop - 200;
 		var right  = left + this.view.content.getWidth() + 400;
@@ -699,7 +689,7 @@ P = Class.create(P, {
 							});
 						}
 						
-						new sakura.ui.ContextMenu({
+						new flagrate.ContextMenu({
 							target: a._rect,
 							items : contextMenuItems
 						});
@@ -739,6 +729,12 @@ P = Class.create(P, {
 				}
 			}
 		}.bind(this));
+		
+		this.view.clock.update(
+			chinachu.dateToString(
+				new Date(this.time + (this.view.board.entity.scrollLeft * 1000 * 1000 / this.unitlen))
+			)
+		);
 		
 		return this;
 	}//<--render

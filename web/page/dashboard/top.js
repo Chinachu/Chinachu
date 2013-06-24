@@ -80,6 +80,8 @@ P = Class.create(P, {
 				
 				this.list.each(function(program) {
 					
+					program._data = chinachu.util.getProgramById(program.id);
+					
 					program._dt = new chinachu.ui.DynamicTime({
 						tagName: 'div',
 						type   : 'full',
@@ -90,12 +92,16 @@ P = Class.create(P, {
 						tagName  : 'a',
 						className: 'color-cat-' + program.category,
 						attr     : { href: '#!/program/view/id=' + program.id + '/' }
-					}).insert('<div class="title">' + program.title + '</div>').insert(
+					}).insert('<div class="title">' + program.flags.invoke('sub', /.+/, '<span rel="#{0}">#{0}</span>').join('') + program.title + '</div>').insert(
 						new sakura.ui.Element({
 							tagName  : 'div',
 							className: 'channel'
 						}).insert(program.channel.type + ': ' + program.channel.name)
 					).insert(program._dt).render(container);
+					
+					if (typeof program.episode !== 'undefined' && program.episode !== null) {
+						program._it.insert('<div class="episode">#' + program.episode + '</div>');
+					}
 					
 					var html = new Element('div').insert(program.detail || '(説明なし)');
 					
@@ -171,8 +177,38 @@ P = Class.create(P, {
 						}
 					];
 					
-					new sakura.ui.ContextMenu({
-						target: program._it,
+					if (program._data._isRecorded) {
+						//
+					} else if (program._data._isRecording) {
+						contextMenuItems.unshift({
+							label   : '録画中止...',
+							icon    : './icons/cross.png',
+							onSelect: function() {
+								new chinachu.ui.StopRecord(program.id);
+							}
+						});
+					} else if (program._data._isReserves) {
+						if (program.isManualReserved) {
+							contextMenuItems.unshift({
+								label   : '予約取消...',
+								icon    : './icons/cross-script.png',
+								onSelect: function() {
+									new chinachu.ui.Unreserve(program.id);
+								}
+							});
+						}
+					} else {
+						contextMenuItems.unshift({
+							label   : '予約...',
+							icon    : './icons/plus-circle.png',
+							onSelect: function() {
+								new chinachu.ui.Reserve(program.id);
+							}
+						});
+					}
+					
+					new flagrate.ContextMenu({
+						target: program._it.entity,
 						items : contextMenuItems
 					});
 					
@@ -234,23 +270,29 @@ P = Class.create(P, {
 			}
 		});
 		
-		this.view.reservesTl = new Timelist({
-			name       : 'RESERVES'.__(),
-			initialList: global.chinachu.reserves,
-			notify     : 'chinachu:reserves'
-		}).render(this.view.content);
+		setTimeout(function() {
+			this.view.reservesTl = new Timelist({
+				name       : 'RESERVES'.__(),
+				initialList: global.chinachu.reserves,
+				notify     : 'chinachu:reserves'
+			}).render(this.view.content);
+		}.bind(this), 30);
 		
-		this.view.recordingTl = new Timelist({
-			name       : 'RECORDING'.__(),
-			initialList: global.chinachu.recording,
-			notify     : 'chinachu:recording'
-		}).render(this.view.content);
+		setTimeout(function() {
+			this.view.recordingTl = new Timelist({
+				name       : 'RECORDING'.__(),
+				initialList: global.chinachu.recording,
+				notify     : 'chinachu:recording'
+			}).render(this.view.content);
+		}.bind(this), 40);
 		
-		this.view.recordedTl = new Timelist({
-			name       : 'RECORDED'.__(),
-			initialList: global.chinachu.recorded,
-			notify     : 'chinachu:recorded'
-		}).render(this.view.content);
+		setTimeout(function() {
+			this.view.recordedTl = new Timelist({
+				name       : 'RECORDED'.__(),
+				initialList: global.chinachu.recorded,
+				notify     : 'chinachu:recorded'
+			}).render(this.view.content);
+		}.bind(this), 50);
 		
 		return this;
 	}

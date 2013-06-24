@@ -191,6 +191,7 @@ div.header {
 		margin-left     : 2px;
 		background-color: transparent;
 		box-shadow      : none;
+		text-shadow     : none;
 		-webkit-transition: all 0.1s ease;
 		-moz-transition   : all 0.1s ease;
 		-ms-transition    : all 0.1s ease;
@@ -198,20 +199,9 @@ div.header {
 		transition        : all 0.1s ease; }
 	
 		div.header > a.button-dent > span {
-			text-shadow     : none;
 			color           : rgba(255,255,255,0.5);
 			font-size       : 10px;
 			margin-left     : 5px; }
-	
-	div.header > a.region-pulldown {
-		background-color: rgba(255,255,255,0.1);
-		box-shadow      : inset 0 0 3px rgba(0,0,0,0.7); }
-		
-		div.header > a.region-pulldown > span {
-			color: rgba(255,255,255,0.5); }
-		
-		div.header > a.region-pulldown:hover > span {
-			color: rgba(255,255,255,0.8); }
 	
 	div.header > a.button-dent:hover {
 		background-color: rgba(194,65,134,0.5); }
@@ -226,9 +216,10 @@ div.header {
 	
 	div.header > a.button-dent.sakura-button.sakura-button-selected {
 		position        : relative;
-		text-shadow     : none;
+		text-shadow     : none !important;
 		background-color: rgba(194,65,134,1);
-		box-shadow      : inset 0 0 3px #000; }
+		color           : #fff;
+		box-shadow      : none; }
 	
 	div.header > a.button-dent.sakura-button.sakura-button-selected:before {
 		content     : ' ';
@@ -477,6 +468,13 @@ div.middle {
 				
 				div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar {}
 				
+					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > hr {
+						width  : 0;
+						display: inline-block;
+						margin : 0 5px;
+						padding: 0;
+						border : none; }
+					
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button {
 						border     : none;
 						background : transparent no-repeat 5px center;
@@ -543,6 +541,26 @@ div.middle {
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button-icon {
 						padding-left       : 20px !important; }
 }
+			
+			div.middle > div.main > div.main-head > div.clock {
+				position        : absolute;
+				top             : 6px;
+				bottom          : 6px;
+				left            : 145px;
+				background-color: #2b2b2b;
+				font-size       : 18px;
+				line-height     : 18px;
+				padding         : 6px 10px 4px; }
+			
+			div.middle > div.main > div.main-head > div.clock::before {
+				content         : "";
+				top             : 100%;
+				left            : 5px;
+				position        : absolute;
+				border-left     : 3px solid #2b2b2b;
+				border-top      : 3px solid #2b2b2b;
+				border-right    : 3px solid transparent;
+				border-bottom   : 3px solid transparent; }
 		
 		div.middle > div.main > div.main-body {
 			top     : 40px;
@@ -916,12 +934,7 @@ div.dashboard-timelist {
 	width     : 30%;
 	height    : 100%;
 	overflow  : visible;
-	margin    : 0 0 0 5px;
-	-webkit-transition: none;/* これとcalc()でsafariがクラッシュするバグがある... */
-	-moz-transition   : all 0.2s ease;
-	-ms-transition    : all 0.2s ease;
-	-o-transition     : all 0.2s ease;
-	transition        : all 0.2s ease; }
+	margin    : 0 0 0 5px; }
 
 div.dashboard-timelist:first-child {
 	margin-left: 0; }
@@ -1014,20 +1027,50 @@ div.dashboard-timelist[rel="3"]:last-child {
 			line-height    : 16px;
 			font-size      : 12px;
 			font-weight    : bold;
-			padding        : 6px 5px 4px;
+			padding        : 6px 5px 4px 10px;
 			margin         : 0 5px 5px 0;
 			overflow       : visible;
 			background     : rgba(0,0,0,0.2);
 			border         : 1px solid rgba(0,0,0,0.2);
-			text-shadow    : 0 -1px 0 rgba(0,0,0,0.5); }
+			text-shadow    : 0 -1px 0 rgba(0,0,0,0.5);
+			box-shadow     : inset 4px 0 0 #aaa; }
+		
+		div.dashboard-timelist > div.main > a.color-cat-anime { box-shadow: inset 4px 0 0 #fcbde1; }
+		div.dashboard-timelist > div.main > a.color-cat-information { box-shadow: inset 4px 0 0 #bdfce8; }
+		div.dashboard-timelist > div.main > a.color-cat-news { box-shadow: inset 4px 0 0 #d7fcbd; }
+		div.dashboard-timelist > div.main > a.color-cat-sports { box-shadow: inset 4px 0 0 #bdf1fc; }
+		div.dashboard-timelist > div.main > a.color-cat-variety { box-shadow: inset 4px 0 0 #fbfcbd; }
+		div.dashboard-timelist > div.main > a.color-cat-drama { box-shadow: inset 4px 0 0 #fce1c4; }
+		div.dashboard-timelist > div.main > a.color-cat-music { box-shadow: inset 4px 0 0 #bdc9fc; }
+		div.dashboard-timelist > div.main > a.color-cat-cinema { box-shadow: inset 4px 0 0 #d6bdfc; }
+		div.dashboard-timelist > div.main > a.color-cat-etc { box-shadow: inset 4px 0 0 #eeeeee; }
 		
 		div.dashboard-timelist > div.main > a:hover {
 			background     : rgba(0,0,0,0.8);
-			color          : white;
-			box-shadow     : 2px 2px 0 rgba(0,0,0,0.2); }
+			color          : white; }
 			
 			div.dashboard-timelist > div.main > a > div.title {
-				overflow    : hidden; }
+				overflow    : hidden;
+				margin-right: 25px; }
+				
+				div.dashboard-timelist > div.main > a > div.title > span {
+					vertical-align  : top;
+					background-color: rgba(0,0,0,0.25);
+					font-size       : 10px;
+					margin-right    : 2px;
+					padding         : 3px 3px 1px;
+					text-shadow     : none;
+					line-height     : 15px;
+					color           : #ddd !important; }
+				
+				div.dashboard-timelist > div.main > a > div.title > span[rel="終"] {
+					color           : #faa !important; }
+				
+				div.dashboard-timelist > div.main > a > div.title > span[rel="再"] {
+					color           : #aaf !important; }
+				
+				div.dashboard-timelist > div.main > a:hover > div.title > span {
+					background-color: rgba(255,255,255,0.25); }
 			
 			div.dashboard-timelist > div.main > a > div.channel {
 				color       : rgba(255,255,255,0.5);
@@ -1046,34 +1089,45 @@ div.dashboard-timelist[rel="3"]:last-child {
 				
 			div.dashboard-timelist > div.main > a > div.dynamic-time.now {
 				color       : orange; }
+			
+			div.dashboard-timelist > div.main > a > div.episode {
+				position   : absolute;
+				top        : 0;
+				right      : 0;
+				background : rgba(0,0,0,0.2);
+				padding    : 2px 4px 1px 3px;
+				text-shadow: none;
+				color      : #ccc !important;
+				font-weight: normal;
+				font-size  : 10px; }
 
 @media screen and (min-width: 1000px){
 		div.dashboard-timelist[rel="2"] > div.main > a {
 			display        : inline-block;
 			width          : 45%;
-			width          : -webkit-calc((100% - 35px) / 2);
-			width          :         calc((100% - 35px) / 2); }
+			width          : -webkit-calc((100% - 45px) / 2);
+			width          :         calc((100% - 45px) / 2); }
 }
 
 @media screen and (min-width: 1600px){
 		div.dashboard-timelist[rel="2"] > div.main > a {
 			display        : inline-block;
 			width          : 30%;
-			width          : -webkit-calc((100% - 55px) / 3);
-			width          :         calc((100% - 55px) / 3); }
+			width          : -webkit-calc((100% - 70px) / 3);
+			width          :         calc((100% - 70px) / 3); }
 		
 		div.dashboard-timelist[rel="3"] > div.main > a {
 			display        : inline-block;
 			width          : 45%;
-			width          : -webkit-calc((100% - 35px) / 2);
-			width          :         calc((100% - 35px) / 2); }
+			width          : -webkit-calc((100% - 50px) / 2);
+			width          :         calc((100% - 50px) / 2); }
 }
 
 @media screen and (max-height: 600px){
 		div.dashboard-timelist > div.main > a {
 			line-height    : 15px;
 			font-size      : 11px;
-			padding        : 6px 5px 4px;
+			padding        : 6px 5px 4px 10px;
 			margin-bottom  : 2px; }
 			
 			div.dashboard-timelist > div.main > a > div.dynamic-time {
@@ -1362,3 +1416,23 @@ div.timeline > div.timescale {
 	div.timeline > div.timescale > div.h3 {
 		border-color: #63c;
 		color       : #63c; }
+
+td.default > div {
+	color     : #999;
+	font-style: italic; }
+
+td.types > div > span {
+	padding     : 0 3px;
+	font-size   : 11px;
+	margin-right: 2px;
+	color       : #eee; }
+
+td.types > div > span.GR { background-color: #930; }
+td.types > div > span.BS { background-color: #03c; }
+td.types > div > span.CS { background-color: #f00; }
+td.types > div > span.EX { background-color: #222; }
+
+td.categories > div > span {
+	padding     : 0 2px;
+	font-size   : 11px;
+	margin-right: 2px; }
