@@ -475,8 +475,12 @@ function httpServerMain(req, res, query) {
 			var bytes = req.headers.range.replace(/bytes=/, '').split('-');
 			var range = {
 				start: parseInt(bytes[0], 10),
-				end  : parseInt(bytes[1], 10)
+				end  : parseInt(bytes[1], 10) || fstat.size
 			};
+			
+			if (range.start > fstat.size || range.end > fstat.size) {
+				return resErr(416);
+			}
 			
 			res.setHeader('content-range', 'bytes ' + range.start + '-' + range.end + '/' + fstat.size);
 			res.setHeader('content-length', range.end - range.start + 1);
