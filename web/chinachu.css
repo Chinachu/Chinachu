@@ -1063,6 +1063,9 @@ div.dashboard-timelist[rel="3"]:last-child {
 					line-height     : 15px;
 					color           : #ddd !important; }
 				
+				div.dashboard-timelist > div.main > a > div.title > span[rel="新"] {
+					color           : #afa !important; }
+				
 				div.dashboard-timelist > div.main > a > div.title > span[rel="終"] {
 					color           : #faa !important; }
 				
@@ -1420,6 +1423,10 @@ div.timeline > div.timescale {
 tr.disabled > td {
 	background-color: rgba(0,0,0,0.2); }
 
+td.id > div {
+	color      : #aaa;
+	font-size  : 11px; }
+
 td.default > div {
 	color     : #aaa;
 	font-style: italic;
@@ -1442,3 +1449,36 @@ td.categories > div > span {
 	font-size    : 11px;
 	margin-right : 2px;
 	border-radius: 2px; }
+
+td > div > div.dynamic-time {
+	line-height: inherit; }
+
+td > div > span.flag {
+	margin-right: 2px;
+	padding     : 1px 2px 0;
+	color       : #fff;
+	font-size   : 11px;
+	background  : #999; }
+
+td > div > span.flag.manual {
+	background  : #000; }
+
+td > div > span.flag.新 {
+	background  : #6ed02e; }
+
+td > div > span.flag.終 {
+	background  : #d02e54; }
+
+td > div > span.flag.再 {
+	background  : #2a45c0; }
+
+td > div > span.episode {
+	margin-left    : 2px;
+	padding        : 1px 2px 0;
+	color          : #d02e54;
+	font-size      : 11px; }
+
+td > div > span.id {
+	margin-left    : 4px;
+	color          : #aaa;
+	font-size      : 10px; }

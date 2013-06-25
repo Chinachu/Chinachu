@@ -68,7 +68,6 @@
 			"icon"       : "./icons/bookmarks.png",
 			"label"      : "reserves",
 			"defaultPage": "list",
-			"pageIndex"  : ["list"],
 			"page"       : {
 				"list": {
 					"label": "List",
@@ -82,7 +81,6 @@
 			"icon"       : "./icons/control-record-small.png",
 			"label"      : "recording",
 			"defaultPage": "list",
-			"pageIndex"  : ["list"],
 			"page"       : {
 				"list": {
 					"label": "List",
@@ -96,7 +94,6 @@
 			"icon"       : "./icons/television-medium.png",
 			"label"      : "recorded",
 			"defaultPage": "list",
-			"pageIndex"  : ["list"],
 			"page"       : {
 				"list": {
 					"label": "List",
@@ -110,7 +107,6 @@
 			"icon"       : "./icons/calendar-search-result.png",
 			"label"      : "search",
 			"defaultPage": "top",
-			"pageIndex"  : ["top"],
 			"page"       : {
 				"list": {
 					"label": "Top",
