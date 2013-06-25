@@ -547,7 +547,7 @@ div.middle {
 				top             : 6px;
 				bottom          : 6px;
 				left            : 145px;
-				background-color: #2b2b2b;
+				background-color: rgba(0,0,0,0.5);
 				font-size       : 18px;
 				line-height     : 18px;
 				padding         : 6px 10px 4px; }
@@ -557,8 +557,8 @@ div.middle {
 				top             : 100%;
 				left            : 5px;
 				position        : absolute;
-				border-left     : 3px solid #2b2b2b;
-				border-top      : 3px solid #2b2b2b;
+				border-left     : 3px solid rgba(0,0,0,0.5);
+				border-top      : 3px solid rgba(0,0,0,0.5);
 				border-right    : 3px solid transparent;
 				border-bottom   : 3px solid transparent; }
 		

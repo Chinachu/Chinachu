@@ -55,24 +55,11 @@
 			"icon"       : "./icons/regular-expression.png",
 			"label"      : "rules",
 			"defaultPage": "list",
-			"pageIndex"  : ["list"],
 			"page"       : {
 				"list": {
 					"label": "List",
 					"title": "List",
 					"icon" : "./icons/regular-expression.png"
-				},
-				
-				"add": {
-					"label": "Add",
-					"title": "Add",
-					"icon" : "./icons/dummy.png"
-				},
-				
-				"edit": {
-					"label": "Edit",
-					"title": "Edit",
-					"icon" : "./icons/dummy.png"
 				}
 			}
 		},
