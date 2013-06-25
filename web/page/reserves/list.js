@@ -91,7 +91,7 @@ P = Class.create(P, {
 				}
 			],
 			onClick: function(e, row) {
-				//
+				window.location.href = '#!/program/view/id=' + row.data.id + '/';
 			}.bind(this)
 		}).insertTo(this.view.content);
 		
