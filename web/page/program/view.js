@@ -10,9 +10,21 @@ P = Class.create(P, {
 		document.observe('chinachu:reserves', this.onNotify);
 		document.observe('chinachu:recording', this.onNotify);
 		document.observe('chinachu:recorded', this.onNotify);
-		document.observe('chinachu:schedule', this.onNotify);
 		
 		if (this.program === null) {
+			this.notFoundModal = new flagrate.Modal({
+				title: '番組が見つかりません',
+				text : '番組が見つかりません',
+				buttons: [
+					{
+						label: 'ダッシュボード',
+						color: '@pink',
+						onSelect: function(e, modal) {
+							window.location.hash = '!/dashboard/top/';
+						}
+					}
+				]
+			}).show();
 			return this;
 		}
 		
@@ -24,10 +36,11 @@ P = Class.create(P, {
 	,
 	deinit: function() {
 		
+		if (this.notFoundModal) setTimeout(function() { this.notFoundModal.close(); }.bind(this), 0);
+		
 		document.stopObserving('chinachu:reserves', this.onNotify);
 		document.stopObserving('chinachu:recording', this.onNotify);
 		document.stopObserving('chinachu:recorded', this.onNotify);
-		document.stopObserving('chinachu:schedule', this.onNotify);
 		
 		this.app.view.mainBody.entity.style.backgroundImage = '';
 		
@@ -43,7 +56,83 @@ P = Class.create(P, {
 	,
 	initToolbar: function _initToolbar() {
 		
+		var program = this.program;
 		
+		this.view.toolbar.add({
+			key: null,
+			ui : new sakura.ui.Button({
+				label  : 'ルールを作成',
+				icon   : './icons/plus-circle.png',
+				onClick: function() {
+					new chinachu.ui.CreateRuleByProgram(program.id);
+				}
+			})
+		});
+		
+		if (program._isReserves) {
+			if (program.isManualReserved) {
+				this.view.toolbar.add({
+					key: null,
+					ui : new sakura.ui.Button({
+						label   : '予約取消',
+						icon    : './icons/cross-script.png',
+						onClick: function() {
+							new chinachu.ui.Unreserve(program.id);
+						}
+					})
+				});
+			}
+		}
+		
+		if (program._isRecording) {
+			this.view.toolbar.add({
+				key: null,
+				ui : new sakura.ui.Button({
+					label   : '録画中止',
+					icon    : './icons/cross.png',
+					onClick: function() {
+						new chinachu.ui.StopRecord(program.id);
+					}
+				})
+			});
+		}
+		
+		if (program._isRecorded) {
+			this.view.toolbar.add({
+				key: null,
+				ui : new sakura.ui.Button({
+					label  : '履歴の削除',
+					icon   : './icons/eraser.png',
+					onClick: function() {
+						new chinachu.ui.RemoveRecordedProgram(program.id);
+					}
+				})
+			});
+			
+			this.view.toolbar.add({
+				key: 'remove-file',
+				ui : new sakura.ui.Button({
+					label  : 'ファイルの削除',
+					icon   : './icons/cross-script.png',
+					onClick: function() {
+						new chinachu.ui.RemoveRecordedFile(program.id);
+					}
+				})
+			});
+		}
+		
+		if (program.recorded) {
+			this.view.toolbar.add({
+				key: 'streaming',
+				ui : new sakura.ui.Button({
+					label  : 'ストリーミング再生',
+					icon   : './icons/film-youtube.png',
+					onClick: function() {
+						new chinachu.ui.Streamer(program.id);
+					}
+				})
+			});
+		}
 		
 		return this;
 	}
@@ -194,7 +283,23 @@ P = Class.create(P, {
 							body        : 'この番組の録画ファイルは移動または削除されています',
 							disableClose: true
 						}).render(this.view.content);
+						
+						this.view.toolbar.one('remove-file').disable();
+						this.view.toolbar.one('streaming').disable();
 					}
+				}.bind(this)
+			});
+		}
+		
+		if (global.chinachu.status.feature.previewer && program._isRecording) {
+			new Ajax.Request('./api/recording/' + program.id + '/preview.txt', {
+				method    : 'get',
+				parameters: {width: 640, height: 360, nonce: new Date().getTime()},
+				onSuccess : function(t) {
+					
+					if (this.app.pm.p.id !== this.id) return;
+					
+					this.app.view.mainBody.entity.style.backgroundImage = 'url(' + t.responseText + ')';
 				}.bind(this)
 			});
 		}

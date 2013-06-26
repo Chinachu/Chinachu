@@ -131,19 +131,19 @@
 		},
 		
 		"program": {
-			"icon"       : "./icons/dummy.png",
+			"icon"       : "./icons/film.png",
 			"label"      : "program",
 			"page"       : {
 				"view": {
 					"label": "Program",
 					"title": "Program",
-					"icon" : "./icons/dummy.png"
+					"icon" : "./icons/film.png"
 				},
 				
 				"watch": {
 					"label": "Watch",
 					"title": "Watch",
-					"icon" : "./icons/dummy.png"
+					"icon" : "./icons/film-youtube.png"
 				}
 			}
 		}

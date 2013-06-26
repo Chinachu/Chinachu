@@ -253,6 +253,7 @@ P = Class.create(P, {
 		this.view.drawer = new sakura.ui.Container({className: 'drawer hide'}).render(this.view.content);
 		this.view.drawerHead = new sakura.ui.Container({className: 'head'}).render(this.view.drawer);
 		this.view.drawerBody = new sakura.ui.Container({className: 'body'}).render(this.view.drawer);
+		this.view.drawerFoot = new sakura.ui.Container({className: 'foot'}).render(this.view.drawer);
 		
 		// events
 		var viewDrawer = function() {
@@ -289,6 +290,16 @@ P = Class.create(P, {
 			this.view.drawerBody.insert('<div class="title"><span class="bg-cat-' + this.data.target.category + '">' + this.data.target.category + '</span>' + this.data.target.title + '</div>');
 			this.view.drawerBody.insert('<div class="detail">' + (this.data.target.detail || '') + '</div>');
 			this.view.drawerBody.insert('<div class="id">' + this.data.target.id + '</div>');
+			
+			this.view.drawerFoot.update(
+				new flagrate.Button({
+					label   : '番組詳細',
+					color   : '@pink',
+					onSelect: function() {
+						window.location.hash = '!/program/view/id=' + this.data.target.id + '/';
+					}.bind(this)
+				})
+			);
 		}.bind(this);
 		
 		var onClick = function(e) {
