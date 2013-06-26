@@ -19,14 +19,16 @@
 	window.onerror = function _errorTrap(mes, file, num) {
 		console.error('[!] ERROR:', mes, file, num);
 		
-		app.notify.create({
-			title  : 'ERROR: ' + file + ':' + num,
-			message: mes,
-			timeout: 0,
-			onClick: function() {
-				window.location.reload();
-			}
-		});
+		if (!DEBUG) {
+			app.notify.create({
+				title  : 'ERROR: ' + file + ':' + num,
+				message: mes,
+				timeout: 0,
+				onClick: function() {
+					window.location.reload();
+				}
+			});
+		}
 	};
 	
 	app.socket = io.connect(window.location.protocol + '//' + window.location.host, {
@@ -79,7 +81,7 @@
 			document.title = 'Chinachu: ' + [app.pm.page.__(), app.pm.category.__()].join(' - ');
 			
 			app.view.header.all().each(function(a) { a.unselect(); });
-			app.view.header.one(app.pm.category).select();
+			try { app.view.header.one(app.pm.category).select(); } catch (e) {}
 			
 			app.view.sideBody.removeAll();
 			

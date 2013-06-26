@@ -1764,7 +1764,7 @@
 		},
 		
 		one: function _one(key) {
-			return this.child[key].ui || null;
+			return this.child[key] && this.child[key].ui || null;
 		},
 		
 		all: function _all() {

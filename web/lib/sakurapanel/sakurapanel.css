@@ -229,7 +229,8 @@ div.sakura-alert {
 	color           : white; }
 
 div.sakura-alert-white {
-	background-color: rgba(255,255,255,0.6); }
+	background-color: rgba(255,255,255,0.6);
+	color           : #555; }
 
 div.sakura-alert-info,
 div.sakura-alert-blue {
@@ -280,10 +281,6 @@ div.sakura-alert-green {
 		
 		div.sakura-alert > div > strong {
 			margin-right    : 5px; }
-		
-		div.sakura-alert > div > strong,
-		div.sakura-alert > div > span {
-			text-shadow     : 0 -1px 0 rgba(0,0,0,0.3); }
 
 /* ui:sakura-color-samples */
 div.sakura-color-samples {

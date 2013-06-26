@@ -85,11 +85,11 @@ div.fullscreen {
 .bg-chinachu {
 	background-color: #d67fae;
 	
-	background-image: linear-gradient(bottom, rgb(214,127,173) 100%, rgb(194,65,134) 0%);
-	background-image: -o-linear-gradient(bottom, rgb(214,127,173) 100%, rgb(194,65,134) 0%);
-	background-image: -moz-linear-gradient(bottom, rgb(214,127,173) 100%, rgb(194,65,134) 0%);
-	background-image: -webkit-linear-gradient(bottom, rgb(214,127,173) 100%, rgb(194,65,134) 0%);
-	background-image: -ms-linear-gradient(bottom, rgb(214,127,173) 100%, rgb(194,65,134) 0%);
+	background-image: linear-gradient(top, rgb(214,127,173), rgb(194,65,134));
+	background-image: -o-linear-gradient(top, rgb(214,127,173), rgb(194,65,134));
+	background-image: -moz-linear-gradient(top, rgb(214,127,173), rgb(194,65,134));
+	background-image: -webkit-linear-gradient(top, rgb(214,127,173), rgb(194,65,134));
+	background-image: -ms-linear-gradient(top, rgb(214,127,173), rgb(194,65,134));
 	
 	background-image: -webkit-gradient(
 		linear,
@@ -98,6 +98,15 @@ div.fullscreen {
 		color-stop(1, rgb(214,127,173)),
 		color-stop(0, rgb(194,65,134))
 	); }
+
+.bg-fog {
+	background-color: rgba(255,255,255,0.6);
+	
+	background-image: linear-gradient(top, rgba(214,127,173,0.8), rgba(255,255,255,0.25));
+	background-image: -o-linear-gradient(top, rgba(214,127,173,0.8), rgba(255,255,255,0.25));
+	background-image: -moz-linear-gradient(top, rgba(214,127,173,0.8), rgba(255,255,255,0.25));
+	background-image: -webkit-linear-gradient(top, rgba(214,127,173,0.8), rgba(255,255,255,0.25));
+	background-image: -ms-linear-gradient(top, rgba(214,127,173,0.8), rgba(255,255,255,0.25)); }
 
 .bg-dark {
 	background-color: #2b2b2b; }
@@ -454,6 +463,28 @@ div.middle {
 					line-height: 22px;
 					font-weight: normal;
 					font-size  : 19px; }
+					
+					div.middle > div.main > div.main-head > div.main-head-title > h1 > span.flag {
+						margin-right  : 4px;
+						font-size     : 12px;
+						background    : rgba(0,0,0,0.1);
+						vertical-align: top;
+						padding       : 0 2px; }
+					
+					div.middle > div.main > div.main-head > div.main-head-title > h1 > span.episode {
+						margin-left   : 4px;
+						font-size     : 12px;
+						background    : rgba(255,255,255,0.8);
+						color         : rgb(194,65,134);
+						vertical-align: top;
+						padding       : 0 2px; }
+					
+					div.middle > div.main > div.main-head > div.main-head-title > h1 > span.id {
+						margin-left   : 4px;
+						font-size     : 12px;
+						color         : rgba(255,255,255,0.5);
+						vertical-align: top;
+						padding       : 0 2px; }
 			
 			div.middle > div.main > div.main-head > div.main-head-toolbar {
 				position  : absolute;
@@ -572,7 +603,10 @@ div.middle {
 			-moz-transition   : all 0.25s ease 0.25s;
 			-ms-transition    : all 0.25s ease 0.25s;
 			-o-transition     : all 0.25s ease 0.25s;
-			transition        : all 0.25s ease 0.25s; }
+			transition        : all 0.25s ease 0.25s; 
+			background-size    : cover;
+			background-position: center center;
+			background-image   : url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQIHWP4DwABAQEANl9ngAAAAABJRU5ErkJggg==); }
 			
 		div.middle > div.main.nohead > div.main-body {
 			top     : 1px; }
@@ -601,6 +635,23 @@ div.middle {
 			
 			div.middle > div.main > div.main-body > div.failure {
 				background: rgba(255,0,0,0.1); }
+				
+				div.middle > div.main > div.main-body > div > div.program-meta {
+					font-size    : 13px;
+					margin-bottom: 15px;
+					line-height  : 20px;
+					color        : #777; }
+					
+					div.middle > div.main > div.main-body > div > div.program-meta > span.dynamic-time.soon {
+						color       : green; }
+						
+					div.middle > div.main > div.main-body > div > div.program-meta > span.dynamic-time.now {
+						color       : red; }
+				
+				div.middle > div.main > div.main-body > div > div.program-detail {
+					font-size    : 16px;
+					margin-bottom: 15px;
+					line-height  : 25px; }
 
 /* footer */
 div.footer {

@@ -46,5 +46,6 @@
   "EDIT"         : "編集",
   "MODIFY"       : "変更",
   "DELETE"       : "削除",
-  "CLEANUP"      : "クリーンアップ"
+  "CLEANUP"      : "クリーンアップ",
+  "PROGRAM"      : "番組"
 }
