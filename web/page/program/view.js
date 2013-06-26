@@ -71,6 +71,15 @@ P = Class.create(P, {
 			this.view.title.update(titleHtml);
 		}.bind(this), 0);
 		
+		if (program._isReserves) {
+			new sakura.ui.Alert({
+				title       : '予約済',
+				type        : 'blue',
+				body        : 'この番組は録画予約済みです',
+				disableClose: true
+			}).render(this.view.content);
+		}
+		
 		if (program._isRecording) {
 			new sakura.ui.Alert({
 				title       : '録画中',

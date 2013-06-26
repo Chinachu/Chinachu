@@ -102,11 +102,11 @@ div.fullscreen {
 .bg-fog {
 	background-color: rgba(255,255,255,0.6);
 	
-	background-image: linear-gradient(top, rgba(214,127,173,0.8), rgba(255,255,255,0.25));
-	background-image: -o-linear-gradient(top, rgba(214,127,173,0.8), rgba(255,255,255,0.25));
-	background-image: -moz-linear-gradient(top, rgba(214,127,173,0.8), rgba(255,255,255,0.25));
-	background-image: -webkit-linear-gradient(top, rgba(214,127,173,0.8), rgba(255,255,255,0.25));
-	background-image: -ms-linear-gradient(top, rgba(214,127,173,0.8), rgba(255,255,255,0.25)); }
+	background-image: linear-gradient(top, rgba(252,212,233,0.8), rgba(255,255,255,0.25));
+	background-image: -o-linear-gradient(top, rgba(252,212,233,0.8), rgba(255,255,255,0.25));
+	background-image: -moz-linear-gradient(top, rgba(252,212,233,0.8), rgba(255,255,255,0.25));
+	background-image: -webkit-linear-gradient(top, rgba(252,212,233,0.8), rgba(255,255,255,0.25));
+	background-image: -ms-linear-gradient(top, rgba(252,212,233,0.8), rgba(255,255,255,0.25)); }
 
 .bg-dark {
 	background-color: #2b2b2b; }
