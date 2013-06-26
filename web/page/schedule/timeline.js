@@ -189,7 +189,7 @@ P = Class.create(P, {
 		var ld  = -1;
 		var lm  = -1;
 		
-		for (var i = this.time; maxlen > i; i += 60000) {
+		for (var i = this.time, lim = this.time + 60000 * 12000; maxlen > i && lim > i; i += 60000) {
 			var date = new Date(i);
 			var d    = date.getDate();
 			var m    = date.getMinutes();
