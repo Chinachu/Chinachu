@@ -37,6 +37,7 @@ P = Class.create(P, {
 	
 	initToolbar: function _initToolbar() {
 		
+		/*
 		this.view.toolbar.add({
 			key: 'yesterday',
 			ui : new sakura.ui.Button({
@@ -69,6 +70,7 @@ P = Class.create(P, {
 				}.bind(this)
 			})
 		});
+		*/
 		
 		return this;
 	},
@@ -119,12 +121,16 @@ P = Class.create(P, {
 			var posY   = (5 + y * (5 + linelen));
 			var height = linelen;
 			
-			new sakura.ui.Container({
+			var ch = new sakura.ui.Container({
 				style: {
 					top   : posY + 'px',
 					height: height + 'px'
 				}
 			}).insert(channel.name).render(this.view.head);
+			
+			ch.entity.observe('click', function() {
+				window.location.hash = '!/search/top/skip=1&chid=' + channel.id + '/';
+			});
 			
 			channel.programs.forEach(function(program, j) {
 				if ((program.end - this.time) < 0) {
@@ -730,7 +736,7 @@ P = Class.create(P, {
 			}
 		}.bind(this));
 		
-		this.view.clock.update(
+		this.view.clock.entity.innerHTML = (
 			chinachu.dateToString(
 				new Date(this.time + (this.view.board.entity.scrollLeft * 1000 * 1000 / this.unitlen))
 			)

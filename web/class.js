@@ -739,7 +739,7 @@
 				this.modal = new flagrate.Modal({
 					title   : '録画履歴の削除',
 					subtitle: this.program.title + ' #' + this.program.id,
-					text    : '本当によろしいですか？<br>システムはこの録画ファイルを見失います。',
+					text    : '録画履歴を削除すると、システムはこの番組の録画ファイルの場所を見失います。',
 	
 					buttons: [
 						{
@@ -802,7 +802,7 @@
 				this.modal = new flagrate.Modal({
 					title: '録画ファイルの削除',
 					subtitle: this.program.title + ' #' + this.program.id,
-					text : '本当によろしいですか？<br>一度削除された録画ファイルは復元できません。',
+					text : '録画ファイルを削除します。これは復元できません。',
 					buttons: [
 						{
 							label  : '削除',
@@ -822,9 +822,14 @@
 										}).show();
 									},
 									onFailure: function(t) {
+										
+										var err = t.status;
+										
+										if (err === 410) err += ':既に削除されています';
+										
 										new flagrate.Modal({
 											title: '失敗',
-											text : '録画ファイルの削除に失敗しました (' + t.status + ')'
+											text : '録画ファイルの削除に失敗しました (' + err + ')'
 										}).show();
 									}
 								});

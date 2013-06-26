@@ -57,8 +57,8 @@
 			"defaultPage": "list",
 			"page"       : {
 				"list": {
-					"label": "List",
-					"title": "List",
+					"label": "Rules",
+					"title": "Rules",
 					"icon" : "./icons/regular-expression.png"
 				}
 			}
@@ -70,8 +70,8 @@
 			"defaultPage": "list",
 			"page"       : {
 				"list": {
-					"label": "List",
-					"title": "List",
+					"label": "Reserves",
+					"title": "Reserves",
 					"icon" : "./icons/bookmarks.png"
 				}
 			}
@@ -83,8 +83,8 @@
 			"defaultPage": "list",
 			"page"       : {
 				"list": {
-					"label": "List",
-					"title": "List",
+					"label": "Recording",
+					"title": "Recording",
 					"icon" : "./icons/control-record-small.png"
 				}
 			}
@@ -96,8 +96,8 @@
 			"defaultPage": "list",
 			"page"       : {
 				"list": {
-					"label": "List",
-					"title": "List",
+					"label": "Recorded",
+					"title": "Recorded",
 					"icon" : "./icons/television-medium.png"
 				}
 			}
@@ -108,9 +108,9 @@
 			"label"      : "search",
 			"defaultPage": "top",
 			"page"       : {
-				"list": {
-					"label": "Top",
-					"title": "Top",
+				"top": {
+					"label": "Search",
+					"title": "Search",
 					"icon" : "./icons/calendar-search-result.png"
 				}
 			}

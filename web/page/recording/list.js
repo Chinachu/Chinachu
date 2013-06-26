@@ -8,14 +8,14 @@ P = Class.create(P, {
 		this.draw();
 		
 		this.onNotify = this.refresh.bindAsEventListener(this);
-		document.observe('chinachu:reserves', this.onNotify);
+		document.observe('chinachu:recording', this.onNotify);
 		
 		return this;
 	}
 	,
 	deinit: function() {
 		
-		document.stopObserving('chinachu:reserves', this.onNotify);
+		document.stopObserving('chinachu:recording', this.onNotify);
 		
 		return this;
 	}
@@ -108,8 +108,8 @@ P = Class.create(P, {
 		
 		var programs = [];
 		
-		for (var i = 0, l = global.chinachu.reserves.length; i < l; i++) {
-			programs.push(global.chinachu.reserves[i]);
+		for (var i = 0, l = global.chinachu.recording.length; i < l; i++) {
+			programs.push(global.chinachu.recording[i]);
 		}
 		
 		programs.sort(function(a, b) {
@@ -128,6 +128,14 @@ P = Class.create(P, {
 					}
 				},
 				menuItems: [
+					{
+						label   : '録画中止...',
+						icon    : './icons/cross.png',
+						onSelect: function() {
+							new chinachu.ui.StopRecord(program.id);
+						}
+					},
+					'------------------------------------------',
 					{
 						label   : 'ルール作成...',
 						icon    : './icons/regular-expression.png',
@@ -227,16 +235,7 @@ P = Class.create(P, {
 			titleHtml += '<span class="id">#' + program.id + '</span>';
 			
 			if (program.isManualReserved) {
-				 titleHtml = '<span class="flag manual">手動</span>' + titleHtml;
-				 
-				 row.menuItems.unshift('--');
-				 row.menuItems.unshift({
-					label   : '予約取消...',
-					icon    : './icons/cross-script.png',
-					onSelect: function() {
-						new chinachu.ui.Unreserve(program.id);
-					}
-				});
+				titleHtml = '<span class="flag manual">手動</span>' + titleHtml;
 			}
 			
 			row.cell.title = {

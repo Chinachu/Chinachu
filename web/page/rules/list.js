@@ -181,6 +181,8 @@ P = Class.create(P, {
 		
 		this.grid = new flagrate.Grid({
 			multiSelect: true,
+			pagination : true,
+			fill       : true,
 			cols: [
 				{
 					key  : 'n',
@@ -294,14 +296,7 @@ P = Class.create(P, {
 					sortKey    : rule.categories[0],
 					className  : 'categories',
 					html       : rule.categories.invoke('sub', /.+/, '<span class="bg-cat-#{0}">#{0}</span>').join(''),
-					postProcess: function(td) {
-						if (rule.categories.length > 1) {
-							new flagrate.Popover({
-								target: td,
-								text  : rule.categories.join(', ')
-							});
-						}
-					}
+					attribute  : { title: rule.categories.join(', ').truncate(256) }
 				};
 			} else {
 				row.cell.categories = {
@@ -314,12 +309,7 @@ P = Class.create(P, {
 			if (rule.channels) {
 				row.cell.channels = {
 					text       : rule.channels.join(', '),
-					postProcess: function(td) {
-						new flagrate.Popover({
-							target: td,
-							text  : rule.channels.join(', ')
-						});
-					}
+					attribute  : { title: rule.channels.join(', ').truncate(256) }
 				};
 			} else {
 				row.cell.channels = {
@@ -332,12 +322,7 @@ P = Class.create(P, {
 			if (rule.ignore_channels) {
 				row.cell.ignore_channels = {
 					text       : rule.ignore_channels.join(', '),
-					postProcess: function(td) {
-						new flagrate.Popover({
-							target: td,
-							text  : rule.ignore_channels.join(', ')
-						});
-					}
+					attribute  : { title: rule.ignore_channels.join(', ').truncate(256) }
 				};
 			} else {
 				row.cell.ignore_channels = {
@@ -350,12 +335,7 @@ P = Class.create(P, {
 			if (rule.reserve_flags) {
 				row.cell.reserve_flags = {
 					text       : rule.reserve_flags.join(', '),
-					postProcess: function(td) {
-						new flagrate.Popover({
-							target: td,
-							text  : rule.reserve_flags.join(', ')
-						});
-					}
+					attribute  : { title: rule.reserve_flags.join(', ').truncate(256) }
 				};
 			} else {
 				row.cell.reserve_flags = {
@@ -368,12 +348,7 @@ P = Class.create(P, {
 			if (rule.ignore_flags) {
 				row.cell.ignore_flags = {
 					text       : rule.ignore_flags.join(', '),
-					postProcess: function(td) {
-						new flagrate.Popover({
-							target: td,
-							text  : rule.ignore_flags.join(', ')
-						});
-					}
+					attribute  : { title: rule.ignore_flags.join(', ').truncate(256) }
 				};
 			} else {
 				row.cell.ignore_flags = {
@@ -415,12 +390,7 @@ P = Class.create(P, {
 			if (rule.reserve_titles) {
 				row.cell.reserve_titles = {
 					text       : rule.reserve_titles.join(', '),
-					postProcess: function(td) {
-						new flagrate.Popover({
-							target: td,
-							text  : rule.reserve_titles.join(', ')
-						});
-					}
+					attribute  : { title: rule.reserve_titles.join(', ').truncate(256) }
 				};
 			} else {
 				row.cell.reserve_titles = {
@@ -433,12 +403,7 @@ P = Class.create(P, {
 			if (rule.ignore_titles) {
 				row.cell.ignore_titles = {
 					text       : rule.ignore_titles.join(', '),
-					postProcess: function(td) {
-						new flagrate.Popover({
-							target: td,
-							text  : rule.ignore_titles.join(', ')
-						});
-					}
+					attribute  : { title: rule.ignore_titles.join(', ').truncate(256) }
 				};
 			} else {
 				row.cell.ignore_titles = {
@@ -451,12 +416,7 @@ P = Class.create(P, {
 			if (rule.reserve_descriptions) {
 				row.cell.reserve_descriptions = {
 					text       : rule.reserve_descriptions.join(', '),
-					postProcess: function(td) {
-						new flagrate.Popover({
-							target: td,
-							text  : rule.reserve_descriptions.join(', ')
-						});
-					}
+					attribute  : { title: rule.reserve_descriptions.join(', ').truncate(256) }
 				};
 			} else {
 				row.cell.reserve_descriptions = {
@@ -469,12 +429,7 @@ P = Class.create(P, {
 			if (rule.ignore_descriptions) {
 				row.cell.ignore_descriptions = {
 					text       : rule.ignore_descriptions.join(', '),
-					postProcess: function(td) {
-						new flagrate.Popover({
-							target: td,
-							text  : rule.ignore_descriptions.join(', ')
-						});
-					}
+					attribute  : { title: rule.ignore_descriptions.join(', ').truncate(256) }
 				};
 			} else {
 				row.cell.ignore_descriptions = {

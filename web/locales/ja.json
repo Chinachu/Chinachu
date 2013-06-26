@@ -45,5 +45,6 @@
   "COPY"         : "コピー",
   "EDIT"         : "編集",
   "MODIFY"       : "変更",
-  "DELETE"       : "削除"
+  "DELETE"       : "削除",
+  "CLEANUP"      : "クリーンアップ"
 }
