@@ -46,17 +46,8 @@
 		'/socket.io/socket.io.js',
 		
 		/* hypers */
-		'./lib/hypergrid.js',
-		'./lib/hypergrid.css',
-		'./lib/hypermodal.js',
-		'./lib/hypermodal.css',
 		'./lib/hyperform.js',
 		'./lib/hyperform.css',
-		'./lib/hypernotifier.js',
-		'./lib/hypernotifier.css',
-		
-		/* stats.js */
-		'./lib/stats.min.js',
 		
 		/* date.format */
 		'./lib/date.format.js',
