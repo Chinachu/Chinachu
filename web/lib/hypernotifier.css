@@ -24,13 +24,15 @@ div.hypernotifier-notify:hover {
 		font-weight: bold;
 		font-size  : 14px;
 		text-shadow: 0 -1px 0 #111;
-		color      : #ccc; }
+		color      : #ccc;
+		word-break : break-all; }
 	
 	div.hypernotifier-notify > div.hypernotifier-message {
 		margin-top : 5px;
 		font-weight: normal;
 		font-size  : 12px;
-		line-height: 14px; }
+		line-height: 14px;
+		word-break : break-all; }
 	
 	div.hypernotifier-notify > div.hypernotifier-close {
 		display      : none; }

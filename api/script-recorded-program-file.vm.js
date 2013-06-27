@@ -26,11 +26,11 @@
 					});
 					
 					readStream.on('end', function() {
-						response.exit();
+						response.end();
 					});
 					
 					readStream.on('close', function() {
-						response.exit();
+						response.end();
 					});
 					
 					request.on('close', function() {
@@ -44,7 +44,7 @@
 			if (request.type === 'json') {
 				response.head(200);
 				
-				response.exit(JSON.stringify({
+				response.end(JSON.stringify({
 					dev    : fstat.dev,
 					ino    : fstat.ino,
 					mode   : fstat.mode,
@@ -69,9 +69,9 @@
 			fs.unlinkSync(program.recorded);
 			
 			if (request.type === 'json') {
-				response.exit('{}');
+				response.end('{}');
 			} else {
-				response.exit();
+				response.end();
 			}
 			return;
 	}

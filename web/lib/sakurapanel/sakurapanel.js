@@ -29,7 +29,7 @@
 		return false;
 	}
 	var sakura = window.sakura = {
-		version: 'beta0'
+		version: 'beta3'
 	};
 	
 	console.info('[welcome]', 'initializing sakurapanel.');
@@ -440,6 +440,14 @@
 		 *  Requester#enqueue(queue) -> sakura.api.Requester
 		**/
 		enqueue: function _enqueue(queue) {
+			
+			return this.push(queue);
+		}
+		,
+		/**
+		 *  Requester#push(queue) -> sakura.api.Requester
+		**/
+		push: function _push(queue) {
 			queue.stat = 'waiting';
 			
 			this.queues.push(queue);
@@ -447,6 +455,39 @@
 			this.onEnqueue();
 			
 			document.fire('sakurapanel:api:requester:enqueue', this);
+			document.fire('sakurapanel:api:requester:push', this);
+			
+			return queue;
+		}
+		,
+		/**
+		 *  Requester#unshift(queue) -> sakura.api.Requester
+		**/
+		unshift: function _unshift(queue) {
+			queue.stat = 'waiting';
+			
+			this.queues.unshift(queue);
+			
+			this.onEnqueue();
+			
+			document.fire('sakurapanel:api:requester:enqueue', this);
+			document.fire('sakurapanel:api:requester:unshift', this);
+			
+			return queue;
+		}
+		,
+		/**
+		 *  Requester#insert(pos, queue) -> sakura.api.Requester
+		**/
+		insert: function _insert(pos, queue) {
+			queue.stat = 'waiting';
+			
+			this.queues.splice(pos, 0, queue);
+			
+			this.onEnqueue();
+			
+			document.fire('sakurapanel:api:requester:enqueue', this);
+			document.fire('sakurapanel:api:requester:insert', this);
 			
 			return queue;
 		}
@@ -719,6 +760,31 @@
 			var onSuccess  = opt.onSuccess  || function(){};
 			var onFailure  = opt.onFailure  || function(){};
 			
+			var isDisableCache           = opt.isDisableCache           || false;
+			var optionalRequestParameter = opt.optionalRequestParameter || null;
+			
+			// querystring
+			if (isDisableCache || optionalRequestParameter !== null) {
+				var qss = url.match(/\?([^#]+)/);
+				var q   = {};
+				
+				if (qss !== null) {
+					q = qss[1].toQueryParams();
+				}
+				
+				if (isDisableCache) {
+					q._nonce = new Date().getTime();
+				}
+				
+				if (optionalRequestParameter !== null) {
+					Object.extend(q, optionalRequestParameter);
+				}
+				
+				var qs = Object.toQueryString(q);
+				
+				url = url.replace(/(\?[^#]*)?(#.+)?$/, '?' + qs + '$2');
+			}
+			
 			if ((ext === 'js') && (!callback)) {
 			
 				var sc    = new Element('script', {
@@ -839,13 +905,21 @@
 	util.Requires = Class.create({
 		
 		/**
-		 *  new sakura.util.Requires(requires, onComplete) -> sakura.util.Requires
-		 *  - requires   (Array) - array of resource required.
-		 *  - onComplete (Function) - optional callback function.
+		 *  new sakura.util.Requires(requires, option) -> sakura.util.Requires
+		 *  - requires (Array) - array of resource required.
+		 *  - option   (Object | Function) - optional parameter or callback function.
 		**/
-		initialize: function(requires, onComplete) {
+		initialize: function(requires, option) {
 			this.requires   = requires || [];
-			this.onComplete = onComplete || null;
+			this.onComplete = null;
+			
+			if (Object.isFunction(option) === true) {
+				this.onComplete = option || null;
+			} else if (typeof option === 'object') {
+				this.onComplete               = option.onComplete || null;
+				this.isDisableCache           = option.isDisableCache || false;
+				this.optionalRequestParameter = option.optionalRequestParameter || null;
+			}
 			
 			this.load();
 			
@@ -860,8 +934,10 @@
 			}
 			
 			new sakura.util.Loader({
-				url       : this.requires.shift(),
-				onComplete: this.load.bind(this)
+				url                     : this.requires.shift(),
+				onComplete              : this.load.bind(this),
+				isDisableCache          : this.isDisableCache,
+				optionalRequestParameter: this.optionalRequestParameter
 			});
 			
 			return this;
@@ -958,6 +1034,7 @@
 			}
 			
 			this.hashControlInterval = setInterval(this.realizeHash.bind(this), 250);
+			setTimeout(this.realizeHash.bind(this), 0);
 			
 			if (reload && !!this.category && !!this.page) {
 				this._lastHash = '';
@@ -1092,6 +1169,7 @@
 				if (this.p.timer && Object.keys(this.p.timer).length >= 0) {
 					for (var i in this.p.timer) {
 						try {
+							console.debug('clearing timer', i, this.p.timer[i]);
 							clearTimeout(this.p.timer[i]);
 							clearInterval(this.p.timer[i]);
 						} catch (e) {
@@ -1132,6 +1210,7 @@
 					this.self  = opt.self;
 					this.data  = {};
 					this.timer = {};
+					this.id    = new Date().getTime();
 					
 					// init
 					this.init();
@@ -1320,6 +1399,7 @@
 		**/
 		show: function _showElement() {
 			this.entity.show();
+			this.entity.fire('sakura:show');
 			
 			return this;
 		},
@@ -1333,6 +1413,7 @@
 		**/
 		hide: function _hideElement() {
 			this.entity.hide();
+			this.entity.fire('sakura:hide');
 			
 			return this;
 		},
@@ -1345,7 +1426,11 @@
 		 *  This method is wrapper for [Element.remove](http://api.prototypejs.org/dom/Element/remove/)
 		**/
 		remove: function _removeElement() {
-			this.entity.remove();
+			try {
+				this.entity.remove() && this.entity.fire('sakura:remove');
+			} catch (e) {
+				//console.debug(e);
+			}
 			
 			return this;
 		}
@@ -1375,7 +1460,86 @@
 	//
 	// ui.Popover
 	//
-	ui.Popover = Class.create({
+	ui.Popover = Class.create(ui.Element, {
+		
+		init: function _init(opt) {
+			this.target = opt.target.entity || opt.target;
+			this.html   = opt.html || opt.body || opt.content || opt.message;
+			
+			this.isShowing = false;
+			
+			this.target.observe('mouseover', function(e) {
+				
+				this.isShowing = true;
+				
+				this.entity.style.opacity = '0';
+				$(document.body).insert(this.entity);
+				this.render();
+				
+				var offset = this.target.cumulativeOffset();
+				var scrl   = this.target.cumulativeScrollOffset();
+				var width  = this.target.getWidth();
+				var height = this.target.getHeight();
+				
+				var posX = offset.left - scrl.left + (width / 2) - (this.entity.getWidth() / 2);
+				
+				this.entity.style.left  = posX + 'px';
+				this.entity.style.right = 'auto';
+				
+				if ($(document).height - this.target.getHeight() - 100 < e.y) {
+					var posY = offset.top - scrl.top - 9;
+					
+					this.entity.addClassName('tail');
+					this.entity.style.top    = 'auto';
+					this.entity.style.bottom = ($(document).height - posY) + 'px';
+				} else {
+					var posY = offset.top - scrl.top + height + 9;
+					
+					this.entity.removeClassName('tail');
+					this.entity.style.top    = posY + 'px';
+					this.entity.style.bottom = 'auto';
+				}
+				
+				this.entity.style.opacity = '1';
+			}.bind(this));
+			
+			this.target.observe('mouseout', function(e) {
+				
+				this.isShowing = false;
+				this.remove();
+			}.bind(this));
+			
+			this.target.observe('sakura:remove', function(e) {
+				
+				this.isShowing = false;
+				this.remove();
+			}.bind(this));
+			
+			return this;
+		},
+		
+		create: function _create() {
+			
+			this.entity = new Element('div', this.attr);
+			
+			this.entity.addClassName('sakura-popover');
+			
+			this.update(this.html);
+			
+			return this;
+		},
+		
+		render: function _render() {
+			
+			return this;
+		},
+		
+		remove: function() {
+			
+			try { this.entity.remove(); } catch (e) {}
+			
+			return this;
+		}
 	});//<--ui.Popover
 	
 	//
@@ -1387,18 +1551,9 @@
 			this.target = opt.target.entity || opt.target;
 			this.html   = opt.html || opt.body || opt.content || opt.message;
 			
-			return this;
-		},
-		
-		create: function _create() {
-			
-			this.entity = new Element('div', this.attr).hide();
-			
-			this.entity.insert(this.html);
-			
-			this.entity.addClassName('sakura-tooltip');
-			
 			this.target.observe('mouseover', function(e) {
+				
+				$(document.body).insert(this.entity);
 				
 				if ($(document).width - 300 < e.x) {
 					this.entity.style.left  = 'auto';
@@ -1416,7 +1571,7 @@
 					this.entity.style.bottom = 'auto';
 				}
 				
-				this.show();
+				this.render();
 			}.bind(this));
 			
 			this.target.observe('mousemove', function(e) {
@@ -1439,24 +1594,32 @@
 			}.bind(this));
 			
 			this.target.observe('mouseout', function(e) {
-				
-				this.hide();
+				this.remove();
 			}.bind(this));
 			
 			this.target.observe('remove', function(e) {
-				
+				this.remove();
+			}.bind(this));
+			
+			this.target.observe('sakura:remove', function(e) {
 				this.remove();
 			}.bind(this));
 			
 			return this;
 		},
 		
+		create: function _create() {
+			
+			this.entity = new Element('div', this.attr);
+			
+			this.entity.insert(this.html);
+			
+			this.entity.addClassName('sakura-tooltip');
+			
+			return this;
+		},
+		
 		render: function _renderDropdown() {
-			var container = $(document.body);
-			
-			container.insert(this.entity);
-			
-			if (this.onRendered) this.onRendered();
 			
 			return this;
 		}
@@ -1601,7 +1764,7 @@
 		},
 		
 		one: function _one(key) {
-			return this.child[key].ui || null;
+			return this.child[key] && this.child[key].ui || null;
 		},
 		
 		all: function _all() {
@@ -1909,6 +2072,124 @@
 			return this;
 		}
 	});//<--ui.Dropdown
+	
+	//
+	// ui.ContextMenu
+	//
+	ui.ContextMenu = Class.create(ui.Element, {
+		
+		init: function _init(opt) {
+			this.target = opt.target.entity || opt.target;
+			this.items  = opt.items;
+			
+			return this;
+		},
+		
+		create: function _create() {
+			
+			this.entity = new Element('div', this.attr);
+			
+			if (this.className !== null) this.entity.className = this.className;
+			
+			if (this.id !== null) this.entity.id = this.id;
+			
+			if (this.style !== null) this.entity.setStyle(this.style);
+			
+			this.entity.addClassName('sakura-context-menu');
+			
+			this.target.observe('contextmenu', function(e) {
+				
+				this.target.fire('sakura:contextmenu');
+				e.stop();
+				
+				var container = new Element('div');
+				this.entity.update(container);
+				
+				$(document.body).insert(this.entity);
+				
+				this.items.each(function(a, i) {
+					if (typeof a === 'string') {
+						var btn = new Element('hr');
+					} else {
+						var btn = new Element('div').insert(a.label);
+						
+						if (a.icon) {
+							btn.setStyle({ backgroundImage: 'url(' + a.icon + ')' });
+							btn.addClassName('sakura-context-menu-icon');
+						}
+						
+						btn.observe('click', function(e) {
+							if (a.onSelect) a.onSelect(e);
+						}.bind(this));
+					}
+					
+					container.insert(btn);
+				}.bind(this));
+				
+				var offset = $(document.body).cumulativeOffset();
+				var scrl   = $(document.body).cumulativeScrollOffset();
+				var vw     = document.viewport.getWidth();
+				var vh     = document.viewport.getHeight();
+				var w      = container.getWidth();
+				var h      = container.getHeight();
+				var x      = e.pointerX();
+				var y      = e.pointerY();
+				
+				var posX = offset.left - scrl.left + x;
+				var posY = offset.top  - scrl.top  + y;
+				
+				if (vw < x + w) posX -= w;
+				if (vh < y + h) posY -= h;
+				
+				this.entity.style.left = posX + 'px';
+				this.entity.style.top  = posY + 'px';
+				
+				var remover = function() {
+					clearTimeout(timerMouseObservingDelay);
+					$(document.body).stopObserving('mouseup', remover);
+					$(document.body).stopObserving('click', remover);
+					$(document.body).stopObserving('contextmenu', remover);
+					$(document.body).stopObserving('sakura:contextmenu', remover);
+					
+					setTimeout(function() {
+						try { container.remove(); } catch (e) {}
+						container = null;
+					}, 10);
+				};
+				
+				var timerMouseObservingDelay = setTimeout(function() {
+					$(document.body).observe('mouseup', remover);
+				}, 100);
+				$(document.body).observe('click', remover);
+				$(document.body).observe('contextmenu', remover);
+				$(document.body).observe('sakura:contextmenu', remover);
+			}.bind(this));
+			
+			this.target.observe('sakura:remove', function(e) {
+				
+				this.remove();
+			}.bind(this));
+			
+			this.target.observe('remove', function(e) {
+				
+				this.remove();
+			}.bind(this));
+			
+			return this;
+		},
+		
+		render: function _render() {
+			
+			return this;
+		},
+		
+		remove: function() {
+			
+			try { this.entity.remove(); } catch (e) {}
+			
+			return this;
+		}
+	});//<--ui.ContextMenu
 	
 	//
 	// ui.Headbar
