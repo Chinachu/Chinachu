@@ -110,6 +110,9 @@ div.fullscreen {
 
 .bg-dark {
 	background-color: #2b2b2b; }
+	
+.bg-black {
+	background-color: #000; }
 
 .bg-silver {
 	background-color: #ddd; }
@@ -1543,3 +1546,33 @@ td > div > span.id {
 	margin-left    : 4px;
 	color          : #aaa;
 	font-size      : 10px; }
+
+.flagrate-modal > div > div {
+	max-width: 500px; }
+
+div.video-container {
+	position        : absolute;
+	top             : 0px;
+	right           : 0px;
+	bottom          : 44px;
+	left            : 0px;
+	background-color: #000; }
+	
+	div.video-container > * {
+		width : 100%;
+		height: 100%; }
+
+div.video-control {
+	position        : absolute;
+	right           : 0;
+	bottom          : 0;
+	left            : 0;
+	background-color: #2b2b2b;
+	padding         : 10px 20px 10px;
+	text-align      : center; }
+	
+	div.video-control .seek {
+		width: -webkit-calc(100% - 370px) !important;
+		width: -moz-calc(100% - 370px) !important;
+		width: -ms-calc(100% - 370px) !important;
+		width: calc(100% - 370px) !important; }

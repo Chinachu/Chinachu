@@ -51,12 +51,12 @@
 			
 			if (request.type === 'txt') {
 				if (vcodec === 'mjpeg') {
-					response.exit('data:image/jpeg;base64,' + new Buffer(stdout, 'binary').toString('base64'));
+					response.end('data:image/jpeg;base64,' + new Buffer(stdout, 'binary').toString('base64'));
 				} else if (vcodec === 'png') {
-					response.exit('data:image/png;base64,' + new Buffer(stdout, 'binary').toString('base64'));
+					response.end('data:image/png;base64,' + new Buffer(stdout, 'binary').toString('base64'));
 				}
 			} else {
-				response.exit(stdout, 'binary');
+				response.end(stdout, 'binary');
 			}
 			clearTimeout(timeout);
 		}
