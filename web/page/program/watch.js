@@ -609,11 +609,15 @@ P = Class.create(P, {
 			
 			current = Math.floor(current);
 			
+			if (current > p.seconds) {
+				this.app.pm.realizeHash(true);
+			}
+			
 			control.getElementByKey('played').updateText(
 				Math.floor(current / 60).toPaddedString(2) + ':' + (current % 60).toPaddedString(2)
 			);
 			seek.setValue(current);
-		};
+		}.bind(this);
 		
 		if (p._isRecording) {
 			this.timer.updateLiveTime = setInterval(updateLiveTime, 250);
