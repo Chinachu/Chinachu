@@ -62,7 +62,7 @@ P = Class.create(P, {
 			key: null,
 			ui : new sakura.ui.Button({
 				label  : 'ルールを作成',
-				icon   : './icons/plus-circle.png',
+				icon   : './icons/regular-expression.png',
 				onClick: function() {
 					new chinachu.ui.CreateRuleByProgram(program.id);
 				}
@@ -82,6 +82,17 @@ P = Class.create(P, {
 					})
 				});
 			}
+		} else {
+			this.view.toolbar.add({
+				key: null,
+				ui : new sakura.ui.Button({
+					label   : '手動予約',
+					icon    : './icons/plus-circle.png',
+					onClick: function() {
+						new chinachu.ui.Reserve(program.id);
+					}
+				})
+			});
 		}
 		
 		if (program._isRecording) {
