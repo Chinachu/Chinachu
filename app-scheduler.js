@@ -776,7 +776,7 @@ function convertPrograms(p, ch) {
 		var title = c.title[0]._
 			.replace(/【.{1,2}】/g, '')
 			.replace(/\[.\]/g, '')
-			.replace(/「.+」/g, '')
+			.replace(/[^版]「.+」/g, '')
 			.replace(/(#[0-9]+|(＃|♯)[０１２３４５６７８９]+)/g, '')
 			.replace(/第([0-9]+|[０１２３４５６７８９零一壱二弐三参四五伍六七八九十拾]+)話/g, '')
 			.replace(/([0-9]+|[０１２３４５６７８９]+)品目/g, '')
@@ -785,8 +785,8 @@ function convertPrograms(p, ch) {
 		var desc = c.desc[0]._ || '';
 		
 		var subtitle = '';
-		if (c.title[0]._.match(/「([^「」]+)」/) !== null) {
-			subtitle = c.title[0]._.match(/「([^「」]+)」/)[1];
+		if (c.title[0]._.match(/[^版]「([^「」]+)」/) !== null) {
+			subtitle = c.title[0]._.match(/[^版]「([^「」]+)」/)[1];
 		} else if (desc.match(/「([^「」]+)」/) !== null) {
 			subtitle = desc.match(/「([^「」]+)」/)[1];
 		} else if (desc.match(/『([^『』]+)』/) !== null) {
