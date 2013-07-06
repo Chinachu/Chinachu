@@ -776,7 +776,7 @@ function convertPrograms(p, ch) {
 		var title = c.title[0]._
 			.replace(/【.{1,2}】/g, '')
 			.replace(/\[.\]/g, '')
-			.replace(/[^版]「.+」/g, '')
+			.replace(/([^版])「.+」/g, '$1')
 			.replace(/(#[0-9]+|(＃|♯)[０１２３４５６７８９]+)/g, '')
 			.replace(/第([0-9]+|[０１２３４５６７８９零一壱二弐三参四五伍六七八九十拾]+)話/g, '')
 			.replace(/([0-9]+|[０１２３４５６７８９]+)品目/g, '')
