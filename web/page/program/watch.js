@@ -556,7 +556,7 @@ P = Class.create(P, {
 			control.getElementByKey('play').disable();
 		}
 		
-		control.getElementByKey('vol').addEventListener('update', function() {
+		control.getElementByKey('vol').addEventListener('slide', function() {
 			
 			var vol = control.getElementByKey('vol');
 			
@@ -565,7 +565,7 @@ P = Class.create(P, {
 			}
 		});
 		
-		seek.addEventListener('update', function() {
+		seek.addEventListener('slide', function() {
 			
 			var value = seek.getValue();
 			
