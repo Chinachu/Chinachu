@@ -258,10 +258,6 @@
 				}
 			})
 		});
-		
-		// タブシステム(仮)
-		if (!app.tab) app.f.initTabSystem();
-		app.f.drawTabSystem();
 	};
 	
 	// オーバーラインハンドラ
@@ -277,96 +273,6 @@
 		} else {
 			app.view.mainBody.entity.removeClassName('overline');
 		}
-	};
-	
-	// タブシステム初期化
-	app.f.initTabSystem = function _initTabSystem() {
-		app.tab = {
-			current: 0,
-			items: []
-		};
-		app.tab.items.push({
-			key  : 'tab-id-0',
-			label: '...',
-			icon : './icons/dummy.png',
-			stat : Object.clone(app.stat),
-			url  : window.location.href
-		});
-		
-		if (window.sessionStorage.getItem(app.api.apiRoot + '::tab')) {
-			app.tab = window.sessionStorage.getItem(app.api.apiRoot + '::tab').evalJSON();
-		}
-		
-		clearInterval(app.timer.intervalTabSystemUpdater);
-		app.timer.intervalTabSystemUpdater = setInterval(app.f.updateTabSystem, 3000);
-		
-		document.stopObserving('sakurapanel:pm:load', app.f.updateTabSystem);
-		document.observe('sakurapanel:pm:load', app.f.updateTabSystem);
-	};
-	
-	// タブシステム更新
-	app.f.updateTabSystem = function _updateTabSystem() {
-		if (app.tab.items[app.tab.current].label !== app.pm.title.textContent) app.f.drawTabSystem.defer();
-		if (app.tab.items[app.tab.current].icon !== app.pm.index.category[app.pm.category].icon) app.f.drawTabSystem.defer();
-		
-		app.tab.items[app.tab.current].label = app.pm.title.textContent;
-		app.tab.items[app.tab.current].icon  = app.pm.index.category[app.pm.category].icon || null;
-		app.tab.items[app.tab.current].url   = window.location.href;
-		app.tab.items[app.tab.current].stat  = Object.clone(app.stat);
-		
-		window.sessionStorage.setItem(app.api.apiRoot + '::tab', Object.toJSON(app.tab))
-	};
-	
-	// タブシステム描画
-	app.f.drawTabSystem = function _drawTabSystem() {
-		app.tab.items.each(function(a, i) {
-			app.view.footer.remove(a.key);
-			
-			app.view.footer.add({
-				key: a.key,
-				ui : new sakura.ui.Button({
-					isRemovableByUser: (i !== 0),
-					label  : a.label.escapeHTML(),
-					icon   : a.icon,
-					onClick: function() {
-						app.tab.current = i;
-						window.location.href = a.url;
-						app.stat = Object.clone(a.stat);
-						//app.f.drawTabSystem();
-						app.f.enterControlView();
-					},
-					onRemove: function() {
-						app.tab.items = app.tab.items.without(a);
-						
-						app.tab.current = 0;
-						window.location.href = app.tab.items.first().url;
-						app.stat = Object.clone(app.tab.items.first().stat);
-						app.f.enterControlView();
-					}
-				})
-			});
-			
-			if (app.tab.current === i) app.view.footer.one(a.key).select();
-		});
-		
-		app.view.footer.remove('tab-add');
-		
-		app.view.footer.add({
-			key: 'tab-add',
-			ui : new sakura.ui.Button({
-				label  : '&#x2b;',
-				onClick: function() {
-					app.tab.current = app.tab.items.length;
-					
-					var newTab = Object.clone(app.tab.items.last());
-					newTab.key = 'tab-id-' + new Date().getTime();
-					
-					app.tab.items.push(newTab);
-					
-					app.f.drawTabSystem();
-				}
-			})
-		});
 	};
 	
 	app.f.getProgramById = function _getProgramById(id) {

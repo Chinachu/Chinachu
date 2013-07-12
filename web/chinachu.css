@@ -300,7 +300,7 @@ div.header {
 /* middle */
 div.middle {
 	top             : 40px;
-	bottom          : 25px;
+	bottom          : 0;
 	background-color: #fff; }
 	
 	div.middle > div {
@@ -631,7 +631,7 @@ div.middle {
 				bottom  : 0;
 				left    : 0;
 				overflow: auto;
-				padding : 10px; }
+				padding : 10px 10px 28px; }
 			
 			div.middle > div.main > div.main-body > div.loading {
 				background: no-repeat center center url(./loading-circular-2b2b2b-ffffff.gif); }
@@ -658,14 +658,15 @@ div.middle {
 
 /* footer */
 div.footer {
+	z-index         : 10;
+	right           : 0;
 	bottom          : 0;
-	height          : 25px;
-	background-color: rgba(0,0,0,0.4);
-	box-shadow      : inset 0 2px 0 rgba(0,0,0,0.2);
+	left            : auto;
+	height          : auto;
 	padding         : 0 10px; }
 	
 	div.footer > a.sakura-button {
-		margin-right    : 3px;
+		margin-right    : 5px;
 		border          : none;
 		display         : block;
 		float           : left;
@@ -674,13 +675,9 @@ div.footer {
 		line-height     : 15px;
 		height          : 15px;
 		padding         : 5px 10px;
-		background-color: rgba(194,65,134,0.3);
-		box-shadow      : 1px 0 0 rgba(0,0,0,0.25),
-		                  -1px 0 0 rgba(0,0,0,0.25),
-		                  inset 1px 0 0 rgba(255,255,255,0.15),
-		                  inset -1px 0 0 rgba(255,255,255,0.15),
-		                  inset 0 1px 0 rgba(0,0,0,0.35);
-		text-shadow     : 0 -1px 0 rgba(0,0,0,0.4); }
+		background-color: rgba(194,65,134,0.4);
+		box-shadow      : 0 0 2px 1px rgba(0,0,0,0.25);
+		text-shadow     : none }
 	
 	div.footer > a.sakura-button.sakura-button-icon {
 		padding-left    : 25px; }
