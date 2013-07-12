@@ -383,6 +383,15 @@
 			$('favicon').href = './favicon-active.ico';
 		}
 		
+		if (app.stat.lastRecordingCount) {
+			if (app.stat.lastRecordingCount < data.length) {
+				app.notify.create({
+					text: '録画開始: ' + data.last().title
+				});
+			}
+		}
+		app.stat.lastRecordingCount = data.length;
+		
 		setTimeout(socketOnReserves, 0, app.chinachu.reserves);
 	};
 	
@@ -391,6 +400,15 @@
 		
 		app.chinachu.recorded = data;
 		document.fire('chinachu:recorded', app.chinachu.recorded);
+		
+		if (app.stat.lastRecordedCount) {
+			if (app.stat.lastRecordedCount < data.length) {
+				app.notify.create({
+					text: '録画終了: ' + data.first().title
+				});
+			}
+		}
+		app.stat.lastRecordedCount = data.length;
 		
 		app.view.header.one('recorded').badge.update(data.length.toString(10));
 	};
