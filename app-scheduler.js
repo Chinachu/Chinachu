@@ -45,6 +45,20 @@ opts.parse([
 		description: 'シミュレーション。実際には保存されません',
 		value      : false,
 		required   : false
+	},
+	{
+		short      : 'ch',
+		long       : 'channel',
+		description: '指定したチャンネルのみ取得します',
+		value      : true,
+		required   : false
+	},
+	{
+		short      : 'l',
+		long       : 'load',
+		description: '指定したTSをch引数で指定したチャンネルに取り込みます',
+		value      : true,
+		required   : false
 	}
 ], true);
 
@@ -140,22 +154,22 @@ function getEpg() {
 				setTimeout(function() {
 					r.splice(r.indexOf(ch.n), 1);
 					tick();
-				}, 3000);
+				}, 50);
 			});
 			
 			if (ch.type === 'GR') {
-				setTimeout(tick, 5000);
+				setTimeout(tick, 100);
 			}
 			
 			break;
 		}
 		
-		util.log(util.inspect(
+		util.log('STATUS: ' + util.inspect(
 			{
-				'完了'  : s.length,
-				'未完了': chs.length,
-				'要求済': c.length,
-				'処理中': r.length
+				'completed': s.length,
+				'waiting'  : chs.length,
+				'worked'   : c.length,
+				'running'  : r.length
 			}
 		));
 	};
@@ -165,23 +179,28 @@ function getEpg() {
 		
 		var residue = c;
 		
+		var reuse = function _reuse() {
+			
+			var chs = [];
+			
+			// 古いスケジュールから探してくる
+			for (var j = 0; j < schedule.length; j++) {
+				if (schedule[j].n === i) {
+					chs.push(schedule[j]);
+				}
+			}
+			
+			// あれば使う
+			if (chs.length !== 0) s = s.concat(chs);
+		};
+		
 		var retry = function _retry() {
 			
 			--residue;
 			
 			// 取得あきらめる
 			if (residue <= 0) {
-				var chs = [];
-				
-				// 古いスケジュールから探してくる
-				for (var j = 0; j < schedule.length; j++) {
-					if (schedule[j].n === i) {
-						chs.push(schedule[j]);
-					}
-				}
-				
-				// あれば使う
-				if (chs.length !== 0) s = s.concat(chs);
+				reuse();
 				
 				// おわり
 				process.nextTick(callback);
@@ -195,6 +214,17 @@ function getEpg() {
 		};
 		
 		var channel = channels[i];
+		
+		// ch限定
+		if (opts.get('ch')) {
+			if (opts.get('ch') !== channel.channel) {
+				reuse();
+				process.nextTick(callback);
+				
+				return;
+			}
+		}
+		
 		util.log(JSON.stringify(channel));
 		
 		// チェック
@@ -243,107 +273,8 @@ function getEpg() {
 				return;
 		}//<-- switch
 		
-		// チューナーを選ぶ
-		var tuner = chinachu.getFreeTunerSync(config.tuners, channel.type);
-		
-		// チューナーが見つからない
-		if (tuner === null) {
-			util.log('WARNING: 利用可能なチューナーが見つかりませんでした (存在しないかロックされています)');
-			process.nextTick(retry);
-			
-			return;
-		}
-		
-		// チューナーをロック
-		chinachu.lockTunerSync(tuner);
-		util.log('LOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
-		
-		var unlockTuner = function _unlockTuner() {
-			
-			// チューナーのロックを解除
-			try {
-				chinachu.unlockTunerSync(tuner);
-				util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
-			} catch(e) {
-				util.log(e);
-			}
-		};
-		
-		var recPath = config.temporaryDir + 'chinachu-tmp-' + new Date().getTime().toString(36) + '.m2ts';
-		
-		var recCmd = tuner.command.replace('<channel>', channel.channel);
-		
-		// recpt1用
-		recCmd = recCmd.replace(' --b25', '').replace(' --strip', '').replace(/ --sid [^ ]+/, '');
-		
-		// 録画プロセスを生成
-		var recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
-		util.log('SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
-		
-		// プロセスタイムアウト
-		setTimeout(function() { recProc.kill('SIGTERM'); }, 1000 * (config.schedulerEpgRecordTime || 60));
-		
-		// 一時ファイルへの書き込みストリームを作成
-		var recFile = fs.createWriteStream(recPath);
-		util.log('STREAM: ' + recPath);
-		
-		// ts出力
-		recProc.stdout.on('data', function(data) {
-			recFile.write(data);
-		});
-		
-		// ログ出力
-		recProc.stderr.on('data', function(data) {
-			util.log('#' + (recCmd.split(' ')[0] + ': ' + data + '').replace(/\n/g, ' ').trim());
-		});
-		
-		// キャンセル時
-		var onCancel = function _onCancel() {
-			
-			// シグナルリスナー解除
-			removeSignalListener();
-			
-			// 録画プロセスを終了
-			recProc.removeAllListeners('exit');
-			recProc.kill('SIGTERM');
-			
-			// 書き込みストリームを閉じる
-			recFile.end();
-			
-			// チューナーのロックを解除
-			unlockTuner();
-			
-			// 一時録画ファイル削除
-			fs.unlinkSync(recPath);
-			util.log('UNLINK: ' + recPath);
-			
-			// 終了
-			process.nextTick(process.exit);
-		};
-		
-		var removeSignalListener = function _removeSignalListener() {
-			
-			process.removeListener('SIGINT', onCancel);
-			process.removeListener('SIGQUIT', onCancel);
-			process.removeListener('SIGTERM', onCancel);
-		};
-		
-		// 終了シグナル時処理
-		process.on('SIGINT', onCancel);
-		process.on('SIGQUIT', onCancel);
-		process.on('SIGTERM', onCancel);
-		
-		// プロセス終了時
-		recProc.on('exit', function(code) {
-			
-			// シグナルリスナー解除
-			removeSignalListener();
-			
-			// 書き込みストリームを閉じる
-			recFile.end();
-			
-			// チューナーのロックを解除
-			unlockTuner();
+		// epgdump
+		var dumpEpg = function() {
 			
 			// epgdump
 			var epgdumpCmd = [
@@ -366,9 +297,11 @@ function getEpg() {
 			
 			var epgdumpProc = child_process.exec(epgdumpCmd, { maxBuffer: 104857600 }, function(err, stdout, stderr) {
 				
-				// 一時録画ファイル削除
-				fs.unlinkSync(recPath);
-				util.log('UNLINK: ' + recPath);
+				if (!opts.get('l')) {
+					// 一時録画ファイル削除
+					fs.unlinkSync(recPath);
+					util.log('UNLINK: ' + recPath);
+				}
 				
 				if (err !== null) {
 					util.log('EPG: 不明なエラー');
@@ -588,8 +521,119 @@ function getEpg() {
 				}
 			});
 			util.log('EXEC: epgdump (pid=' + epgdumpProc.pid + ')');
-		});//<-- recProc.on(exit, ...)
-	};
+		};//<-- dumpEpg
+		
+		if (opts.get('ch') && opts.get('l')) {
+			var recPath = opts.get('l');
+			dumpEpg();
+		} else {
+			// チューナーを選ぶ
+			var tuner = chinachu.getFreeTunerSync(config.tuners, channel.type);
+			
+			// チューナーが見つからない
+			if (tuner === null) {
+				util.log('WARNING: 利用可能なチューナーが見つかりませんでした (存在しないかロックされています)');
+				process.nextTick(retry);
+				
+				return;
+			}
+			
+			// チューナーをロック
+			chinachu.lockTunerSync(tuner);
+			util.log('LOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
+			
+			var unlockTuner = function _unlockTuner() {
+				
+				// チューナーのロックを解除
+				try {
+					chinachu.unlockTunerSync(tuner);
+					util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
+				} catch(e) {
+					util.log(e);
+				}
+			};
+			
+			var recPath = config.temporaryDir + 'chinachu-tmp-' + new Date().getTime().toString(36) + '.m2ts';
+			
+			var recCmd = tuner.command.replace('<channel>', channel.channel);
+			
+			// recpt1用
+			//recCmd = recCmd.replace(' --b25', '').replace(' --strip', '').replace(/ --sid [^ ]+/, '');
+			recCmd = recCmd.replace(' --b25', '').replace('<sid>', 'epg');
+			
+			// 録画プロセスを生成
+			var recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
+			util.log('SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
+			
+			// プロセスタイムアウト
+			setTimeout(function() { recProc.kill('SIGTERM'); }, 1000 * (config.schedulerEpgRecordTime || 60));
+			
+			// 一時ファイルへの書き込みストリームを作成
+			var recFile = fs.createWriteStream(recPath);
+			util.log('STREAM: ' + recPath);
+			
+			// ts出力
+			recProc.stdout.on('data', function(data) {
+				recFile.write(data);
+			});
+			
+			// ログ出力
+			recProc.stderr.on('data', function(data) {
+				util.log('#' + (recCmd.split(' ')[0] + ': ' + data + '').replace(/\n/g, ' ').trim());
+			});
+			
+			// キャンセル時
+			var onCancel = function _onCancel() {
+				
+				// シグナルリスナー解除
+				removeSignalListener();
+				
+				// 録画プロセスを終了
+				recProc.removeAllListeners('exit');
+				recProc.kill('SIGTERM');
+				
+				// 書き込みストリームを閉じる
+				recFile.end();
+				
+				// チューナーのロックを解除
+				unlockTuner();
+				
+				// 一時録画ファイル削除
+				fs.unlinkSync(recPath);
+				util.log('UNLINK: ' + recPath);
+				
+				// 終了
+				process.nextTick(process.exit);
+			};
+			
+			var removeSignalListener = function _removeSignalListener() {
+				
+				process.removeListener('SIGINT', onCancel);
+				process.removeListener('SIGQUIT', onCancel);
+				process.removeListener('SIGTERM', onCancel);
+			};
+			
+			// 終了シグナル時処理
+			process.on('SIGINT', onCancel);
+			process.on('SIGQUIT', onCancel);
+			process.on('SIGTERM', onCancel);
+			
+			// プロセス終了時
+			recProc.on('exit', function(code) {
+				
+				// シグナルリスナー解除
+				removeSignalListener();
+				
+				// 書き込みストリームを閉じる
+				recFile.end();
+				
+				// チューナーのロックを解除
+				unlockTuner();
+				
+				dumpEpg();
+			});
+		}//<-- if
+	};//<-- get()
 	
 	var writeOut = function _writeOut(callback) {
 		
