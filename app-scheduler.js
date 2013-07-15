@@ -641,6 +641,11 @@ function scheduler() {
 		if (reserve.isManualReserved) matches.push(reserve);
 	});
 
+	// sort
+	matches.sort(function(a, b) {
+		return a.start - b.start;
+	});
+
 	// duplicates
 	var duplicateCount = 0;
 	for (var i = 0; i < matches.length; i++) {
@@ -705,11 +710,6 @@ function scheduler() {
 			++conflictCount;
 		}
 	}
-
-	// sort
-	matches.sort(function(a, b) {
-		return a.start - b.start;
-	});
 
 	// reserve
 	reserves = [];
