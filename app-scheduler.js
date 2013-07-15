@@ -685,6 +685,11 @@ function scheduler() {
 		if (reserve.isManualReserved) matches.push(reserve);
 	});
 	
+	// sort
+	matches.sort(function(a, b) {
+		return a.start - b.start;
+	});
+	
 	// duplicates
 	var duplicateCount = 0;
 	for (var i = 0; i < matches.length; i++) {
@@ -713,69 +718,44 @@ function scheduler() {
 	
 	// check conflict
 	var conflictCount = 0;
+	var tunerThreads  = [];
+	for (var i = 0; i < config.tuners.length; i++) {
+		tunerThreads.push([]);
+	}
 	for (var i = 0; i < matches.length; i++) {
 		var a = matches[i];
+		a.isConflict = true;
 		
-		var k = 0;
-		
-		while (k < config.tuners.length) {
+		for (var k = 0; k < config.tuners.length; k++) {
 			if (config.tuners[k].types.indexOf(a.channel.type) === -1) {
-				++k;
 				continue;
 			} else {
-				break;
-			}
-		}
-		if (k >= config.tuners.length) {
-			util.log('WARNING: ' + a.channel.type + ' チューナーは存在しません');
-			//continue;
-		}
-		
-		for (var j = 0; j < matches.length; j++) {
-			var b = matches[j];
-			
-			if (b.isConflict) continue;
-			
-			if (a.id === b.id) continue;
-			
-			if (a.end <= b.start) continue;
-			if (a.start >= b.end) continue;
-			
-			if ((a.channel.type === 'BS') || (a.channel.type === 'CS')) {
-				// todo
-				if ((b.channel.type !== 'BS') && (b.channel.type !== 'CS')) {
-					continue;
+				var aIsConflictInTuner = false;
+				for (var l = 0; l < tunerThreads[k].length; l++) {
+					if (!((tunerThreads[k][l].end <= a.start)||(tunerThreads[k][l].start >= a.end))) {
+						aIsConflictInTuner = true;
+						break;
+					}
 				}
-			} else if (a.channel.type !== b.channel.type) {
-				continue;
-			}
-			
-			while (k < config.tuners.length) {
-				if (config.tuners[k].types.indexOf(b.channel.type) === -1) {
-					++k;
+				
+				if (aIsConflictInTuner) {
 					continue;
 				} else {
-					++k;
+					tunerThreads[k].push(a);
+					a.isConflict = false;
 					break;
 				}
 			}
-			if (k < config.tuners.length) {
-				continue;
-			}
-			
+		}
+		
+		if (!a.isConflict) {
+			continue;
+		} else {
 			util.log('CONFLICT: ' + a.id + ' ' + dateFormat(new Date(a.start), 'isoDateTime') + ' [' + a.channel.name + '] ' + a.title);
-			a.isConflict = true;
 			
 			++conflictCount;
-			
-			break;
 		}
 	}
-	
-	// sort
-	matches.sort(function(a, b) {
-		return a.start - b.start;
-	});
 	
 	// reserve
 	reserves = [];
