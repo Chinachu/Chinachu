@@ -393,6 +393,12 @@ function doRecord(program) {
 		fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));
 		util.log('WRITE: ' + RECORDED_DATA_FILE);
 		util.log('WRITE: ' + RECORDING_DATA_FILE);
+		
+		// ポストプロセス
+		if (config.recordedCommand) {
+			var postProcess = child_process.spawn(config.recordedCommand, [recPath, JSON.stringify(program)]);
+			util.log('SPAWN: ' + config.recordedCommand + ' (pid=' + postProcess.pid + ')');
+		}
 	}
 	// 録画プロセス終了時処理
 	recProc.on('exit', finalize);
