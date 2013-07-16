@@ -386,7 +386,11 @@
 		if (app.stat.lastRecordingCount) {
 			if (app.stat.lastRecordingCount < data.length) {
 				app.notify.create({
-					text: '録画開始: ' + data.last().title
+					text   : '録画開始: ' + data.last().title,
+					timeout: 10,
+					onClick: function() {
+						window.location.hash = '!/program/view/id=' + data.last().id + '/';
+					}
 				});
 			}
 		}
@@ -404,7 +408,11 @@
 		if (app.stat.lastRecordedCount) {
 			if (app.stat.lastRecordedCount < data.length) {
 				app.notify.create({
-					text: '録画終了: ' + data.first().title
+					text   : '録画終了: ' + data.first().title,
+					timeout: 10,
+					onClick: function() {
+						window.location.hash = '!/program/view/id=' + data.first().id + '/';
+					}
 				});
 			}
 		}
