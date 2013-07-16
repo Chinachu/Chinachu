@@ -104,10 +104,11 @@ if (config.operTweeter && config.operTweeterAuth && config.operTweeterFormat) {
 }
 
 //
-var schedulerProcessTime    = config.operSchedulerProcessTime    || 1000 * 60 * 30;
-var schedulerIntervalTime   = config.operSchedulerIntervalTime   || 1000 * 60 * 60 * 2;
+var schedulerProcessTime    = config.operSchedulerProcessTime    || 1000 * 60 * 20;//20分
+var schedulerIntervalTime   = config.operSchedulerIntervalTime   || 1000 * 60 * 60 * 1;//1時間
 var schedulerSleepStartHour = config.operSchedulerSleepStartHour || 1;
 var schedulerSleepEndHour   = config.operSchedulerSleepEndHour   || 5;
+var schedulerEpgRecordTime  = config.schedulerEpgRecordTime      || 60;
 var prepTime    = config.operRecPrepTime    || 1000 * 60 * 1;
 var offsetStart = config.operRecOffsetStart || 1000 * 5;
 var offsetEnd   = config.operRecOffsetEnd   || -(1000 * 8);
@@ -118,7 +119,7 @@ var recording = [];
 var scheduler = null;
 var scheduled = 0;
 
-var mainInterval = setInterval(main, 5000); 
+var mainInterval = setInterval(main, 1000); 
 function main() {
 	clock = new Date().getTime();
 	
@@ -127,6 +128,8 @@ function main() {
 	} else {
 		next = 0;
 	}
+	
+	recording.forEach(recordingChecker);
 	
 	if (
 		(scheduler === null) &&
@@ -161,6 +164,22 @@ function reservesChecker(program, i) {
 	if (next === 0) {
 		next = program.start;
 	}
+}
+
+// 録画中チェック
+function recordingChecker(program, i) {
+	
+	var timeout = program.end - clock + offsetEnd;
+	
+	if (timeout >= 0) return;
+	
+	// 録画時間超過
+	util.log(
+		'FINISH: ' + dateFormat(new Date(program.start), 'isoDateTime') +
+		' [' + program.channel.name + '] ' + program.title
+	);
+	
+	process.kill(program.pid, 'SIGTERM');
 }
 
 // 録画中か
@@ -302,16 +321,15 @@ function doRecord(program) {
 	program.recorded = recPath;
 	
 	// 録画コマンド
-	var recCmd = tuner.command.replace('<sid>', program.channel.sid).replace('<channel>', program.channel.channel);
+	var recCmd = tuner.command;
+	recCmd = recCmd.replace('<sid>', program.channel.sid + ',epg');
+	recCmd = recCmd.replace('<channel>', program.channel.channel);
 	program.command = recCmd;
 	
 	// 録画プロセスを生成
 	var recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
 	util.log('SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
 	program.pid = recProc.pid;
-	
-	// タイムアウト
-	setTimeout(function() { recProc.kill('SIGTERM'); }, timeout);
 	
 	// 状態保存
 	fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));
@@ -328,6 +346,23 @@ function doRecord(program) {
 	recProc.stderr.on('data', function(data) {
 		util.log('#' + (recCmd.split(' ')[0] + ': ' + data + '').replace(/\n/g, ' ').trim());
 	});
+	
+	// EPG処理
+	var epgInterval = setInterval(function() {
+		git 
+		var epgProc = child_process.spawn('node', [
+			'app-scheduler.js', '-f', '-ch', program.channel.channel, '-l', recPath
+		]);
+		util.log('SPAWN: node app-scheduler.js -f -ch ' + program.channel.channel + ' -l ' + recPath + ' (pid=' + epgProc.pid + ')');
+		
+		// ログ用
+		var output = fs.createWriteStream('./log/scheduler', { flags: 'a' });
+		util.log('STREAM: ./log/scheduler');
+		
+		epgProc.stdout.on('data', function(data) {
+			output.write(data);
+		});
+	}, 1000 * 120);//120秒
 	
 	// お片付け
 	function finalize() {
@@ -346,6 +381,9 @@ function doRecord(program) {
 		} catch(e) {
 			util.log(e);
 		}
+		
+		// EPG処理を終了
+		clearInterval(epgInterval);
 		
 		// 状態を更新
 		delete program.pid;
