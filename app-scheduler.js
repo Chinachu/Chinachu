@@ -131,7 +131,7 @@ function getEpg() {
 		for (var i = 0; i < chs.length; i++) {
 			var ch = chs[i];
 			
-			if (chinachu.getFreeTunerSync(config.tuners, ch.type) === null) {
+			if (!opts.get('ch') && !opts.get('l') && chinachu.getFreeTunerSync(config.tuners, ch.type) === null) {
 				continue;
 			}
 			
@@ -297,11 +297,9 @@ function getEpg() {
 			
 			var epgdumpProc = child_process.exec(epgdumpCmd, { maxBuffer: 104857600 }, function(err, stdout, stderr) {
 				
-				if (!opts.get('l')) {
-					// 一時録画ファイル削除
-					fs.unlinkSync(recPath);
-					util.log('UNLINK: ' + recPath);
-				}
+				// 一時録画ファイル削除
+				fs.unlinkSync(recPath);
+				util.log('UNLINK: ' + recPath);
 				
 				if (err !== null) {
 					util.log('EPG: 不明なエラー');
@@ -523,9 +521,53 @@ function getEpg() {
 			util.log('EXEC: epgdump (pid=' + epgdumpProc.pid + ')');
 		};//<-- dumpEpg
 		
+		var recPath = config.temporaryDir + 'chinachu-tmp-' + new Date().getTime().toString(36) + '.m2ts';
+		
 		if (opts.get('ch') && opts.get('l')) {
-			var recPath = opts.get('l');
-			dumpEpg();
+			var copied = false;
+			
+			var done = function(err) {
+				if (copied === false) {
+					copied = true;
+					
+					if (err) {
+						util.log('ERROR: 一時ファイルの作成に失敗しました');
+						process.nextTick(retry);
+						
+						return;
+					}
+					
+					dumpEpg();
+				}
+			};
+			
+			var load  = opts.get('l');
+			if (!fs.existsSync(load)) {
+				util.log('WARNING: 指定したファイルが見つかりません');
+				process.nextTick(retry);
+				
+				return;
+			}
+			
+			var fstat = fs.statSync(load);
+			
+			var readStream = fs.createReadStream(load, {
+				start: Math.max(fstat.size - 1000 * 1000 * 120, 0),
+				end  : fstat.size
+			});
+			readStream.on('error', function(err) {
+				done(err);
+			});
+			
+			var writeStream = fs.createWriteStream(recPath);
+			writeStream.on('error', function(err) {
+				done(err);
+			});
+			writeStream.on('close', function() {
+				done();
+			});
+			
+			readStream.pipe(writeStream);
 		} else {
 			// チューナーを選ぶ
 			var tuner = chinachu.getFreeTunerSync(config.tuners, channel.type);
@@ -553,12 +595,9 @@ function getEpg() {
 				}
 			};
 			
-			var recPath = config.temporaryDir + 'chinachu-tmp-' + new Date().getTime().toString(36) + '.m2ts';
-			
 			var recCmd = tuner.command.replace('<channel>', channel.channel);
 			
 			// recpt1用
-			//recCmd = recCmd.replace(' --b25', '').replace(' --strip', '').replace(/ --sid [^ ]+/, '');
 			recCmd = recCmd.replace(' --b25', '').replace('<sid>', 'epg');
 			
 			// 録画プロセスを生成
