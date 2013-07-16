@@ -349,7 +349,7 @@ function doRecord(program) {
 	
 	// EPG処理
 	var epgInterval = setInterval(function() {
-		git 
+		
 		var epgProc = child_process.spawn('node', [
 			'app-scheduler.js', '-f', '-ch', program.channel.channel, '-l', recPath
 		]);
