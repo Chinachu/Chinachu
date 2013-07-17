@@ -1516,3 +1516,16 @@ div.video-control {
 		width: -moz-calc(100% - 370px) !important;
 		width: -ms-calc(100% - 370px) !important;
 		width: calc(100% - 370px) !important; }
+
+div.console {
+	position   : absolute;
+	top        : 0;
+	right      : 0;
+	bottom     : 0;
+	left       : 0;
+	overflow-y : scroll;
+	font-size  : 11px;
+	font-family: "Courier New", Courier, monospace;
+	padding    : 10px;
+	background : #2b2b2b;
+	color      : #ccc; }
