@@ -16,7 +16,7 @@ fi
 shopt -s extglob
 
 # variables
-NODE_VER=0.10.9
+NODE_VER=0.10.13
 
 main () {
   local SELF_PATH DIR SYM
@@ -189,7 +189,7 @@ chinachu_installer_epgdump () {
   local EPGDUMP_GIT="git://github.com/stz2012/epgdump.git"
   
   echo "Installing epgdump from $EPGDUMP_GIT"
-  git clone --depth=50 --branch=master $EPGDUMP_GIT "$USR_DIR/src/epgdump"
+  git clone --depth=1 --branch=master $EPGDUMP_GIT "$USR_DIR/src/epgdump"
   cd "$USR_DIR/src/epgdump"
   
   make || fail "couldn't make epgdump"
@@ -211,7 +211,7 @@ chinachu_installer_libx264 () {
   local LIBX264_GIT="git://git.videolan.org/x264.git"
   
   echo "Installing libx264 from $LIBX264_GIT"
-  git clone --depth=50 --branch=master $LIBX264_GIT "$USR_DIR/src/libx264"
+  git clone --depth=1 --branch=master $LIBX264_GIT "$USR_DIR/src/libx264"
   cd "$USR_DIR/src/libx264"
   
   ./configure \
@@ -366,9 +366,8 @@ chinachu_installer_libav () {
   local LIBAV_GIT="git://git.libav.org/libav.git"
   
   echo "Installing libav from $LIBAV_GIT"
-  git clone --depth=50 --branch=master $LIBAV_GIT "$USR_DIR/src/libav"
+  git clone --depth=1 --branch=master $LIBAV_GIT "$USR_DIR/src/libav"
   cd "$USR_DIR/src/libav"
-  git checkout -qf 89806691b1c39181c63d95e0fddc30f11e2a7b04
   
   ./configure \
     --prefix=$USR_DIR \
@@ -560,6 +559,7 @@ case "\$1" in
     ;;
   restart )
     stop "\$@"
+    sleep 3
     start "\$@"
     ;;
   status )
