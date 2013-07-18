@@ -1,5 +1,5 @@
 {
-  "name": "Chinachu",
+  "name": "chinachu",
   "description": "A open source EPG digital video recorder system for Linux.",
   "version": "0.0.1",
   "private": true,
@@ -30,6 +30,6 @@
     "test": "mocha -R spec"
   },
   "engines": {
-    "node": ">=0.8.18"
+    "node": ">=0.10.13"
   }
 }
