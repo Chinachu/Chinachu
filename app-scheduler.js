@@ -215,16 +215,6 @@ function getEpg() {
 		
 		var channel = channels[i];
 		
-		// ch限定
-		if (opts.get('ch')) {
-			if (opts.get('ch') !== channel.channel) {
-				reuse();
-				process.nextTick(callback);
-				
-				return;
-			}
-		}
-		
 		util.log(JSON.stringify(channel));
 		
 		// チェック
@@ -272,6 +262,16 @@ function getEpg() {
 				
 				return;
 		}//<-- switch
+		
+		// ch限定
+		if (opts.get('ch')) {
+			if (opts.get('ch') !== channel.channel) {
+				reuse();
+				process.nextTick(callback);
+				
+				return;
+			}
+		}
 		
 		// epgdump
 		var dumpEpg = function() {
@@ -552,7 +552,7 @@ function getEpg() {
 			var fstat = fs.statSync(load);
 			
 			var readStream = fs.createReadStream(load, {
-				start: Math.max(fstat.size - 1000 * 1000 * 120, 0),
+				start: Math.max(fstat.size - 1000 * 1000 * 150, 0),
 				end  : fstat.size
 			});
 			readStream.on('error', function(err) {
