@@ -746,6 +746,9 @@ function scheduler() {
 			if (a.end !== b.end) continue;
 			if (a.title !== b.title) continue;
 			
+			// 最終的にsidの若い方を選択させる
+			if (parseInt(a.channel.sid, 10) < parseInt(b.channel.sid, 10)) continue;
+			
 			util.log('DUPLICATE: ' + a.id + ' ' + dateFormat(new Date(a.start), 'isoDateTime') + ' [' + a.channel.name + '] ' + a.title);
 			a.isDuplicate = true;
 			
