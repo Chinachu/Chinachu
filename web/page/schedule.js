@@ -235,8 +235,10 @@
 		contentBodyTimelineHeader.scrollTop = contentBodyTimeline.scrollTop  = y;
 	};
 	
+	param.isChanged = true;
 	var redrawTimelinePieces = function _redrawTimelinePieces() {
-		var isChanged = false;
+		var isChanged = param.isChanged;
+		param.isChanged = false;
 		
 		var left   = contentBodyTimeline.scrollLeft - 200;
 		var top    = contentBodyTimeline.scrollTop - 200;
@@ -416,6 +418,26 @@
 						}
 					};
 					
+					param.stage.enableMouseOver(10);
+					rect.onMouseOver = function(e){
+						var p = piece[program.id];
+						param.isChanged = true;
+						param.tooltip.rect.graphics.clear().beginFill('#ffffff').drawRect(p.posX, p.posY, Math.max(p.title.getMeasuredWidth(), p.width), p.height);
+						param.tooltip.title.text = p.title.text;
+						param.tooltip.title.x = p.title.x;
+						param.tooltip.title.y = p.title.y;
+						param.tooltip.title.lineWidth = p.title.getMeasuredWidth();
+						param.stage.addChild(param.tooltip.rect);
+						param.stage.addChild(param.tooltip.title);
+					};
+					rect.onMouseOut = function(e){
+						var p = piece[program.id];
+						param.isChanged = true;
+						param.tooltip.title.text = '';
+						param.stage.removeChild(param.tooltip.rect);
+						param.stage.removeChild(param.tooltip.title);
+					};
+					
 					if (param.categories.indexOf(program.category) === -1) {
 						rect.alpha  = 0.3;
 						title.alpha = 0.3;
@@ -442,6 +464,16 @@
 					counter();
 				}, 0);
 			});
+			
+			// tooltip 作成
+			var rect  = new createjs.Shape();
+			rect.alpha = 0.8;
+			var title = new createjs.Text(null, '10px', "#333");
+			title.mask = rect;
+			param.tooltip = {
+				rect : rect,
+				title: title
+			};
 			
 			if (channel.programs.length === 0) {
 				header.remove();
