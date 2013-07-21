@@ -766,6 +766,9 @@ function scheduler() {
 	}
 	for (var i = 0; i < matches.length; i++) {
 		var a = matches[i];
+
+		if (a.isDuplicate) continue;
+
 		a.isConflict = true;
 		
 		for (var k = 0; k < config.tuners.length; k++) {
