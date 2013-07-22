@@ -327,6 +327,13 @@ function getEpg() {
 							
 							return;
 						}
+
+						if (result.tv.channel === undefined) {
+							util.log('EPG: データが空 (result.tv.channel is undefined)');
+							process.nextTick(retry);
+
+							return;
+						}
 						
 						if (
 							!result.tv.channel[0]['display-name'] ||
