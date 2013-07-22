@@ -44,6 +44,10 @@ var auth     = require('http-auth');
 var socketio = require('socket.io');
 var chinachu = require('chinachu-common');
 
+// etc.
+var timer = {};
+var emptyFunction = function(){};
+
 // 設定の読み込み
 var config = require(CONFIG_FILE);
 
@@ -656,21 +660,23 @@ function httpServerMain(req, res, query) {
 				
 				setTimeout(function() {
 					sandbox.children.forEach(function(child) {
-						//if (!!req.query.debug) util.log('SIGKILL: pid=' + child.pid);
 						child.kill('SIGKILL');
 					});
+					sandbox = null;
 				}, 3000);
 				
-				setTimeout(function() {
-					sandbox = null;
-					if (typeof global.gc !== 'undefined') process.nextTick(gc);
-				}, 5000);
+				if (typeof gc !== 'undefined') {
+					if (timer.gcByApi) clearTimeout(timer.gcByApi);
+					timer.gcByApi = setTimeout(function() {
+						 process.nextTick(gc);
+					}, 3500);
+				}
 				
 				req.connection.removeListener('close', onEnd);
 				req.connection.removeListener('error', onError);
 				req.removeListener('end', onEnd);
 				
-				cleanup = function _emptyFunction() {};
+				cleanup = emptyFunction;
 			};
 			
 			req.connection.on('close', onEnd);
@@ -753,4 +759,11 @@ function ioServerMain(socket) {
 	socket.emit('schedule', schedule);
 	socket.emit('recording', recording);
 	socket.emit('recorded', recorded);
+}
+
+//
+// gc
+//
+if (typeof gc !== 'undefined') {
+	setInterval(gc, 1000 * 60 * 5);
 }
