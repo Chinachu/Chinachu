@@ -36,6 +36,7 @@ process.on('uncaughtException', function (err) {
 
 // 追加モジュールのロード
 var dateFormat = require('dateformat');
+var mkdirp     = require('mkdirp');
 var OAuth      = require('oauth').OAuth;
 var chinachu   = require('chinachu-common');
 
@@ -325,6 +326,13 @@ function doRecord(program) {
 	var recPath = config.recordedDir + formatRecordedName(program);
 	program.recorded = recPath;
 	
+	// 保存先ディレクトリ
+	var recDirPath = recPath.replace(/^(.+)\/.+$/, '$1');
+	if (!fs.existsSync(recDirPath)) {
+		util.log('MKDIR: ' + recDirPath);
+		mkdirp.sync(recDirPath);
+	}
+	
 	// 録画コマンド
 	var recCmd = tuner.command;
 	recCmd = recCmd.replace('<sid>', program.channel.sid + ',epg');
@@ -429,41 +437,56 @@ function doRecord(program) {
 function formatRecordedName(program) {
 	var name = config.recordedFormat;
 	
-	// <date:?>
-	if (name.match(/<date:[^>]+>/) !== null) {
-		name = name.replace(/<date:[^>]+>/, dateFormat(new Date(program.start), name.match(/<date:([^>]+)>/)[1]));
-	}
-	
-	// <id>
-	name = name.replace('<id>', program.id);
-	
-	// <type>
-	name = name.replace('<type>', program.channel.type);
-	
-	// <channel>
-	name = name.replace('<channel>', (program.channel.type === 'CS') ? program.channel.sid : program.channel.channel);
-	
-	// <tuner>
-	name = name.replace('<tuner>', program.tuner.name);
-	
-	// <title>
-	name = name.replace('<title>', program.title);
-	
-	// <fulltitle>
-	name = name.replace('<fulltitle>', program.fullTitle || '');
-	
-	// <subtitle>
-	name = name.replace('<subtitle>', program.subtitle || '');
-	
-	// <episode>
-	name = name.replace('<episode>', program.episode || 'n');
-	
-	// <category>
-	name = name.replace('<category>', program.category);
-	
-	// strip
-	name = name.replace(/\//g, '／').replace(/\\/g, '＼').replace(/:/g, '：').replace(/\*/g, '＊').replace(/\?/g, '？');
-	name = name.replace(/"/g, '”').replace(/</g, '＜').replace(/>/g, '＞').replace(/\|/g, '｜').replace(/≫/g, '＞＞');
+	name = name.replace(/<([^>]+)>/g, function(z, a) {
+		
+		// date:
+		if (a.match(/^date:.+$/) !== null) return dateFormat(new Date(program.start), a.match(/:(.+)$/)[1]);
+		
+		// id
+		if (a.match(/^id$/) !== null) return program.id;
+		
+		// type
+		if (a.match(/^type$/) !== null) return program.channel.type;
+		
+		// channel
+		if (a.match(/^channel$/) !== null) return program.channel.channel;
+		
+		// channel-id
+		if (a.match(/^channel-id$/) !== null) return program.channel.id;
+		
+		// channel-sid
+		if (a.match(/^channel-sid$/) !== null) return program.channel.sid;
+		
+		// channel-name
+		if (a.match(/^channel-name$/) !== null) return stripFilename(program.channel.name);
+		
+		// tuner
+		if (a.match(/^tuner$/) !== null) return program.tuner.name;
+		
+		// title
+		if (a.match(/^title$/) !== null) return stripFilename(program.title);
+		
+		// fulltitle
+		if (a.match(/^fulltitle$/) !== null) return stripFilename(program.fullTitle || '');
+		
+		// subtitle
+		if (a.match(/^subtitle$/) !== null) return stripFilename(program.subTitle || '');
+		
+		// episode
+		if (a.match(/^episode$/) !== null) return program.episode || 'n';
+		
+		// category
+		if (a.match(/^category$/) !== null) return program.category;
+	});
 	
 	return name;
+}
+
+// strip
+function stripFilename(a) {
+	
+	a = a.replace(/\//g, '／').replace(/\\/g, '＼').replace(/:/g, '：').replace(/\*/g, '＊').replace(/\?/g, '？');
+	a = a.replace(/"/g, '”').replace(/</g, '＜').replace(/>/g, '＞').replace(/\|/g, '｜').replace(/≫/g, '＞＞');
+	
+	return a;
 }
