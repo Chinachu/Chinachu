@@ -29,6 +29,11 @@ process.on('SIGQUIT', function() {
 	}, 0);
 });
 
+// 例外処理
+process.on('uncaughtException', function (err) {
+	util.error('uncaughtException: ' + err);
+});
+
 // 追加モジュールのロード
 var dateFormat = require('dateformat');
 var OAuth      = require('oauth').OAuth;
