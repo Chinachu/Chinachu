@@ -167,6 +167,7 @@ chinachu_installer_node_modules () {
   chinachu_installer_node_modules_install opts
   chinachu_installer_node_modules_install socket.io
   chinachu_installer_node_modules_install xml2js
+  chinachu_installer_node_modules_install mkdirp
   
   echo "done."
   
