@@ -490,3 +490,10 @@ function stripFilename(a) {
 	
 	return a;
 }
+
+//
+// gc
+//
+if (typeof gc !== 'undefined') {
+	setInterval(gc, 1000 * 60 * 15);
+}
