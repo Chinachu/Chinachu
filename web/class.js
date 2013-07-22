@@ -559,7 +559,7 @@
 							label   : '予約',
 							color   : '@red',
 							onSelect: function(e, modal) {
-								e.target.disable();
+								e.targetButton.disable();
 								
 								new Ajax.Request('./api/program/' + this.program.id + '.json', {
 									method    : 'put',
@@ -621,7 +621,7 @@
 							label   : '予約取消',
 							color   : '@red',
 							onSelect: function(e, modal) {
-								e.target.disable();
+								e.targetButton.disable();
 								
 								new Ajax.Request('./api/reserves/' + this.program.id + '.json', {
 									method    : 'delete',
@@ -683,7 +683,7 @@
 							label   : '録画中止',
 							color   : '@red',
 							onSelect: function(e, modal) {
-								e.target.disable();
+								e.targetButton.disable();
 								
 								new Ajax.Request('./api/recording/' + this.program.id + '.json', {
 									method    : 'delete',
@@ -746,7 +746,7 @@
 							label  : '削除',
 							color  : '@red',
 							onSelect: function(e, modal) {
-								e.target.disable();
+								e.targetButton.disable();
 								
 								new Ajax.Request('./api/recorded/' + this.program.id + '.json', {
 									method    : 'delete',
@@ -808,7 +808,7 @@
 							label  : '削除',
 							color  : '@red',
 							onSelect: function(e, modal) {
-								e.target.disable();
+								e.targetButton.disable();
 								
 								new Ajax.Request('./api/recorded/' + this.program.id + '/file.json', {
 									method    : 'delete',
@@ -866,7 +866,7 @@
 						label  : 'クリーンアップ',
 						color  : '@red',
 						onSelect: function(e, modal) {
-							e.target.disable();
+							e.targetButton.disable();
 							
 							new Ajax.Request('./api/recorded.json', {
 								method    : 'put',
@@ -1049,7 +1049,7 @@
 									label  : '変更',
 									color  : '@pink',
 									onSelect: function(e, modal) {
-										e.target.disable();
+										e.targetButton.disable();
 										
 										this.param = viewRuleForm.result();
 										
@@ -1315,7 +1315,7 @@
 							label  : '作成',
 							color  : '@pink',
 							onSelect: function(e, modal) {
-								e.target.disable();
+								e.targetButton.disable();
 								
 								this.param = viewRuleForm.result();
 								
@@ -1564,7 +1564,7 @@
 							label  : '作成',
 							color  : '@pink',
 							onSelect: function(e, modal) {
-								e.target.disable();
+								e.targetButton.disable();
 								this.param = viewRuleForm.result();
 								
 								for (var i in this.param) {
