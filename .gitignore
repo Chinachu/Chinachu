@@ -29,3 +29,4 @@
 /node_modules/should
 /node_modules/sinon
 /node_modules/spdy
+/node_modules/mkdirp
