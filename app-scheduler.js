@@ -605,7 +605,7 @@ function getEpg() {
 			var recCmd = tuner.command.replace('<channel>', channel.channel);
 			
 			// recpt1用
-			recCmd = recCmd.replace(' --b25', '').replace('<sid>', 'epg');
+			recCmd = recCmd.replace(' --b25', '').replace(' --strip', '').replace('<sid>', 'epg');
 			
 			// 録画プロセスを生成
 			var recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
