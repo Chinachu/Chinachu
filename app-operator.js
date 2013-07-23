@@ -231,9 +231,9 @@ function startScheduler() {
 	});
 	
 	function finalize() {
-		process.removeListener('SIGINT', finalize);
-		process.removeListener('SIGQUIT', finalize);
-		process.removeListener('SIGTERM', finalize);
+		process.removeListener('SIGINT', stopScheduler);
+		process.removeListener('SIGQUIT', stopScheduler);
+		process.removeListener('SIGTERM', stopScheduler);
 		
 		try { output.end(); } catch (e) {}
 		
