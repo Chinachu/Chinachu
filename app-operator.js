@@ -249,6 +249,10 @@ function startScheduler() {
 
 // スケジューラーを停止
 function stopScheduler() {
+	process.removeListener('SIGINT',  stopScheduler);
+	process.removeListener('SIGQUIT', stopScheduler);
+	process.removeListener('SIGTERM', stopScheduler);
+	
 	if (scheduler === null) { return; }
 	
 	scheduler.kill('SIGQUIT');
