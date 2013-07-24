@@ -56,6 +56,13 @@ chinachu.jsonWatcher(
 		
 		reserves = data;
 		util.log(mes);
+		
+		if (recording && recording.length > 0) {
+			reserves.forEach(recordingUpdater);
+			
+			fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));
+			util.log('WRITE: ' + RECORDING_DATA_FILE);
+		}
 	}
 	,
 	{ create: [], now: true }
@@ -186,6 +193,19 @@ function recordingChecker(program, i) {
 	);
 	
 	process.kill(program.pid, 'SIGTERM');
+}
+
+// 録画中の番組を更新
+function recordingUpdater(program, i) {
+	
+	for (var i = 0, l = recording.length; i < l; i++) {
+		if (recording[i].id === program.id) {
+			for (var k in program) {
+				recording[i][k] = program[k];
+			}
+			return;
+		}
+	}
 }
 
 // 録画中か
