@@ -359,6 +359,7 @@ function doRecord(program) {
 	
 	// 録画コマンド
 	var recCmd = tuner.command;
+	recCmd = recCmd.replace(' --strip', '');// EPGのSIDが消えてしまうバグへの対策(要調査)
 	recCmd = recCmd.replace('<sid>', program.channel.sid + ',epg');
 	recCmd = recCmd.replace('<channel>', program.channel.channel);
 	program.command = recCmd;
@@ -402,7 +403,7 @@ function doRecord(program) {
 	}, 1000 * 120);//120秒
 	
 	// お片付け
-	function finalize() {
+	var finalize = function() {
 		process.removeListener('SIGINT', finalize);
 		process.removeListener('SIGQUIT', finalize);
 		process.removeListener('SIGTERM', finalize);
@@ -430,13 +431,25 @@ function doRecord(program) {
 		fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));
 		util.log('WRITE: ' + RECORDED_DATA_FILE);
 		util.log('WRITE: ' + RECORDING_DATA_FILE);
+		if (program.isManualReserved) {
+			for (var i = 0, l = reserves.length; i < l; i++) {
+				if (reserves[i].id === program.id) {
+					reserves.splice(i, 1);
+					fs.writeFileSync(RESERVES_DATA_FILE, JSON.stringify(reserves));
+					util.log('WRITE: ' + RESERVES_DATA_FILE);
+					break;
+				}
+			}
+		}
 		
 		// ポストプロセス
 		if (config.recordedCommand) {
 			var postProcess = child_process.spawn(config.recordedCommand, [recPath, JSON.stringify(program)]);
 			util.log('SPAWN: ' + config.recordedCommand + ' (pid=' + postProcess.pid + ')');
 		}
-	}
+		
+		finalize = null;
+	};
 	// 録画プロセス終了時処理
 	recProc.on('exit', finalize);
 	
