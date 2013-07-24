@@ -65,7 +65,7 @@ opts.parse([
 // 設定の読み込み
 var config   = require(CONFIG_FILE);
 var rules    = JSON.parse( fs.readFileSync(RULES_FILE,         { encoding: 'utf8' }) || '[]' );
-var reserves = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE, { encoding: 'utf8' }) || '[]' );
+var reserves = null;//まだ読み込まない
 
 // チャンネルリスト
 var channels = JSON.parse(JSON.stringify(config.channels));
@@ -701,6 +701,8 @@ function getEpg() {
 // scheduler
 function scheduler() {
 	util.log('RUNNING SCHEDULER.');
+	
+	reserves = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE, { encoding: 'utf8' }) || '[]' );//読み込む
 	
 	var typeNum = {};
 	
