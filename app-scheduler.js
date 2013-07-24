@@ -559,7 +559,7 @@ function getEpg() {
 			var fstat = fs.statSync(load);
 			
 			var readStream = fs.createReadStream(load, {
-				start: Math.max(fstat.size - 1000 * 1000 * 150, 0),
+				start: Math.max(fstat.size - 1000 * 1000 * 100, 0),
 				end  : fstat.size
 			});
 			readStream.on('error', function(err) {
