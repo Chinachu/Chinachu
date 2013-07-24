@@ -190,7 +190,7 @@ function recordingChecker(program, i) {
 
 // 録画中か
 function isRecording(program) {
-	for (var i = 0; i < recording.length; i++) {
+	for (var i = 0, l = recording.length; i < l; i++) {
 		if (recording[i].id === program.id) {
 			return true;
 		}
@@ -201,7 +201,7 @@ function isRecording(program) {
 
 // 録画したか
 function isRecorded(program) {
-	for (var i = 0; i < recorded.length; i++) {
+	for (var i = 0, l = recorded.length; i < l; i++) {
 		if (recorded[i].id === program.id) {
 			return true;
 		}
