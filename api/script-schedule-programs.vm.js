@@ -9,7 +9,7 @@
 			});
 			
 			response.head(200);
-			response.exit(JSON.stringify(programs, null, '  '));
+			response.end(JSON.stringify(programs, null, '  '));
 			return;
 	}
 

@@ -3,7 +3,7 @@
 	switch (request.method) {
 		case 'GET':
 			response.head(200);
-			response.exit(JSON.stringify(data.rules, null, '  '));
+			response.end(JSON.stringify(data.rules, null, '  '));
 			return;
 		
 		case 'POST':
@@ -22,7 +22,7 @@
 				if (err) return response.error(500);
 				
 				response.head(200);
-				response.exit('{}');
+				response.end('{}');
 			});
 			return;
 	}

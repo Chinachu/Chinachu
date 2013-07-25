@@ -21,7 +21,7 @@
 				if (err) return response.error(500);
 				
 				response.head(200);
-				response.exit('{}');
+				response.end('{}');
 			});
 			return;
 	}

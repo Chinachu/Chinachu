@@ -3,7 +3,7 @@
 	switch (request.method) {
 		case 'GET':
 			response.head(200);
-			response.exit(JSON.stringify(data.recorded, null, '  '));
+			response.end(JSON.stringify(data.recorded, null, '  '));
 			return;
 		
 		case 'PUT':
@@ -22,7 +22,7 @@
 			fs.writeFileSync(define.RECORDED_DATA_FILE, JSON.stringify(data.recorded));
 			
 			response.head(200);
-			response.exit(JSON.stringify(data.recorded, null, '  '));
+			response.end(JSON.stringify(data.recorded, null, '  '));
 			return;
 	}
 

@@ -7,7 +7,7 @@
 	switch (request.method) {
 		case 'GET':
 			response.head(200);
-			response.exit(JSON.stringify(program, null, '  '));
+			response.end(JSON.stringify(program, null, '  '));
 			return;
 		
 		case 'PUT':
@@ -19,7 +19,7 @@
 				if (err) return response.error(500);
 				
 				response.head(200);
-				response.exit('{}');
+				response.end('{}');
 			});
 			return;
 	}

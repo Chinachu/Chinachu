@@ -13,7 +13,7 @@
 	switch (request.method) {
 		case 'GET':
 			response.head(200);
-			response.exit(JSON.stringify(channel, null, '  '));
+			response.end(JSON.stringify(channel, null, '  '));
 			return;
 	}
 

@@ -25,7 +25,7 @@
 			
 			if (!fs.existsSync(define.SCHEDULER_LOG_FILE)) {
 				response.head(204);
-				response.exit(JSON.stringify(result));
+				response.end(JSON.stringify(result));
 				return;
 			}
 			
@@ -68,18 +68,18 @@
 			result.reserves.reverse();
 			
 			response.head(200);
-			response.exit(JSON.stringify(result, null, '  '));
+			response.end(JSON.stringify(result, null, '  '));
 			
 		} else {
 			
 			if (!fs.existsSync(define.SCHEDULER_LOG_FILE)) {
 				response.head(204);
-				response.exit('');
+				response.end('');
 				return;
 			}
 			
 			response.head(200);
-			response.exit(fs.readFileSync(define.SCHEDULER_LOG_FILE, 'ascii'));
+			response.end(fs.readFileSync(define.SCHEDULER_LOG_FILE, 'ascii'));
 			
 		}
 	}
