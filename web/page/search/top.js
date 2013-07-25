@@ -303,7 +303,7 @@ P = Class.create(P, {
 					label   : '検索',
 					color   : '@pink',
 					onSelect: function(e, modal) {
-						e.target.disable();
+						e.targetButton.disable();
 						
 						var result = viewSearchForm.result();
 						
