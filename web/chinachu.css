@@ -1503,6 +1503,7 @@ div.video-container {
 		height: 100%; }
 
 div.video-control {
+	z-index         : 11;
 	position        : absolute;
 	right           : 0;
 	bottom          : 0;
