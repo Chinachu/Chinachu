@@ -5,7 +5,7 @@
 			child_process.exec('./chinachu update --force');
 			
 			response.head(202);
-			response.exit('{}');
+			response.end('{}');
 			
 			return;
 	}

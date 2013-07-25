@@ -9,7 +9,7 @@
 	switch (request.method) {
 		case 'GET':
 			response.head(200);
-			response.exit(JSON.stringify(program, null, '  '));
+			response.end(JSON.stringify(program, null, '  '));
 			return;
 		
 		case 'DELETE':
@@ -28,7 +28,7 @@
 			fs.writeFileSync(define.RECORDED_DATA_FILE, JSON.stringify(data.recorded));
 			
 			response.head(200);
-			response.exit('{}');
+			response.end('{}');
 			return;
 	}
 

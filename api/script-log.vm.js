@@ -8,7 +8,7 @@
 	
 	if (!fs.existsSync(filename)) {
 		response.head(204);
-		response.exit('');
+		response.end('');
 		return;
 	}
 	
@@ -20,7 +20,7 @@
 			return response.error(500);
 		}
 		
-		response.exit(data);
+		response.end(data);
 	});
 
 })();
