@@ -16,7 +16,7 @@
 	
 	response.write(new Array(1024).join(' '));
 	
-	var tailf = child_process.spawn('tail', ['-f', '-n', '30', filename]);
+	var tailf = child_process.spawn('tail', ['-f', '-n', '100', filename]);
 	children.push(tailf);// 安全対策
 	
 	tailf.stdout.pipe(response);
