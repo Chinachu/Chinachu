@@ -71,7 +71,20 @@ var reserves = null;//まだ読み込まない
 var channels = JSON.parse(JSON.stringify(config.channels));
 
 // スケジュール
-var schedule = (fs.existsSync(SCHEDULE_DATA_FILE)) ? require(SCHEDULE_DATA_FILE) : [];
+var schedule = [];
+if (fs.existsSync(SCHEDULE_DATA_FILE)) {
+	try {
+		schedule = JSON.parse(fs.readFileSync(SCHEDULE_DATA_FILE, { encoding: 'utf8' }));
+		
+		if (schedule instanceof Array === false) {
+			util.log('WARNING: `' + SCHEDULE_DATA_FILE + '`の内容が不正です');
+			schedule = [];
+		}
+	} catch (e) {
+		util.log('WARNING: `' + SCHEDULE_DATA_FILE + '`のロードに失敗しました');
+		schedule = [];
+	}
+}
 
 // EPGデータを取得または番組表を読み込む
 if (opts.get('f') || schedule.length === 0) {
