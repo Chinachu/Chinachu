@@ -57,7 +57,7 @@ main () {
   local cmd="$1"
   shift
   case $cmd in
-    installer | service | update | search | \
+    installer | updater | service | update | search | \
     reserve | unreserve | \
     rule | enrule | disrule | rmrule | \
     rules | reserves | recording | recorded | \
@@ -83,22 +83,28 @@ chinachu_installer () {
   local PS3 item cmd
   PS3="what do you install? > "
   select item in \
-    "Auto" "epgdump" "Node.js Environment" "Node.js Modules" \
+    "Auto (full)" "Auto (fast)" "epgdump" "Node.js Environment" "Node.js Modules" \
     "libx264" "libvpx" "libfdk-aac" "libogg" "libvorbis" "libav"
   do
     echo "selected: ${item}"
     case $item in
-      "Auto" )
-        cmd="chinachu_installer_auto"
+      "Auto (full)" )
+        cmd="chinachu_installer_auto_full"
         ;;
-      "epgdump" )
-        cmd="chinachu_installer_epgdump"
+      "Auto (fast)" )
+        cmd="chinachu_installer_auto_fast"
+        ;;
+      "submodule" )
+        cmd="chinachu_installer_submodule"
         ;;
       "Node.js Environment" )
         cmd="chinachu_installer_node"
         ;;
       "Node.js Modules" )
         cmd="chinachu_installer_node_modules"
+        ;;
+      "epgdump" )
+        cmd="chinachu_installer_epgdump"
         ;;
       "libx264" )
         cmd="chinachu_installer_libx264"
@@ -128,10 +134,11 @@ chinachu_installer () {
   return 0
 }
 
-chinachu_installer_auto () {
-  chinachu_installer_epgdump
+chinachu_installer_auto_full () {
+  chinachu_installer_submodule
   chinachu_installer_node
   chinachu_installer_node_modules
+  chinachu_installer_epgdump
   chinachu_installer_libx264
   chinachu_installer_libvpx
   chinachu_installer_libfdk-aac
@@ -142,11 +149,25 @@ chinachu_installer_auto () {
   return 0
 }
 
+chinachu_installer_auto_fast () {
+  chinachu_installer_submodule
+  chinachu_installer_node
+  chinachu_installer_node_modules
+
+  return 0
+}
+
+chinachu_installer_submodule () {
+  git submodule update
+
+  return 0
+}
+
 chinachu_installer_node () {
   remove_dir "$NAVE_DIR"
   
   echo "Installing Node using Nave..."
-  git clone git://github.com/isaacs/nave.git $NAVE_DIR
+  git clone --depth=1 --branch=master git://github.com/isaacs/nave.git $NAVE_DIR
   ${NAVE_DIR}/nave.sh install $NODE_VER
   rm -fv ${NAVE_DIR}/node
   ln -sv $NODE_PATH ${NAVE_DIR}/node
@@ -160,26 +181,10 @@ chinachu_installer_node () {
 chinachu_installer_node_modules () {
   echo "Installing Node Modules using NPM..."
   
-  chinachu_installer_node_modules_install dateformat
-  chinachu_installer_node_modules_install easy-table
-  chinachu_installer_node_modules_install http-auth
-  chinachu_installer_node_modules_install oauth
-  chinachu_installer_node_modules_install opts
-  chinachu_installer_node_modules_install socket.io
-  chinachu_installer_node_modules_install xml2js
-  chinachu_installer_node_modules_install mkdirp
-  
-  echo "done."
-  
-  return 0
-}
+  npm install
+  npm update
 
-chinachu_installer_node_modules_install () {
-  remove_dir "$CHINACHU_DIR/node_modules/$1"
-  
-  npm install "$1"
-  
-  echo "node_modules:$1 --> done."
+  echo "done."
   
   return 0
 }
@@ -243,7 +248,7 @@ chinachu_installer_libvpx () {
   local LIBVPX_GIT="http://git.chromium.org/webm/libvpx.git"
   
   echo "Installing libvpx from $LIBVPX_GIT"
-  git clone $LIBVPX_GIT "$USR_DIR/src/libvpx"
+  git clone --depth=1 --branch=master $LIBVPX_GIT "$USR_DIR/src/libvpx"
   cd "$USR_DIR/src/libvpx"
   
   ./configure \
@@ -273,7 +278,7 @@ chinachu_installer_libfdk-aac () {
   local LIBFDK_GIT="git://git.code.sf.net/p/opencore-amr/fdk-aac"
   
   echo "Installing libfdk-aac from $LIBFDK_GIT"
-  git clone $LIBFDK_GIT "$USR_DIR/src/libfdk-aac"
+  git clone --depth=1 --branch=master $LIBFDK_GIT "$USR_DIR/src/libfdk-aac"
   cd "$USR_DIR/src/libfdk-aac"
   
   autoreconf -fiv
@@ -449,6 +454,93 @@ chinachu_installer_libav () {
   echo "libav --> done."
   
   return 0
+}
+
+chinachu_updater () {
+  if [ -e "/etc/init.d/chinachu-operator" ]; then
+    /etc/init.d/chinachu-operator status
+  fi
+  
+  if [ -e "/etc/init.d/chinachu-wui" ]; then
+    /etc/init.d/chinachu-wui status
+  fi
+  
+  git fetch
+  git status
+  
+  while [ 1 ]; do
+    echo -n "Do you want to update [Y/n]? "
+    read line
+    case $line in
+      [yY])
+        chinachu_updater_main && return 0
+        ;;
+      [nN])
+        echo "Abort." && return 0
+        ;;
+    esac
+  done
+}
+
+chinachu_updater_main () {
+  if [ -e "/etc/init.d/chinachu-operator" ] && [ -e "/etc/init.d/chinachu-wui" ]; then
+    while [ 1 ]; do
+      echo -n "Do you want to stop chinachu services [Y/n]? "
+      read line
+      case $line in
+        [yY])
+          if type sudo > /dev/null 2>&1; then
+            sudo /etc/init.d/chinachu-operator stop
+            sudo /etc/init.d/chinachu-wui stop
+            break
+          fi
+          su -c "/etc/init.d/chinachu-operator stop; /etc/init.d/chinachu-wui stop"
+          break
+          ;;
+        [nN])
+          break
+          ;;
+      esac
+    done
+  fi
+
+  git pull || fail "failed: git pull"
+  git gc
+  
+  while [ 1 ]; do
+    echo -n "Do you want to run chinachu installer (fast) [Y/n]? "
+    read line
+    case $line in
+      [yY])
+        echo 2 | ./chinachu installer
+        break
+        ;;
+      [nN])
+        break
+        ;;
+    esac
+  done
+
+  if [ -e "/etc/init.d/chinachu-operator" ] && [ -e "/etc/init.d/chinachu-wui" ]; then
+    while [ 1 ]; do
+      echo -n "Do you want to start chinachu services [Y/n]? "
+      read line
+      case $line in
+        [yY])
+          if type sudo > /dev/null 2>&1; then
+            sudo /etc/init.d/chinachu-operator start
+            sudo /etc/init.d/chinachu-wui start
+            break
+          fi
+          sudo -c "/etc/init.d/chinachu-operator start; /etc/init.d/chinachu-wui start"
+          break
+          ;;
+        [nN])
+          break
+          ;;
+      esac
+    done
+  fi
 }
 
 chinachu_service () {
@@ -761,6 +853,7 @@ Usage: ./chinachu <cmd> ...
 Commands:
 
 installer               Run a Installer.
+updater                 Run a Updater.
 service <name> <action> Service-utility.
 
 update                  Run a Scheduler.
