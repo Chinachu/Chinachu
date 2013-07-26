@@ -21,7 +21,8 @@
 				return response.error(400);
 			}
 			
-			var json = JSON.stringify(obj, null, '  ');
+			//var json = JSON.stringify(obj, null, '  ');
+			var json = request.query.json;
 			
 			fs.writeFileSync(define.CONFIG_FILE, json);
 			

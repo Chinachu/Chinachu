@@ -122,7 +122,7 @@
 			"defaultPage": "config",
 			"pageIndex"  : ["config"],
 			"page"       : {
-				"list": {
+				"config": {
 					"label": "Config",
 					"title": "Config",
 					"icon" : "./icons/controller-d-pad.png"

@@ -19,6 +19,7 @@
   "CLOSE"    : "閉じる",
   "YESTERDAY": "昨日",
   "TOMORROW" : "明日",
+  "SAVE"     : "保存",
   
   "DASHBOARD"    : "ダッシュボード",
   "TOP"          : "トップ",
@@ -41,6 +42,7 @@
   "PREF"         : "設定",
   "REFRESH"      : "更新",
   "LIST"         : "リスト",
+  "CONFIG"       : "設定",
   
   "ADD"          : "追加",
   "COPY"         : "コピー",

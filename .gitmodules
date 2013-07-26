@@ -1,0 +1,3 @@
+[submodule "web/lib/ace"]
+	path = web/lib/ace
+	url = git://github.com/ajaxorg/ace-builds.git
