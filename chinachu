@@ -83,8 +83,8 @@ chinachu_installer () {
   local PS3 item cmd
   PS3="what do you install? > "
   select item in \
-    "Auto (full)" "Auto (fast)" "epgdump" "Node.js Environment" "Node.js Modules" \
-    "libx264" "libvpx" "libfdk-aac" "libogg" "libvorbis" "libav"
+    "Auto (full)" "Auto (fast)" "submodule" "Node.js Environment" "Node.js Modules" \
+    "epgdump" "libx264" "libvpx" "libfdk-aac" "libogg" "libvorbis" "libav"
   do
     echo "selected: ${item}"
     case $item in
