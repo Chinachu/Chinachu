@@ -64,7 +64,7 @@ opts.parse([
 
 // 設定の読み込み
 var config   = require(CONFIG_FILE);
-var rules    = JSON.parse( fs.readFileSync(RULES_FILE,         { encoding: 'utf8' }) || '[]' );
+var rules    = JSON.parse( fs.readFileSync(RULES_FILE, { encoding: 'utf8' }) || '[]' );
 var reserves = null;//まだ読み込まない
 
 // チャンネルリスト
