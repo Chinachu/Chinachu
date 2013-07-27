@@ -58,7 +58,7 @@ main () {
   shift
   case $cmd in
     installer | updater | service | update | search | \
-    reserve | unreserve | \
+    reserve | unreserve | stop | \
     rule | enrule | disrule | rmrule | \
     rules | reserves | recording | recorded | \
     cleanup | unlock | ircbot | test )
@@ -755,6 +755,14 @@ chinachu_unreserve () {
   node app-cli.js -mode unreserve -id "$1" || fail "couldn't unreserve $1"
 }
 
+chinachu_stop () {
+  if [ ! "$1" ]; then
+    fail "Usage: stop <pgid>"
+  fi
+  
+  node app-cli.js -mode stop -id "$1" || fail "couldn't stop $1"
+}
+
 chinachu_rule () {
   node app-cli.js -mode rule "$@" && return 0
 }
@@ -862,6 +870,7 @@ search [options]        Search for programs.
 
 reserve <pgid>          Reserve the program manually.
 unreserve <pgid>        Unreserve the program manually.
+stop <pgid>             Stop the recording.
 
 rule [options]          Add or config a rule for auto reservation.
 enrule <rule#>          Enable a rule. (alias of rule -n <rule#> --enable)
