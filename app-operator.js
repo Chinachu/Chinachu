@@ -374,7 +374,7 @@ function doRecord(program) {
 	util.log('WRITE: ' + RECORDING_DATA_FILE);
 	
 	// 書き込みストリームを作成
-	var recFile = fs.createWriteStream(recPath);
+	var recFile = fs.createWriteStream(recPath, { flags: 'a' });
 	util.log('STREAM: ' + recPath);
 	
 	// ts出力
