@@ -297,6 +297,10 @@ switch (opts.get('mode')) {
 	case 'unreserve':
 		chinachuUnreserve();
 		break;
+	// 録画中止
+	case 'stop':
+		chinachuStop();
+		break;
 	// Rule
 	case 'rule':
 		chinachuRule();
@@ -447,6 +451,30 @@ function chinachuUnreserve() {
 		fs.writeFileSync(RESERVES_DATA_FILE, JSON.stringify(reserves));
 		
 		util.puts('予約を解除しました。 ');
+	}
+	
+	process.exit(0);
+}
+
+// 録画中止
+function chinachuStop() {
+	var target = chinachu.getProgramById(opts.get('id'), recording);
+	
+	if (target === null) {
+		util.error('見つかりません');
+		process.exit(1);
+	}
+	
+	if (opts.get('simulation')) {
+		util.puts('[simulation] stop:');
+		util.puts(JSON.stringify(target, null, '  '));
+	} else {
+		util.puts('stop:');
+		util.puts(JSON.stringify(target, null, '  '));
+		
+		process.kill(target.pid, 'SIGTERM');
+		
+		util.puts('録画を停止しました。 ');
 	}
 	
 	process.exit(0);
