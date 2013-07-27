@@ -404,6 +404,9 @@ function chinachuReserve() {
 	target.isManualReserved = true;
 	
 	reserves.push(target);
+	reserves.sort(function(a, b) {
+		return a.start - b.start;
+	});
 	
 	if (opts.get('simulation')) {
 		util.puts('[simulation] reserve:');
