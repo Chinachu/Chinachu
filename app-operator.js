@@ -157,6 +157,9 @@ function main() {
 
 // 予約時間チェック
 function reservesChecker(program, i) {
+	// スキップ
+	if (program.isSkip) return;
+	
 	// 予約時間超過
 	if (clock > program.end) {
 		next = 0;
