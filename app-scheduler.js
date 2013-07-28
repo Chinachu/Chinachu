@@ -743,7 +743,19 @@ function scheduler() {
 	});
 	
 	reserves.forEach(function(reserve) {
-		if (reserve.isManualReserved) matches.push(reserve);
+		if (reserve.isManualReserved) {
+			matches.push(reserve);
+			return;
+		}
+		if (reserve.isSkip) {
+			for (var i = 0, l = matches.length; i < l; i++) {
+				if (matches[i].id === reserve.id) {
+					matches[i].isSkip = true;
+					break;
+				}
+			}
+			return;
+		}
 	});
 	
 	// sort
@@ -759,7 +771,7 @@ function scheduler() {
 		for (var j = 0; j < matches.length; j++) {
 			var b = matches[j];
 			
-			if (b.isDuplicate) continue;
+			if (b.isDuplicate || b.isSkip) continue;
 			
 			if (a.id === b.id) continue;
 			if (a.channel.type !== b.channel.type) continue;
@@ -789,7 +801,7 @@ function scheduler() {
 	for (var i = 0; i < matches.length; i++) {
 		var a = matches[i];
 
-		if (a.isDuplicate) continue;
+		if (a.isDuplicate || a.isSkip) continue;
 
 		a.isConflict = true;
 		

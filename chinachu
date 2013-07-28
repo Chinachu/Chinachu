@@ -58,7 +58,7 @@ main () {
   shift
   case $cmd in
     installer | updater | service | update | search | \
-    reserve | unreserve | stop | \
+    reserve | unreserve | skip | unskip | stop | \
     rule | enrule | disrule | rmrule | \
     rules | reserves | recording | recorded | \
     cleanup | unlock | ircbot | test )
@@ -755,6 +755,22 @@ chinachu_unreserve () {
   node app-cli.js -mode unreserve -id "$1" || fail "couldn't unreserve $1"
 }
 
+chinachu_skip () {
+  if [ ! "$1" ]; then
+    fail "Usage: skip <pgid>"
+  fi
+
+  node app-cli.js -mode skip -id "$1" || fail "couldn't skip $1"
+}
+
+chinachu_unskip () {
+  if [ ! "$1" ]; then
+    fail "Usage: unskip <pgid>"
+  fi
+
+  node app-cli.js -mode unskip -id "$1" || fail "couldn't skip $1"
+}
+
 chinachu_stop () {
   if [ ! "$1" ]; then
     fail "Usage: stop <pgid>"
@@ -870,6 +886,8 @@ search [options]        Search for programs.
 
 reserve <pgid>          Reserve the program manually.
 unreserve <pgid>        Unreserve the program manually.
+skip <pgid>             Skip the auto-reserved program.
+unskip <pgid>           Cancel the skip.
 stop <pgid>             Stop the recording.
 
 rule [options]          Add or config a rule for auto reservation.
