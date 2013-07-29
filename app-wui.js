@@ -286,7 +286,7 @@ function httpServerMain(req, res, query) {
 	}
 	
 	// エラーレスポンス用
-	function resErr(code) {
+	var resErr = function(code) {
 		
 		res.writeHead(code, {'content-type': 'text/plain'});
 		if (req.method !== 'HEAD') {
@@ -367,9 +367,9 @@ function httpServerMain(req, res, query) {
 		}
 		res.end();
 		log(code);
-	}
+	};
 	
-	function writeHead(code) {
+	var writeHead = function(code) {
 		var type = 'text/plain';
 		
 		if (ext === 'html') { type = 'text/html'; }
@@ -402,58 +402,12 @@ function httpServerMain(req, res, query) {
 		};
 		
 		res.writeHead(code, head);
-	}
+	};
 	
 	// ヘッダの確認
 	if (!req.headers['host']) return resErr(400);
 	
-	// 静的ファイルまたはAPIレスポンスの分岐
-	if (req.url.match(/^\/api\/.*$/) === null) {
-		if (fs.existsSync(filename) === false) return resErr(404);
-		
-		if (req.url.match(/^\/apple-.+\.png$/) !== null) {
-			responseStatic();
-		} else if (!basic) {
-			responseStatic();
-		} else {
-			basic.apply(req, res, responseStatic);
-		}
-	} else {
-		if (basic) {
-			if (!!query._auth) {
-				// Base64文字列を取り出す
-				var auths = query._auth.split(':');
-				
-				// バリデーション
-				if (auths[0] !== 'basic' || auths.length !== 2) {
-					return resErr(400);
-				}
-				
-				var auth = decodeURIComponent(auths[1]);
-				
-				// Base64デコード
-				try {
-					auth = new Buffer(auth, 'base64').toString('ascii');
-				} catch (e) {
-					return resErr(401);
-				}
-				
-				// 認証
-				if (config.wuiUsers && config.wuiUsers.indexOf(auth) === -1) {
-					return resErr(401);
-				}
-				
-				// 通ってよし
-				responseApi();
-			} else {
-				basic.apply(req, res, responseApi);
-			}
-		} else {
-			responseApi();
-		}
-	}
-	
-	function responseStatic() {
+	var responseStatic = function() {
 		
 		if (fs.existsSync(filename) === false) return resErr(404);
 		
@@ -503,9 +457,9 @@ function httpServerMain(req, res, query) {
 		} else {
 			res.end();
 		}
-	}
+	};
 	
-	function responseApi() {
+	var responseApi = function() {
 		var dir  = location.replace('/api/', '').replace(/\.[a-z0-9]+$/, '');
 		var dirs = dir.split('/');
 		var addr = dir.replace(/^[^\/]+\/?/, '/');
@@ -668,7 +622,7 @@ function httpServerMain(req, res, query) {
 				if (typeof gc !== 'undefined') {
 					if (timer.gcByApi) clearTimeout(timer.gcByApi);
 					timer.gcByApi = setTimeout(function() {
-						 process.nextTick(gc);
+						process.nextTick(gc);
 					}, 3500);
 				}
 				
@@ -698,6 +652,56 @@ function httpServerMain(req, res, query) {
 		});
 		
 		return;
+	};
+	
+	// 静的ファイルまたはAPIレスポンスの分岐
+	if (req.url.match(/^\/api\/.*$/) === null) {
+		if (fs.existsSync(filename) === false) return resErr(404);
+		
+		if (req.url.match(/^\/apple-.+\.png$/) !== null) {
+			process.nextTick(responseStatic);
+		} else if (!basic) {
+			process.nextTick(responseStatic);
+		} else {
+			basic.apply(req, res, function() {
+				process.nextTick(responseStatic);
+			});
+		}
+	} else {
+		if (basic) {
+			if (!!query._auth) {
+				// Base64文字列を取り出す
+				var auths = query._auth.split(':');
+				
+				// バリデーション
+				if (auths[0] !== 'basic' || auths.length !== 2) {
+					return resErr(400);
+				}
+				
+				var auth = decodeURIComponent(auths[1]);
+				
+				// Base64デコード
+				try {
+					auth = new Buffer(auth, 'base64').toString('ascii');
+				} catch (e) {
+					return resErr(401);
+				}
+				
+				// 認証
+				if (config.wuiUsers && config.wuiUsers.indexOf(auth) === -1) {
+					return resErr(401);
+				}
+				
+				// 通ってよし
+				process.nextTick(responseApi);
+			} else {
+				basic.apply(req, res, function() {
+					process.nextTick(responseApi);
+				});
+			}
+		} else {
+			process.nextTick(responseApi);
+		}
 	}
 }
 
