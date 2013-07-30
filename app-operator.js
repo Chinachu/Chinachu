@@ -253,21 +253,23 @@ function startScheduler() {
 		}
 	});
 	
-	function finalize() {
-		process.removeListener('SIGINT', stopScheduler);
-		process.removeListener('SIGQUIT', stopScheduler);
-		process.removeListener('SIGTERM', stopScheduler);
-		
-		try { output.end(); } catch (e) {}
+	var finalize = function() {
+		try {
+			process.removeListener('SIGINT', stopScheduler);
+			process.removeListener('SIGQUIT', stopScheduler);
+			process.removeListener('SIGTERM', stopScheduler);
+			
+			output.end();
+		} catch (e) {}
 		
 		scheduler = null;
-	}
+	};
 	
-	scheduler.on('exit', finalize);
+	scheduler.once('exit', finalize);
 	
-	process.on('SIGINT', stopScheduler);
-	process.on('SIGQUIT', stopScheduler);
-	process.on('SIGTERM', stopScheduler);
+	process.once('SIGINT', stopScheduler);
+	process.once('SIGQUIT', stopScheduler);
+	process.once('SIGTERM', stopScheduler);
 }
 
 // スケジューラーを停止
