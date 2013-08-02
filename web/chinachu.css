@@ -215,6 +215,7 @@ div.header {
 		position        : relative;
 		text-shadow     : none !important;
 		background-color: rgb(179,0,95);
+		border-radius   : 3px;
 		color           : #fff;
 		box-shadow      : none; }
 	
