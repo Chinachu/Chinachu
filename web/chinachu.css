@@ -11,7 +11,7 @@ html, body {
 	bottom          : 0;
 	left            : 0;
 	cursor          : url(pointer.cur), default;
-	background-color: #d67fae;
+	background-color: rgb(194,65,134);
 	-webkit-text-size-adjust: none;
 	scrollbar-base-color    : #d67fae; }
 
@@ -83,30 +83,16 @@ div.fullscreen {
 .bg-warning{ background-color: rgba(191,0,41,0.6) !important; }
 
 .bg-chinachu {
-	background-color: #d67fae;
-	
-	background-image: linear-gradient(top, rgb(214,127,173), rgb(194,65,134));
-	background-image: -o-linear-gradient(top, rgb(214,127,173), rgb(194,65,134));
-	background-image: -moz-linear-gradient(top, rgb(214,127,173), rgb(194,65,134));
-	background-image: -webkit-linear-gradient(top, rgb(214,127,173), rgb(194,65,134));
-	background-image: -ms-linear-gradient(top, rgb(214,127,173), rgb(194,65,134));
-	
-	background-image: -webkit-gradient(
-		linear,
-		left bottom,
-		left top,
-		color-stop(1, rgb(214,127,173)),
-		color-stop(0, rgb(194,65,134))
-	); }
+	background-color: rgb(194,65,134); }
 
 .bg-fog {
-	background-color: rgba(255,255,255,0.6);
+	background-color: rgba(255,255,255,0.2);
 	
-	background-image: linear-gradient(top, rgba(252,212,233,0.8), rgba(255,255,255,0.25));
-	background-image: -o-linear-gradient(top, rgba(252,212,233,0.8), rgba(255,255,255,0.25));
-	background-image: -moz-linear-gradient(top, rgba(252,212,233,0.8), rgba(255,255,255,0.25));
-	background-image: -webkit-linear-gradient(top, rgba(252,212,233,0.8), rgba(255,255,255,0.25));
-	background-image: -ms-linear-gradient(top, rgba(252,212,233,0.8), rgba(255,255,255,0.25)); }
+	background-image: linear-gradient(top, rgba(252,212,233,0.9), rgba(255,255,255,0.25));
+	background-image: -o-linear-gradient(top, rgba(252,212,233,0.9), rgba(255,255,255,0.25));
+	background-image: -moz-linear-gradient(top, rgba(252,212,233,0.9), rgba(255,255,255,0.25));
+	background-image: -webkit-linear-gradient(top, rgba(252,212,233,0.9), rgba(255,255,255,0.25));
+	background-image: -ms-linear-gradient(top, rgba(252,212,233,0.9), rgba(255,255,255,0.25)); }
 
 .bg-dark {
 	background-color: #2b2b2b; }
@@ -188,7 +174,6 @@ div.footer > div {
 div.header {
 	top             : 0;
 	height          : 20px;
-	box-shadow      : inset 0 -2px 0 rgba(194,65,134,0.25);
 	color           : #fff;
 	
 	background-image   : url(./chinachu.png);
@@ -229,7 +214,7 @@ div.header {
 	div.header > a.button-dent.sakura-button.sakura-button-selected {
 		position        : relative;
 		text-shadow     : none !important;
-		background-color: rgba(194,65,134,1);
+		background-color: rgb(179,0,95);
 		color           : #fff;
 		box-shadow      : none; }
 	
@@ -326,20 +311,11 @@ div.middle {
 		
 		div.middle > div.side > div {
 			position  : absolute;
-			box-shadow: inset -1px 0 0 rgba(0,0,0,0.2),
-			            inset -4px 0 0 rgba(0,0,0,0.05);
 			-webkit-transition: all 0.25s ease 0.1s;
 			-moz-transition   : all 0.25s ease 0.1s;
 			-ms-transition    : all 0.25s ease 0.1s;
 			-o-transition     : all 0.25s ease 0.1s;
-			transition        : all 0.25s ease 0.1s;
-			/*
-			box-shadow: inset -1px 0 0 rgba(0,0,0,0.4),
-			            inset -2px 0 0 rgba(0,0,0,0.2),
-			            inset -4px 0 0 rgba(0,0,0,0.01),
-			            inset -6px 0 0 rgba(0,0,0,0.01),
-			            inset -8px 0 0 rgba(0,0,0,0.01);
-			*/ }
+			transition        : all 0.25s ease 0.1s; }
 		
 		div.middle > div.side > div.side-head {
 			z-index    : 5;
@@ -411,9 +387,7 @@ div.middle {
 			div.middle > div.side > div.side-body > a.sakura-button.sakura-button-selected {
 				color            : #2b2b2b;
 				background-color : white;
-				border-color     : #999;
-				border-left-color: #777;
-				box-shadow       : -1px 0 0 rgba(0,0,0,0.1); }
+				border           : none; }
 	
 	div.middle > div.main {
 		top      : 0;
@@ -676,7 +650,7 @@ div.footer {
 		height          : 15px;
 		padding         : 5px 10px;
 		background-color: rgba(194,65,134,0.4);
-		box-shadow      : 0 0 2px 1px rgba(0,0,0,0.25);
+		box-shadow      : none;
 		text-shadow     : none }
 	
 	div.footer > a.sakura-button.sakura-button-icon {
@@ -1025,7 +999,7 @@ div.dashboard-timelist[rel="3"]:last-child {
 			margin         : 0 5px 5px 0;
 			overflow       : visible;
 			background     : rgba(0,0,0,0.2);
-			border         : 1px solid rgba(0,0,0,0.2);
+			border         : 1px solid transparent;
 			text-shadow    : 0 -1px 0 rgba(0,0,0,0.5);
 			box-shadow     : inset 4px 0 0 #aaa; }
 		

@@ -15,7 +15,7 @@
 					"title"     : "Top",
 					"icon"      : "./icons/home-medium.png",
 					"nohead"    : true,
-					"background": "#d67fae"
+					"background": "rgb(194,65,134)"
 				},
 				
 				"status": {
