@@ -170,6 +170,9 @@ P = Class.create(P, {
 			if (typeof piece[program.id] === 'undefined') return;
 			
 			piece[program.id].isReserved = true;
+			
+			if (program.isManualReserved) piece[program.id].isManualReserved = true;
+			if (program.isSkip)           piece[program.id].isSkip = true;
 		});
 		
 		global.chinachu.recording.forEach(function(program) {
@@ -679,13 +682,34 @@ P = Class.create(P, {
 						];
 						
 						if (a.isReserved) {
-							contextMenuItems.unshift({
-								label   : '予約取消...',
-								icon    : './icons/cross-script.png',
-								onSelect: function() {
-									new chinachu.ui.Unreserve(a.program.id);
-								}
-							});
+							if (a.isManualReserved) {
+								contextMenuItems.unshift({
+									label   : '予約取消...',
+									icon    : './icons/cross-script.png',
+									onSelect: function() {
+										new chinachu.ui.Unreserve(a.program.id);
+									}
+								});
+							}
+							
+							if (a.isSkip) {
+								a._rect.addClassName('skip');
+								contextMenuItems.unshift({
+									label   : 'スキップの取消...',
+									icon    : './icons/tick-circle.png',
+									onSelect: function() {
+										new chinachu.ui.Unskip(a.program.id);
+									}
+								});
+							} else {
+								contextMenuItems.unshift({
+									label   : 'スキップ...',
+									icon    : './icons/exclamation-red.png',
+									onSelect: function() {
+										new chinachu.ui.Skip(a.program.id);
+									}
+								});
+							}
 						} else {
 							contextMenuItems.unshift({
 								label   : '予約...',

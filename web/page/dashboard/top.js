@@ -197,6 +197,25 @@ P = Class.create(P, {
 								}
 							});
 						}
+						
+						if (program.isSkip) {
+							program._it.entity.addClassName('skip');
+							contextMenuItems.unshift({
+								label   : 'スキップの取消...',
+								icon    : './icons/tick-circle.png',
+								onSelect: function() {
+									new chinachu.ui.Unskip(program.id);
+								}
+							});
+						} else {
+							contextMenuItems.unshift({
+								label   : 'スキップ...',
+								icon    : './icons/exclamation-red.png',
+								onSelect: function() {
+									new chinachu.ui.Skip(program.id);
+								}
+							});
+						}
 					} else {
 						contextMenuItems.unshift({
 							label   : '予約...',

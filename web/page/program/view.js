@@ -81,6 +81,30 @@ P = Class.create(P, {
 						}
 					})
 				});
+			} else {
+				if (program.isSkip) {
+					this.view.toolbar.add({
+						key: null,
+						ui : new sakura.ui.Button({
+							label   : 'スキップの取消',
+							icon    : './icons/tick-circle.png',
+							onClick: function() {
+								new chinachu.ui.Unskip(program.id);
+							}
+						})
+					});
+				} else {
+					this.view.toolbar.add({
+						key: null,
+						ui : new sakura.ui.Button({
+							label   : 'スキップ',
+							icon    : './icons/exclamation-red.png',
+							onClick: function() {
+								new chinachu.ui.Skip(program.id);
+							}
+						})
+					});
+				}
 			}
 		} else {
 			this.view.toolbar.add({
@@ -167,17 +191,30 @@ P = Class.create(P, {
 			titleHtml = '<span class="flag manual">手動</span>' + titleHtml;
 		}
 		
+		if (program.isSkip) {
+			titleHtml = '<span class="flag skip">スキップ</span>' + titleHtml;
+		}
+		
 		setTimeout(function() {
 			this.view.title.update(titleHtml);
 		}.bind(this), 0);
 		
 		if (program._isReserves) {
-			new sakura.ui.Alert({
-				title       : '予約済',
-				type        : 'blue',
-				body        : 'この番組は録画予約済みです',
-				disableClose: true
-			}).render(this.view.content);
+			if (program.isSkip) {
+				new sakura.ui.Alert({
+					title       : 'スキップ',
+					type        : 'blue',
+					body        : 'この番組は自動録画予約されましたがスキップするように設定されています',
+					disableClose: true
+				}).render(this.view.content);
+			} else {
+				new sakura.ui.Alert({
+					title       : '予約済',
+					type        : 'blue',
+					body        : 'この番組は録画予約済みです',
+					disableClose: true
+				}).render(this.view.content);
+			}
 		}
 		
 		if (program._isRecording) {
