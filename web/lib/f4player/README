@@ -1,5 +1,0 @@
-f4Player is an open source flash (AS3) video player and library project. It is so small that it is only 13kb and totally free under LGPL license. 
-
-A few years ago I wanted to play a video (flv) on my webpage and I developed a realy small and simple flv player for this. In time technology gradually advanced and flash player started to support h.264 codec, videos were not limited to FLV and f4Player would play HD videos. So I continued to develop f4Player. Who knows! It may display subtitles soon. 
-
-goker.cebeci, the developer

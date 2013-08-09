@@ -187,9 +187,12 @@ function recordingChecker(program, i) {
 	
 	var timeout = program.end - clock + offsetEnd;
 	
+	// 録画時間内はreturn
 	if (timeout >= 0) return;
 	
-	// 録画時間超過
+	// 録画開始していない時はreturn
+	if (!program.pid) return;
+	
 	util.log(
 		'FINISH: ' + dateFormat(new Date(program.start), 'isoDateTime') +
 		' [' + program.channel.name + '] ' + program.title
@@ -346,7 +349,11 @@ function doRecord(program) {
 	}
 	
 	// チューナーをロック
-	chinachu.lockTunerSync(tuner);
+	try {
+		chinachu.lockTunerSync(tuner);
+	} catch (e) {
+		util.log('WARNING: チューナー(' + tuner.n + ')のロックに失敗しました');
+	}
 	util.log('LOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
 	
 	program.tuner = tuner;

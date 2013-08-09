@@ -1,0 +1,151 @@
+{
+	"categoryIndex": ["dashboard", "schedule", "rules", "reserves", "recording", "recorded", "pref", "search"],
+	
+	"defaultCategory": "dashboard",
+	
+	"category": {
+		"dashboard": {
+			"icon"       : "./icons/home-medium.png",
+			"label"      : "dashboard",
+			"defaultPage": "top",
+			"pageIndex"  : ["top", "status", "log"],
+			"page"       : {
+				"top": {
+					"label"     : "Top",
+					"title"     : "Top",
+					"icon"      : "./icons/home-medium.png",
+					"nohead"    : true,
+					"background": "rgb(194,65,134)"
+				},
+				
+				"status": {
+					"label": "Status",
+					"title": "System Status",
+					"icon" : "./icons/system-monitor.png"
+				},
+				
+				"log": {
+					"label": "Log",
+					"title": "System Log",
+					"icon" : "./icons/clock-history.png"
+				}
+			}
+		},
+		
+		"schedule": {
+			"icon"       : "./icons/calendar-medium.png",
+			"label"      : "schedule",
+			"defaultPage": "timeline",
+			"page"       : {
+				"timeline": {
+					"label": "Timeline",
+					"title": "Timeline",
+					"icon" : "./icons/calendar-medium.png"
+				},
+				
+				"program": {
+					"label": "Program",
+					"title": "Program",
+					"icon" : "./icons/dummy.png"
+				}
+			}
+		},
+		
+		"rules": {
+			"icon"       : "./icons/regular-expression.png",
+			"label"      : "rules",
+			"defaultPage": "list",
+			"page"       : {
+				"list": {
+					"label": "Rules",
+					"title": "Rules",
+					"icon" : "./icons/regular-expression.png"
+				}
+			}
+		},
+		
+		"reserves": {
+			"icon"       : "./icons/bookmarks.png",
+			"label"      : "reserves",
+			"defaultPage": "list",
+			"page"       : {
+				"list": {
+					"label": "Reserves",
+					"title": "Reserves",
+					"icon" : "./icons/bookmarks.png"
+				}
+			}
+		},
+		
+		"recording": {
+			"icon"       : "./icons/control-record-small.png",
+			"label"      : "recording",
+			"defaultPage": "list",
+			"page"       : {
+				"list": {
+					"label": "Recording",
+					"title": "Recording",
+					"icon" : "./icons/control-record-small.png"
+				}
+			}
+		},
+		
+		"recorded": {
+			"icon"       : "./icons/television-medium.png",
+			"label"      : "recorded",
+			"defaultPage": "list",
+			"page"       : {
+				"list": {
+					"label": "Recorded",
+					"title": "Recorded",
+					"icon" : "./icons/television-medium.png"
+				}
+			}
+		},
+		
+		"search": {
+			"icon"       : "./icons/calendar-search-result.png",
+			"label"      : "search",
+			"defaultPage": "top",
+			"page"       : {
+				"top": {
+					"label": "Search",
+					"title": "Search",
+					"icon" : "./icons/calendar-search-result.png"
+				}
+			}
+		},
+		
+		"pref": {
+			"icon"       : "./icons/controller-d-pad.png",
+			"label"      : "preference",
+			"defaultPage": "config",
+			"pageIndex"  : ["config"],
+			"page"       : {
+				"config": {
+					"label": "Config",
+					"title": "Config",
+					"icon" : "./icons/controller-d-pad.png"
+				}
+			}
+		},
+		
+		"program": {
+			"icon"       : "./icons/film.png",
+			"label"      : "program",
+			"page"       : {
+				"view": {
+					"label": "Program",
+					"title": "Program",
+					"icon" : "./icons/film.png"
+				},
+				
+				"watch": {
+					"label": "Watch",
+					"title": "Watch",
+					"icon" : "./icons/film-youtube.png"
+				}
+			}
+		}
+	}
+}
