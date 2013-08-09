@@ -48,6 +48,7 @@ process.on('uncaughtException', function (err) {
 var auth     = require('http-auth');
 var socketio = require('socket.io');
 var chinachu = require('chinachu-common');
+var S        = require('string');
 
 // etc.
 var timer = {};
@@ -178,6 +179,7 @@ if (config.wuiUsers && (config.wuiUsers.length > 0)) {
 	});
 }
 
+// ステータス
 var status = {
 	connectedCount: 0,
 	feature: {
@@ -188,8 +190,83 @@ var status = {
 	},
 	system: {
 		core: os.cpus().length
+	},
+	operator: {
+		alive: false,
+		pid  : null
+	},
+	wui: {
+		alive: false,
+		pid  : null
 	}
 };
+
+// プロセス監視
+function processChecker() {
+	
+	if (io) io.sockets.emit('status', status);
+	
+	var c = chinachu.createCountdown(2, chinachu.createTimeout(processChecker, 3000));
+	
+	if (fs.existsSync('/var/run/chinachu-operator.pid') === true) {
+		fs.readFile('/var/run/chinachu-operator.pid', function(err, pid) {
+			
+			if (err) return c.tick();
+			
+			pid = pid.toString().trim();
+			
+			child_process.exec('ps h -p ' + pid + ' -o %cpu,rss', function(err, stdout) {
+				
+				if (stdout === '') {
+					status.operator.alive = false;
+					status.operator.pid   = null;
+				} else {
+					//stdout = S(stdout.trim()).collapseWhitespace().s;
+					
+					status.operator.alive = true;
+					status.operator.pid   = parseInt(pid, 10);
+				}
+				
+				c.tick();
+			});
+		});
+	} else {
+		status.operator.alive = false;
+		status.operator.pid   = null;
+		
+		c.tick();
+	}
+	
+	if (fs.existsSync('/var/run/chinachu-wui.pid') === true) {
+		fs.readFile('/var/run/chinachu-wui.pid', function(err, pid) {
+			
+			if (err) return c.tick();
+			
+			pid = pid.toString().trim();
+			
+			child_process.exec('ps h -p ' + pid + ' -o %cpu,rss', function(err, stdout) {
+				
+				if (stdout === '') {
+					status.wui.alive = false;
+					status.wui.pid   = null;
+				} else {
+					//stdout = S(stdout.trim()).collapseWhitespace().s;
+					
+					status.wui.alive = true;
+					status.wui.pid   = parseInt(pid, 10);
+				}
+				
+				c.tick();
+			});
+		});
+	} else {
+		status.wui.alive = false;
+		status.wui.pid   = null;
+		
+		c.tick();
+	}
+}
+processChecker();
 
 //
 // http server
