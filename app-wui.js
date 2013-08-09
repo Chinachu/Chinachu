@@ -58,7 +58,7 @@ var config = require(CONFIG_FILE);
 
 // https or http
 if (config.wuiTlsKeyPath && config.wuiTlsCertPath) {
-	var https = require('https');
+	var spdy = require('spdy');
 	
 	var tlsOption = {
 		key : fs.readFileSync(config.wuiTlsKeyPath),
@@ -194,8 +194,8 @@ var status = {
 //
 // http server
 //
-if (http)  { var app = http.createServer(httpServer); }
-if (https) { var app = https.createServer(tlsOption, httpServer); }
+if (http) var app = http.createServer(httpServer);
+if (spdy) var app = spdy.createServer(tlsOption, httpServer);
 
 app.listen(config.wuiPort, (typeof config.wuiHost === 'undefined') ? '::' : config.wuiHost);
 
