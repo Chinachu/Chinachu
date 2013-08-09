@@ -245,8 +245,8 @@
 			key: 'chinachu',
 			ui : new sakura.ui.Button({
 				label  : 'Chinachu',
-				icon   : './icons/status-offline.png',
 				style  : { 'float': 'right' },
+				icon   : './icons/information-italic.png',
 				onClick: function() {
 					new flagrate.Modal({
 						title   : 'Chinachu',
@@ -256,6 +256,24 @@
 						          '<a href="https://github.com/kanreisa/Chinachu/issues" target="new">Issues</a>'
 					}).show();
 				}
+			})
+		});
+		
+		app.view.footer.add({
+			key: 'operator-status',
+			ui : new sakura.ui.Button({
+				style: { 'float': 'right', 'cursor': 'default' },
+				label: 'Operator',
+				icon : './icons/status-offline.png',
+			})
+		});
+		
+		app.view.footer.add({
+			key: 'wui-status',
+			ui : new sakura.ui.Button({
+				style: { 'float': 'right', 'cursor': 'default' },
+				label: 'WUI',
+				icon : './icons/status-offline.png',
 			})
 		});
 	};
@@ -313,7 +331,7 @@
 		
 		document.fire('chinachu:connect');
 		
-		app.view.footer.one('chinachu').entity.style.backgroundImage = 'url(./icons/status.png)';
+		app.view.footer.one('wui-status').entity.style.backgroundImage = 'url(./icons/status.png)';
 		
 		//app.notify.create({ title: 'Chinachu', message: 'CONNECTED'.__() });
 	};
@@ -323,7 +341,7 @@
 		
 		document.fire('chinachu:disconnect');
 		
-		app.view.footer.one('chinachu').entity.style.backgroundImage = 'url(./icons/status-offline.png)';
+		app.view.footer.one('wui-status').entity.style.backgroundImage = 'url(./icons/status-offline.png)';
 		
 		app.notify.create({ title: 'Chinachu', message: 'DISCONNECTED'.__() });
 	};
@@ -332,8 +350,13 @@
 		app.chinachu.status = data;
 		document.fire('chinachu:status', app.chinachu.status);
 		
-		app.view.footer.remove('count');
+		if (data.operator.alive) {
+			app.view.footer.one('operator-status').entity.style.backgroundImage = 'url(./icons/status.png)';
+		} else {
+		app.view.footer.one('operator-status').entity.style.backgroundImage = 'url(./icons/status-offline.png)';
+		}
 		
+		app.view.footer.remove('count');
 		app.view.footer.add({
 			key: 'count',
 			ui : new sakura.ui.Button({

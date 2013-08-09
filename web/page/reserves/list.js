@@ -119,6 +119,7 @@ P = Class.create(P, {
 		programs.each(function(program, i) {
 			
 			var row = {
+				className: '',
 				data: program,
 				cell: {
 					id: {
@@ -226,17 +227,38 @@ P = Class.create(P, {
 			}
 			titleHtml += '<span class="id">#' + program.id + '</span>';
 			
+			row.menuItems.unshift('--');
 			if (program.isManualReserved) {
-				 titleHtml = '<span class="flag manual">手動</span>' + titleHtml;
-				 
-				 row.menuItems.unshift('--');
-				 row.menuItems.unshift({
+				titleHtml = '<span class="flag manual">手動</span>' + titleHtml;
+				
+				row.menuItems.unshift({
 					label   : '予約取消...',
 					icon    : './icons/cross-script.png',
 					onSelect: function() {
 						new chinachu.ui.Unreserve(program.id);
 					}
 				});
+			} else {
+				if (program.isSkip) {
+					titleHtml = '<span class="flag skip">スキップ</span>' + titleHtml;
+					row.className += ' disabled';
+					
+					row.menuItems.unshift({
+						label   : 'スキップの取消...',
+						icon    : './icons/tick-circle.png',
+						onSelect: function() {
+							new chinachu.ui.Unskip(program.id);
+						}
+					});
+				} else {
+					row.menuItems.unshift({
+						label   : 'スキップ...',
+						icon    : './icons/exclamation-red.png',
+						onSelect: function() {
+							new chinachu.ui.Skip(program.id);
+						}
+					});
+				}
 			}
 			
 			row.cell.title = {

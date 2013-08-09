@@ -658,7 +658,131 @@
 			return this;
 		}
 	});
-
+	
+	ui.Skip = Class.create({
+		initialize: function _init(id) {
+			this.program = util.getProgramById(id);
+			
+			this.create();
+			
+			return this;
+		},
+		create: function _create() {
+			if (this.program === null) {
+				this.modal = new flagrate.Modal({
+					title: 'エラー',
+					text : '番組が見つかりませんでした'
+				}); 
+			} else {
+				this.modal = new flagrate.Modal({
+					title   : 'スキップ',
+					subtitle: this.program.title + ' #' + this.program.id,
+					text    : '自動予約された今回の番組をスキップしますか？',
+					buttons: [
+						{
+							label   : 'スキップ',
+							color   : '@red',
+							onSelect: function(e, modal) {
+								e.targetButton.disable();
+								
+								new Ajax.Request('./api/reserves/' + this.program.id + '/skip.json', {
+									method    : 'put',
+									onComplete: function() {
+										modal.close();
+									},
+									onSuccess: function() {
+										new flagrate.Modal({
+											title: '成功',
+											text : 'スキップを有効にしました'
+										}).show();
+									},
+									onFailure: function(t) {
+										new flagrate.Modal({
+											title: '失敗',
+											text : 'スキップに失敗しました (' + t.status + ')'
+										}).show();
+									}
+								});
+							}.bind(this)
+						},
+						{
+							label   : 'キャンセル',
+							onSelect: function(e, modal) {
+								modal.close();
+							}
+						}
+					]
+				});
+			}
+			
+			this.modal.show();
+			
+			return this;
+		}
+	});
+	
+	ui.Unskip = Class.create({
+		initialize: function _init(id) {
+			this.program = util.getProgramById(id);
+			
+			this.create();
+			
+			return this;
+		},
+		create: function _create() {
+			if (this.program === null) {
+				this.modal = new flagrate.Modal({
+					title: 'エラー',
+					text : '番組が見つかりませんでした'
+				}); 
+			} else {
+				this.modal = new flagrate.Modal({
+					title   : 'スキップの取消',
+					subtitle: this.program.title + ' #' + this.program.id,
+					text    : 'スキップを取り消しますか？',
+					buttons: [
+						{
+							label   : 'スキップの取消',
+							color   : '@red',
+							onSelect: function(e, modal) {
+								e.targetButton.disable();
+								
+								new Ajax.Request('./api/reserves/' + this.program.id + '/unskip.json', {
+									method    : 'put',
+									onComplete: function() {
+										modal.close();
+									},
+									onSuccess: function() {
+										new flagrate.Modal({
+											title: '成功',
+											text : 'スキップを取り消しました'
+										}).show();
+									},
+									onFailure: function(t) {
+										new flagrate.Modal({
+											title: '失敗',
+											text : 'スキップの取消に失敗しました (' + t.status + ')'
+										}).show();
+									}
+								});
+							}.bind(this)
+						},
+						{
+							label   : 'キャンセル',
+							onSelect: function(e, modal) {
+								modal.close();
+							}
+						}
+					]
+				});
+			}
+			
+			this.modal.show();
+			
+			return this;
+		}
+	});
+	
 	ui.StopRecord = Class.create({
 		initialize: function _init(id) {
 			this.program = util.getProgramById(id);
