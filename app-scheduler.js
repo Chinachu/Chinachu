@@ -601,7 +601,14 @@ function getEpg() {
 			}
 			
 			// チューナーをロック
-			chinachu.lockTunerSync(tuner);
+			try {
+				chinachu.lockTunerSync(tuner);
+			} catch (e) {
+				util.log('WARNING: チューナー(' + tuner.n + ')のロックに失敗しました');
+				process.nextTick(retry);
+				
+				return;
+			}
 			util.log('LOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
 			
 			var unlockTuner = function _unlockTuner() {
