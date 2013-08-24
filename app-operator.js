@@ -416,7 +416,7 @@ function doRecord(program) {
 		epgProc.on('exit', function() {
 			output.end();
 		});
-	}, 1000 * 120);//120秒
+	}, 1000 * 300);//300秒
 	
 	// お片付け
 	var finalize = function() {
