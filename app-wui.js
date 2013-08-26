@@ -832,10 +832,7 @@ function ioServer(socket) {
 function ioServerMain(socket) {
 	++status.connectedCount;
 	
-	socket.on('disconnect', function _socketOnDisconnect() {
-		--status.connectedCount;
-		io.sockets.emit('status', status);
-	});
+	socket.on('disconnect', ioServerSocketOnDisconnect);
 	
 	// broadcast
 	io.sockets.emit('status', status);
@@ -847,9 +844,14 @@ function ioServerMain(socket) {
 	socket.emit('recorded', recorded);
 }
 
+function ioServerSocketOnDisconnect() {
+	--status.connectedCount;
+	io.sockets.emit('status', status);
+}
+
 //
 // gc
 //
 if (typeof gc !== 'undefined') {
-	setInterval(gc, 1000 * 60 * 5);
+	setInterval(gc, 1000 * 60 * 2);
 }
