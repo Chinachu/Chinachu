@@ -261,9 +261,9 @@ function startScheduler() {
 			process.removeListener('SIGINT', stopScheduler);
 			process.removeListener('SIGQUIT', stopScheduler);
 			process.removeListener('SIGTERM', stopScheduler);
-			
-			output.end();
 		} catch (e) {}
+		
+		try { output.end(); } catch (e) {}
 		
 		scheduler = null;
 	};
@@ -412,7 +412,11 @@ function doRecord(program) {
 		epgProc.stdout.on('data', function(data) {
 			output.write(data);
 		});
-	}, 1000 * 120);//120秒
+		
+		epgProc.on('exit', function() {
+			output.end();
+		});
+	}, 1000 * 300);//300秒
 	
 	// お片付け
 	var finalize = function() {
