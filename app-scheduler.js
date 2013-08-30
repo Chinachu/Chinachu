@@ -212,7 +212,7 @@ function getEpg() {
 			--residue;
 			
 			// 取得あきらめる
-			if (residue <= 0) {
+			if (residue <= 0 || opts.get('l')) {
 				reuse();
 				
 				// おわり
