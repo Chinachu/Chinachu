@@ -990,7 +990,7 @@ function convertPrograms(p, ch) {
 		var endTime   = endDate.getTime();
 		
 		var programData = {
-			id        : ch.id.toLowerCase().replace('_', '') + '-' + (startTime / 1000).toString(32),
+			id        : ch.id.toLowerCase().replace('_', '') + '-' + parseInt(c.$.event_id, 10).toString(32),
 			channel   : ch,
 			category  : c.category[1]._,
 			title     : title,
