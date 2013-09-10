@@ -21,6 +21,7 @@
 /node_modules/easy-table
 /node_modules/http-auth
 /node_modules/oauth
+/node_modules/mtwitter
 /node_modules/opts
 /node_modules/socket.io
 /node_modules/xml2js
