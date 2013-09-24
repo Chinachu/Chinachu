@@ -54,10 +54,6 @@ var S        = require('string');
 var timer = {};
 var emptyFunction = function(){};
 
-// etc.
-var timer = {};
-var emptyFunction = function(){};
-
 // 設定の読み込み
 var config = require(CONFIG_FILE);
 

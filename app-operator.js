@@ -34,7 +34,7 @@ process.on('SIGQUIT', function () {
 
 // 例外処理
 process.on('uncaughtException', function (err) {
-	util.error('uncaughtException: ' + err);
+	util.error('uncaughtException: ' + err.stack);
 });
 
 // 追加モジュールのロード
@@ -462,19 +462,23 @@ chinachu.jsonWatcher(
 
 // main
 function main() {
-	clock = new Date().getTime();
-	
-	if (reserves.length !== 0) {
-		reserves.forEach(reservesChecker);
-	} else {
-		next = 0;
-	}
-	
-	recording.forEach(recordingChecker);
-	
-	if ((scheduler === null) && (clock - scheduled > schedulerIntervalTime) && ((next === 0) || (next - clock > schedulerProcessTime)) && ((schedulerSleepStartHour > new Date().getHours()) || (schedulerSleepEndHour <= new Date().getHours()))) {
-		startScheduler();
-		scheduled = clock;
+	try {
+		clock = new Date().getTime();
+
+		if (reserves.length !== 0) {
+			reserves.forEach(reservesChecker);
+		} else {
+			next = 0;
+		}
+
+		recording.forEach(recordingChecker);
+
+		if ((scheduler === null) && (clock - scheduled > schedulerIntervalTime) && ((next === 0) || (next - clock > schedulerProcessTime)) && ((schedulerSleepStartHour > new Date().getHours()) || (schedulerSleepEndHour <= new Date().getHours()))) {
+			startScheduler();
+			scheduled = clock;
+		}
+	} catch (e) {
+		util.error('ERROR: ' + e.stack);
 	}
 }
 setInterval(main, 1000);

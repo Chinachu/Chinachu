@@ -25,13 +25,13 @@
   "dependencies": {
     "dateformat": "~1.0.6-1.2.3",
     "easy-table": "~0.2.0",
-    "http-auth": "~1.2.8",
+    "http-auth": "~1.2.9",
     "opts": "~1.2.2",
     "socket.io": "~0.9.16",
     "xml2js": "~0.2.8",
     "mkdirp": "~0.3.5",
-    "spdy": "~1.10.5",
-    "string": "~1.5.0",
+    "spdy": "~1.10.12",
+    "string": "~1.5.1",
     "mtwitter": "~1.5.2"
   },
   "devDependencies": {
