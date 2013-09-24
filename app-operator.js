@@ -34,7 +34,7 @@ process.on('SIGQUIT', function () {
 
 // 例外処理
 process.on('uncaughtException', function (err) {
-	util.error('uncaughtException: ' + err);
+	util.error('uncaughtException: ' + err.stack);
 });
 
 // 追加モジュールのロード
