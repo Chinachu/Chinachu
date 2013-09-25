@@ -89,7 +89,7 @@ chinachu.jsonWatcher(
 		}
 		
 		rules = data;
-		if (io) io.sockets.emit('notify-rules', rules);
+		if (io) io.sockets.emit('notify-rules');
 		util.log(mes);
 	}
 	,
@@ -108,7 +108,7 @@ chinachu.jsonWatcher(
 		}
 		
 		schedule = data;
-		if (io) io.sockets.emit('notify-schedule', schedule);
+		if (io) io.sockets.emit('notify-schedule');
 		util.log(mes);
 	}
 	,
@@ -127,7 +127,7 @@ chinachu.jsonWatcher(
 		}
 		
 		reserves = data;
-		if (io) io.sockets.emit('notify-reserves', reserves);
+		if (io) io.sockets.emit('notify-reserves');
 		util.log(mes);
 	}
 	,
@@ -146,7 +146,7 @@ chinachu.jsonWatcher(
 		}
 		
 		recording = data;
-		if (io) io.sockets.emit('notify-recording', recording);
+		if (io) io.sockets.emit('notify-recording');
 		util.log(mes);
 	}
 	,
@@ -165,7 +165,7 @@ chinachu.jsonWatcher(
 		}
 		
 		recorded = data;
-		if (io) io.sockets.emit('notify-recorded', recorded);
+		if (io) io.sockets.emit('notify-recorded');
 		util.log(mes);
 	}
 	,
