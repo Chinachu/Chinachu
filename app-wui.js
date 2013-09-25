@@ -89,7 +89,7 @@ chinachu.jsonWatcher(
 		}
 		
 		rules = data;
-		if (io) io.sockets.emit('rules', rules);
+		if (io) io.sockets.emit('notify-rules', rules);
 		util.log(mes);
 	}
 	,
@@ -108,7 +108,7 @@ chinachu.jsonWatcher(
 		}
 		
 		schedule = data;
-		if (io) io.sockets.emit('schedule', schedule);
+		if (io) io.sockets.emit('notify-schedule', schedule);
 		util.log(mes);
 	}
 	,
@@ -127,7 +127,7 @@ chinachu.jsonWatcher(
 		}
 		
 		reserves = data;
-		if (io) io.sockets.emit('reserves', reserves);
+		if (io) io.sockets.emit('notify-reserves', reserves);
 		util.log(mes);
 	}
 	,
@@ -146,7 +146,7 @@ chinachu.jsonWatcher(
 		}
 		
 		recording = data;
-		if (io) io.sockets.emit('recording', recording);
+		if (io) io.sockets.emit('notify-recording', recording);
 		util.log(mes);
 	}
 	,
@@ -165,7 +165,7 @@ chinachu.jsonWatcher(
 		}
 		
 		recorded = data;
-		if (io) io.sockets.emit('recorded', recorded);
+		if (io) io.sockets.emit('notify-recorded', recorded);
 		util.log(mes);
 	}
 	,
@@ -850,11 +850,19 @@ function ioServerMain(socket) {
 	// broadcast
 	io.sockets.emit('status', status);
 	
+	/*
 	socket.emit('rules', rules);
 	socket.emit('reserves', reserves);
-	socket.emit('schedule', schedule);
 	socket.emit('recording', recording);
 	socket.emit('recorded', recorded);
+	socket.emit('schedule', schedule);
+	*/
+	
+	socket.emit('notify-rules');
+	socket.emit('notify-reserves');
+	socket.emit('notify-recording');
+	socket.emit('notify-recorded');
+	socket.emit('notify-schedule');
 }
 
 function ioServerSocketOnDisconnect() {
