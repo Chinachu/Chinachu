@@ -174,36 +174,6 @@
 			})
 		});
 		
-		/* //todo
-		app.view.sideHead.add({
-			key: 'shortcut-on',
-			ui : new sakura.ui.Button({
-				label    : '&nbsp;',
-				icon     : './icons/keyboard-smiley.png',
-				onClick  : function() {
-					
-				}
-			}).hide()
-		});
-		
-		app.view.sideHead.add({
-			key: 'shortcut-off',
-			ui : new sakura.ui.Button({
-				label    : '&nbsp;',
-				icon     : './icons/keyboard-space.png',
-				onClick  : function() {
-					
-				}
-			}).hide()
-		});
-		
-		if (!!localStorage.getItem(app.api.apiRoot + '::pref/shortcut/on')) {
-			app.view.sideHead.one('shortcut-on').show();
-		} else {
-			app.view.sideHead.one('shortcut-off').show();
-		}
-		*/
-		
 		app.view.sideHead.add({
 			key: 'collapse',
 			ui : new sakura.ui.Button({
@@ -370,9 +340,21 @@
 	var socketOnRules = function _socketOnRules(data) {
 		app.chinachu.rules = data;
 		document.fire('chinachu:rules', app.chinachu.rules);
-		
-		app.view.header.one('rules').badge.update(data.length.toString(10));
 	};
+	
+	var socketOnNotifyRules = function () {
+		new Ajax.Request('./api/rules.json', {
+			method: 'get',
+			onSuccess: function (t) {
+				app.chinachu.rules = t.responseJSON;
+				document.fire('chinachu:rules', app.chinachu.rules);
+			}
+		});
+	};
+	
+	document.observe('chinachu:rules', function (e) {
+		app.view.header.one('rules').badge.update(e.memo.length.toString(10));
+	});
 	
 	var socketOnReserves = function _socketOnReserves(data) {
 		var dt = new Date().getTime();
@@ -385,74 +367,140 @@
 		
 		app.chinachu.reserves = data;
 		document.fire('chinachu:reserves', app.chinachu.reserves);
-		
-		app.view.header.one('reserves').badge.update(data.length.toString(10));
 	};
+	
+	var socketOnNotifyReserves = function () {
+		new Ajax.Request('./api/reserves.json', {
+			method: 'get',
+			onSuccess: function (t) {
+				var data = t.responseJSON;
+				
+				var dt = new Date().getTime();
+				data.each(function(program, i) {
+					if (program.start - dt < 1000 * 60) {
+						delete data[i];
+					}
+				});
+				data = data.compact();
+				
+				app.chinachu.reserves = data;
+				document.fire('chinachu:reserves', app.chinachu.reserves);
+			}
+		});
+	};
+	
+	document.observe('chinachu:reserves', function (e) {
+		app.view.header.one('reserves').badge.update(e.memo.length.toString(10));
+	});
 	
 	var socketOnSchedule = function _socketOnSchedule(data) {
 		app.chinachu.schedule = data;
 		document.fire('chinachu:schedule', app.chinachu.schedule);
 	};
 	
+	var socketOnNotifySchedule = function () {
+		new Ajax.Request('./api/schedule.json', {
+			method: 'get',
+			onSuccess: function (t) {
+				app.chinachu.schedule = t.responseJSON;
+				document.fire('chinachu:schedule', app.chinachu.schedule);
+			}
+		});
+	};
+	
 	var socketOnRecording = function _socketOnRecording(data) {
 		app.chinachu.recording = data;
 		document.fire('chinachu:recording', app.chinachu.recording);
+	};
+	
+	var socketOnNotifyRecording = function () {
+		new Ajax.Request('./api/recording.json', {
+			method: 'get',
+			onSuccess: function (t) {
+				app.chinachu.recording = t.responseJSON;
+				document.fire('chinachu:recording', app.chinachu.recording);
+			}
+		});
+	};
+	
+	document.observe('chinachu:recording', function (e) {
+		app.view.header.one('recording').badge.update(e.memo.length.toString(10));
 		
-		app.view.header.one('recording').badge.update(data.length.toString(10));
-		
-		if (data.length === 0) {
+		if (e.memo.length === 0) {
 			$('favicon').href = './favicon.ico';
 		} else {
 			$('favicon').href = './favicon-active.ico';
 		}
 		
 		if (app.stat.lastRecordingCount) {
-			if (app.stat.lastRecordingCount < data.length) {
+			if (app.stat.lastRecordingCount < e.memo.length) {
 				app.notify.create({
-					text   : '録画開始: ' + data.last().title,
+					text   : '録画開始: ' + e.memo.last().title,
 					timeout: 10,
 					onClick: function() {
-						window.location.hash = '!/program/view/id=' + data.last().id + '/';
+						window.location.hash = '!/program/view/id=' + e.memo.last().id + '/';
 					}
 				});
 			}
 		}
-		app.stat.lastRecordingCount = data.length;
+		app.stat.lastRecordingCount = e.memo.length;
 		
-		setTimeout(socketOnReserves, 0, app.chinachu.reserves);
-	};
+		setTimeout(socketOnNotifyReserves, 0);
+	});
 	
 	var socketOnRecorded = function _socketOnRecorded(data) {
 		data = data.reverse();
 		
 		app.chinachu.recorded = data;
 		document.fire('chinachu:recorded', app.chinachu.recorded);
+	};
+	
+	var socketOnNotifyRecorded = function () {
+		new Ajax.Request('./api/recorded.json', {
+			method: 'get',
+			onSuccess: function (t) {
+				app.chinachu.recorded = t.responseJSON.reverse();
+				document.fire('chinachu:recorded', app.chinachu.recorded);
+			}
+		});
+	};
+	
+	document.observe('chinachu:recorded', function (e) {
+		app.view.header.one('recorded').badge.update(e.memo.length.toString(10));
 		
 		if (app.stat.lastRecordedCount) {
-			if (app.stat.lastRecordedCount < data.length) {
+			if (app.stat.lastRecordedCount < e.memo.length) {
 				app.notify.create({
-					text   : '録画終了: ' + data.first().title,
+					text   : '録画終了: ' + e.memo.first().title,
 					timeout: 10,
 					onClick: function() {
-						window.location.hash = '!/program/view/id=' + data.first().id + '/';
+						window.location.hash = '!/program/view/id=' + e.memo.first().id + '/';
 					}
 				});
 			}
 		}
-		app.stat.lastRecordedCount = data.length;
-		
-		app.view.header.one('recorded').badge.update(data.length.toString(10));
-	};
+		app.stat.lastRecordedCount = e.memo.length;
+	});
 	
 	app.socket.on('connect'   , socketOnConnect);
 	app.socket.on('disconnect', socketOnDisconnect);
 	
 	app.socket.on('status'    , socketOnStatus);
+	
+	app.socket.on('notify-rules'    , socketOnNotifyRules);
+	app.socket.on('notify-reserves' , socketOnNotifyReserves);
+	app.socket.on('notify-recording', socketOnNotifyRecording);
+	app.socket.on('notify-recorded' , socketOnNotifyRecorded);
+	app.socket.on('notify-schedule' , socketOnNotifySchedule);
+	
+	/* deprecated */
+	/*
 	app.socket.on('rules'     , socketOnRules);
 	app.socket.on('reserves'  , socketOnReserves);
-	app.socket.on('schedule'  , socketOnSchedule);
 	app.socket.on('recording' , socketOnRecording);
 	app.socket.on('recorded'  , socketOnRecorded);
+	app.socket.on('schedule'  , socketOnSchedule);
+	*/
 	
 	// go
 	app.f.enterControlView();

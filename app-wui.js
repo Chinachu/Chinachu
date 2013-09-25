@@ -25,6 +25,7 @@ var url           = require('url');
 var querystring   = require('querystring');
 var vm            = require('vm');
 var os            = require('os');
+var zlib          = require('zlib');
 
 // ディレクトリチェック
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
@@ -88,7 +89,7 @@ chinachu.jsonWatcher(
 		}
 		
 		rules = data;
-		if (io) io.sockets.emit('rules', rules);
+		if (io) io.sockets.emit('notify-rules');
 		util.log(mes);
 	}
 	,
@@ -107,7 +108,7 @@ chinachu.jsonWatcher(
 		}
 		
 		schedule = data;
-		if (io) io.sockets.emit('schedule', schedule);
+		if (io) io.sockets.emit('notify-schedule');
 		util.log(mes);
 	}
 	,
@@ -126,7 +127,7 @@ chinachu.jsonWatcher(
 		}
 		
 		reserves = data;
-		if (io) io.sockets.emit('reserves', reserves);
+		if (io) io.sockets.emit('notify-reserves');
 		util.log(mes);
 	}
 	,
@@ -145,7 +146,7 @@ chinachu.jsonWatcher(
 		}
 		
 		recording = data;
-		if (io) io.sockets.emit('recording', recording);
+		if (io) io.sockets.emit('notify-recording');
 		util.log(mes);
 	}
 	,
@@ -164,7 +165,7 @@ chinachu.jsonWatcher(
 		}
 		
 		recorded = data;
-		if (io) io.sockets.emit('recorded', recorded);
+		if (io) io.sockets.emit('notify-recorded');
 		util.log(mes);
 	}
 	,
@@ -603,6 +604,16 @@ function httpServerMain(req, res, query) {
 				res.emit('end');
 			};
 			
+			var acceptEncoding = req.headers['accept-encoding'];
+			if (!acceptEncoding) { acceptEncoding = ''; }
+			var encoding = '';
+			
+			if (acceptEncoding.match(/deflate/)) {
+				encoding = 'deflate';
+			}/* else if (acceptEncoding.match(/gzip/)) {
+				encoding = 'gzip';
+			}*/
+			
 			var sandbox = {
 				request      : req,
 				response     : res,
@@ -612,6 +623,7 @@ function httpServerMain(req, res, query) {
 				util         : util,
 				child_process: child_process,
 				Buffer       : Buffer,
+				zlib         : zlib,
 				chinachu     : chinachu,
 				config       : config,
 				define: {
@@ -643,11 +655,12 @@ function httpServerMain(req, res, query) {
 			
 			var isClosed = false;
 			
-			sandbox.request.query  = query;
-			sandbox.request.param  = param;
-			sandbox.request.type   = ext;
-			sandbox.response.head  = writeHead;
-			sandbox.response.error = function(code) {
+			sandbox.request.query    = query;
+			sandbox.request.param    = param;
+			sandbox.request.type     = ext;
+			sandbox.request.encoding = encoding;
+			sandbox.response.head    = writeHead;
+			sandbox.response.error   = function(code) {
 				
 				isClosed = true;
 				
@@ -837,11 +850,19 @@ function ioServerMain(socket) {
 	// broadcast
 	io.sockets.emit('status', status);
 	
+	/*
 	socket.emit('rules', rules);
 	socket.emit('reserves', reserves);
-	socket.emit('schedule', schedule);
 	socket.emit('recording', recording);
 	socket.emit('recorded', recorded);
+	socket.emit('schedule', schedule);
+	*/
+	
+	socket.emit('notify-rules');
+	socket.emit('notify-reserves');
+	socket.emit('notify-recording');
+	socket.emit('notify-recorded');
+	socket.emit('notify-schedule');
 }
 
 function ioServerSocketOnDisconnect() {
