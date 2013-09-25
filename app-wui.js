@@ -25,6 +25,7 @@ var url           = require('url');
 var querystring   = require('querystring');
 var vm            = require('vm');
 var os            = require('os');
+var zlib          = require('zlib');
 
 // ディレクトリチェック
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
@@ -603,6 +604,16 @@ function httpServerMain(req, res, query) {
 				res.emit('end');
 			};
 			
+			var acceptEncoding = req.headers['accept-encoding'];
+			if (!acceptEncoding) { acceptEncoding = ''; }
+			var encoding = '';
+			
+			if (acceptEncoding.match(/deflate/)) {
+				encoding = 'deflate';
+			}/* else if (acceptEncoding.match(/gzip/)) {
+				encoding = 'gzip';
+			}*/
+			
 			var sandbox = {
 				request      : req,
 				response     : res,
@@ -612,6 +623,7 @@ function httpServerMain(req, res, query) {
 				util         : util,
 				child_process: child_process,
 				Buffer       : Buffer,
+				zlib         : zlib,
 				chinachu     : chinachu,
 				config       : config,
 				define: {
@@ -643,11 +655,12 @@ function httpServerMain(req, res, query) {
 			
 			var isClosed = false;
 			
-			sandbox.request.query  = query;
-			sandbox.request.param  = param;
-			sandbox.request.type   = ext;
-			sandbox.response.head  = writeHead;
-			sandbox.response.error = function(code) {
+			sandbox.request.query    = query;
+			sandbox.request.param    = param;
+			sandbox.request.type     = ext;
+			sandbox.request.encoding = encoding;
+			sandbox.response.head    = writeHead;
+			sandbox.response.error   = function(code) {
 				
 				isClosed = true;
 				

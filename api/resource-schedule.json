@@ -1,7 +1,7 @@
 {
   "/": {
     "script" : "schedule",
-    "methods": ["get"],
+    "methods": ["head", "get"],
     "types"  : ["json"]
   },
   
