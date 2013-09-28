@@ -187,7 +187,7 @@ function startScheduler() {
 
 // 録画実行
 function doRecord(program) {
-	var timeout, tuner, recPath, recDirPath, recCmd, recProc, recFile, epgInterval, finalize;
+	var timeout, tuner, recPath, recDirPath, recCmd, recProc, recFile, /*epgInterval, */finalize;
 	
 	util.log('RECORD: ' + dateFormat(new Date(program.start), 'isoDateTime') + ' [' + program.channel.name + '] ' + program.title);
 	
@@ -260,6 +260,7 @@ function doRecord(program) {
 	});
 	
 	// EPG処理
+	/* 廃止: EPGパーサーに再実装予定
 	epgInterval = setInterval(function () {
 		var epgProc, output;
 		
@@ -280,6 +281,7 @@ function doRecord(program) {
 			output.end();
 		});
 	}, 1000 * 300);//300秒
+	*/
 	
 	// お片付け
 	finalize = function () {
@@ -302,7 +304,7 @@ function doRecord(program) {
 		}
 		
 		// EPG処理を終了
-		clearInterval(epgInterval);
+		//clearInterval(epgInterval);
 		
 		// 状態を更新
 		delete program.pid;
