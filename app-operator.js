@@ -260,6 +260,7 @@ function doRecord(program) {
 	});
 	
 	// EPG処理
+	/* 廃止: EPGパーサーに再実装予定
 	epgInterval = setInterval(function () {
 		var epgProc, output;
 		
@@ -280,6 +281,7 @@ function doRecord(program) {
 			output.end();
 		});
 	}, 1000 * 300);//300秒
+	*/
 	
 	// お片付け
 	finalize = function () {
