@@ -187,7 +187,7 @@ function startScheduler() {
 
 // 録画実行
 function doRecord(program) {
-	var timeout, tuner, recPath, recDirPath, recCmd, recProc, recFile, epgInterval, finalize;
+	var timeout, tuner, recPath, recDirPath, recCmd, recProc, recFile, /*epgInterval, */finalize;
 	
 	util.log('RECORD: ' + dateFormat(new Date(program.start), 'isoDateTime') + ' [' + program.channel.name + '] ' + program.title);
 	
@@ -304,7 +304,7 @@ function doRecord(program) {
 		}
 		
 		// EPG処理を終了
-		clearInterval(epgInterval);
+		//clearInterval(epgInterval);
 		
 		// 状態を更新
 		delete program.pid;
