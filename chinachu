@@ -383,7 +383,6 @@ chinachu_installer_libav () {
     --enable-gpl \
     --disable-avplay \
     --disable-avserver \
-    --disable-doc \
     --disable-avdevice \
     --disable-network \
     --disable-devices \
