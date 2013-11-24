@@ -1,6 +1,10 @@
+/*jslint browser:true */
+/*global P:true, Class, sakura */
 P = Class.create(P, {
 	
-	init: function _initPage() {
+	init: function () {
+		'use strict';
+		
 		this.view.content.className = 'loading';
 		
 		this.draw();
@@ -8,7 +12,9 @@ P = Class.create(P, {
 		return this;
 	},
 	
-	deinit: function _deinit() {
+	deinit: function () {
+		'use strict';
+		
 		this.view.reservesTl.remove();
 		this.view.recordingTl.remove();
 		this.view.recordedTl.remove();
@@ -16,18 +22,22 @@ P = Class.create(P, {
 		return this;
 	},
 	
-	draw: function _draw() {
-		this.view.content.className = 'bg-chinachu';
+	draw: function () {
+		'use strict';
+		
+		this.view.content.className = '';
 		this.view.content.update();
 		
 		var Timelist = Class.create(sakura.ui.Container, {
 			
 			init: function(opt) {
 				
-				this.name     = opt.name;
-				this.list     = opt.initialList;
-				this.notify   = opt.notify;
-				this.interval = 0;
+				this.name      = opt.name;
+				this.list      = opt.initialList;
+				this.notify    = opt.notify;
+				this.interval  = 0;
+				this.limit     = opt.limit;
+				this.className = opt.className || '';
 				
 				this.onNotify = this.refresh.bindAsEventListener(this);
 				
@@ -56,7 +66,7 @@ P = Class.create(P, {
 				
 				this.entity.show().update();
 				
-				this.entity.className = '';
+				this.entity.className = this.className;
 				
 				if (this.id !== null) this.entity.id = this.id;
 				
@@ -78,12 +88,16 @@ P = Class.create(P, {
 				
 				var currentTime = new Date().getTime();
 				
-				this.list.each(function(program) {
+				this.list.each(function(program, i) {
+					
+					if (this.limit && i > this.limit) {
+						throw $break;
+					}
 					
 					program._data = chinachu.util.getProgramById(program.id);
 					
 					program._dt = new chinachu.ui.DynamicTime({
-						tagName: 'div',
+						tagName: 'span',
 						type   : 'full',
 						time   : (currentTime > program.end) ? program.end : program.start
 					});
@@ -92,16 +106,22 @@ P = Class.create(P, {
 						tagName  : 'a',
 						className: 'color-cat-' + program.category,
 						attr     : { href: '#!/program/view/id=' + program.id + '/' }
-					}).insert('<div class="title">' + program.flags.invoke('sub', /.+/, '<span rel="#{0}">#{0}</span>').join('') + program.title + '</div>').insert(
-						new sakura.ui.Element({
-							tagName  : 'div',
-							className: 'channel'
-						}).insert(program.channel.type + ': ' + program.channel.name)
-					).insert(program._dt).render(container);
+					}).render(container);
 					
 					if (typeof program.episode !== 'undefined' && program.episode !== null) {
-						program._it.insert('<div class="episode">#' + program.episode + '</div>');
+						program._it.insert('<div class="title">' + program.flags.invoke('sub', /.+/, '<span rel="#{0}">#{0}</span>').join('') + program.title + '<span class="episode">#' + program.episode + '</span></div>');
+					} else {
+						program._it.insert('<div class="title">' + program.flags.invoke('sub', /.+/, '<span rel="#{0}">#{0}</span>').join('') + program.title + '</div>');
 					}
+					
+					program._it.insert(
+						program._dt
+					).insert(
+						new sakura.ui.Element({
+							tagName  : 'span',
+							className: 'channel'
+						}).insert(program.channel.type + ': ' + program.channel.name)
+					);
 					
 					var html = new Element('div').insert(program.detail || '(説明なし)');
 					
@@ -293,7 +313,9 @@ P = Class.create(P, {
 			this.view.reservesTl = new Timelist({
 				name       : 'RESERVES'.__(),
 				initialList: global.chinachu.reserves,
-				notify     : 'chinachu:reserves'
+				notify     : 'chinachu:reserves',
+				className  : 'reserves',
+				limit      : 5
 			}).render(this.view.content);
 		}.bind(this), 30);
 		
@@ -301,7 +323,8 @@ P = Class.create(P, {
 			this.view.recordingTl = new Timelist({
 				name       : 'RECORDING'.__(),
 				initialList: global.chinachu.recording,
-				notify     : 'chinachu:recording'
+				notify     : 'chinachu:recording',
+				className  : 'recording'
 			}).render(this.view.content);
 		}.bind(this), 40);
 		
@@ -309,7 +332,9 @@ P = Class.create(P, {
 			this.view.recordedTl = new Timelist({
 				name       : 'RECORDED'.__(),
 				initialList: global.chinachu.recorded,
-				notify     : 'chinachu:recorded'
+				notify     : 'chinachu:recorded',
+				className  : 'recorded',
+				limit      : 8
 			}).render(this.view.content);
 		}.bind(this), 50);
 		

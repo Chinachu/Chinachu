@@ -32,7 +32,8 @@
     "mkdirp": "~0.3.5",
     "spdy": "~1.14.12",
     "string": "~1.5.1",
-    "mtwitter": "~1.5.2"
+    "mtwitter": "~1.5.2",
+    "hoard": "~0.1.5"
   },
   "devDependencies": {
     "mocha": "*",
