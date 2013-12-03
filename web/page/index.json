@@ -14,8 +14,7 @@
 					"label"     : "Top",
 					"title"     : "Top",
 					"icon"      : "./icons/home-medium.png",
-					"nohead"    : true,
-					"background": "rgb(194,65,134)"
+					"nohead"    : true
 				},
 				
 				"status": {

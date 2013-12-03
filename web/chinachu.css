@@ -67,15 +67,15 @@ div.fullscreen {
 .color-white  { color: #ffffff !important; }
 .color-warning{ color: rgb(191,0,41) !important; }
 
-.color-cat-anime { color: #fcbde1 !important; }
-.color-cat-information { color: #bdfce8 !important; }
-.color-cat-news { color: #d7fcbd !important; }
-.color-cat-sports { color: #bdf1fc !important; }
-.color-cat-variety { color: #fbfcbd !important; }
-.color-cat-drama { color: #fce1c4 !important; }
-.color-cat-music { color: #bdc9fc !important; }
-.color-cat-cinema { color: #d6bdfc !important; }
-.color-cat-etc { color: #eeeeee !important; }
+.color-cat-anime { color: #e04caf !important; }
+.color-cat-information { color: #26d49d !important; }
+.color-cat-news { color: #6edb21 !important; }
+.color-cat-sports { color: #26b3d1 !important; }
+.color-cat-variety { color: #d6d91e !important; }
+.color-cat-drama { color: #de8a31 !important; }
+.color-cat-music { color: #2848d1 !important; }
+.color-cat-cinema { color: #6e25db !important; }
+.color-cat-etc { color: #888888 !important; }
 
 /* bg (background) */
 .bg-green  { background-color: #7ab624 !important; }
@@ -173,19 +173,34 @@ div.footer > div {
 /* header */
 div.header {
 	top             : 0;
-	height          : 20px;
+	height          : 40px;
 	color           : #fff;
 	
 	background-image   : url(./chinachu.png);
 	background-repeat  : no-repeat;
 	background-position: 10px center;
-	padding            : 10px 10px 10px 50px; }
+	padding            : 0 10px 0 50px; }
 	
+	div.header > a.button-reload {
+		border-radius   : 50%;
+		width           : 16px;
+		height          : 16px;
+		margin-right    : 6px;
+		padding         : 6px !important;
+		border          : none;
+		background-color: rgba(255,255,255,0.1);
+		box-shadow      : none;
+		text-shadow     : none;
+		background-position: center center !important;}
+
+	div.header > a.button-reload:hover {
+		background-color: rgba(255,255,255,0.3); }
+
 	div.header > a.button-dent {
-		padding         : 2px 5px 1px 5px;
+		padding         : 1px 6px 0 6px;
+		line-height     : 39px;
 		font-size       : 11px;
 		border          : none;
-		margin-left     : 2px;
 		background-color: transparent;
 		box-shadow      : none;
 		text-shadow     : none;
@@ -207,30 +222,16 @@ div.header {
 		margin-left: 0; }
 	
 	div.header > a.button-dent.sakura-button.sakura-button-icon {
-		padding-left       : 22px;
-		background-position: 4px center;
+		padding-left       : 23px;
+		background-position: 5px center;
 		background-repeat  : no-repeat; }
 	
 	div.header > a.button-dent.sakura-button.sakura-button-selected {
 		position        : relative;
 		text-shadow     : none !important;
 		background-color: rgb(179,0,95);
-		border-radius   : 3px;
 		color           : #fff;
 		box-shadow      : none; }
-	
-	div.header > a.button-dent.sakura-button.sakura-button-selected:before {
-		content     : ' ';
-		display     : block;
-		position    : absolute;
-		top         : 18px;
-		left        : 50%;
-		margin-left : -6px;
-		width       : 0px;
-		height      : 0px;
-		border-color: transparent transparent rgb(194,65,134) transparent;
-		border-width: 6px;
-		border-style: solid; }
 	
 	div.header > a.button-dent.sakura-button.category-search,
 	div.header > a.button-dent.sakura-button.category-pref {
@@ -318,38 +319,8 @@ div.middle {
 			-o-transition     : all 0.25s ease 0.1s;
 			transition        : all 0.25s ease 0.1s; }
 		
-		div.middle > div.side > div.side-head {
-			z-index    : 5;
-			top        : 0;
-			right      : 0;
-			left       : 0;
-			height     : 25px;
-			padding    : 5px 10px 10px 0;
-			background : rgb(194,65,134);
-			line-height: 10px;
-			overflow   : hidden; }
-		
-		div.middle.extend > div.side > div.side-head {
-			height    : 50px; }
-			
-			div.middle > div.side > div.side-head > a.sakura-button.sakura-button-icon {
-				border             : none;
-				background-position: center center;
-				height             : 16px;
-				width              : 16px;
-				padding            : 2px;
-				background-color   : transparent;
-				box-shadow         : none;
-				margin             : 5px 0 0 10px; }
-			
-			div.middle.noside > div.side > div.side-head > a.sakura-button.sakura-button-icon {
-				opacity            : 0; }
-			
-			div.middle > div.side > div.side-head > a.sakura-button.sakura-button-icon:hover {
-				background-color   : rgba(0,0,0,0.1); }
-		
 		div.middle > div.side > div.side-body {
-			top       : 40px;
+			top       : 0;
 			right     : 0;
 			bottom    : 0;
 			left      : 0;
@@ -360,7 +331,7 @@ div.middle {
 			background: #e0e0e0; }
 		
 		div.middle.extend > div.side > div.side-body {
-			top       : 65px;
+			top       : 0;
 			padding   : 5px 0; }
 			
 			div.middle > div.side > div.side-body > a.sakura-button {
@@ -426,7 +397,7 @@ div.middle {
 			transition        : all 0.25s ease 0.25s; }
 		
 		div.middle > div.main.nohead > div.main-head {
-			height    : 1px;
+			height    : 0;
 			color     : rgb(194,65,134); }
 		
 		div.middle > div.main > div.main-head.overline {
@@ -587,7 +558,7 @@ div.middle {
 			background-image   : url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQIHWP4DwABAQEANl9ngAAAAABJRU5ErkJggg==); }
 			
 		div.middle > div.main.nohead > div.main-body {
-			top     : 1px; }
+			top     : 0; }
 		
 		div.middle > div.main > div.main-body.overline::after {
 			height    : 4px;
@@ -897,17 +868,40 @@ div#content-body > div#content-body-form {
 				white-space: nowrap; }
 
 div.dashboard-timelist {
-	position  : relative;
+	position  : absolute;
 	display   : block;
-	float     : left;
-	width     : 30%;
-	height    : 100%;
 	overflow  : visible;
-	margin    : 0 0 0 5px; }
+	margin    : 0; }
 
 div.dashboard-timelist:first-child {
 	margin-left: 0; }
 
+div.dashboard-timelist.reserves {
+	top       : 0;
+	right     : 350px;
+	bottom    : 0;
+	left      : 0;
+	background: #eee; }
+
+div.dashboard-timelist.reserves[rel="3"] {
+	top       : 150px; }
+
+div.dashboard-timelist.recording {
+	top       : 0;
+	right     : 350px;
+	height    : 150px;
+	left      : 0;
+	background: #ffc4d0; }
+
+div.dashboard-timelist.recorded {
+	top       : 0;
+	right     : 0;
+	bottom    : 0;
+	width     : 350px;
+	box-shadow: inset 2px 0 0 #2b2b2b;
+	background: #444; }
+
+/*
 div.dashboard-timelist[rel="2"] {
 	width     : 40%;
 	width     : -webkit-calc((100% - 5px) / 2);
@@ -917,6 +911,7 @@ div.dashboard-timelist[rel="3"] {
 	width     : 30%;
 	width     : -webkit-calc((100% - 10px) / 3);
 	width     :         calc((100% - 10px) / 3); }
+*/
 
 /*
 div.dashboard-timelist[rel="4"] {
@@ -926,6 +921,7 @@ div.dashboard-timelist[rel="4"] {
 
 */
 
+/*
 @media screen and (max-width: 880px){
 div.dashboard-timelist[rel="3"] {
 	width     : 40%;
@@ -961,28 +957,38 @@ div.dashboard-timelist[rel="3"] {
 div.dashboard-timelist[rel="3"]:last-child {
 	margin-bottom: 0; }
 }
+*/
 	
 	div.dashboard-timelist > div.head {
 		position   : absolute;
-		top        : 0;
-		right      : 0;
-		left       : 0;
+		top        : 20px;
+		right      : 10px;
+		left       : 10px;
 		z-index    : 5;
 		padding    : 0;
 		margin     : 0;
-		height     : 29px;
+		height     : 30px;
 		line-height: 20px;
-		font-size  : 16px;
-		color      : white; }
+		font-size  : 20px;
+		font-weight: normal;
+		color      : #444;
+		text-shadow: 0 1px 0 white; }
+	
+	div.dashboard-timelist.recorded > div.head {
+		color      : #ddd;
+		text-shadow: 0 -1px 0 black; }
+	
+	div.dashboard-timelist.recording > div.head {
+		color      : #ab0022; }
 	
 	div.dashboard-timelist > div.main {
 		position   : absolute;
 		padding    : 0 0;
 		margin     : 0;
-		top        : 29px;
-		right      : 0;
-		bottom     : 0;
-		left       : 0;
+		top        : 50px;
+		right      : 10px;
+		bottom     : 10px;
+		left       : 10px;
 		overflow   : visible;
 		overflow-y : auto; }
 		
@@ -990,40 +996,33 @@ div.dashboard-timelist[rel="3"]:last-child {
 			position       : relative;
 			display        : block;
 			text-decoration: none;
-			color          : rgba(255,255,255,0.8);
 			word-break     : keep-all;
 			white-space    : nowrap;
 			line-height    : 16px;
 			font-size      : 12px;
 			font-weight    : bold;
-			padding        : 6px 5px 4px 10px;
+			padding        : 6px 5px 4px 5px;
 			margin         : 0 5px 5px 0;
 			overflow       : visible;
-			background     : rgba(0,0,0,0.2);
 			border         : 1px solid transparent;
-			text-shadow    : 0 -1px 0 rgba(0,0,0,0.5);
-			box-shadow     : inset 4px 0 0 #aaa; }
+			color          : rgba(0,0,0,0.8);
+			text-shadow    : 0 1px 0 rgba(255,255,255,0.5); }
 		
-		div.dashboard-timelist > div.main > a.color-cat-anime { box-shadow: inset 4px 0 0 #fcbde1; }
-		div.dashboard-timelist > div.main > a.color-cat-information { box-shadow: inset 4px 0 0 #bdfce8; }
-		div.dashboard-timelist > div.main > a.color-cat-news { box-shadow: inset 4px 0 0 #d7fcbd; }
-		div.dashboard-timelist > div.main > a.color-cat-sports { box-shadow: inset 4px 0 0 #bdf1fc; }
-		div.dashboard-timelist > div.main > a.color-cat-variety { box-shadow: inset 4px 0 0 #fbfcbd; }
-		div.dashboard-timelist > div.main > a.color-cat-drama { box-shadow: inset 4px 0 0 #fce1c4; }
-		div.dashboard-timelist > div.main > a.color-cat-music { box-shadow: inset 4px 0 0 #bdc9fc; }
-		div.dashboard-timelist > div.main > a.color-cat-cinema { box-shadow: inset 4px 0 0 #d6bdfc; }
-		div.dashboard-timelist > div.main > a.color-cat-etc { box-shadow: inset 4px 0 0 #eeeeee; }
+		div.dashboard-timelist.recorded > div.main > a {
+			color          : rgba(255,255,255,0.8);
+			text-shadow    : 0 -1px 0 rgba(0,0,0,0.5); }
 		
 		div.dashboard-timelist > div.main > a.skip {
 			opacity: 0.4; }
 		
 		div.dashboard-timelist > div.main > a:hover {
-			background     : rgba(0,0,0,0.8);
+			z-index        : 2;
+			background     : rgba(0,0,0,0.25);
 			color          : white; }
 			
 			div.dashboard-timelist > div.main > a > div.title {
 				overflow    : hidden;
-				margin-right: 25px; }
+				margin      : 0 0 4px 0; }
 				
 				div.dashboard-timelist > div.main > a > div.title > span {
 					vertical-align  : top;
@@ -1046,38 +1045,39 @@ div.dashboard-timelist[rel="3"]:last-child {
 				
 				div.dashboard-timelist > div.main > a:hover > div.title > span {
 					background-color: rgba(255,255,255,0.25); }
+				
+				div.dashboard-timelist > div.main > a > div.title > span.episode {
+					background : rgba(255,255,255,0.5);
+					padding    : 2px 4px 1px 3px;
+					margin-left: 5px;
+					text-shadow: none;
+					color      : #d02e54 !important;
+					font-weight: normal;
+					font-size  : 10px; }
 			
-			div.dashboard-timelist > div.main > a > div.channel {
-				color       : rgba(255,255,255,0.5);
-				font-size   : 10px;
-				font-weight : normal;
-				text-shadow : none; }
-			
-			div.dashboard-timelist > div.main > a > div.dynamic-time {
-				color       : rgba(255,255,255,0.5);
+			div.dashboard-timelist > div.main > a > span.dynamic-time {
+				color       : rgba(0,0,0,0.5);
 				font-size   : 11px;
 				font-weight : normal;
 				text-shadow : none; }
 				
-			div.dashboard-timelist > div.main > a > div.dynamic-time.soon {
+			div.dashboard-timelist > div.main > a > span.dynamic-time.soon {
 				color       : lightgreen; }
 				
-			div.dashboard-timelist > div.main > a > div.dynamic-time.now {
+			div.dashboard-timelist > div.main > a > span.dynamic-time.now {
 				color       : orange; }
 			
-			div.dashboard-timelist > div.main > a > div.episode {
-				position   : absolute;
-				top        : 0;
-				right      : 0;
-				background : rgba(0,0,0,0.2);
-				padding    : 2px 4px 1px 3px;
-				text-shadow: none;
-				color      : #ccc !important;
-				font-weight: normal;
-				font-size  : 10px; }
+			div.dashboard-timelist > div.main > a > span.channel {
+				color       : rgba(0,0,0,0.5);
+				margin-left : 10px;
+				font-size   : 10px;
+				font-weight : normal;
+				text-shadow : none; }
+
 
 @media screen and (min-width: 1000px){
-		div.dashboard-timelist[rel="2"] > div.main > a {
+		div.dashboard-timelist.recording > div.main > a,
+		div.dashboard-timelist.reserves > div.main > a {
 			display        : inline-block;
 			width          : 45%;
 			width          : -webkit-calc((100% - 45px) / 2);
@@ -1085,38 +1085,22 @@ div.dashboard-timelist[rel="3"]:last-child {
 }
 
 @media screen and (min-width: 1600px){
-		div.dashboard-timelist[rel="2"] > div.main > a {
+		div.dashboard-timelist.recording > div.main > a,
+		div.dashboard-timelist.reserves > div.main > a {
 			display        : inline-block;
 			width          : 30%;
 			width          : -webkit-calc((100% - 70px) / 3);
 			width          :         calc((100% - 70px) / 3); }
-		
-		div.dashboard-timelist[rel="3"] > div.main > a {
-			display        : inline-block;
-			width          : 45%;
-			width          : -webkit-calc((100% - 50px) / 2);
-			width          :         calc((100% - 50px) / 2); }
 }
 
 @media screen and (max-height: 600px){
 		div.dashboard-timelist > div.main > a {
 			line-height    : 15px;
 			font-size      : 11px;
-			padding        : 6px 5px 4px 10px;
 			margin-bottom  : 2px; }
 			
 			div.dashboard-timelist > div.main > a > div.dynamic-time {
 				font-size   : 10px; }
-}
-
-@media screen and (max-height: 500px){
-			div.dashboard-timelist > div.main > a > div.channel {
-				display: inline-block; }
-			
-			div.dashboard-timelist > div.main > a > div.dynamic-time {
-				color      : rgba(255,255,255,0.3);
-				display    : inline-block;
-				margin-left: 5px; }
 }
 
 div.timeline > div.board {

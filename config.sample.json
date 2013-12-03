@@ -10,6 +10,8 @@
   "wuiHost"        : "::",
   "wuiTlsKeyPath"  : null,
   "wuiTlsCertPath" : null,
+  "wuiOpenServer"  : false,
+  "wuiOpenPort"    : 20772,
   "wuiPreviewer"   : true,
   "wuiStreamer"    : true,
   "wuiFiler"       : true,
