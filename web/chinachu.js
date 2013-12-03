@@ -140,6 +140,18 @@
 		app.view.mainBody = new sakura.ui.Container({ className: 'main-body' }).render(app.view.main).insert(app.pm.content);
 		app.view.footer   = new sakura.ui.Navbar({ className: 'footer' }).render(app.view.body);
 		
+		app.view.header.add({
+			key: 'reload',
+			ui : new sakura.ui.Button({
+				label    : '&nbsp;',
+				className: 'button-reload',
+				icon     : './icons/arrow-circle-315.png',
+				onClick  : function() {
+					app.pm.realizeHash(true);
+				}
+			})
+		});
+		
 		app.pm.index.categoryIndex.each(function(categoryName, i) {
 			var button = new sakura.ui.Button({
 				className: 'button-dent category-' + categoryName,
@@ -163,45 +175,6 @@
 		});
 		
 		//
-		app.view.sideHead.add({
-			key: 'reload',
-			ui : new sakura.ui.Button({
-				label    : '&nbsp;',
-				icon     : './icons/arrow-circle-315.png',
-				onClick  : function() {
-					app.pm.realizeHash(true);
-				}
-			})
-		});
-		
-		app.view.sideHead.add({
-			key: 'collapse',
-			ui : new sakura.ui.Button({
-				label    : '&nbsp;',
-				icon     : './icons/application-sidebar-collapse.png',
-				onClick  : function() {
-					app.view.sideHead.one('collapse').hide();
-					app.view.sideHead.one('expand').show();
-					app.view.middle.entity.addClassName('extend');
-				}
-			})
-		});
-		
-		app.view.sideHead.add({
-			key: 'expand',
-			ui : new sakura.ui.Button({
-				label    : '&nbsp;',
-				icon     : './icons/application-sidebar-expand.png',
-				onClick  : function() {
-					app.view.sideHead.one('collapse').show();
-					app.view.sideHead.one('expand').hide();
-					app.view.middle.entity.removeClassName('extend');
-				}
-			}).hide()
-		});
-		
-		app.view.sideHead.one('collapse').hide();
-		app.view.sideHead.one('expand').show();
 		app.view.middle.entity.addClassName('extend');
 		
 		if (!Prototype.Browser.IE) {
@@ -492,15 +465,6 @@
 	app.socket.on('notify-recording', socketOnNotifyRecording);
 	app.socket.on('notify-recorded' , socketOnNotifyRecorded);
 	app.socket.on('notify-schedule' , socketOnNotifySchedule);
-	
-	/* deprecated */
-	/*
-	app.socket.on('rules'     , socketOnRules);
-	app.socket.on('reserves'  , socketOnReserves);
-	app.socket.on('recording' , socketOnRecording);
-	app.socket.on('recorded'  , socketOnRecorded);
-	app.socket.on('schedule'  , socketOnSchedule);
-	*/
 	
 	// go
 	app.f.enterControlView();

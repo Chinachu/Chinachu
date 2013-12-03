@@ -173,19 +173,34 @@ div.footer > div {
 /* header */
 div.header {
 	top             : 0;
-	height          : 20px;
+	height          : 40px;
 	color           : #fff;
 	
 	background-image   : url(./chinachu.png);
 	background-repeat  : no-repeat;
 	background-position: 10px center;
-	padding            : 10px 10px 10px 50px; }
+	padding            : 0 10px 0 50px; }
 	
+	div.header > a.button-reload {
+		border-radius   : 50%;
+		width           : 16px;
+		height          : 16px;
+		margin-right    : 6px;
+		padding         : 6px !important;
+		border          : none;
+		background-color: rgba(255,255,255,0.1);
+		box-shadow      : none;
+		text-shadow     : none;
+		background-position: center center !important;}
+
+	div.header > a.button-reload:hover {
+		background-color: rgba(255,255,255,0.3); }
+
 	div.header > a.button-dent {
-		padding         : 2px 5px 1px 5px;
+		padding         : 1px 6px 0 6px;
+		line-height     : 39px;
 		font-size       : 11px;
 		border          : none;
-		margin-left     : 2px;
 		background-color: transparent;
 		box-shadow      : none;
 		text-shadow     : none;
@@ -207,30 +222,16 @@ div.header {
 		margin-left: 0; }
 	
 	div.header > a.button-dent.sakura-button.sakura-button-icon {
-		padding-left       : 22px;
-		background-position: 4px center;
+		padding-left       : 23px;
+		background-position: 5px center;
 		background-repeat  : no-repeat; }
 	
 	div.header > a.button-dent.sakura-button.sakura-button-selected {
 		position        : relative;
 		text-shadow     : none !important;
 		background-color: rgb(179,0,95);
-		border-radius   : 3px;
 		color           : #fff;
 		box-shadow      : none; }
-	
-	div.header > a.button-dent.sakura-button.sakura-button-selected:before {
-		content     : ' ';
-		display     : block;
-		position    : absolute;
-		top         : 18px;
-		left        : 50%;
-		margin-left : -6px;
-		width       : 0px;
-		height      : 0px;
-		border-color: transparent transparent rgb(194,65,134) transparent;
-		border-width: 6px;
-		border-style: solid; }
 	
 	div.header > a.button-dent.sakura-button.category-search,
 	div.header > a.button-dent.sakura-button.category-pref {
@@ -318,38 +319,8 @@ div.middle {
 			-o-transition     : all 0.25s ease 0.1s;
 			transition        : all 0.25s ease 0.1s; }
 		
-		div.middle > div.side > div.side-head {
-			z-index    : 5;
-			top        : 0;
-			right      : 0;
-			left       : 0;
-			height     : 25px;
-			padding    : 5px 10px 10px 0;
-			background : rgb(194,65,134);
-			line-height: 10px;
-			overflow   : hidden; }
-		
-		div.middle.extend > div.side > div.side-head {
-			height    : 50px; }
-			
-			div.middle > div.side > div.side-head > a.sakura-button.sakura-button-icon {
-				border             : none;
-				background-position: center center;
-				height             : 16px;
-				width              : 16px;
-				padding            : 2px;
-				background-color   : transparent;
-				box-shadow         : none;
-				margin             : 5px 0 0 10px; }
-			
-			div.middle.noside > div.side > div.side-head > a.sakura-button.sakura-button-icon {
-				opacity            : 0; }
-			
-			div.middle > div.side > div.side-head > a.sakura-button.sakura-button-icon:hover {
-				background-color   : rgba(0,0,0,0.1); }
-		
 		div.middle > div.side > div.side-body {
-			top       : 40px;
+			top       : 0;
 			right     : 0;
 			bottom    : 0;
 			left      : 0;
@@ -360,7 +331,7 @@ div.middle {
 			background: #e0e0e0; }
 		
 		div.middle.extend > div.side > div.side-body {
-			top       : 65px;
+			top       : 0;
 			padding   : 5px 0; }
 			
 			div.middle > div.side > div.side-body > a.sakura-button {
@@ -426,7 +397,7 @@ div.middle {
 			transition        : all 0.25s ease 0.25s; }
 		
 		div.middle > div.main.nohead > div.main-head {
-			height    : 1px;
+			height    : 0;
 			color     : rgb(194,65,134); }
 		
 		div.middle > div.main > div.main-head.overline {
@@ -587,7 +558,7 @@ div.middle {
 			background-image   : url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQIHWP4DwABAQEANl9ngAAAAABJRU5ErkJggg==); }
 			
 		div.middle > div.main.nohead > div.main-body {
-			top     : 1px; }
+			top     : 0; }
 		
 		div.middle > div.main > div.main-body.overline::after {
 			height    : 4px;
@@ -908,9 +879,19 @@ div.dashboard-timelist:first-child {
 div.dashboard-timelist.reserves {
 	top       : 0;
 	right     : 350px;
-	bottom    : 200px;
+	bottom    : 0;
 	left      : 0;
 	background: #eee; }
+
+div.dashboard-timelist.reserves[rel="3"] {
+	top       : 150px; }
+
+div.dashboard-timelist.recording {
+	top       : 0;
+	right     : 350px;
+	height    : 150px;
+	left      : 0;
+	background: #ffc4d0; }
 
 div.dashboard-timelist.recorded {
 	top       : 0;
@@ -996,6 +977,9 @@ div.dashboard-timelist[rel="3"]:last-child {
 	div.dashboard-timelist.recorded > div.head {
 		color      : #ddd;
 		text-shadow: 0 -1px 0 black; }
+	
+	div.dashboard-timelist.recording > div.head {
+		color      : #ab0022; }
 	
 	div.dashboard-timelist > div.main {
 		position   : absolute;
@@ -1090,9 +1074,10 @@ div.dashboard-timelist[rel="3"]:last-child {
 				font-weight : normal;
 				text-shadow : none; }
 
-/*
+
 @media screen and (min-width: 1000px){
-		div.dashboard-timelist[rel="2"] > div.main > a {
+		div.dashboard-timelist.recording > div.main > a,
+		div.dashboard-timelist.reserves > div.main > a {
 			display        : inline-block;
 			width          : 45%;
 			width          : -webkit-calc((100% - 45px) / 2);
@@ -1100,40 +1085,24 @@ div.dashboard-timelist[rel="3"]:last-child {
 }
 
 @media screen and (min-width: 1600px){
-		div.dashboard-timelist[rel="2"] > div.main > a {
+		div.dashboard-timelist.recording > div.main > a,
+		div.dashboard-timelist.reserves > div.main > a {
 			display        : inline-block;
 			width          : 30%;
 			width          : -webkit-calc((100% - 70px) / 3);
 			width          :         calc((100% - 70px) / 3); }
-		
-		div.dashboard-timelist[rel="3"] > div.main > a {
-			display        : inline-block;
-			width          : 45%;
-			width          : -webkit-calc((100% - 50px) / 2);
-			width          :         calc((100% - 50px) / 2); }
 }
 
 @media screen and (max-height: 600px){
 		div.dashboard-timelist > div.main > a {
 			line-height    : 15px;
 			font-size      : 11px;
-			padding        : 6px 5px 4px 10px;
 			margin-bottom  : 2px; }
 			
 			div.dashboard-timelist > div.main > a > div.dynamic-time {
 				font-size   : 10px; }
 }
 
-@media screen and (max-height: 500px){
-			div.dashboard-timelist > div.main > a > div.channel {
-				display: inline-block; }
-			
-			div.dashboard-timelist > div.main > a > div.dynamic-time {
-				color      : rgba(255,255,255,0.3);
-				display    : inline-block;
-				margin-left: 5px; }
-}
-*/
 div.timeline > div.board {
 	z-index    : 10;
 	position   : absolute;
