@@ -348,7 +348,7 @@ function httpServerMain(req, res, query) {
 			return resErr(405);
 		}
 		
-		if (['ico'].indexOf(ext) !== -1) {
+		if (['ico', 'png'].indexOf(ext) !== -1) {
 			res.setHeader('cache-control', 'private, max-age=86400');
 		}
 		
@@ -463,6 +463,10 @@ function httpServerMain(req, res, query) {
 			}/* else if (acceptEncoding.match(/gzip/)) {
 				encoding = 'gzip';
 			}*/
+			
+			if (req.headers['user-agent'] && req.headers['user-agent'].match(/Trident/)) {
+				encoding = '';
+			}
 			
 			var sandbox = {
 				request      : req,

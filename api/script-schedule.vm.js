@@ -24,7 +24,6 @@ if (request.headers['if-modified-since'] && request.headers['if-modified-since']
 		});
 		break;
 	default:
-		response.setHeader('content-length', input.length);
 		response.head(200);
 		if (request.method === 'GET') {
 			response.end(input);

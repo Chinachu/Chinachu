@@ -293,21 +293,26 @@
 		app.chinachu.status = data;
 		document.fire('chinachu:status', app.chinachu.status);
 		
-		if (data.operator.alive) {
-			app.view.footer.one('operator-status').entity.style.backgroundImage = 'url(./icons/status.png)';
-		} else {
-		app.view.footer.one('operator-status').entity.style.backgroundImage = 'url(./icons/status-offline.png)';
+		if (app.view.footer.one('operator-status')._status !== data.operator.alive) {
+			if (data.operator.alive) {
+				app.view.footer.one('operator-status').entity.style.backgroundImage = 'url(./icons/status.png)';
+			} else {
+				app.view.footer.one('operator-status').entity.style.backgroundImage = 'url(./icons/status-offline.png)';
+			}
 		}
+		app.view.footer.one('operator-status')._status = data.operator.alive;
 		
-		app.view.footer.remove('count');
-		app.view.footer.add({
-			key: 'count',
-			ui : new sakura.ui.Button({
-				style: { 'float': 'right', 'cursor': 'default' },
-				label: data.connectedCount,
-				icon : './icons/user-medium-silhouette.png'
-			})
-		});
+		if (app.view.footer.one('count') === null) {
+			app.view.footer.add({
+				key: 'count',
+				ui : new sakura.ui.Button({
+					style: { 'float': 'right', 'cursor': 'default' },
+					label: data.connectedCount,
+					icon : './icons/user-medium-silhouette.png'
+				})
+			});
+		}
+		app.view.footer.one('count').entity.update(data.connectedCount);
 	};
 	
 	var socketOnRules = function _socketOnRules(data) {
