@@ -76,6 +76,8 @@ chinachu_installer () {
   ensure_dir "$USR_DIR/src"
   ensure_dir "$USR_DIR/bin"
   
+  export MAKEFLAGS="-j $((`grep processor /proc/cpuinfo | wc -l` + 1)) -l 3"
+  
   echo "Chinachu Installer Menu:"
   echo "[!] These are installed under all ${CHINACHU_DIR}/..."
   echo "[!] Recommend the Auto installation."
@@ -166,9 +168,12 @@ chinachu_installer_submodule () {
 
 chinachu_installer_node () {
   remove_dir "$NAVE_DIR"
+  ensure_dir "$NAVE_DIR"
   
   echo "Installing Node using Nave..."
-  git clone --depth=1 --branch=master git://github.com/isaacs/nave.git $NAVE_DIR
+  wget -O - https://github.com/isaacs/nave/archive/master.tar.gz | tar zxvf - -C $NAVE_DIR nave-master/nave.sh
+  mv $NAVE_DIR/nave-master/nave.sh $NAVE_DIR/
+  rm -rfv $NAVE_DIR/nave-master
   ${NAVE_DIR}/nave.sh install $NODE_VER
   rm -fv ${NAVE_DIR}/node
   ln -sv $NODE_PATH ${NAVE_DIR}/node
@@ -192,12 +197,13 @@ chinachu_installer_node_modules () {
 
 chinachu_installer_epgdump () {
   remove_dir "$USR_DIR/src/epgdump"
+  ensure_dir "$USR_DIR/src/epgdump"
   
-  local EPGDUMP_GIT="git://github.com/stz2012/epgdump.git"
+  local EPGDUMP_TB="https://github.com/stz2012/epgdump/archive/master.tar.gz"
   
   echo "Installing epgdump from $EPGDUMP_GIT"
-  git clone --depth=1 --branch=master $EPGDUMP_GIT "$USR_DIR/src/epgdump"
-  cd "$USR_DIR/src/epgdump"
+  wget -O - $EPGDUMP_TB | tar zxvf - -C $USR_DIR/src/epgdump
+  cd "$USR_DIR/src/epgdump/epgdump-master"
   
   make || fail "couldn't make epgdump"
   
@@ -231,7 +237,7 @@ chinachu_installer_libx264 () {
     --disable-lavf \
     --disable-swscale
   
-  make -j || fail "couldn't make libx264"
+  make || fail "couldn't make libx264"
   make install && make clean
   
   cd $CHINACHU_DIR
@@ -261,7 +267,7 @@ chinachu_installer_libvpx () {
     --disable-vp9 \
     --disable-unit-tests
   
-  make -j || fail "couldn't make libvpx"
+  make || fail "couldn't make libvpx"
   make install && make clean
   
   cd $CHINACHU_DIR
@@ -288,7 +294,7 @@ chinachu_installer_libfdk-aac () {
     --prefix=$USR_DIR \
     --enable-shared
   
-  make -j || fail "couldn't make libfdk-aac"
+  make || fail "couldn't make libfdk-aac"
   make install-strip && make clean
   
   cd $CHINACHU_DIR
@@ -317,7 +323,7 @@ chinachu_installer_libogg () {
     --prefix=$USR_DIR \
     --enable-shared
   
-  make -j || fail "couldn't make libogg"
+  make || fail "couldn't make libogg"
   make install && make clean
   
   cd $LIBOGG_DIR
@@ -351,7 +357,7 @@ chinachu_installer_libvorbis () {
     --enable-shared \
     --with-ogg=$LIBOGG_DIR
   
-  make -j || fail "couldn't make libvorbis"
+  make || fail "couldn't make libvorbis"
   make install-strip && make clean
   
   cd "$USR_DIR/src/libvorbis"
@@ -444,7 +450,7 @@ chinachu_installer_libav () {
     --extra-cflags="-I${USR_DIR}/include" \
     --extra-ldflags="-L${USR_DIR}/lib"
   
-  make -j || fail "couldn't make libav"
+  make || fail "couldn't make libav"
   make install && make clean
   
   cd $CHINACHU_DIR
