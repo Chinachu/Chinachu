@@ -1,5 +1,5 @@
 {
-	"categoryIndex": ["dashboard", "schedule", "rules", "reserves", "recording", "recorded", "pref", "search"],
+	"categoryIndex": ["dashboard", "schedule", "rules", "reserves", "recording", "recorded", "pref", "search", "live"],
 	
 	"defaultCategory": "dashboard",
 	
@@ -140,6 +140,18 @@
 					"icon" : "./icons/film.png"
 				},
 				
+				"watch": {
+					"label": "Watch",
+					"title": "Watch",
+					"icon" : "./icons/film-youtube.png"
+				}
+			}
+		},
+		"live": {
+			"icon"       : "./icons/film.png",
+			"label"      : "live",
+			"defaultPage": "watch",
+			"page"       : {
 				"watch": {
 					"label": "Watch",
 					"title": "Watch",

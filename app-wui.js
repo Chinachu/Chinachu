@@ -469,7 +469,7 @@ function httpServerMain(req, res, query) {
 		if (ext === 'flv')  { type = 'video/x-flv'; }
 		if (ext === 'webm') { type = 'video/webm'; }
 		if (ext === 'm2ts') { type = 'video/MP2T'; }
-		if (ext === 'm3u8') { type = 'video/x-mpegURL'; }
+		if (ext === 'm3u8') { type = 'application/x-mpegurl'; }
 		if (ext === 'asf')  { type = 'video/x-ms-asf'; }
 		if (ext === 'json') { type = 'application/json; charset=utf-8'; }
 		if (ext === 'xspf') { type = 'application/xspf+xml'; }
