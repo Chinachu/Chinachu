@@ -140,6 +140,18 @@
 		app.view.mainBody = new sakura.ui.Container({ className: 'main-body' }).render(app.view.main).insert(app.pm.content);
 		app.view.footer   = new sakura.ui.Navbar({ className: 'footer' }).render(app.view.body);
 		
+		app.view.header.add({
+			key: 'reload',
+			ui : new sakura.ui.Button({
+				label    : '&nbsp;',
+				className: 'button-reload',
+				icon     : './icons/arrow-circle-315.png',
+				onClick  : function() {
+					app.pm.realizeHash(true);
+				}
+			})
+		});
+		
 		app.pm.index.categoryIndex.each(function(categoryName, i) {
 			var button = new sakura.ui.Button({
 				className: 'button-dent category-' + categoryName,
@@ -163,45 +175,6 @@
 		});
 		
 		//
-		app.view.sideHead.add({
-			key: 'reload',
-			ui : new sakura.ui.Button({
-				label    : '&nbsp;',
-				icon     : './icons/arrow-circle-315.png',
-				onClick  : function() {
-					app.pm.realizeHash(true);
-				}
-			})
-		});
-		
-		app.view.sideHead.add({
-			key: 'collapse',
-			ui : new sakura.ui.Button({
-				label    : '&nbsp;',
-				icon     : './icons/application-sidebar-collapse.png',
-				onClick  : function() {
-					app.view.sideHead.one('collapse').hide();
-					app.view.sideHead.one('expand').show();
-					app.view.middle.entity.addClassName('extend');
-				}
-			})
-		});
-		
-		app.view.sideHead.add({
-			key: 'expand',
-			ui : new sakura.ui.Button({
-				label    : '&nbsp;',
-				icon     : './icons/application-sidebar-expand.png',
-				onClick  : function() {
-					app.view.sideHead.one('collapse').show();
-					app.view.sideHead.one('expand').hide();
-					app.view.middle.entity.removeClassName('extend');
-				}
-			}).hide()
-		});
-		
-		app.view.sideHead.one('collapse').hide();
-		app.view.sideHead.one('expand').show();
 		app.view.middle.entity.addClassName('extend');
 		
 		if (!Prototype.Browser.IE) {
@@ -320,21 +293,26 @@
 		app.chinachu.status = data;
 		document.fire('chinachu:status', app.chinachu.status);
 		
-		if (data.operator.alive) {
-			app.view.footer.one('operator-status').entity.style.backgroundImage = 'url(./icons/status.png)';
-		} else {
-		app.view.footer.one('operator-status').entity.style.backgroundImage = 'url(./icons/status-offline.png)';
+		if (app.view.footer.one('operator-status')._status !== data.operator.alive) {
+			if (data.operator.alive) {
+				app.view.footer.one('operator-status').entity.style.backgroundImage = 'url(./icons/status.png)';
+			} else {
+				app.view.footer.one('operator-status').entity.style.backgroundImage = 'url(./icons/status-offline.png)';
+			}
 		}
+		app.view.footer.one('operator-status')._status = data.operator.alive;
 		
-		app.view.footer.remove('count');
-		app.view.footer.add({
-			key: 'count',
-			ui : new sakura.ui.Button({
-				style: { 'float': 'right', 'cursor': 'default' },
-				label: data.connectedCount,
-				icon : './icons/user-medium-silhouette.png'
-			})
-		});
+		if (app.view.footer.one('count') === null) {
+			app.view.footer.add({
+				key: 'count',
+				ui : new sakura.ui.Button({
+					style: { 'float': 'right', 'cursor': 'default' },
+					label: data.connectedCount,
+					icon : './icons/user-medium-silhouette.png'
+				})
+			});
+		}
+		app.view.footer.one('count').entity.update(data.connectedCount);
 	};
 	
 	var socketOnRules = function _socketOnRules(data) {
@@ -492,15 +470,6 @@
 	app.socket.on('notify-recording', socketOnNotifyRecording);
 	app.socket.on('notify-recorded' , socketOnNotifyRecorded);
 	app.socket.on('notify-schedule' , socketOnNotifySchedule);
-	
-	/* deprecated */
-	/*
-	app.socket.on('rules'     , socketOnRules);
-	app.socket.on('reserves'  , socketOnReserves);
-	app.socket.on('recording' , socketOnRecording);
-	app.socket.on('recorded'  , socketOnRecorded);
-	app.socket.on('schedule'  , socketOnSchedule);
-	*/
 	
 	// go
 	app.f.enterControlView();
