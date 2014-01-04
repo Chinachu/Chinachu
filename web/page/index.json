@@ -1,5 +1,5 @@
 {
-	"categoryIndex": ["dashboard", "schedule", "rules", "reserves", "recording", "recorded", "pref", "search", "live"],
+	"categoryIndex": ["dashboard", "schedule", "rules", "reserves", "recording", "recorded", "pref", "search"],
 	
 	"defaultCategory": "dashboard",
 	
