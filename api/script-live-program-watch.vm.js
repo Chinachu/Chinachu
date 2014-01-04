@@ -1,14 +1,10 @@
 (function() {
 	
-	var program = chinachu.getProgramById(request.param.id, data.recorded);
+	// if (!data.status.feature.streamer) return response.error(403);
 	
-	if (program === null) return response.error(404);
+	// if (program.tuner && program.tuner.isScrambling) return response.error(409);
 	
-	if (!data.status.feature.streamer) return response.error(403);
-	
-	if (program.tuner && program.tuner.isScrambling) return response.error(409);
-	
-	if (!fs.existsSync(program.recorded)) return response.error(410);
+	// if (!fs.existsSync(program.recorded)) return response.error(410);
 	
 	switch (request.type) {
 		// HTTP Live Streaming (Experimental)
@@ -16,7 +12,8 @@
 		case 'm3u8':
 			response.head(200);
 			
-			var current  = (program.end - program.start) / 1000;
+			// var current  = (program.end - program.start) / 1000;
+			var current = 0;
 			
 			var d = {
 				t    : request.query.t      || '5',//duration(seconds)
@@ -30,7 +27,6 @@
 			d.t = parseInt(d.t, 10);
 			
 			response.write('#EXTM3U\n');
-			response.write('#EXT-X-VERSION:3\n');
 			response.write('#EXT-X-TARGETDURATION:' + d.t + '\n');
 			response.write('#EXT-X-MEDIA-SEQUENCE:0\n');
 			
@@ -73,7 +69,7 @@
 		case 'asf':
 			response.head(200);
 			
-			util.log('[streamer] streaming: ' + program.recorded);
+			// util.log('[streamer] streaming: ' + program.recorded);
 			
 			var d = {
 				ss   : request.query.ss     || '0', //start(seconds)
@@ -91,8 +87,6 @@
 			switch (request.type) {
 				case 'm2ts':
 					d.f      = 'mpegts';
-					d['c:v'] = 'libx264'; // draft
-					// d['c:a'] = 'libogg'; // draft
 					break;
 				case 'webm':
 					d.f      = 'webm';
@@ -124,7 +118,7 @@
 			
 			if (!request.query.nore) args.push('-re');
 			
-			args.push('-i', program.recorded);
+			args.push('-i', 'pipe:0');
 			args.push('-ss', '1');
 			
 			if (d.t) { args.push('-t', d.t); }
@@ -147,12 +141,58 @@
 			
 			args.push('-y', '-f', d.f, 'pipe:1');
 			
-			var avconv = child_process.spawn('avconv', args);
+			//args.push('-preset', 'libvpx-720p');
+			//args.push('-pass', '2');
+			//args.push();
+			// util.log(JSON.stringify(args));
+
+			// チューナーを選ぶ
+			var tuner = chinachu.getFreeTunerSync(config.tuners, request.query.type);
 			
+			// チューナーが見つからない
+			if (tuner === null) {
+				util.log('WARNING: 利用可能なチューナーが見つかりません (存在しないかロックされています)');
+				return;
+			}
+			
+			// チューナーをロック
+			try {
+				chinachu.lockTunerSync(tuner);
+			} catch (e) {
+				util.log('WARNING: チューナー(' + tuner.n + ')のロックに失敗しました');
+				response.end();
+				return;
+			}
+			util.log(JSON.stringify(tuner));
+			var tunerCommad = tuner.command;
+			// tunerCommad = tunerCommad.replace(' --sid', '');
+			// tunerCommad = tunerCommad.replace(' <sid>', '');
+			tunerCommad = tunerCommad.replace('<sid>', request.query.sid);
+			tunerCommad = tunerCommad.replace('<channel>', request.query.channel);
+			// return;
+			util.log('LOCK: LIVE ' + tuner.name + ' (n=' + tuner.n + ')');
+	
+			// var out = fs.openSync('/tmp/chinachu-live', 'a');
+			// var recpt1 = child_process.spawn('recpt1', ['--b25', '--strip', request.param.id, '-', '-']);
+			var recpt1 = child_process.spawn(tunerCommad.split(' ')[0], tunerCommad.replace(/[^ ]+ /, '').split(' '));
+			// util.log(['--b25', '--strip', request.param.id, '-', '/dev/stdout'].join(' '));
+			var avconv = child_process.spawn('avconv', args);
+			// util.log(args.join(' '));
+			// util.log(util.inspect(recpt1));
+			util.log(args.join(' '));
+			
+			// avconv.stdin.pipe(recpt1.stdout, {end: false});
 			avconv.stdout.pipe(response);
+
+			recpt1.stdout.on('data', function(d) {
+				avconv.stdin.write(d);
+			});
+			recpt1.stderr.on('data', function(d) {
+				util.log(d);
+			});
 			
 			avconv.stderr.on('data', function(d) {
-				util.log('avconv strerr: ' + d);
+				util.log(d);
 			});
 			
 			avconv.on('exit', function(code) {
@@ -160,12 +200,21 @@
 			});
 			
 			request.on('close', function() {
+				// チューナーのロックを解除
+				try {
+					chinachu.unlockTunerSync(tuner);
+					util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
+				} catch (e) {
+					util.log(e);
+				}
+
 				avconv.stdout.removeAllListeners('data');
 				avconv.stderr.removeAllListeners('data');
 				avconv.kill('SIGKILL');
 			});
 			
 			children.push(avconv);// 安全対策
+			children.push(recpt1);// 安全対策
 			
 			return;
 	}//<--switch
