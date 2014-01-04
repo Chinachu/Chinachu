@@ -160,6 +160,7 @@
 				chinachu.lockTunerSync(tuner);
 			} catch (e) {
 				util.log('WARNING: チューナー(' + tuner.n + ')のロックに失敗しました');
+				response.end();
 				return;
 			}
 			util.log(JSON.stringify(tuner));
