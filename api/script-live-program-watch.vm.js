@@ -146,8 +146,32 @@
 			//args.push();
 			// util.log(JSON.stringify(args));
 
+			// チューナーを選ぶ
+			var tuner = chinachu.getFreeTunerSync(config.tuners, 'GR');
+			
+			// チューナーが見つからない
+			if (tuner === null) {
+				util.log('WARNING: 利用可能なチューナーが見つかりません (存在しないかロックされています)');
+				return;
+			}
+			
+			// チューナーをロック
+			try {
+				chinachu.lockTunerSync(tuner);
+			} catch (e) {
+				util.log('WARNING: チューナー(' + tuner.n + ')のロックに失敗しました');
+			}
+			util.log(JSON.stringify(tuner));
+			var tunerCommad = tuner.command;
+			tunerCommad = tunerCommad.replace(' --sid', '');
+			tunerCommad = tunerCommad.replace(' <sid>', '');
+			tunerCommad = tunerCommad.replace('<channel>', request.param.id);
+			// return;
+			util.log('LOCK: LIVE ' + tuner.name + ' (n=' + tuner.n + ')');
+	
 			// var out = fs.openSync('/tmp/chinachu-live', 'a');
-			var recpt1 = child_process.spawn('recpt1', ['--b25', '--strip', request.param.id, '-', '-']);
+			// var recpt1 = child_process.spawn('recpt1', ['--b25', '--strip', request.param.id, '-', '-']);
+			var recpt1 = child_process.spawn(tunerCommad.split(' ')[0], tunerCommad.replace(/[^ ]+ /, '').split(' '));
 			// util.log(['--b25', '--strip', request.param.id, '-', '/dev/stdout'].join(' '));
 			var avconv = child_process.spawn('avconv', args);
 			// util.log(args.join(' '));
@@ -173,6 +197,14 @@
 			});
 			
 			request.on('close', function() {
+				// チューナーのロックを解除
+				try {
+					chinachu.unlockTunerSync(tuner);
+					util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
+				} catch (e) {
+					util.log(e);
+				}
+				
 				avconv.stdout.removeAllListeners('data');
 				avconv.stderr.removeAllListeners('data');
 				avconv.kill('SIGKILL');

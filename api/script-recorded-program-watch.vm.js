@@ -157,10 +157,11 @@
 			avconv.stdout.pipe(response);
 			
 			avconv.stderr.on('data', function(d) {
-				util.log(d);
+				util.log('avconv strerr: ' + d);
 			});
 			
 			avconv.on('exit', function(code) {
+				util.log('avconv exit: ' + code);
 				setTimeout(function() { response.end(); }, 1000);
 			});
 			
