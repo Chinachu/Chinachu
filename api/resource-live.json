@@ -1,5 +1,5 @@
 {
-  "/:id/watch": {
+  "/watch": {
     "script" : "live-program-watch",
     "methods": ["get"],
     "types"  : ["webm"]

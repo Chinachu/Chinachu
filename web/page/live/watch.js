@@ -467,8 +467,8 @@ P = Class.create(P, {
 	play: function() {
 		this.isPlaying = true;
 		var d = this.d;
-		console.log(d);
 		var c = this.channel;
+		var query = this.self.query;
 		
 		d.ss = d.ss || 0;
 		
@@ -477,7 +477,7 @@ P = Class.create(P, {
 		var getRequestURI = function() {
 			
 			var r = './api/live/' + c + '/watch.' + d.ext;
-			var q = Object.toQueryString(d);
+			var q = Object.toQueryString(d) + '&' + Object.toQueryString(query);
 			
 			return r + '?' + q;
 		};

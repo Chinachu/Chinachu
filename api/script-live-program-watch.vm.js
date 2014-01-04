@@ -147,7 +147,7 @@
 			// util.log(JSON.stringify(args));
 
 			// チューナーを選ぶ
-			var tuner = chinachu.getFreeTunerSync(config.tuners, 'GR');
+			var tuner = chinachu.getFreeTunerSync(config.tuners, request.query.type);
 			
 			// チューナーが見つからない
 			if (tuner === null) {
@@ -160,12 +160,14 @@
 				chinachu.lockTunerSync(tuner);
 			} catch (e) {
 				util.log('WARNING: チューナー(' + tuner.n + ')のロックに失敗しました');
+				return;
 			}
 			util.log(JSON.stringify(tuner));
 			var tunerCommad = tuner.command;
-			tunerCommad = tunerCommad.replace(' --sid', '');
-			tunerCommad = tunerCommad.replace(' <sid>', '');
-			tunerCommad = tunerCommad.replace('<channel>', request.param.id);
+			// tunerCommad = tunerCommad.replace(' --sid', '');
+			// tunerCommad = tunerCommad.replace(' <sid>', '');
+			tunerCommad = tunerCommad.replace('<sid>', request.query.sid);
+			tunerCommad = tunerCommad.replace('<channel>', request.query.channel);
 			// return;
 			util.log('LOCK: LIVE ' + tuner.name + ' (n=' + tuner.n + ')');
 	
@@ -204,7 +206,7 @@
 				} catch (e) {
 					util.log(e);
 				}
-				
+
 				avconv.stdout.removeAllListeners('data');
 				avconv.stderr.removeAllListeners('data');
 				avconv.kill('SIGKILL');
