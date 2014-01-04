@@ -3,13 +3,12 @@ P = Class.create(P, {
 	init: function() {
 		
 		this.view.content.className = 'loading';
-		this.channel = this.self.query.id;
 		
 		this.onNotify = this.refresh.bindAsEventListener(this);
 		document.observe('chinachu:recording', this.onNotify);
 		document.observe('chinachu:recorded', this.onNotify);
 		
-		if (this.channel === null) {
+		if (this.self.query.channel === null) {
 			this.modal = new flagrate.Modal({
 				title: 'チャンネルが見つかりません',
 				text : 'チャンネルが見つかりません',
@@ -50,20 +49,6 @@ P = Class.create(P, {
 	}
 	,
 	initToolbar: function _initToolbar() {
-		
-		var program = this.program;
-		
-		this.view.toolbar.add({
-			key: 'streaming',
-			ui : new sakura.ui.Button({
-				label  : '番組詳細',
-				icon   : './icons/film.png',
-				onClick: function() {
-					window.location.hash = '!/program/view/id=' + program.id + '/';
-				}
-			})
-		});
-		
 		return this;
 	}
 	,
@@ -74,7 +59,7 @@ P = Class.create(P, {
 		this.view.content.className = 'bg-black';
 		this.view.content.update();
 		
-		var titleHtml = this.channel;
+		var titleHtml = "ライブ視聴";
 		// if (typeof program.episode !== 'undefined' && program.episode !== null) {
 		// 	titleHtml += '<span class="episode">#' + program.episode + '</span>';
 		// }
@@ -467,7 +452,6 @@ P = Class.create(P, {
 	play: function() {
 		this.isPlaying = true;
 		var d = this.d;
-		var c = this.channel;
 		var query = this.self.query;
 		
 		d.ss = d.ss || 0;
@@ -476,7 +460,7 @@ P = Class.create(P, {
 		
 		var getRequestURI = function() {
 			
-			var r = './api/live/' + c + '/watch.' + d.ext;
+			var r = './api/live/watch.' + d.ext;
 			var q = Object.toQueryString(d) + '&' + Object.toQueryString(query);
 			
 			return r + '?' + q;
@@ -537,49 +521,6 @@ P = Class.create(P, {
 				}
 			]
 		}).insertTo(this.view.content);
-		
-		var seek = control.getElementByKey('seek');
-		
-		control.getElementByKey('vol').addEventListener('slide', function() {
-			
-			var vol = control.getElementByKey('vol');
-			
-			if (d.ext === 'webm' || d.ext === 'm3u8') {
-				video.volume = vol.getValue() / 10;
-			}
-		});
-		
-		var updateTime = function() {
-			
-			if (seek.isEnabled() === false) return;
-			
-			var current = 0;
-			
-			if (d.ext === 'webm' || d.ext === 'm3u8') {
-				current = video.currentTime;
-			}
-			
-			current += d.ss;
-			
-			current = Math.floor(current);
-			
-			control.getElementByKey('played').updateText(
-				Math.floor(current / 60).toPaddedString(2) + ':' + (current % 60).toPaddedString(2)
-			);
-			seek.setValue(current);
-		};
-		
-		var updateLiveTime = function() {
-			
-			var current = (new Date().getTime() -0) / 1000;
-			
-			current = Math.floor(current);
-			
-			control.getElementByKey('played').updateText(
-				Math.floor(current / 60).toPaddedString(2) + ':' + (current % 60).toPaddedString(2)
-			);
-			seek.setValue(current);
-		}.bind(this);
 		
 		return this;
 	}
