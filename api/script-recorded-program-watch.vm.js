@@ -14,13 +14,12 @@
 		// HTTP Live Streaming (Experimental)
 		case 'txt'://for debug
 		case 'm3u8':
-			// response.setHeader('Content-Type', 'application/x-mpegurl');
 			response.head(200);
 			
 			var current  = (program.end - program.start) / 1000;
 			
 			var d = {
-				t    : request.query.t      || '30',//duration(seconds)
+				t    : request.query.t      || '5',//duration(seconds)
 				s    : request.query.s      || '1024x576',//size(WxH)
 				'c:v': request.query['c:v'] || 'libx264',//vcodec
 				'c:a': request.query['c:a'] || 'libfdk_aac',//acodec
@@ -148,10 +147,6 @@
 			
 			args.push('-y', '-f', d.f, 'pipe:1');
 			
-			//args.push('-preset', 'libvpx-720p');
-			//args.push('-pass', '2');
-			//args.push();
-			util.log(args.join(' '));
 			var avconv = child_process.spawn('avconv', args);
 			
 			avconv.stdout.pipe(response);
@@ -161,7 +156,6 @@
 			});
 			
 			avconv.on('exit', function(code) {
-				util.log('avconv exit: ' + code);
 				setTimeout(function() { response.end(); }, 1000);
 			});
 			
