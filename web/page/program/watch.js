@@ -492,8 +492,10 @@ P = Class.create(P, {
 			if (d.ext === 'webm' || d.ext === 'm3u8') {
 				if (video.paused) {
 					video.play();
+					control.getElementByKey('play').setLabel('Pause');
 				} else {
 					video.pause();
+					control.getElementByKey('play').setLabel('Play');
 				}
 			}
 		};
