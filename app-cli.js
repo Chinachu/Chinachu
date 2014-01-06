@@ -796,7 +796,11 @@ function chinachuCleanup() {
 				
 				t.cell('action', 'exist');
 			} else {
-				t.cell('action', 'removed');
+				if (opts.get('simulation')) {
+					t.cell('action', '[simulation] removed');
+				} else {
+					t.cell('action', 'removed');
+				}
 			}
 			
 			t.cell('Program ID', a.id);
@@ -807,7 +811,10 @@ function chinachuCleanup() {
 		
 		return array;
 	})();
-	fs.writeFileSync(RECORDED_DATA_FILE, JSON.stringify(recorded));
+	
+	if (!opts.get('simulation')) {
+		fs.writeFileSync(RECORDED_DATA_FILE, JSON.stringify(recorded));
+	}
 	
 	util.puts(t.print().trim());
 	
