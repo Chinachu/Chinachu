@@ -1,10 +1,8 @@
 (function() {
 	
-	// if (!data.status.feature.streamer) return response.error(403);
+	if (!data.status.feature.streamer) return response.error(403);
 	
-	// if (program.tuner && program.tuner.isScrambling) return response.error(409);
-	
-	// if (!fs.existsSync(program.recorded)) return response.error(410);
+	if (program.tuner && program.tuner.isScrambling) return response.error(409);
 	
 	switch (request.type) {
 		// HTTP Live Streaming (Experimental)
