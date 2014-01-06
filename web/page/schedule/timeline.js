@@ -127,8 +127,24 @@ P = Class.create(P, {
 					height: height + 'px'
 				}
 			}).insert(channel.name).render(this.view.head);
+
+			// ライブ視聴用コンテキストメニュー
+			var contextMenuItems = [
+				{
+					label   : 'ライブ視聴',
+					icon    : './icons/film.png',
+					onSelect: function () {
+						window.location.hash = '!/channel/watch/id=' + channel.id;
+					}
+				}
+			];
+			flagrate.createContextMenu({
+				target: ch.entity,
+				items : contextMenuItems
+			});
 			
 			ch.entity.observe('click', function() {
+				console.log(channel);
 				window.location.hash = '!/search/top/skip=1&chid=' + channel.id + '/';
 			});
 			

@@ -145,6 +145,19 @@
 					"icon" : "./icons/film-youtube.png"
 				}
 			}
+		},
+
+		"channel": {
+			"icon"       : "./icons/film.png",
+			"label"      : "channel",
+			"defaultPage": "watch",
+			"page"       : {
+				"watch": {
+					"label": "Watch",
+					"title": "Watch",
+					"icon" : "./icons/film-youtube.png"
+				}
+			}
 		}
 	}
 }

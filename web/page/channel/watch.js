@@ -4,16 +4,14 @@ P = Class.create(P, {
 		
 		this.view.content.className = 'loading';
 		
-		this.program = chinachu.util.getProgramById(this.self.query.id);
-		
 		this.onNotify = this.refresh.bindAsEventListener(this);
 		document.observe('chinachu:recording', this.onNotify);
 		document.observe('chinachu:recorded', this.onNotify);
 		
-		if (this.program === null) {
+		if (!this.self.query.id) {
 			this.modal = new flagrate.Modal({
-				title: '番組が見つかりません',
-				text : '番組が見つかりません',
+				title: 'チャンネルが見つかりません',
+				text : 'チャンネルが見つかりません',
 				buttons: [
 					{
 						label: 'ダッシュボード',
@@ -26,6 +24,8 @@ P = Class.create(P, {
 			}).show();
 			return this;
 		}
+		
+		this.channelId = this.self.query.id;
 		
 		this.initToolbar();
 		this.draw();
@@ -51,44 +51,30 @@ P = Class.create(P, {
 	}
 	,
 	initToolbar: function _initToolbar() {
-		
-		var program = this.program;
-		
-		this.view.toolbar.add({
-			key: 'streaming',
-			ui : new sakura.ui.Button({
-				label  : '番組詳細',
-				icon   : './icons/film.png',
-				onClick: function() {
-					window.location.hash = '!/program/view/id=' + program.id + '/';
-				}
-			})
-		});
-		
 		return this;
 	}
 	,
 	draw: function() {
 		
-		var program = this.program;
+		//var program = this.program;
 		
 		this.view.content.className = 'bg-black';
 		this.view.content.update();
 		
-		var titleHtml = program.flags.invoke('sub', /.+/, '<span class="flag #{0}">#{0}</span>').join('') + program.title;
-		if (typeof program.episode !== 'undefined' && program.episode !== null) {
-			titleHtml += '<span class="episode">#' + program.episode + '</span>';
-		}
-		titleHtml += '<span class="id">#' + program.id + '</span>';
+		var titleHtml = "ライブ視聴";
+		// if (typeof program.episode !== 'undefined' && program.episode !== null) {
+		// 	titleHtml += '<span class="episode">#' + program.episode + '</span>';
+		// }
+		// titleHtml += '<span class="id">#' + program.id + '</span>';
 		
-		if (program.isManualReserved) {
-			titleHtml = '<span class="flag manual">手動</span>' + titleHtml;
-		}
+		// if (program.isManualReserved) {
+		// 	titleHtml = '<span class="flag manual">手動</span>' + titleHtml;
+		// }
 		
 		setTimeout(function() {
 			this.view.title.update(titleHtml);
 		}.bind(this), 0);
-		
+
 		var modal = this.modal = new flagrate.Modal({
 			disableCloseByMask: true,
 			disableCloseButton: true,
@@ -111,13 +97,13 @@ P = Class.create(P, {
 							return;
 						}*/
 						
-						if (d.format === 'm2ts') {
-							new flagrate.Modal({
-								title: 'エラー',
-								text : 'MPEG-2 TSコンテナの再生は未サポートです。XSPFが利用できます。'
-							}).show();
-							return;
-						}
+						// if (d.format === 'm2ts') {
+						// 	new flagrate.Modal({
+						// 		title: 'エラー',
+						// 		text : 'MPEG-2 TSコンテナの再生は未サポートです。XSPFが利用できます。'
+						// 	}).show();
+						// 	return;
+						// }
 						
 						modal.close();
 						
@@ -464,31 +450,24 @@ P = Class.create(P, {
 		this.form.render(modal.content);
 		
 		return this;
-	}
-	,
+	},
 	play: function() {
-		
 		this.isPlaying = true;
-		
-		var p = this.program;
 		var d = this.d;
 		
 		d.ss = d.ss || 0;
 		
-		if (p._isRecording) d.ss = '';
+		// if (p._isRecording) d.ss = '';
 		
 		var getRequestURI = function() {
 			
-			var r = './api/' + (!!p._isRecording ? 'recording' : 'recorded') + '/' + p.id + '/watch.' + d.ext;
+			var r = './api/channel/' + this.channelId + '/watch.' + d.ext;
 			var q = Object.toQueryString(d);
 			
 			return r + '?' + q;
-		};
+		}.bind(this);
 		
 		var togglePlay = function() {
-			
-			if (p._isRecording) return;
-			
 			if (d.ext === 'webm' || d.ext === 'm3u8') {
 				if (video.paused) {
 					video.play();
@@ -525,22 +504,7 @@ P = Class.create(P, {
 			items: [
 				{
 					key    : 'play',
-					element: new flagrate.Button({ label: 'Play / Pause', onSelect: togglePlay})
-				},
-				'--',
-				{
-					key    : 'played',
-					element: new flagrate.Element('span').insertText('00:00')
-				},
-				{
-					key    : 'seek',
-					element: new flagrate.Slider({ value: 0, max: p.seconds, className: 'seek' })
-				},
-				{
-					key    : 'duration',
-					element: new flagrate.Element('span').insertText(
-						Math.floor(p.seconds / 60).toPaddedString(2) + ':' + (p.seconds % 60).toPaddedString(2)
-					)
+					element: new flagrate.Button({ label: 'Pause', onSelect: togglePlay})
 				},
 				'--',
 				{
@@ -550,14 +514,6 @@ P = Class.create(P, {
 			]
 		}).insertTo(this.view.content);
 		
-		var seek = control.getElementByKey('seek');
-		
-		if (p._isRecording) {
-			seek.disable();
-			control.getElementByKey('play').updateText('Live');
-			control.getElementByKey('play').disable();
-		}
-		
 		control.getElementByKey('vol').addEventListener('slide', function() {
 			
 			var vol = control.getElementByKey('vol');
@@ -566,66 +522,6 @@ P = Class.create(P, {
 				video.volume = vol.getValue() / 10;
 			}
 		});
-		
-		seek.addEventListener('slide', function() {
-			
-			var value = seek.getValue();
-			
-			d.ss = value;
-			var uri = getRequestURI();
-			
-			if (d.ext === 'webm') {
-				seek.disable();
-				
-				video.src = uri;
-				
-				setTimeout(function() {
-					seek.enable();
-				}, 3000);
-			}
-		});
-		
-		var updateTime = function() {
-			
-			if (seek.isEnabled() === false) return;
-			
-			var current = 0;
-			
-			if (d.ext === 'webm' || d.ext === 'm3u8') {
-				current = video.currentTime;
-			}
-			
-			current += d.ss;
-			
-			current = Math.floor(current);
-			
-			control.getElementByKey('played').updateText(
-				Math.floor(current / 60).toPaddedString(2) + ':' + (current % 60).toPaddedString(2)
-			);
-			seek.setValue(current);
-		};
-		
-		var updateLiveTime = function() {
-			
-			var current = (new Date().getTime() - p.start) / 1000;
-			
-			current = Math.floor(current);
-			
-			if (current > p.seconds) {
-				this.app.pm.realizeHash(true);
-			}
-			
-			control.getElementByKey('played').updateText(
-				Math.floor(current / 60).toPaddedString(2) + ':' + (current % 60).toPaddedString(2)
-			);
-			seek.setValue(current);
-		}.bind(this);
-		
-		if (p._isRecording) {
-			this.timer.updateLiveTime = setInterval(updateLiveTime, 250);
-		} else {
-			this.timer.updateTime = setInterval(updateTime, 250);
-		}
 		
 		return this;
 	}

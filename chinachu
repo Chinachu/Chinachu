@@ -836,7 +836,7 @@ chinachu_cleanup () {
     read line
     case $line in
       [yY])
-        node app-cli.js -mode cleanup && return 0
+        node app-cli.js -mode cleanup "$@" && return 0
         ;;
       [nN])
         echo "Abort." && return 0

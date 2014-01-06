@@ -1,0 +1,7 @@
+{
+  "/:chid/watch": {
+    "script" : "channel-watch",
+    "methods": ["get"],
+    "types"  : ["webm"]
+  }
+}
