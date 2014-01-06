@@ -8,7 +8,7 @@ P = Class.create(P, {
 		document.observe('chinachu:recording', this.onNotify);
 		document.observe('chinachu:recorded', this.onNotify);
 		
-		if (this.self.query.channel === null) {
+		if (!this.self.query.id) {
 			this.modal = new flagrate.Modal({
 				title: 'チャンネルが見つかりません',
 				text : 'チャンネルが見つかりません',
@@ -24,6 +24,8 @@ P = Class.create(P, {
 			}).show();
 			return this;
 		}
+		
+		this.channelId = this.self.query.id;
 		
 		this.initToolbar();
 		this.draw();
@@ -452,7 +454,6 @@ P = Class.create(P, {
 	play: function() {
 		this.isPlaying = true;
 		var d = this.d;
-		var query = this.self.query;
 		
 		d.ss = d.ss || 0;
 		
@@ -460,18 +461,20 @@ P = Class.create(P, {
 		
 		var getRequestURI = function() {
 			
-			var r = './api/live/watch.' + d.ext;
-			var q = Object.toQueryString(d) + '&' + Object.toQueryString(query);
+			var r = './api/channel/' + this.channelId + '/watch.' + d.ext;
+			var q = Object.toQueryString(d);
 			
 			return r + '?' + q;
-		};
+		}.bind(this);
 		
 		var togglePlay = function() {
 			if (d.ext === 'webm' || d.ext === 'm3u8') {
 				if (video.paused) {
 					video.play();
+					control.getElementByKey('play').setLabel('Pause');
 				} else {
 					video.pause();
+					control.getElementByKey('play').setLabel('Play');
 				}
 			}
 		};
@@ -501,18 +504,7 @@ P = Class.create(P, {
 			items: [
 				{
 					key    : 'play',
-					element: new flagrate.Button({ label: 'Play / Pause', onSelect: togglePlay})
-				},
-				'--',
-				{
-					key    : 'played',
-					element: new flagrate.Element('span').insertText('00:00')
-				},
-				{
-					key    : 'duration',
-					element: new flagrate.Element('span').insertText(
-						"-"
-					)
+					element: new flagrate.Button({ label: 'Pause', onSelect: togglePlay})
 				},
 				'--',
 				{
@@ -521,6 +513,15 @@ P = Class.create(P, {
 				}
 			]
 		}).insertTo(this.view.content);
+		
+		control.getElementByKey('vol').addEventListener('slide', function() {
+			
+			var vol = control.getElementByKey('vol');
+			
+			if (d.ext === 'webm' || d.ext === 'm3u8') {
+				video.volume = vol.getValue() / 10;
+			}
+		});
 		
 		return this;
 	}

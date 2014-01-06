@@ -128,13 +128,13 @@ P = Class.create(P, {
 				}
 			}).insert(channel.name).render(this.view.head);
 
-			// ライブ視聴用コンテキスト
+			// ライブ視聴用コンテキストメニュー
 			var contextMenuItems = [
 				{
 					label   : 'ライブ視聴',
 					icon    : './icons/film.png',
 					onSelect: function () {
-						window.location.hash = '!/live/watch/type=' + channel.type + '&channel=' + channel.channel + '&sid=' + channel.sid + '/';
+						window.location.hash = '!/channel/watch/id=' + channel.id;
 					}
 				}
 			];

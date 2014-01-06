@@ -147,9 +147,9 @@
 			}
 		},
 
-		"live": {
+		"channel": {
 			"icon"       : "./icons/film.png",
-			"label"      : "live",
+			"label"      : "channel",
 			"defaultPage": "watch",
 			"page"       : {
 				"watch": {

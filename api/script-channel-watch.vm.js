@@ -1,8 +1,20 @@
+/*
+todo
+チューナー操作はオペレーターに任せるべき
+*/
 (function() {
 	
-	if (!data.status.feature.streamer) return response.error(403);
+	var channel = null;
 	
-	if (program.tuner && program.tuner.isScrambling) return response.error(409);
+	data.schedule.forEach(function(ch) {
+		if (ch.id === request.param.chid) {
+			channel = ch;
+		}
+	});
+	
+	if (channel === null) return response.error(404);
+	
+	if (!data.status.feature.streamer) return response.error(403);
 	
 	switch (request.type) {
 		// HTTP Live Streaming (Experimental)
@@ -138,19 +150,19 @@
 			if (d['c:v'] === 'libvpx')  args.push('-deadline', 'realtime');
 			
 			args.push('-y', '-f', d.f, 'pipe:1');
-			
-			//args.push('-preset', 'libvpx-720p');
-			//args.push('-pass', '2');
-			//args.push();
-			// util.log(JSON.stringify(args));
 
 			// チューナーを選ぶ
-			var tuner = chinachu.getFreeTunerSync(config.tuners, request.query.type);
+			var tuner = chinachu.getFreeTunerSync(config.tuners, channel.type);
 			
 			// チューナーが見つからない
 			if (tuner === null) {
 				util.log('WARNING: 利用可能なチューナーが見つかりません (存在しないかロックされています)');
-				return;
+				return response.error(409);
+			}
+			
+			// スクランブルされている
+			if (tuner.isScrambling) {
+				return response.error(409);
 			}
 			
 			// チューナーをロック
@@ -158,15 +170,14 @@
 				chinachu.lockTunerSync(tuner);
 			} catch (e) {
 				util.log('WARNING: チューナー(' + tuner.n + ')のロックに失敗しました');
-				response.end();
-				return;
+				return response.error(500);
 			}
 			util.log(JSON.stringify(tuner));
 			var tunerCommad = tuner.command;
 			// tunerCommad = tunerCommad.replace(' --sid', '');
 			// tunerCommad = tunerCommad.replace(' <sid>', '');
-			tunerCommad = tunerCommad.replace('<sid>', request.query.sid);
-			tunerCommad = tunerCommad.replace('<channel>', request.query.channel);
+			tunerCommad = tunerCommad.replace('<sid>', channel.sid);
+			tunerCommad = tunerCommad.replace('<channel>', channel.channel);
 			// return;
 			util.log('LOCK: LIVE ' + tuner.name + ' (n=' + tuner.n + ')');
 	
@@ -217,4 +228,4 @@
 			return;
 	}//<--switch
 
-})();
+}());
