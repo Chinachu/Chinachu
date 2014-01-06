@@ -1,6 +1,6 @@
 {
   "/watch": {
-    "script" : "live-program-watch",
+    "script" : "channel-watch",
     "methods": ["get"],
     "types"  : ["webm"]
   }
