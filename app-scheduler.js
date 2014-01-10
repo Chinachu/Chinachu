@@ -416,7 +416,11 @@ function getEpg() {
 		schedule = s;
 		
 		schedule.sort(function (a, b) {
-			return a.n - b.n;
+			if (a.n === b.n) {
+				return a.sid - b.sid;
+			} else {
+				return a.n - b.n;
+			}
 		});
 		
 		if (!opts.get('s')) {
@@ -610,7 +614,22 @@ function getEpg() {
 								
 								ch.programs = convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
 								
-								s.push(ch);
+								s.forEach(function (c) {
+									c.programs.forEach(function (p) {
+										var j;
+										for (j = 0; j < ch.programs.length; j++) {
+											if (c.n === ch.n) {
+												if (p.id.split('-')[1] === ch.programs[j].id.split('-')[1]) {
+													ch.programs.splice(j, 1);
+												}
+											}
+										}
+									});
+								});
+								
+								if (ch.programs.length !== 0) {
+									s.push(ch);
+								}
 								
 								util.log('CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' + ch.id + ' (sid=' + ch.sid + ') ' + '(programs=' + ch.programs.length.toString(10) + ')' + ' - ' + ch.name);
 							});
