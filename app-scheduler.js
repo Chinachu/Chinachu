@@ -277,10 +277,9 @@ function convertPrograms(p, ch) {
 			.replace(/【.{1,2}】/g, '')
 			.replace(/\[.\]/g, '')
 			.replace(/([^場版])「.+」/g, '$1')
-			.replace(/(#[0-9]+|(＃|♯)[０１２３４５６７８９]+)/g, '')
+			.replace(/(#|＃|♯)[0-9０１２３４５６７８９]+/g, '')
 			.replace(/第([0-9]+|[０１２３４５６７８９零一壱二弐三参四五伍六七八九十拾]+)話/g, '')
 			.replace(/([0-9]+|[０１２３４５６７８９]+)品目/g, '')
-			.replace(/喪([0-9]+|[０１２３４５６７８９]+)/g, '')
 			.trim();
 		
 		var desc = c.desc[0]._ || '';
@@ -304,7 +303,7 @@ function convertPrograms(p, ch) {
 		if (flags.indexOf('新') !== -1) {
 			episodeNumber = 1;
 		} else {
-			var episodeNumberMatch = (c.title[0]._ + desc).match(/(#[0-9]+|(＃|♯)[０１２３４５６７８９]+|第([0-9]+|[０１２３４５６７８９零一二三四五六七八九十]+)話)|([0-9]+|[０１２３４５６７８９]+)品目|喪([0-9]+|[０１２３４５６７８９]+)|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
+			var episodeNumberMatch = (c.title[0]._ + desc).match(/((#|＃|♯)[0-9０１２３４５６７８９]+|第([0-9]+|[０１２３４５６７８９零一二三四五六七八九十]+)話)|([0-9]+|[０１２３４５６７８９]+)品目|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
 			if (episodeNumberMatch !== null) {
 				var episodeNumberString = episodeNumberMatch[0];
 				
