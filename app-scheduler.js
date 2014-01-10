@@ -277,10 +277,9 @@ function convertPrograms(p, ch) {
 			.replace(/【.{1,2}】/g, '')
 			.replace(/\[.\]/g, '')
 			.replace(/([^場版])「.+」/g, '$1')
-			.replace(/(#[0-9]+|(＃|♯)[０１２３４５６７８９]+)/g, '')
+			.replace(/(#|＃|♯)[0-9０１２３４５６７８９]+/g, '')
 			.replace(/第([0-9]+|[０１２３４５６７８９零一壱二弐三参四五伍六七八九十拾]+)話/g, '')
 			.replace(/([0-9]+|[０１２３４５６７８９]+)品目/g, '')
-			.replace(/喪([0-9]+|[０１２３４５６７８９]+)/g, '')
 			.trim();
 		
 		var desc = c.desc[0]._ || '';
@@ -304,7 +303,7 @@ function convertPrograms(p, ch) {
 		if (flags.indexOf('新') !== -1) {
 			episodeNumber = 1;
 		} else {
-			var episodeNumberMatch = (c.title[0]._ + desc).match(/(#[0-9]+|(＃|♯)[０１２３４５６７８９]+|第([0-9]+|[０１２３４５６７８９零一二三四五六七八九十]+)話)|([0-9]+|[０１２３４５６７８９]+)品目|喪([0-9]+|[０１２３４５６７８９]+)|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
+			var episodeNumberMatch = (c.title[0]._ + desc).match(/((#|＃|♯)[0-9０１２３４５６７８９]+|第([0-9]+|[０１２３４５６７８９零一二三四五六七八九十]+)話)|([0-9]+|[０１２３４５６７８９]+)品目|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
 			if (episodeNumberMatch !== null) {
 				var episodeNumberString = episodeNumberMatch[0];
 				
@@ -416,7 +415,11 @@ function getEpg() {
 		schedule = s;
 		
 		schedule.sort(function (a, b) {
-			return a.n - b.n;
+			if (a.n === b.n) {
+				return a.sid - b.sid;
+			} else {
+				return a.n - b.n;
+			}
 		});
 		
 		if (!opts.get('s')) {
@@ -610,7 +613,22 @@ function getEpg() {
 								
 								ch.programs = convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
 								
-								s.push(ch);
+								s.forEach(function (c) {
+									c.programs.forEach(function (p) {
+										var j;
+										for (j = 0; j < ch.programs.length; j++) {
+											if (c.n === ch.n) {
+												if (p.id.split('-')[1] === ch.programs[j].id.split('-')[1]) {
+													ch.programs.splice(j, 1);
+												}
+											}
+										}
+									});
+								});
+								
+								if (ch.programs.length !== 0) {
+									s.push(ch);
+								}
 								
 								util.log('CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' + ch.id + ' (sid=' + ch.sid + ') ' + '(programs=' + ch.programs.length.toString(10) + ')' + ' - ' + ch.name);
 							});
