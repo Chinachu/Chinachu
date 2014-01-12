@@ -462,18 +462,18 @@ function getEpg() {
 				
 				// おわり
 				process.nextTick(callback);
-				util.log('-- (give up)');
+				util.log('[' + i + '] -- (give up)');
 				
 				return;
 			}
 			
 			setTimeout(get, 3000, i, residue, callback);
-			util.log('-- (retrying, residue=' + residue + ')');
+			util.log('[' + i + '] -- (retrying, residue=' + residue + ')');
 		};
 		
 		var channel = channels[i];
 		
-		util.log(JSON.stringify(channel));
+		util.log('[' + i + '] ' + JSON.stringify(channel));
 		
 		// チェック
 		switch (channel.type) {
@@ -486,7 +486,7 @@ function getEpg() {
 				if (s[j].channel === channel.channel) {
 					// 取得済み
 					process.nextTick(callback);
-					util.log('-- (pass)');
+					util.log('[' + i + '] -- (pass)');
 					
 					return;
 				}
@@ -500,7 +500,7 @@ function getEpg() {
 				if ((s[j].channel === channel.channel) && (s[j].sid === channel.sid)) {
 					// 取得済み
 					process.nextTick(callback);
-					util.log('-- (pass)');
+					util.log('[' + i + '] -- (pass)');
 					
 					return;
 				}
@@ -512,7 +512,7 @@ function getEpg() {
 			// todo
 			// 知らないタイプ
 			process.nextTick(callback);
-			util.log('-- (unknown)');
+			util.log('[' + i + '] -- (unknown)');
 			
 			return;
 		}//<-- switch
@@ -558,7 +558,7 @@ function getEpg() {
 				util.log('UNLINK: ' + recPath);
 				
 				if (err !== null) {
-					util.log('EPG: 不明なエラー');
+					util.log('[' + i + '] EPG: 不明なエラー');
 					util.log(err);
 					process.nextTick(retry);
 					
@@ -570,7 +570,7 @@ function getEpg() {
 					xmlParser.parseString(stdout, function (err, result) {
 						
 						if (err) {
-							util.log('EPG: パースに失敗');
+							util.log('[' + i + '] EPG: パースに失敗');
 							util.log(err);
 							process.nextTick(retry);
 							
@@ -578,21 +578,21 @@ function getEpg() {
 						}
 						
 						if (result === null) {
-							util.log('EPG: パースに失敗 (result=null)');
+							util.log('[' + i + '] EPG: パースに失敗 (result=null)');
 							process.nextTick(retry);
 							
 							return;
 						}
 
 						if (result.tv.channel === undefined) {
-							util.log('EPG: データが空 (result.tv.channel is undefined)');
+							util.log('[' + i + '] EPG: データが空 (result.tv.channel is undefined)');
 							process.nextTick(retry);
 
 							return;
 						}
 						
 						if (!result.tv.channel[0]['display-name'] || !result.tv.channel[0]['display-name'][0] || !result.tv.channel[0]['display-name'][0]._) {
-							util.log('EPG: データが不正 (display-name is incorrect)');
+							util.log('[' + i + '] EPG: データが不正 (display-name is incorrect)');
 							process.nextTick(retry);
 							
 							return;
@@ -630,7 +630,7 @@ function getEpg() {
 									s.push(ch);
 								}
 								
-								util.log('CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' + ch.id + ' (sid=' + ch.sid + ') ' + '(programs=' + ch.programs.length.toString(10) + ')' + ' - ' + ch.name);
+								util.log('[' + i + '] ' + 'CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' + ch.id + ' (sid=' + ch.sid + ') ' + '(programs=' + ch.programs.length.toString(10) + ')' + ' - ' + ch.name);
 							});
 							
 							break;
@@ -670,7 +670,7 @@ function getEpg() {
 								
 								s.push(ch);
 								
-								util.log('CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' + ch.id + ' (sid=' + ch.sid + ') ' + '(programs=' + ch.programs.length.toString(10) + ')' + ' - ' + ch.name);
+								util.log('[' + i + '] ' + 'CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' + ch.id + ' (sid=' + ch.sid + ') ' + '(programs=' + ch.programs.length.toString(10) + ')' + ' - ' + ch.name);
 							});
 							
 							break;
@@ -710,7 +710,7 @@ function getEpg() {
 								
 								s.push(ch);
 								
-								util.log('CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' + ch.id + ' (sid=' + ch.sid + ') ' + '(programs=' + ch.programs.length.toString(10) + ')' + ' - ' + ch.name);
+								util.log('[' + i + '] ' + 'CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' + ch.id + ' (sid=' + ch.sid + ') ' + '(programs=' + ch.programs.length.toString(10) + ')' + ' - ' + ch.name);
 							});
 							
 							break;
@@ -750,7 +750,7 @@ function getEpg() {
 								
 								s.push(ch);
 								
-								util.log('CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' + ch.id + ' (sid=' + ch.sid + ') ' + '(programs=' + ch.programs.length.toString(10) + ')' + ' - ' + ch.name);
+								util.log('[' + i + '] ' + 'CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' + ch.id + ' (sid=' + ch.sid + ') ' + '(programs=' + ch.programs.length.toString(10) + ')' + ' - ' + ch.name);
 							});
 							
 							break;
@@ -761,14 +761,14 @@ function getEpg() {
 						}//<-- switch
 						
 						setTimeout(callback, 3000);
-						util.log('-- (ok)');
+						util.log('[' + i + '] -- (ok)');
 					});
 				} catch (e) {
-					util.log('EPG: エラー (' + e + ')');
+					util.log('[' + i + '] EPG: エラー (' + e + ')');
 					process.nextTick(retry);
 				}
 			});
-			util.log('EXEC: epgdump (pid=' + epgdumpProc.pid + ')');
+			util.log('[' + i + '] EXEC: epgdump (pid=' + epgdumpProc.pid + ')');
 		};//<-- dumpEpg
 		
 		if (opts.get('ch') && opts.get('l')) {
@@ -779,7 +779,7 @@ function getEpg() {
 					copied = true;
 					
 					if (err) {
-						util.log('ERROR: 一時ファイルの作成に失敗しました');
+						util.log('[' + i + '] ERROR: 一時ファイルの作成に失敗しました');
 						process.nextTick(retry);
 						
 						return;
@@ -791,7 +791,7 @@ function getEpg() {
 			
 			var load  = opts.get('l');
 			if (!fs.existsSync(load)) {
-				util.log('WARNING: 指定したファイルが見つかりません');
+				util.log('[' + i + '] WARNING: 指定したファイルが見つかりません');
 				process.nextTick(retry);
 				
 				return;
@@ -822,7 +822,7 @@ function getEpg() {
 			
 			// チューナーが見つからない
 			if (tuner === null) {
-				util.log('WARNING: 利用可能なチューナーが見つかりませんでした (存在しないかロックされています)');
+				util.log('[' + i + '] WARNING: 利用可能なチューナーが見つかりませんでした (存在しないかロックされています)');
 				process.nextTick(retry);
 				
 				return;
@@ -832,19 +832,19 @@ function getEpg() {
 			try {
 				chinachu.lockTunerSync(tuner);
 			} catch (e) {
-				util.log('WARNING: チューナー(' + tuner.n + ')のロックに失敗しました');
+				util.log('[' + i + '] WARNING: チューナー(' + tuner.n + ')のロックに失敗しました');
 				process.nextTick(retry);
 				
 				return;
 			}
-			util.log('LOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
+			util.log('[' + i + '] LOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
 			
 			var unlockTuner = function _unlockTuner() {
 				
 				// チューナーのロックを解除
 				try {
 					chinachu.unlockTunerSync(tuner);
-					util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
+					util.log('[' + i + '] UNLOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
 				} catch (e) {
 					util.log(e);
 				}
@@ -857,23 +857,21 @@ function getEpg() {
 			
 			// 録画プロセスを生成
 			var recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
-			util.log('SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
+			util.log('[' + i + '] SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
 			
 			// プロセスタイムアウト
 			setTimeout(function () { recProc.kill('SIGTERM'); }, 1000 * (config.schedulerEpgRecordTime || 60));
 			
 			// 一時ファイルへの書き込みストリームを作成
 			var recFile = fs.createWriteStream(recPath);
-			util.log('STREAM: ' + recPath);
+			util.log('[' + i + '] STREAM: ' + recPath);
 			
 			// ts出力
-			recProc.stdout.on('data', function (data) {
-				recFile.write(data);
-			});
+			recProc.stdout.pipe(recFile);
 			
 			// ログ出力
 			recProc.stderr.on('data', function (data) {
-				util.log('#' + (recCmd.split(' ')[0] + ': ' + data).replace(/\n/g, ' ').trim());
+				util.log('[' + i + '] #' + (recCmd.split(' ')[0] + ': ' + data).replace(/\n/g, ' ').trim());
 			});
 			
 			var removeSignalListener;
@@ -896,7 +894,7 @@ function getEpg() {
 				
 				// 一時録画ファイル削除
 				fs.unlinkSync(recPath);
-				util.log('UNLINK: ' + recPath);
+				util.log('[' + i + '] UNLINK: ' + recPath);
 				
 				// 終了
 				process.nextTick(process.exit);
@@ -971,7 +969,7 @@ function getEpg() {
 			setTimeout(function () {
 				r.splice(r.indexOf(ch.n), 1);
 				tick();
-			}, 50);
+			}, 250);
 		};
 		
 		// 取得開始処理
@@ -1000,7 +998,7 @@ function getEpg() {
 			get(ch.n, retryCount, onGot);
 			
 			if (ch.type === 'GR') {
-				setTimeout(tick, 100);
+				setTimeout(tick, 200);
 			}
 		}
 		
