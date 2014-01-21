@@ -9,7 +9,7 @@ case 'PUT':
 		var array = [];
 		
 		data.recorded.forEach(function(a) {
-			if (fs.existsSync(a.recorded)) {
+			if (fs.existsSync(a.recorded) && fs.statSync(a.recorded)['size'] > 0) {
 				array.push(a);
 			}
 		});
