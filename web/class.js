@@ -984,7 +984,7 @@
 		create: function _create() {
 			this.modal = new flagrate.Modal({
 				title: 'クリーンアップ',
-				text : '全ての録画履歴の中から録画ファイルを見失った項目を削除します。',
+				text : '全ての録画履歴の中から録画ファイルが空の項目を削除します。',
 				buttons: [
 					{
 						label  : 'クリーンアップ',
