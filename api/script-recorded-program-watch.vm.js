@@ -91,8 +91,6 @@
 			switch (request.type) {
 				case 'm2ts':
 					d.f      = 'mpegts';
-					d['c:v'] = 'libx264'; // draft
-					// d['c:a'] = 'libogg'; // draft
 					break;
 				case 'webm':
 					d.f      = 'webm';
