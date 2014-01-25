@@ -19,7 +19,7 @@
 			var current  = (program.end - program.start) / 1000;
 			
 			var d = {
-				t    : request.query.t      || '5',//duration(seconds)
+				t    : request.query.t      || '30',//duration(seconds)
 				s    : request.query.s      || '1024x576',//size(WxH)
 				'c:v': request.query['c:v'] || 'libx264',//vcodec
 				'c:a': request.query['c:a'] || 'libfdk_aac',//acodec
