@@ -195,6 +195,11 @@ function doRecord(program) {
 	
 	if (timeout < 0) {
 		util.log('FATAL: 時間超過による録画中止');
+		
+		// 状態を更新
+		recording.splice(recording.indexOf(program), 1);
+		fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));
+		util.log('WRITE: ' + RECORDING_DATA_FILE);
 		return;
 	}
 	
@@ -233,7 +238,7 @@ function doRecord(program) {
 	
 	// 録画コマンド
 	recCmd = tuner.command;
-	recCmd = recCmd.replace(' --strip', '');// EPGのSIDが消えてしまうバグへの対策(要調査)
+	// recCmd = recCmd.replace(' --strip', '');// EPGのSIDが消えてしまうバグへの対策(要調査)
 	recCmd = recCmd.replace('<sid>', program.channel.sid + ',epg');
 	recCmd = recCmd.replace('<channel>', program.channel.channel);
 	program.command = recCmd;
