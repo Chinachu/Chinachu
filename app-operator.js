@@ -195,6 +195,11 @@ function doRecord(program) {
 	
 	if (timeout < 0) {
 		util.log('FATAL: 時間超過による録画中止');
+		
+		// 状態を更新
+		recording.splice(recording.indexOf(program), 1);
+		fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));
+		util.log('WRITE: ' + RECORDING_DATA_FILE);
 		return;
 	}
 	
