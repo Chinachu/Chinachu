@@ -238,7 +238,7 @@ function doRecord(program) {
 	
 	// 録画コマンド
 	recCmd = tuner.command;
-	recCmd = recCmd.replace(' --strip', '');// EPGのSIDが消えてしまうバグへの対策(要調査)
+	// recCmd = recCmd.replace(' --strip', '');// EPGのSIDが消えてしまうバグへの対策(要調査)
 	recCmd = recCmd.replace('<sid>', program.channel.sid + ',epg');
 	recCmd = recCmd.replace('<channel>', program.channel.channel);
 	program.command = recCmd;
