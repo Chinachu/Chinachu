@@ -25,6 +25,7 @@
 			document.stopObserving('chinachu:schedule', this.onNotify);
 			
 			this.tick = flagrate.emptyFunction;
+			this.draw = flagrate.emptyFunction;
 			if (this.view.drawerDt) { this.view.drawerDt.remove(); }
 			if (this.view.clock) { this.view.clock.remove(); }
 			
@@ -345,7 +346,7 @@
 			}
 			
 			// drawer
-			this.view.drawer = flagrate.createElement('div', {'class': 'drawer hide'});
+			this.view.drawer = flagrate.createElement('div', {'class': 'drawer'});
 			this.view.drawerHead = flagrate.createElement('div', {'class': 'head'}).insertTo(this.view.drawer);
 			this.view.drawerBody = flagrate.createElement('div', {'class': 'body'}).insertTo(this.view.drawer);
 			this.view.drawerFoot = flagrate.createElement('div', {'class': 'foot'}).insertTo(this.view.drawer);
@@ -592,10 +593,18 @@
 			
 			window.addEventListener('keydown', onKeydown);
 			var removeListenerOnUnload = function () {
+				
+				this.view.content.removeEventListener('touchstart', onTouchstart);
+				this.view.content.removeEventListener('touchmove',  onTouchmove);
+				this.view.content.removeEventListener('touchend',   onTouchend);
+				
+				this.view.content.removeEventListener('click',     onClick);
+				this.view.content.removeEventListener('mousedown', onMousedown);
+				
 				window.removeEventListener('keydown', onKeydown);
-				document.removeEventListener('sakurapanel:pm:unload', removeListenerOnUnload);
-			};
-			document.addEventListener('sakurapanel:pm:unload', removeListenerOnUnload);
+				document.stopObserving('sakurapanel:pm:unload', removeListenerOnUnload);
+			}.bind(this);
+			document.observe('sakurapanel:pm:unload', removeListenerOnUnload);
 			
 			// start
 			this.tick();
