@@ -34,7 +34,7 @@
 		"schedule": {
 			"icon"       : "./icons/calendar-medium.png",
 			"label"      : "schedule",
-			"defaultPage": "timeline",
+			"defaultPage": "table",
 			"page"       : {
 				"timeline": {
 					"label": "Timeline",
@@ -42,10 +42,10 @@
 					"icon" : "./icons/calendar-medium.png"
 				},
 				
-				"program": {
-					"label": "Program",
-					"title": "Program",
-					"icon" : "./icons/dummy.png"
+				"table": {
+					"label": "Schedule",
+					"title": "Schedule",
+					"icon" : "./icons/calendar-medium.png"
 				}
 			}
 		},
