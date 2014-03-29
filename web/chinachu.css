@@ -679,6 +679,20 @@ label.flagrate-radio > input:checked+div {
 	background-color: rgb(179,0,95);
 	border-color    : rgb(179,0,95); }
 
+div.flagrate-grid > div > table > tbody > tr.flagrate-grid-row-selected,
+div.flagrate-select > div.flagrate-grid > div > table > tbody > tr.flagrate-grid-row-selecte {
+	background-color: rgba(179,0,95,0.25); }
+
+div.flagrate-grid > div > table > tbody > tr:nth-child(odd).flagrate-grid-row-selected {
+	background-color: rgba(179,0,95,0.30); }
+
+div.flagrate-grid > div > table > tbody > tr.flagrate-grid-row-selected:hover,
+div.flagrate-select > div.flagrate-grid > div > table > tbody > tr.flagrate-grid-row-selected:hover {
+	background-color: rgba(179,0,95,0.35); }
+
+div.flagrate-grid > div > table > tbody > tr:nth-child(odd).flagrate-grid-row-selected:hover {
+	background-color: rgba(179,0,95,0.40); }
+
 /* page */
 
 div#content-body > div#content-body-head {
