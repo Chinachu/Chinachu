@@ -118,6 +118,62 @@
 		}
 	};
 	
+	// inputType
+	var formInputTypeChannels = {
+		create: function () {
+			return flagrate.createTokenizer({
+				placeholder: '...',
+				tokenize: function (input) {
+					var candidates = global.chinachu.schedule.pluck('id').concat(global.chinachu.schedule.pluck('channel'));
+
+					var i, l;
+					for (i = 0, l = candidates.length; i < l; i++) {
+						if (input.match(/^[a-z0-9_]+$/i) === null) {
+							candidates[i] = null;
+						} else if (candidates[i].match(new RegExp('^' + input)) === null) {
+							candidates[i] = null;
+						}
+					}
+
+					candidates = candidates.compact();
+
+					return candidates;
+				}
+			});
+		},
+		getVal: function () {
+			return this.element.getValues();
+		},
+		setVal: function (val) {
+			this.element.setValues(val);
+		},
+		enable: function () {
+			this.element.enable();
+		},
+		disable: function () {
+			this.element.disable();
+		}
+	};
+	var formInputTypeStrings = {
+		create: function () {
+			return flagrate.createTokenizer({
+				placeholder: '...'
+			});
+		},
+		getVal: function () {
+			return this.element.getValues();
+		},
+		setVal: function (val) {
+			this.element.setValues(val);
+		},
+		enable: function () {
+			this.element.enable();
+		},
+		disable: function () {
+			this.element.disable();
+		}
+	};
+	
 	var util = chinachu.util = {};
 	
 	/** section: util
@@ -1078,8 +1134,162 @@
 						
 						var rule = t.responseJSON;
 						
+						var form = flagrate.createForm({
+							fields: [
+								{
+									key  : 'types',
+									label: 'タイプ',
+									input: {
+										type : 'checkboxes',
+										val  : rule.types,
+										items: ['GR', 'BS', 'CS', 'EX']
+									}
+								},
+								{
+									key  : 'categories',
+									label: 'ジャンル',
+									input: {
+										type : 'checkboxes',
+										val  : rule.categories,
+										items: [
+											'anime', 'information', 'news', 'sports',
+											'variety', 'drama', 'music', 'cinema', 'etc'
+										]
+									}
+								},
+								{
+									key  : 'channels',
+									label: '対象CH',
+									input: {
+										type : formInputTypeChannels,
+										style: { width: '100%' },
+										val  : rule.channels 
+									}
+								},
+								{
+									key  : 'ignore_channels',
+									label: '無視CH',
+									input: {
+										type : formInputTypeChannels,
+										style: { width: '100%' },
+										val  : rule.ignore_channels
+									}
+								},
+								{
+									key  : 'reserve_flags',
+									label: '対象フラグ',
+									input: {
+										type : 'checkboxes',
+										val  : rule.reserve_flags,
+										items: ['新', '終', '再', '字', 'デ', '解', '無', '二', 'Ｓ']
+									}
+								},
+								{
+									key  : 'ignore_flags',
+									label: '無視フラグ',
+									input: {
+										type : 'checkboxes',
+										val  : rule.ignore_flags,
+										items: ['新', '終', '再', '字', 'デ', '解', '無', '二', 'Ｓ']
+									}
+								},
+								{
+									key  : 'start',
+									point: '/hour/start',
+									label: '何時から',
+									input: {
+										type     : 'number',
+										style    : { width: '60px' },
+										maxLength: 2,
+										max      : 24,
+										min      : 0,
+										val      : !!rule.hour ? rule.hour.start : 0
+									}
+								},
+								{
+									key   : 'end',
+									point : '/hour/end',
+									label : '何時まで',
+									input : {
+										type     : 'number',
+										style    : { width: '60px' },
+										maxLength: 2,
+										max      : 24,
+										min      : 0,
+										val      : !!rule.hour ? rule.hour.end : 24
+									}
+								},
+								{
+									key  : 'mini',
+									point: '/duration/min',
+									label: '最短長さ(秒)',
+									input: {
+										type : 'number',
+										style: { width: '80px' },
+										val  : !!rule.duration ? rule.duration.min : void 0
+									}
+								},
+								{
+									key   : 'maxi',
+									point: '/duration/max',
+									label : '最長長さ(秒)',
+									input : {
+										type : 'number',
+										style: { width: '80px' },
+										val  : !!rule.duration ? rule.duration.max : void 0
+									}
+								},
+								{
+									key   : 'reserve_titles',
+									label : '対象タイトル',
+									input : {
+										type : formInputTypeStrings,
+										style: { width: '100%' },
+										val  : rule.reserve_titles
+									}
+								},
+								{
+									key   : 'ignore_titles',
+									label : '無視タイトル',
+									input : {
+										type : formInputTypeStrings,
+										style: { width: '100%' },
+										val  : rule.ignore_titles
+									}
+								},
+								{
+									key   : 'reserve_descriptions',
+									label : '対象説明文',
+									input : {
+										type : formInputTypeStrings,
+										style: { width: '100%' },
+										val  : rule.reserve_descriptions
+									}
+								},
+								{
+									key   : 'ignore_descriptions',
+									label : '無視説明文',
+									input : {
+										type : formInputTypeStrings,
+										style: { width: '100%' },
+										val  : rule.ignore_descriptions
+									}
+								},
+								{
+									key   : 'isEnabled',
+									label : 'ルールの状態',
+									input : {
+										type : 'checkbox',
+										label: '有効にする',
+										val  : !rule.isDisabled
+									}
+								}
+							]
+						});
+						
 						var modal = new flagrate.Modal({
 							title: 'ルール編集',
+							element: form.element,
 							buttons: [
 								{
 									label  : '変更',
@@ -1087,48 +1297,47 @@
 									onSelect: function (e, modal) {
 										e.targetButton.disable();
 										
-										this.param = viewRuleForm.result();
+										var query = form.getResult();
 										
-										for (var i in this.param) {
-											if (
-												(Object.isNumber(this.param[i]) && isNaN(this.param[i])) ||
-												(Object.isString(this.param[i]) && this.param[i].strip() === '') ||
-												(Object.isArray(this.param[i])  && this.param[i].length === 0)
-											) {
-												if ('start,end,mini,maxi'.split(',').indexOf(i) === -1) {
-													this.param[i] = 'null';
-												} else {
-													this.param[i] = '-1';
-												}
+										if (!query.duration.min) {
+											delete query.duration.min;
+										}
+										if (!query.duration.max) {
+											delete query.duration.max;
+										}
+										if (!query.duration.min && !query.duration.max) {
+											delete query.duration;
+										}
+										
+										var i;
+										for (i in query) {
+											if (typeof query[i] === 'object' && query[i].length === 0) {
+												delete query[i];
 											}
 										}
 										
-										!this.param.isDisabled && (this.param.en = '');
-										!!this.param.isDisabled && (this.param.dis = '');
-										delete this.param.isDisabled;
+										console.log(query);
 										
-										new Ajax.Request('./api/rules/' + num + '.json', {
-											method    : 'put',
-											parameters: this.param,
-											onComplete: function() {
-												modal.close();
-											},
-											onSuccess: function() {
-												
-												new flagrate.Modal({
+										var xhr = new XMLHttpRequest();
+										
+										xhr.addEventListener('load', function () {
+											if (xhr.status === 200) {
+												flagrate.createModal({
 													title: '成功',
-													text : 'ルール変更に成功しました',
-													onClose: function(){}
+													text : 'ルール変更に成功しました'
 												}).show();
-											},
-											onFailure: function(t) {
-												new flagrate.Modal({
+											} else {
+												flagrate.createModal({
 													title: '失敗',
-													text : 'ルール変更に失敗しました (' + t.status + ')',
-													onClose: function(){}
+													text : 'ルール変更に失敗しました (' + xhr.status + ')'
 												}).show();
 											}
+											modal.close();
 										});
+										
+										xhr.open('PUT', './api/rules/' + num + '.json');
+										xhr.setRequestHeader('Content-Type', 'application/json');
+										xhr.send(JSON.stringify(query));
 									}
 								},
 								{
@@ -1139,186 +1348,6 @@
 								}
 							]
 						}).show();
-						
-						var viewRuleForm = new Hyperform({
-							formWidth  : '100%',
-							labelWidth : '100px',
-							labelAlign : 'right',
-							fields     : [
-								{
-									key   : 'type',
-									label : 'タイプ',
-									input : {
-										type : 'checkbox',
-										items: (function() {
-											var array = [];
-											
-											['GR', 'BS', 'CS', 'EX'].each(function(a) {
-												array.push({
-													label     : a,
-													value     : a,
-													isSelected: !!rule.types ? (rule.types.indexOf(a) !== -1) : ''
-												});
-											});
-											
-											return array;
-										})()
-									}
-								},
-								{
-									key   : 'cat',
-									label : 'カテゴリー',
-									input : {
-										type : 'checkbox',
-										items: (function() {
-											var array = [];
-											
-											[
-												'anime', 'information', 'news', 'sports',
-												'variety', 'drama', 'music', 'cinema', 'etc'
-											].each(function(a) {
-												array.push({
-													label     : a,
-													value     : a,
-													isSelected: !!rule.categories ? (rule.categories.indexOf(a) !== -1) : ''
-												});
-											});
-											
-											return array;
-										})()
-									}
-								},
-								{
-									key   : 'ch',
-									label : '対象CH',
-									input : {
-										type  : 'tag',
-										values: rule.channels 
-									}
-								},
-								{
-									key   : '^ch',
-									label : '無視CH',
-									input : {
-										type  : 'tag',
-										values: rule.ignore_channels
-									}
-								},
-								{
-									key   : 'flag',
-									label : '対象フラグ',
-									input : {
-										type  : 'tag',
-										values: rule.reserve_flags
-									}
-								},
-								{
-									key   : '^flag',
-									label : '無視フラグ',
-									input : {
-										type  : 'tag',
-										values: rule.ignore_flags
-									}
-								},
-								{
-									key   : 'start',
-									label : '何時から',
-									input : {
-										type      : 'text',
-										width     : 25,
-										maxlength : 2,
-										appendText: '時',
-										value     : !!rule.hour ? rule.hour.start : '',
-										toNumber  : true
-									}
-								},
-								{
-									key   : 'end',
-									label : '何時まで',
-									input : {
-										type      : 'text',
-										width     : 25,
-										maxlength : 2,
-										appendText: '時',
-										value     : !!rule.hour ? rule.hour.end : '',
-										toNumber  : true
-									}
-								},
-								{
-									key   : 'mini',
-									label : '最短長さ',
-									input : {
-										type      : 'text',
-										width     : 60,
-										appendText: '秒',
-										value     : !!rule.duration ? rule.duration.min : '',
-										toNumber  : true
-									}
-								},
-								{
-									key   : 'maxi',
-									label : '最長長さ',
-									input : {
-										type      : 'text',
-										width     : 60,
-										appendText: '秒',
-										value     : !!rule.duration ? rule.duration.max : '',
-										toNumber  : true
-									}
-								},
-								{
-									key   : 'title',
-									label : '対象タイトル',
-									input : {
-										type  : 'tag',
-										values: rule.reserve_titles
-									}
-								},
-								{
-									key   : '^title',
-									label : '無視タイトル',
-									input : {
-										type  : 'tag',
-										values: rule.ignore_titles
-									}
-								},
-								{
-									key   : 'desc',
-									label : '対象説明文',
-									input : {
-										type  : 'tag',
-										values: rule.reserve_descriptions
-									}
-								},
-								{
-									key   : '^desc',
-									label : '無視説明文',
-									input : {
-										type  : 'tag',
-										values: rule.ignore_descriptions
-									}
-								},
-								{
-									key   : 'isDisabled',
-									label : 'ルールの状態',
-									input : {
-										type : 'radio',
-										items: [
-											{
-												label  : '有効',
-												value  : 0,
-												isSelected: !!rule.isDisabled ? (rule.isDisabled === false) : true
-											},
-											{
-												label  : '無効',
-												value  : 1,
-												isSelected: !!rule.isDisabled ? (rule.isDisabled === true) : false
-											}
-										]
-									}
-								}
-							]
-						}).render(modal.content);
 					}.bind(this),
 					onFailure: function(t) {
 					}
@@ -1343,9 +1372,150 @@
 					text : '不正なアクセスです。'
 				}).show(); 
 			} else {
-				var modal = new flagrate.Modal({
+				var form = flagrate.createForm({
+					fields: [
+						{
+							key  : 'types',
+							label: 'タイプ',
+							input: {
+								type : 'checkboxes',
+								items: ['GR', 'BS', 'CS', 'EX']
+							}
+						},
+						{
+							key  : 'categories',
+							label: 'ジャンル',
+							input: {
+								type : 'checkboxes',
+								items: [
+									'anime', 'information', 'news', 'sports',
+									'variety', 'drama', 'music', 'cinema', 'etc'
+								]
+							}
+						},
+						{
+							key  : 'channels',
+							label: '対象CH',
+							input: {
+								type : formInputTypeChannels,
+								style: { width: '100%' }
+							}
+						},
+						{
+							key  : 'ignore_channels',
+							label: '無視CH',
+							input: {
+								type : formInputTypeChannels,
+								style: { width: '100%' }
+							}
+						},
+						{
+							key  : 'reserve_flags',
+							label: '対象フラグ',
+							input: {
+								type : 'checkboxes',
+								items: ['新', '終', '再', '字', 'デ', '解', '無', '二', 'Ｓ']
+							}
+						},
+						{
+							key  : 'ignore_flags',
+							label: '無視フラグ',
+							input: {
+								type : 'checkboxes',
+								items: ['新', '終', '再', '字', 'デ', '解', '無', '二', 'Ｓ']
+							}
+						},
+						{
+							key  : 'start',
+							point: '/hour/start',
+							label: '何時から',
+							input: {
+								type     : 'number',
+								style    : { width: '60px' },
+								maxLength: 2,
+								max      : 24,
+								min      : 0,
+								val      : 0
+							}
+						},
+						{
+							key   : 'end',
+							point : '/hour/end',
+							label : '何時まで',
+							input : {
+								type     : 'number',
+								style    : { width: '60px' },
+								maxLength: 2,
+								max      : 24,
+								min      : 0,
+								val      : 24
+							}
+						},
+						{
+							key  : 'mini',
+							point: '/duration/min',
+							label: '最短長さ(秒)',
+							input: {
+								type : 'number',
+								style: { width: '80px' }
+							}
+						},
+						{
+							key   : 'maxi',
+							point: '/duration/max',
+							label : '最長長さ(秒)',
+							input : {
+								type : 'number',
+								style: { width: '80px' }
+							}
+						},
+						{
+							key   : 'reserve_titles',
+							label : '対象タイトル',
+							input : {
+								type : formInputTypeStrings,
+								style: { width: '100%' }
+							}
+						},
+						{
+							key   : 'ignore_titles',
+							label : '無視タイトル',
+							input : {
+								type : formInputTypeStrings,
+								style: { width: '100%' }
+							}
+						},
+						{
+							key   : 'reserve_descriptions',
+							label : '対象説明文',
+							input : {
+								type : formInputTypeStrings,
+								style: { width: '100%' }
+							}
+						},
+						{
+							key   : 'ignore_descriptions',
+							label : '無視説明文',
+							input : {
+								type : formInputTypeStrings,
+								style: { width: '100%' }
+							}
+						},
+						{
+							key   : 'isEnabled',
+							label : 'ルールの状態',
+							input : {
+								type : 'checkbox',
+								label: '有効にする',
+								val  : true
+							}
+						}
+					]
+				});
+				
+				var modal = flagrate.createModal({
 					title: '新規作成',
-					element: new Element('div'),
+					element: form.element,
 					buttons: [
 						{
 							label  : '作成',
@@ -1353,48 +1523,47 @@
 							onSelect: function(e, modal) {
 								e.targetButton.disable();
 								
-								this.param = viewRuleForm.result();
-								
-								for (var i in this.param) {
-									if (
-										(Object.isNumber(this.param[i]) && isNaN(this.param[i])) ||
-										(Object.isString(this.param[i]) && this.param[i].strip() === '') ||
-										(Object.isArray(this.param[i])  && this.param[i].length === 0)
-									) {
-										if ('start,end,mini,maxi'.split(',').indexOf(i) === -1) {
-											this.param[i] = 'null';
-										} else {
-											this.param[i] = '-1';
-										}
+								var query = form.getResult();
+
+								if (!query.duration.min) {
+									delete query.duration.min;
+								}
+								if (!query.duration.max) {
+									delete query.duration.max;
+								}
+								if (!query.duration.min && !query.duration.max) {
+									delete query.duration;
+								}
+
+								var i;
+								for (i in query) {
+									if (typeof query[i] === 'object' && query[i].length === 0) {
+										delete query[i];
 									}
 								}
-								
-								!this.param.isDisabled && (this.param.en = '');
-								!!this.param.isDisabled && (this.param.dis = '');
-								delete this.param.isDisabled;
-								
-								new Ajax.Request('./api/rules.json', {
-									method    : 'post',
-									parameters: this.param,
-									onComplete: function() {
-										modal.close();
-									},
-									onSuccess: function() {
-										new flagrate.Modal({
+
+								console.log(query);
+
+								var xhr = new XMLHttpRequest();
+
+								xhr.addEventListener('load', function () {
+									if (xhr.status === 201) {
+										flagrate.createModal({
 											title: '成功',
 											text : 'ルール作成に成功しました',
-											onClose: function(){}
 										}).show();
-									},
-									onFailure: function(t) {
-										new flagrate.Modal({
+									} else {
+										flagrate.createModal({
 											title: '失敗',
-											text : 'ルール作成に失敗しました (' + t.status + ')',
-											onClose: function(){}
+											text : 'ルール作成に失敗しました (' + xhr.status + ')'
 										}).show();
 									}
+									modal.close();
 								});
-								
+
+								xhr.open('POST', './api/rules.json');
+								xhr.setRequestHeader('Content-Type', 'application/json');
+								xhr.send(JSON.stringify(query));
 							}
 						},
 						{
@@ -1405,171 +1574,6 @@
 						}
 					]
 				}).show();
-				
-				var viewRuleForm = new Hyperform({
-					formWidth  : '100%',
-					labelWidth : '100px',
-					labelAlign : 'right',
-					fields     : [
-						{
-							key   : 'type',
-							label : 'タイプ',
-							input : {
-								type : 'checkbox',
-								items: (function() {
-									var array = [];
-									
-									['GR', 'BS', 'CS', 'EX'].each(function(a) {
-										array.push({
-											label     : a,
-											value     : a,
-										});
-									});
-									
-									return array;
-								})()
-							}
-						},
-						{
-							key   : 'cat',
-							label : 'カテゴリー',
-							input : {
-								type : 'checkbox',
-								items: (function() {
-									var array = [];
-									
-									[
-										'anime', 'information', 'news', 'sports',
-										'variety', 'drama', 'music', 'cinema', 'etc'
-									].each(function(a) {
-										array.push({
-											label     : a,
-											value     : a
-										});
-									});
-									
-									return array;
-								})()
-							}
-						},
-						{
-							key   : 'ch',
-							label : '対象CH',
-							input : {
-								type: 'tag'
-							}
-						},
-						{
-							key   : '^ch',
-							label : '無視CH',
-							input : {
-								type: 'tag'
-							}
-						},
-						{
-							key   : 'flag',
-							label : '対象フラグ',
-							input : {
-								type: 'tag'
-							}
-						},
-						{
-							key   : '^flag',
-							label : '無視フラグ',
-							input : {
-								type: 'tag'
-							}
-						},
-						{
-							key   : 'start',
-							label : '何時から',
-							input : {
-								type      : 'text',
-								width     : 25,
-								maxlength : 2,
-								appendText: '時',
-								toNumber  : true
-							}
-						},
-						{
-							key   : 'end',
-							label : '何時まで',
-							input : {
-								type      : 'text',
-								width     : 25,
-								maxlength : 2,
-								appendText: '時',
-								toNumber  : true
-							}
-						},
-						{
-							key   : 'mini',
-							label : '最短長さ',
-							input : {
-								type      : 'text',
-								width     : 60,
-								appendText: '秒',
-								toNumber  : true
-							}
-						},
-						{
-							key   : 'maxi',
-							label : '最長長さ',
-							input : {
-								type      : 'text',
-								width     : 60,
-								appendText: '秒',
-								toNumber  : true
-							}
-						},
-						{
-							key   : 'title',
-							label : '対象タイトル',
-							input : {
-								type: 'tag'
-							}
-						},
-						{
-							key   : '^title',
-							label : '無視タイトル',
-							input : {
-								type: 'tag'
-							}
-						},
-						{
-							key   : 'desc',
-							label : '対象説明文',
-							input : {
-								type: 'tag'
-							}
-						},
-						{
-							key   : '^desc',
-							label : '無視説明文',
-							input : {
-								type: 'tag'
-							}
-						},
-						{
-							key   : 'isDisabled',
-							label : 'ルールの状態',
-							input : {
-								type : 'radio',
-								items: [
-									{
-										label     : '有効',
-										value     : 0,
-										isSelected: true
-									},
-									{
-										label: '無効',
-										value: 1
-									}
-								]
-							}
-						}
-					]
-				}).render(modal.content);
 			}
 			
 			return this;
@@ -1592,57 +1596,203 @@
 				}).show(); 
 			} else {
 				var program = this.program;
-				var modal = new flagrate.Modal({
+				
+				var form = flagrate.createForm({
+					fields: [
+						{
+							key  : 'types',
+							label: 'タイプ',
+							input: {
+								type : 'checkboxes',
+								items: ['GR', 'BS', 'CS', 'EX'],
+								val  : [program.channel.type]
+							}
+						},
+						{
+							key  : 'categories',
+							label: 'ジャンル',
+							input: {
+								type : 'checkboxes',
+								items: [
+									'anime', 'information', 'news', 'sports',
+									'variety', 'drama', 'music', 'cinema', 'etc'
+								],
+								val  : [program.category]
+							}
+						},
+						{
+							key  : 'channels',
+							label: '対象CH',
+							input: {
+								type : formInputTypeChannels,
+								style: { width: '100%' },
+								val  : [program.channel.id]
+							}
+						},
+						{
+							key  : 'ignore_channels',
+							label: '無視CH',
+							input: {
+								type : formInputTypeChannels,
+								style: { width: '100%' }
+							}
+						},
+						{
+							key  : 'reserve_flags',
+							label: '対象フラグ',
+							input: {
+								type : 'checkboxes',
+								items: ['新', '終', '再', '字', 'デ', '解', '無', '二', 'Ｓ']
+							}
+						},
+						{
+							key  : 'ignore_flags',
+							label: '無視フラグ',
+							input: {
+								type : 'checkboxes',
+								items: ['新', '終', '再', '字', 'デ', '解', '無', '二', 'Ｓ']
+							}
+						},
+						{
+							key  : 'start',
+							point: '/hour/start',
+							label: '何時から',
+							input: {
+								type     : 'number',
+								style    : { width: '60px' },
+								maxLength: 2,
+								max      : 24,
+								min      : 0,
+								val      : 0
+							}
+						},
+						{
+							key   : 'end',
+							point : '/hour/end',
+							label : '何時まで',
+							input : {
+								type     : 'number',
+								style    : { width: '60px' },
+								maxLength: 2,
+								max      : 24,
+								min      : 0,
+								val      : 24
+							}
+						},
+						{
+							key  : 'mini',
+							point: '/duration/min',
+							label: '最短長さ(秒)',
+							input: {
+								type : 'number',
+								style: { width: '80px' }
+							}
+						},
+						{
+							key   : 'maxi',
+							point: '/duration/max',
+							label : '最長長さ(秒)',
+							input : {
+								type : 'number',
+								style: { width: '80px' }
+							}
+						},
+						{
+							key   : 'reserve_titles',
+							label : '対象タイトル',
+							input : {
+								type : formInputTypeStrings,
+								style: { width: '100%' },
+								val  : [this.program.title]
+							}
+						},
+						{
+							key   : 'ignore_titles',
+							label : '無視タイトル',
+							input : {
+								type : formInputTypeStrings,
+								style: { width: '100%' }
+							}
+						},
+						{
+							key   : 'reserve_descriptions',
+							label : '対象説明文',
+							input : {
+								type : formInputTypeStrings,
+								style: { width: '100%' }
+							}
+						},
+						{
+							key   : 'ignore_descriptions',
+							label : '無視説明文',
+							input : {
+								type : formInputTypeStrings,
+								style: { width: '100%' }
+							}
+						},
+						{
+							key   : 'isEnabled',
+							label : 'ルールの状態',
+							input : {
+								type : 'checkbox',
+								label: '有効にする',
+								val  : true
+							}
+						}
+					]
+				});
+				
+				var modal = flagrate.createModal({
 					title: '新規作成',
-					element: new Element('div'),
+					element: form.element,
 					buttons: [
 						{
 							label  : '作成',
 							color  : '@pink',
 							onSelect: function(e, modal) {
 								e.targetButton.disable();
-								this.param = viewRuleForm.result();
 								
-								for (var i in this.param) {
-									if (
-										(Object.isNumber(this.param[i]) && isNaN(this.param[i])) ||
-										(Object.isString(this.param[i]) && this.param[i].strip() === '') ||
-										(Object.isArray(this.param[i])  && this.param[i].length === 0)
-									) {
-										if ('start,end,mini,maxi'.split(',').indexOf(i) === -1) {
-											this.param[i] = 'null';
-										} else {
-											this.param[i] = '-1';
-										}
+								var query = form.getResult();
+
+								if (!query.duration.min) {
+									delete query.duration.min;
+								}
+								if (!query.duration.max) {
+									delete query.duration.max;
+								}
+								if (!query.duration.min && !query.duration.max) {
+									delete query.duration;
+								}
+
+								var i;
+								for (i in query) {
+									if (typeof query[i] === 'object' && query[i].length === 0) {
+										delete query[i];
 									}
 								}
-								
-								!this.param.isDisabled && (this.param.en = '');
-								!!this.param.isDisabled && (this.param.dis = '');
-								delete this.param.isDisabled;
-								
-								new Ajax.Request('./api/rules.json', {
-									method    : 'post',
-									parameters: this.param,
-									onComplete: function() {
-										modal.close();
-									},
-									onSuccess: function() {
-										new flagrate.Modal({
+
+								console.log(query);
+
+								var xhr = new XMLHttpRequest();
+
+								xhr.addEventListener('load', function () {
+									if (xhr.status === 201) {
+										flagrate.createModal({
 											title: '成功',
 											text : 'ルール作成に成功しました',
-											onClose: function(){}
 										}).show();
-									},
-									onFailure: function(t) {
-										new flagrate.Modal({
+									} else {
+										flagrate.createModal({
 											title: '失敗',
-											text : 'ルール作成に失敗しました (' + t.status + ')',
-											onClose: function(){}
+											text : 'ルール作成に失敗しました (' + xhr.status + ')'
 										}).show();
 									}
+									modal.close();
 								});
-								
+
+								xhr.open('POST', './api/rules.json');
+								xhr.setRequestHeader('Content-Type', 'application/json');
+								xhr.send(JSON.stringify(query));
 							}
 						},
 						{
@@ -1653,182 +1803,6 @@
 						}
 					]
 				}).show();
-				
-				var viewRuleForm = new Hyperform({
-					formWidth  : '100%',
-					labelWidth : '100px',
-					labelAlign : 'right',
-					fields     : [
-						{
-							key   : 'type',
-							label : 'タイプ',
-							input : {
-								type : 'checkbox',
-								items: (function() {
-									var array = [];
-									
-									['GR', 'BS', 'CS', 'EX'].each(function(a) {
-										array.push({
-											label     : a,
-											value     : a,
-											isSelected: (program.channel.type.indexOf(a) !== -1)
-										});
-									});
-									
-									return array;
-								})()
-							}
-						},
-						{
-							key   : 'cat',
-							label : 'カテゴリー',
-							input : {
-								type : 'checkbox',
-								items: (function() {
-									var array = [];
-									
-									[
-										'anime', 'information', 'news', 'sports',
-										'variety', 'drama', 'music', 'cinema', 'etc'
-									].each(function(a) {
-										array.push({
-											label     : a,
-											value     : a,
-											isSelected: (program.category.indexOf(a) !== -1)
-										});
-									});
-									
-									return array;
-								})()
-							}
-						},
-						{
-							key   : 'ch',
-							label : '対象CH',
-							input : {
-								type  : 'tag',
-								values: [program.channel.id]
-							}
-						},
-						{
-							key   : '^ch',
-							label : '無視CH',
-							input : {
-								type: 'tag'
-							}
-						},
-						{
-							key   : 'flag',
-							label : '対象フラグ',
-							input : {
-								type  : 'tag',
-								values: program.flags.without('新')
-							}
-						},
-						{
-							key   : '^flag',
-							label : '無視フラグ',
-							input : {
-								type: 'tag'
-							}
-						},
-						{
-							key   : 'start',
-							label : '何時から',
-							input : {
-								type      : 'text',
-								width     : 25,
-								maxlength : 2,
-								appendText: '時',
-								toNumber  : true
-							}
-						},
-						{
-							key   : 'end',
-							label : '何時まで',
-							input : {
-								type      : 'text',
-								width     : 25,
-								maxlength : 2,
-								appendText: '時',
-								toNumber  : true
-							}
-						},
-						{
-							key   : 'mini',
-							label : '最短長さ',
-							input : {
-								type      : 'text',
-								width     : 60,
-								appendText: '秒',
-								toNumber  : true
-							}
-						},
-						{
-							key   : 'maxi',
-							label : '最長長さ',
-							input : {
-								type      : 'text',
-								width     : 60,
-								appendText: '秒',
-								toNumber  : true
-							}
-						},
-						{
-							key   : 'title',
-							label : '対象タイトル',
-							input : {
-								type  : 'tag',
-								values: [
-									this.program.title.replace(/【.+】/g, '')
-													  .replace(/「.+」/g, '')
-													  .replace(/(#[0-9]+|＃[０１２３４５６７８９]+)/g, '')
-													  .replace(/第([0-9]+|[０１２３４５６７８９]+)話/g, '')
-													  .strip()
-								]
-							}
-						},
-						{
-							key   : '^title',
-							label : '無視タイトル',
-							input : {
-								type: 'tag'
-							}
-						},
-						{
-							key   : 'desc',
-							label : '対象説明文',
-							input : {
-								type: 'tag'
-							}
-						},
-						{
-							key   : '^desc',
-							label : '無視説明文',
-							input : {
-								type: 'tag'
-							}
-						},
-						{
-							key   : 'isDisabled',
-							label : 'ルールの状態',
-							input : {
-								type : 'radio',
-								items: [
-									{
-										label     : '有効',
-										value     : false,
-										isSelected: true
-									},
-									{
-										label: '無効',
-										value: true
-									}
-								]
-							}
-						}
-					]
-				}).render(modal.content);
 			}
 			
 			return this;
