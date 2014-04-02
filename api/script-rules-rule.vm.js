@@ -11,7 +11,7 @@
 			return;
 		
 		case 'PUT':
-			if (request.headers['content-type'] === 'application/json') {
+			if (request.headers['content-type'].match(/^application\/json/)) {
 				var newRule = request.query;
 				
 				if (newRule.isEnabled === false) {
