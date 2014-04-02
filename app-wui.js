@@ -128,6 +128,7 @@ if (tlsEnabled) {
 	
 	util.error('**SELF-REGULATION WARNING**: If you want to access from outside of LAN, Please activate TLS.');
 }
+server.timeout = 240000;
 server.listen(config.wuiPort || 10772, config.wuiHost || '::', function () {
 	util.log((tlsEnabled ? 'HTTPS' : 'HTTP') + ' Server Listening on ' + util.inspect(server.address()));
 });
@@ -135,6 +136,7 @@ server.listen(config.wuiPort || 10772, config.wuiHost || '::', function () {
 // EXPERIMENTAL: Open Server for Access from LAN.
 if (openServerEnabled) {
 	openServer = http.createServer(httpServer);
+	openServer.timeout = 0;
 	dns.lookup(os.hostname(), function (err, hostIp) {
 		openServer.listen(config.wuiOpenPort || 20772, config.wuiOpenHost || hostIp, function () {
 			util.log('HTTP Open Server Listening on ' + util.inspect(openServer.address()));
@@ -342,14 +344,13 @@ function httpServerMain(req, res, query) {
 		if (ext === 'xspf') { type = 'application/xspf+xml'; }
 		
 		var head = {
-			'content-type'             : type,
-			'date'                     : new Date().toUTCString(),
-			'server'                   : 'chinachu-wui',
-			'cache-control'            : 'no-cache',
-			'x-content-type-options'   : 'nosniff',
-			'x-frame-options'          : 'DENY',
-			'x-ua-compatible'          : 'IE=Edge,chrome=1',
-			'x-xss-protection'         : '1; mode=block'
+			'Content-Type'             : type,
+			'Server'                   : 'Chinachu (Node)',
+			'Cache-Control'            : 'no-cache',
+			'X-Content-Type-Options'   : 'nosniff',
+			'X-Frame-Options'          : 'SAMEORIGIN',
+			'X-UA-Compatible'          : 'IE=Edge,chrome=1',
+			'X-XSS-Protection'         : '1; mode=block'
 		};
 		
 		res.writeHead(code, head);
@@ -363,18 +364,18 @@ function httpServerMain(req, res, query) {
 		if (fs.existsSync(filename) === false) { return resErr(404); }
 		
 		if (req.method !== 'HEAD' && req.method !== 'GET') {
-			res.setHeader('allow', 'HEAD, GET');
+			res.setHeader('Allow', 'HEAD, GET');
 			return resErr(405);
 		}
 		
 		if (['ico', 'png'].indexOf(ext) !== -1) {
-			res.setHeader('cache-control', 'private, max-age=86400');
+			res.setHeader('Cache-Control', 'private, max-age=86400');
 		}
 		
 		var fstat = fs.statSync(filename);
 		
-		res.setHeader('accept-ranges', 'bytes');
-		res.setHeader('last-modified', new Date(fstat.mtime).toUTCString());
+		res.setHeader('Accept-Ranges', 'bytes');
+		res.setHeader('Last-Modified', new Date(fstat.mtime).toUTCString());
 		
 		if (req.headers['if-modified-since'] && req.headers['if-modified-since'] === new Date(fstat.mtime).toUTCString()) {
 			writeHead(304);
@@ -386,19 +387,19 @@ function httpServerMain(req, res, query) {
 		if (req.headers.range) {
 			var bytes = req.headers.range.replace(/bytes=/, '').split('-');
 			range.start = parseInt(bytes[0], 10);
-			range.end   = parseInt(bytes[1], 10) || fstat.size;
+			range.end   = parseInt(bytes[1], 10) || fstat.size - 1;
 			
 			if (range.start > fstat.size || range.end > fstat.size) {
 				return resErr(416);
 			}
 			
-			res.setHeader('content-range', 'bytes ' + range.start + '-' + range.end + '/' + fstat.size);
-			res.setHeader('content-length', range.end - range.start + 1);
+			res.setHeader('Content-Range', 'bytes ' + range.start + '-' + range.end + '/' + fstat.size);
+			res.setHeader('Content-Length', range.end - range.start + 1);
 			
 			writeHead(206);
 			log(206);
 		} else {
-			res.setHeader('content-length', fstat.size);
+			res.setHeader('Content-Length', fstat.size);
 			
 			writeHead(200);
 			log(200);
@@ -457,7 +458,7 @@ function httpServerMain(req, res, query) {
 			
 			if (target === null) { return resErr(400); }
 			if (target.methods.indexOf(req.method.toLowerCase()) === -1) {
-				res.setHeader('allow', target.methods.join(', ').toUpperCase());
+				res.setHeader('Allow', target.methods.join(', ').toUpperCase());
 				return resErr(405);
 			}
 			if (target.types.indexOf(ext) === -1) { return resErr(415); }
@@ -761,7 +762,7 @@ function ioServerMain(socket) {
 
 function ioServerSocketOnDisconnect(socket) {
 	--status.connectedCount;
-	socket.broadcast.emit('status', status);
+	ios.emit('status', status);
 }
 
 // ファイル更新監視: ./data/rules.json
