@@ -529,6 +529,15 @@ P = Class.create(P, {
 				},
 				'--',
 				{
+					key    : 'fast-rewind',
+					element: new flagrate.Button({ label: '<<'})
+				},
+				{
+					key    : 'fast-forward',
+					element: new flagrate.Button({ label: '>>'})
+				},
+				'--',
+				{
 					key    : 'played',
 					element: new flagrate.Element('span').insertText('00:00')
 				},
@@ -549,8 +558,48 @@ P = Class.create(P, {
 				}
 			]
 		}).insertTo(this.view.content);
-		
+
 		var seek = control.getElementByKey('seek');
+
+		var seekSlideEvent = function() {
+			var value = seek.getValue();
+			
+			d.ss = value;
+			var uri = getRequestURI();
+			
+			if (d.ext === 'webm') {
+				seek.disable();
+				fastForward.disable();
+				fastRewind.disable();
+				
+				video.src = uri;
+				
+				setTimeout(function() {
+					seek.enable();
+					fastForward.enable();
+					fastRewind.enable();
+				}, 3000);
+			}
+		};
+
+		var seekValue = function(value) {
+			var sec = seek.getValue() + value;
+			if(sec < 0) sec = 0;
+			else if(sec > p.seconds) sec = p.seconds;
+			seek.setValue(sec);
+			seekSlideEvent();
+		};
+
+		var fastForward = control.getElementByKey('fast-forward');
+		fastForward.addEventListener('click', function() {
+			seekValue(10);
+		});
+
+		var fastRewind = control.getElementByKey('fast-rewind')
+		fastRewind.addEventListener('click', function() {
+			seekValue(-10);
+		});
+
 		
 		if (p._isRecording) {
 			seek.disable();
@@ -567,23 +616,7 @@ P = Class.create(P, {
 			}
 		});
 		
-		seek.addEventListener('slide', function() {
-			
-			var value = seek.getValue();
-			
-			d.ss = value;
-			var uri = getRequestURI();
-			
-			if (d.ext === 'webm') {
-				seek.disable();
-				
-				video.src = uri;
-				
-				setTimeout(function() {
-					seek.enable();
-				}, 3000);
-			}
-		});
+		seek.addEventListener('slide', seekSlideEvent);
 		
 		var updateTime = function() {
 			
