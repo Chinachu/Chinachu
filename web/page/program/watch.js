@@ -479,7 +479,8 @@ P = Class.create(P, {
 		
 		var getRequestURI = function() {
 			
-			var r = './api/' + (!!p._isRecording ? 'recording' : 'recorded') + '/' + p.id + '/watch.' + d.ext;
+			var r = window.location.protocol + '//' + window.location.host;
+			r += '/api/' + (!!p._isRecording ? 'recording' : 'recorded') + '/' + p.id + '/watch.' + d.ext;
 			var q = Object.toQueryString(d);
 			
 			return r + '?' + q;
@@ -495,6 +496,14 @@ P = Class.create(P, {
 					control.getElementByKey('play').setLabel('Pause');
 				} else {
 					video.pause();
+					control.getElementByKey('play').setLabel('Play');
+				}
+			} else {
+				if (vlc.playlist.isPlaying) {
+					vlc.playlist.pause();
+					control.getElementByKey('play').setLabel('Pause');
+				} else {
+					vlc.playlist.play();
 					control.getElementByKey('play').setLabel('Play');
 				}
 			}
@@ -516,6 +525,24 @@ P = Class.create(P, {
 			
 			//video.load();
 			video.volume = 1;
+		} else {
+			var vlc = flagrate.createElement('embed', {
+				type: 'application/x-vlc-plugin',
+				pluginspage: 'http://www.videolan.org',
+				width: '100%',
+				height: '100%',
+				target: getRequestURI(),
+				autoplay: 'true',
+				controls: 'false'
+			}).insertTo(videoContainer);
+			
+			flagrate.createElement('object', {
+				classid: 'clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921',
+				codebase: 'http://download.videolan.org/pub/videolan/vlc/last/win32/axvlc.cab'
+			}).insertTo(videoContainer);
+			
+			vlc.audio.volume = 100;
+			vlc.currentTime = 0;
 		}
 		
 		// create control view
@@ -526,6 +553,15 @@ P = Class.create(P, {
 				{
 					key    : 'play',
 					element: new flagrate.Button({ label: 'Play / Pause', onSelect: togglePlay})
+				},
+				'--',
+				{
+					key    : 'fast-rewind',
+					element: new flagrate.Button({ label: '<<'})
+				},
+				{
+					key    : 'fast-forward',
+					element: new flagrate.Button({ label: '>>'})
 				},
 				'--',
 				{
@@ -549,8 +585,50 @@ P = Class.create(P, {
 				}
 			]
 		}).insertTo(this.view.content);
-		
+
 		var seek = control.getElementByKey('seek');
+
+		var seekSlideEvent = function() {
+			var value = seek.getValue();
+			
+			d.ss = value;
+			var uri = getRequestURI();
+			
+			seek.disable();
+			fastForward.disable();
+			fastRewind.disable();
+			
+			if (d.ext === 'webm') {
+				video.src = uri;
+			} else {
+				vlc.playlist.playItem(vlc.playlist.add(uri));
+			}
+			
+			setTimeout(function() {
+				seek.enable();
+				fastForward.enable();
+				fastRewind.enable();
+			}, 1000);
+		};
+
+		var seekValue = function(value) {
+			var sec = seek.getValue() + value;
+			if(sec < 0) sec = 0;
+			else if(sec > p.seconds) sec = p.seconds;
+			seek.setValue(sec);
+			seekSlideEvent();
+		};
+
+		var fastForward = control.getElementByKey('fast-forward');
+		fastForward.addEventListener('click', function() {
+			seekValue(15);
+		});
+
+		var fastRewind = control.getElementByKey('fast-rewind')
+		fastRewind.addEventListener('click', function() {
+			seekValue(-15);
+		});
+
 		
 		if (p._isRecording) {
 			seek.disable();
@@ -564,26 +642,12 @@ P = Class.create(P, {
 			
 			if (d.ext === 'webm' || d.ext === 'm3u8') {
 				video.volume = vol.getValue() / 10;
+			} else {
+				vlc.audio.volume = vol.getValue() * 10;
 			}
 		});
 		
-		seek.addEventListener('slide', function() {
-			
-			var value = seek.getValue();
-			
-			d.ss = value;
-			var uri = getRequestURI();
-			
-			if (d.ext === 'webm') {
-				seek.disable();
-				
-				video.src = uri;
-				
-				setTimeout(function() {
-					seek.enable();
-				}, 3000);
-			}
-		});
+		seek.addEventListener('slide', seekSlideEvent);
 		
 		var updateTime = function() {
 			
@@ -593,6 +657,11 @@ P = Class.create(P, {
 			
 			if (d.ext === 'webm' || d.ext === 'm3u8') {
 				current = video.currentTime;
+			} else {
+				if (vlc.playlist.isPlaying) {
+					vlc.currentTime += 250;
+				}
+				current = vlc.currentTime / 1000;
 			}
 			
 			current += d.ss;

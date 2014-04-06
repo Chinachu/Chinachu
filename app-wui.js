@@ -18,7 +18,10 @@ var OPERATOR_LOG_FILE   = __dirname + '/log/operator';
 var WUI_LOG_FILE        = __dirname + '/log/wui';
 var SCHEDULER_LOG_FILE  = __dirname + '/log/scheduler';
 
-// 標準モジュールのロード
+// Load Config
+var config = require(CONFIG_FILE);
+
+// Modules
 var path          = require('path');
 var fs            = require('fs');
 var util          = require('util');
@@ -28,66 +31,36 @@ var querystring   = require('querystring');
 var vm            = require('vm');
 var os            = require('os');
 var zlib          = require('zlib');
+var events        = require('events');
+var dns           = require('dns');
+var http          = require('http');
+var spdy          = require('spdy');
+var auth          = require('http-auth');
+var socketio      = require('socket.io');
+var chinachu      = require('chinachu-common');
+var S             = require('string');
 
-// ディレクトリチェック
+// Directory Checking
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
-	util.error('必要なディレクトリが存在しないか、カレントワーキングディレクトリが不正です。');
+	util.error('FATAL: Current working directory is invalid.');
 	process.exit(1);
 }
 
-// 終了処理
+// SIGQUIT
 process.on('SIGQUIT', function () {
 	setTimeout(function () {
 		process.exit(0);
 	}, 0);
 });
 
-// 例外処理
+// Uncaught Exception
 process.on('uncaughtException', function (err) {
 	util.error('uncaughtException: ' + err);
 });
 
-// 追加モジュールのロード
-var auth     = require('http-auth');
-var socketio = require('socket.io');
-var chinachu = require('chinachu-common');
-var S        = require('string');
-
 // etc.
 var timer = {};
 var emptyFunction = function () {};
-
-// 設定の読み込み
-var config = require(CONFIG_FILE);
-
-// https or http
-if (config.wuiTlsKeyPath && config.wuiTlsCertPath) {
-	var spdy = require('spdy');
-	
-	var tlsOption = {
-		key : fs.readFileSync(config.wuiTlsKeyPath),
-		cert: fs.readFileSync(config.wuiTlsCertPath)
-	};
-	
-	// 秘密鍵または pfx のパスフレーズを表す文字列
-	if (config.wuiTlsPassphrase) { tlsOption.passphrase = config.wuiTlsPassphrase; }
-	
-	if (config.wuiTlsRequestCert) { tlsOption.requestCert = config.wuiTlsRequestCert; }
-	if (config.wuiTlsRejectUnauthorized) { tlsOption.rejectUnauthorized = config.wuiTlsRejectUnauthorized; }
-	if (config.wuiTlsCaPath) { tlsOption.ca = [ fs.readFileSync(config.wuiTlsCaPath) ]; }
-} else {
-	var http = require('http');
-}
-
-// BASIC認証
-if (config.wuiUsers && (config.wuiUsers.length > 0)) {
-	var basic = auth({
-		authRealm: 'Authentication.',
-		authList : config.wuiUsers
-	});
-}
-
-// ステータス
 var status = {
 	connectedCount: 0,
 	feature: {
@@ -109,21 +82,69 @@ var status = {
 	}
 };
 
+// HTTPS
+var tlsOption = null;
+var tlsEnabled = !!config.wuiTlsKeyPath && !!config.wuiTlsCertPath;
+if (tlsEnabled) {
+	tlsOption = {
+		key : fs.readFileSync(config.wuiTlsKeyPath),
+		cert: fs.readFileSync(config.wuiTlsCertPath)
+	};
+	
+	// 秘密鍵または pfx のパスフレーズを表す文字列
+	if (config.wuiTlsPassphrase) { tlsOption.passphrase = config.wuiTlsPassphrase; }
+	
+	if (config.wuiTlsRequestCert) { tlsOption.requestCert = config.wuiTlsRequestCert; }
+	if (config.wuiTlsRejectUnauthorized) { tlsOption.rejectUnauthorized = config.wuiTlsRejectUnauthorized; }
+	if (config.wuiTlsCaPath) { tlsOption.ca = [ fs.readFileSync(config.wuiTlsCaPath) ]; }
+}
+
+// Basic Auth
+var basic = null;
+var basicAuthEnabled = config.wuiUsers && (config.wuiUsers.length > 0);
+if (basicAuthEnabled) {
+	basic = auth({
+		authRealm: 'Authentication.',
+		authList : config.wuiUsers
+	});
+}
+
+// Open Server
+var openServerEnabled = config.wuiOpenServer === true;
+
 var rules     = [];
 var schedule  = [];
 var reserves  = [];
 var recording = [];
 var recorded  = [];
 
-//
-// http server
-//
-var httpServer, httpServerMain;
+// Init HTTP Server
+var server, openServer, httpServer, httpServerMain;
 
-if (http) { var app = http.createServer(httpServer); }
-if (spdy) { var app = spdy.createServer(tlsOption, httpServer); }
-app.listen(config.wuiPort, (typeof config.wuiHost === 'undefined') ? '::' : config.wuiHost);
+if (tlsEnabled) {
+	server = spdy.createServer(tlsOption, httpServer);
+} else {
+	server = http.createServer(httpServer);
+	
+	util.error('**SELF-REGULATION WARNING**: If you want to access from outside of LAN, Please activate TLS.');
+}
+server.timeout = 240000;
+server.listen(config.wuiPort || 10772, config.wuiHost || '::', function () {
+	util.log((tlsEnabled ? 'HTTPS' : 'HTTP') + ' Server Listening on ' + util.inspect(server.address()));
+});
 
+// EXPERIMENTAL: Open Server for Access from LAN.
+if (openServerEnabled) {
+	openServer = http.createServer(httpServer);
+	openServer.timeout = 0;
+	dns.lookup(os.hostname(), function (err, hostIp) {
+		openServer.listen(config.wuiOpenPort || 20772, config.wuiOpenHost || hostIp, function () {
+			util.log('HTTP Open Server Listening on ' + util.inspect(openServer.address()));
+		});
+	});
+}
+
+// HTTP Server
 function httpServer(req, res) {
 	
 	var q = '';
@@ -318,19 +339,18 @@ function httpServerMain(req, res, query) {
 		if (ext === 'webm') { type = 'video/webm'; }
 		if (ext === 'm2ts') { type = 'video/MP2T'; }
 		if (ext === 'm3u8') { type = 'application/x-mpegURL'; }
-		if (ext === 'asf')  { type = 'video/x-ms-asf'; }
+		if (ext === 'asf') { type = 'video/x-ms-asf'; }
 		if (ext === 'json') { type = 'application/json; charset=utf-8'; }
 		if (ext === 'xspf') { type = 'application/xspf+xml'; }
 		
 		var head = {
-			'content-type'             : type,
-			'date'                     : new Date().toUTCString(),
-			'server'                   : 'chinachu-wui',
-			'cache-control'            : 'no-cache',
-			'x-content-type-options'   : 'nosniff',
-			'x-frame-options'          : 'DENY',
-			'x-ua-compatible'          : 'IE=Edge,chrome=1',
-			'x-xss-protection'         : '1; mode=block'
+			'Content-Type'             : type,
+			'Server'                   : 'Chinachu (Node)',
+			'Cache-Control'            : 'no-cache',
+			'X-Content-Type-Options'   : 'nosniff',
+			'X-Frame-Options'          : 'SAMEORIGIN',
+			'X-UA-Compatible'          : 'IE=Edge,chrome=1',
+			'X-XSS-Protection'         : '1; mode=block'
 		};
 		
 		res.writeHead(code, head);
@@ -344,18 +364,18 @@ function httpServerMain(req, res, query) {
 		if (fs.existsSync(filename) === false) { return resErr(404); }
 		
 		if (req.method !== 'HEAD' && req.method !== 'GET') {
-			res.setHeader('allow', 'HEAD, GET');
+			res.setHeader('Allow', 'HEAD, GET');
 			return resErr(405);
 		}
 		
 		if (['ico', 'png'].indexOf(ext) !== -1) {
-			res.setHeader('cache-control', 'private, max-age=86400');
+			res.setHeader('Cache-Control', 'private, max-age=86400');
 		}
 		
 		var fstat = fs.statSync(filename);
 		
-		res.setHeader('accept-ranges', 'bytes');
-		res.setHeader('last-modified', new Date(fstat.mtime).toUTCString());
+		res.setHeader('Accept-Ranges', 'bytes');
+		res.setHeader('Last-Modified', new Date(fstat.mtime).toUTCString());
 		
 		if (req.headers['if-modified-since'] && req.headers['if-modified-since'] === new Date(fstat.mtime).toUTCString()) {
 			writeHead(304);
@@ -367,19 +387,19 @@ function httpServerMain(req, res, query) {
 		if (req.headers.range) {
 			var bytes = req.headers.range.replace(/bytes=/, '').split('-');
 			range.start = parseInt(bytes[0], 10);
-			range.end   = parseInt(bytes[1], 10) || fstat.size;
+			range.end   = parseInt(bytes[1], 10) || fstat.size - 1;
 			
 			if (range.start > fstat.size || range.end > fstat.size) {
 				return resErr(416);
 			}
 			
-			res.setHeader('content-range', 'bytes ' + range.start + '-' + range.end + '/' + fstat.size);
-			res.setHeader('content-length', range.end - range.start + 1);
+			res.setHeader('Content-Range', 'bytes ' + range.start + '-' + range.end + '/' + fstat.size);
+			res.setHeader('Content-Length', range.end - range.start + 1);
 			
 			writeHead(206);
 			log(206);
 		} else {
-			res.setHeader('content-length', fstat.size);
+			res.setHeader('Content-Length', fstat.size);
 			
 			writeHead(200);
 			log(200);
@@ -438,7 +458,7 @@ function httpServerMain(req, res, query) {
 			
 			if (target === null) { return resErr(400); }
 			if (target.methods.indexOf(req.method.toLowerCase()) === -1) {
-				res.setHeader('allow', target.methods.join(', ').toUpperCase());
+				res.setHeader('Allow', target.methods.join(', ').toUpperCase());
 				return resErr(405);
 			}
 			if (target.types.indexOf(ext) === -1) { return resErr(415); }
@@ -660,11 +680,40 @@ function httpServerMain(req, res, query) {
 //
 var ioServer, ioServerMain, ioServerSocketOnDisconnect;
 
-var io = socketio.listen(app);
-io.enable('browser client minification');
-io.set('log level', 1);
-io.set('transports', ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
-io.sockets.on('connection', ioServer);
+var ios = new events.EventEmitter();
+ios.setMaxListeners(0);
+
+function iosAddEventListner(io, eventName) {
+	return ios.on(eventName, function () {
+		var i, l, args = [];
+		for (i = 0, l = arguments.length; i < l; i++) {
+			args.push(arguments[i]);
+		}
+		io.sockets.emit.apply(io.sockets, [eventName].concat(args));
+	});
+}
+
+function ioAddListener(server) {
+	var io = socketio.listen(server);
+	
+	io.enable('browser client minification');
+	io.set('log level', 1);
+	io.set('transports', ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
+	io.sockets.on('connection', ioServer);
+	
+	// listen event
+	iosAddEventListner(io, 'status');
+	iosAddEventListner(io, 'notify-rules');
+	iosAddEventListner(io, 'notify-reserves');
+	iosAddEventListner(io, 'notify-recording');
+	iosAddEventListner(io, 'notify-recorded');
+	iosAddEventListner(io, 'notify-schedule');
+	
+	return io;
+}
+
+ioAddListener(server);
+ioAddListener(openServer);
 
 function ioServer(socket) {
 	if (basic) {
@@ -702,15 +751,7 @@ function ioServerMain(socket) {
 	socket.on('disconnect', ioServerSocketOnDisconnect);
 	
 	// broadcast
-	io.sockets.emit('status', status);
-	
-	/*
-	socket.emit('rules', rules);
-	socket.emit('reserves', reserves);
-	socket.emit('recording', recording);
-	socket.emit('recorded', recorded);
-	socket.emit('schedule', schedule);
-	*/
+	ios.emit('status', status);
 	
 	socket.emit('notify-rules');
 	socket.emit('notify-reserves');
@@ -719,9 +760,9 @@ function ioServerMain(socket) {
 	socket.emit('notify-schedule');
 }
 
-function ioServerSocketOnDisconnect() {
+function ioServerSocketOnDisconnect(socket) {
 	--status.connectedCount;
-	io.sockets.emit('status', status);
+	ios.emit('status', status);
 }
 
 // ファイル更新監視: ./data/rules.json
@@ -734,7 +775,7 @@ chinachu.jsonWatcher(
 		}
 		
 		rules = data;
-		io.sockets.emit('notify-rules');
+		ios.emit('notify-rules');
 		util.log(mes);
 	},
 	{ create: [], now: true }
@@ -750,7 +791,7 @@ chinachu.jsonWatcher(
 		}
 		
 		schedule = data;
-		io.sockets.emit('notify-schedule');
+		ios.emit('notify-schedule');
 		util.log(mes);
 	},
 	{ create: [], now: true }
@@ -766,7 +807,7 @@ chinachu.jsonWatcher(
 		}
 		
 		reserves = data;
-		io.sockets.emit('notify-reserves');
+		ios.emit('notify-reserves');
 		util.log(mes);
 	},
 	{ create: [], now: true }
@@ -782,7 +823,7 @@ chinachu.jsonWatcher(
 		}
 		
 		recording = data;
-		io.sockets.emit('notify-recording');
+		ios.emit('notify-recording');
 		util.log(mes);
 	},
 	{ create: [], now: true }
@@ -798,7 +839,7 @@ chinachu.jsonWatcher(
 		}
 		
 		recorded = data;
-		io.sockets.emit('notify-recorded');
+		ios.emit('notify-recorded');
 		util.log(mes);
 	},
 	{ create: [], now: true }
@@ -807,7 +848,7 @@ chinachu.jsonWatcher(
 // プロセス監視
 function processChecker() {
 	
-	io.sockets.emit('status', status);
+	ios.emit('status', status);
 	
 	var c = chinachu.createCountdown(2, chinachu.createTimeout(processChecker, 5000));
 	

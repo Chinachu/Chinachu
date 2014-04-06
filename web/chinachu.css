@@ -1480,10 +1480,10 @@ div.video-control {
 	text-align      : center; }
 	
 	div.video-control .seek {
-		width: -webkit-calc(100% - 370px) !important;
-		width: -moz-calc(100% - 370px) !important;
-		width: -ms-calc(100% - 370px) !important;
-		width: calc(100% - 370px) !important; }
+		width: -webkit-calc(100% - 470px) !important;
+		width: -moz-calc(100% - 470px) !important;
+		width: -ms-calc(100% - 470px) !important;
+		width: calc(100% - 470px) !important; }
 
 div.console {
 	position   : absolute;

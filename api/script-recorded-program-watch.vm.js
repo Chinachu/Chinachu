@@ -19,7 +19,7 @@
 			var current  = (program.end - program.start) / 1000;
 			
 			var d = {
-				t    : request.query.t      || '5',//duration(seconds)
+				t    : request.query.t      || '10',//duration(seconds)
 				s    : request.query.s      || '1024x576',//size(WxH)
 				'c:v': request.query['c:v'] || 'libx264',//vcodec
 				'c:a': request.query['c:a'] || 'libfdk_aac',//acodec
@@ -35,7 +35,7 @@
 			response.write('#EXT-X-MEDIA-SEQUENCE:0\n');
 			
 			var target = request.query.prefix || '';
-			target += 'watch.m2ts?nore=1&t=' + d.t + '&c:v=' + d['c:v'] + '&c:a=' + d['c:a'];
+			target += 'watch.m2ts?t=' + d.t + '&c:v=' + d['c:v'] + '&c:a=' + d['c:a'];
 			target += '&b:v=' + d['b:v'] + '&s=' + d.s + '&b:a=' + d['b:a'];
 			
 			for (var i = 0; i < current; i += d.t) {
@@ -71,9 +71,7 @@
 		case 'flv':
 		case 'webm':
 		case 'asf':
-			response.head(200);
-			
-			util.log('[streamer] streaming: ' + program.recorded);
+			util.log('STREAMING: ' + request.url);
 			
 			var d = {
 				ss   : request.query.ss     || '0', //start(seconds)
@@ -87,6 +85,62 @@
 				ar   : request.query.ar     || null,//ar(Hz)
 				r    : request.query.r      || null//rate(fps)
 			};
+			
+			// Convert humanized size String to Bitrate
+			var bitrate = 0;
+			var videoBitrate = 0;
+			var audioBitrate = 0;
+			if (d['b:v'] !== null) {
+				if (d['b:v'].match(/^[0-9]+k$/i)) {
+					videoBitrate = parseInt(d['b:v'].match(/^([0-9]+)k$/i)[1], 10) * 1024;
+				} else if (d['b:v'].match(/^[0-9]+m$/i)) {
+					videoBitrate = parseInt(d['b:v'].match(/^([0-9]+)m$/i)[1], 10) * 1024 * 1024;
+				}
+			}
+			if (d['b:a'] !== null) {
+				if (d['b:a'].match(/^[0-9]+k$/i)) {
+					videoBitrate = parseInt(d['b:a'].match(/^([0-9]+)k$/i)[1], 10) * 1024;
+				} else if (d['b:a'].match(/^[0-9]+m$/i)) {
+					videoBitrate = parseInt(d['b:a'].match(/^([0-9]+)m$/i)[1], 10) * 1024 * 1024;
+				}
+			}
+			if (videoBitrate !== 0 && audioBitrate !== 0) {
+				bitrate = videoBitrate + audioBitrate;
+			}
+			
+			// Caluculate Total Size
+			var fstat = fs.statSync(program.recorded);
+			var tsize = fstat.size;
+			if (bitrate !== 0) {
+				tsize = bitrate / 8 * program.seconds;
+			}
+			if (d.t) {
+				tsize = Math.floor(tsize / program.seconds * parseInt(d.t, 10));
+			}
+			
+			// Ranges Support
+			var range = {};
+			if (request.headers.range) {
+				var bytes = request.headers.range.replace(/bytes=/, '').split('-');
+				range.start = parseInt(bytes[0], 10);
+				range.end   = parseInt(bytes[1], 10) || tsize - 1;
+
+				if (range.start > tsize || range.end > tsize) {
+					return response.error(416);
+				}
+				
+				response.setHeader('Content-Range', 'bytes ' + range.start + '-' + range.end + '/' + tsize);
+				response.setHeader('Content-Length', range.end - range.start + 1);
+				
+				response.head(206);
+			} else {
+				response.setHeader('Accept-Ranges', 'bytes');
+				if (d.ss === '0' && d.t === null) {
+					response.setHeader('Content-Length', tsize);
+				}
+
+				response.head(200);
+			}
 			
 			switch (request.type) {
 				case 'm2ts':
@@ -120,8 +174,6 @@
 			
 			args.push('-ss', (parseInt(d.ss, 10) - 1) + '');
 			
-			if (!request.query.nore) args.push('-re');
-			
 			args.push('-i', program.recorded);
 			args.push('-ss', '1');
 			
@@ -143,27 +195,34 @@
 			if (d['c:v'] === 'libx264') args.push('-preset', 'ultrafast');
 			if (d['c:v'] === 'libvpx')  args.push('-deadline', 'realtime');
 			
+			//args.push('-metadata', 'Title=Chinachu');
+			//args.push('-metadata', 'Duration=30');
+			
 			args.push('-y', '-f', d.f, 'pipe:1');
 			
-			var avconv = child_process.spawn('avconv', args);
-			
-			avconv.stdout.pipe(response);
-			
-			avconv.stderr.on('data', function(d) {
-				util.log('avconv strerr: ' + d);
-			});
-			
-			avconv.on('exit', function(code) {
-				setTimeout(function() { response.end(); }, 1000);
-			});
-			
-			request.on('close', function() {
-				avconv.stdout.removeAllListeners('data');
-				avconv.stderr.removeAllListeners('data');
-				avconv.kill('SIGKILL');
-			});
-			
-			children.push(avconv);// 安全対策
+			if (d['c:v'] === 'copy' && d['c:a'] === 'copy' && d.ss === '0' && !d.t) {
+				fs.createReadStream(program.recorded, range || {}).pipe(response);
+			} else {
+				var avconv = child_process.spawn('avconv', args);
+
+				avconv.stdout.pipe(response);
+
+				avconv.stderr.on('data', function(d) {
+					util.log('avconv strerr: ' + d);
+				});
+
+				avconv.on('exit', function(code) {
+					setTimeout(function() { response.end(); }, 1000);
+				});
+
+				request.on('close', function() {
+					avconv.stdout.removeAllListeners('data');
+					avconv.stderr.removeAllListeners('data');
+					avconv.kill('SIGKILL');
+				});
+
+				children.push(avconv);// 安全対策
+			}
 			
 			return;
 	}//<--switch
