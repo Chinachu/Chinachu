@@ -255,7 +255,7 @@ chinachu_installer_libvpx () {
   local LIBVPX_GIT="http://git.chromium.org/webm/libvpx.git"
   
   echo "Installing libvpx from $LIBVPX_GIT"
-  git clone --depth=1 --branch=master $LIBVPX_GIT "$USR_DIR/src/libvpx"
+  git clone --branch=master $LIBVPX_GIT "$USR_DIR/src/libvpx"
   cd "$USR_DIR/src/libvpx"
   
   ./configure \
