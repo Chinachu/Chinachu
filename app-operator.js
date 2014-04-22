@@ -245,6 +245,7 @@ function doRecord(program) {
 	
 	// 録画プロセスを生成
 	recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
+	chinachu.writeTunerPid(tuner, recProc.pid);
 	util.log('SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
 	program.pid = recProc.pid;
 	

@@ -8,6 +8,8 @@
 /*global gc */
 'use strict';
 
+var PID_FILE = __dirname + '/data/scheduler.pid';
+
 var CONFIG_FILE         = __dirname + '/config.json';
 var RULES_FILE          = __dirname + '/rules.json';
 var RESERVES_DATA_FILE  = __dirname + '/data/reserves.json';
@@ -86,6 +88,38 @@ if (fs.existsSync(SCHEDULE_DATA_FILE)) {
 		util.log('WARNING: `' + SCHEDULE_DATA_FILE + '`のロードに失敗しました');
 		schedule = [];
 	}
+}
+
+// PID file operation
+function createPidFile() {
+	fs.writeFileSync(PID_FILE, process.pid);
+}
+
+function deletePidFile() {
+	fs.unlinkSync(PID_FILE);
+}
+
+// scheduler is running?
+function isRunning(callback) {
+	
+	if (fs.existsSync(PID_FILE) === true) {
+		var pid = fs.readFileSync(PID_FILE, { encoding: 'utf8' });
+		pid = pid.trim();
+		
+		child_process.exec('ps h -p ' + pid, function (err, stdout) {
+			
+			if (stdout === '') {
+				deletePidFile();
+				callback(false);
+			} else {
+				callback(true);
+			}
+		});
+	} else {
+		callback(false);
+	}
+	
+	return void 0;
 }
 
 // (function) remake reserves
@@ -857,6 +891,7 @@ function getEpg() {
 			
 			// 録画プロセスを生成
 			var recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
+			chinachu.writeTunerPid(tuner, recProc.pid);
 			util.log('[' + i + '] SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
 			
 			// プロセスタイムアウト
@@ -1014,11 +1049,23 @@ function getEpg() {
 	process.nextTick(tick);
 }//<-- getEpg()
 
-
-
-// EPGデータを取得または番組表を読み込む
-if (opts.get('f') || schedule.length === 0) {
-	getEpg();
-} else {
-	scheduler();
-}
+// 既に実行中か
+isRunning(function (running) {
+	if (running) {
+		util.error('ERROR: Scheduler is already running.');
+		process.exit(1);
+	} else {
+		createPidFile();
+		
+		process.on('exit', function () {
+			deletePidFile();
+		});
+		
+		// EPGデータを取得または番組表を読み込む
+		if (opts.get('f') || schedule.length === 0) {
+			getEpg();
+		} else {
+			scheduler();
+		}
+	}
+});
