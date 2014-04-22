@@ -184,6 +184,7 @@ todo
 			// var out = fs.openSync('/tmp/chinachu-live', 'a');
 			// var recpt1 = child_process.spawn('recpt1', ['--b25', '--strip', request.param.id, '-', '-']);
 			var recpt1 = child_process.spawn(tunerCommad.split(' ')[0], tunerCommad.replace(/[^ ]+ /, '').split(' '));
+			chinachu.writeTunerPid(tuner, recpt1.pid);
 			// util.log(['--b25', '--strip', request.param.id, '-', '/dev/stdout'].join(' '));
 			var avconv = child_process.spawn('avconv', args);
 			// util.log(args.join(' '));

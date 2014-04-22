@@ -891,6 +891,7 @@ function getEpg() {
 			
 			// 録画プロセスを生成
 			var recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
+			chinachu.writeTunerPid(tuner, recProc.pid);
 			util.log('[' + i + '] SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
 			
 			// プロセスタイムアウト
