@@ -32,7 +32,6 @@ var opts       = require('opts');
 var xml2js     = require('xml2js');
 var xmlParser  = new xml2js.Parser();
 var dateFormat = require('dateformat');
-var execSync   = require('execsync');
 var chinachu   = require('chinachu-common');
 
 // 引数
@@ -293,6 +292,9 @@ function scheduler() {
 	if (!opts.get('s')) {
 		outputReserves();
 	}
+	
+	// プロセス終了
+	process.exit(0);
 }
 
 // (function) program converter
@@ -915,36 +917,23 @@ function getEpg() {
 			}, 1000 * (config.schedulerEpgRecordTime || 60));
 			
 			// キャンセル時
+			var isCancelled = false;
 			var onCancel = function () {
 				
-				// リスナ削除
-				removeListeners();
-				
-				// 録画プロセスを終了
-				execSync('kill -KILL ' + recProc.pid);
-				execSync('sleep 5');
-				util.log('[' + i + '] KILL');
-				
-				// チューナーのロックを解除
-				unlockTuner();
-				
-				// 一時録画ファイル削除
-				fs.unlinkSync(recPath);
-				util.log('[' + i + '] UNLINK: ' + recPath);
-				
-				// 終了
-				process.exit();
+				isCancelled = true;
+				recProc.kill('SIGKILL');
 			};
 			
 			removeListeners = function () {
 				
 				process.removeListener('exit', onCancel);
+				recProc.removeAllListeners('exit');
 			};
 			
 			// 終了シグナル時処理
 			process.on('exit', onCancel);
 			
-			recProc.on('exit', function () {
+			recProc.once('exit', function () {
 				
 				// リスナー削除
 				removeListeners();
@@ -952,7 +941,15 @@ function getEpg() {
 				// チューナーのロックを解除
 				unlockTuner();
 
-				dumpEpg();
+				if (isCancelled) {
+					// 一時録画ファイル削除
+					fs.unlinkSync(recPath);
+					
+					// 終了
+					process.exit();
+				} else {
+					dumpEpg();
+				}
 			});
 		}//<-- if
 	};//<-- get()
