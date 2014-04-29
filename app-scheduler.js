@@ -32,6 +32,7 @@ var opts       = require('opts');
 var xml2js     = require('xml2js');
 var xmlParser  = new xml2js.Parser();
 var dateFormat = require('dateformat');
+var execSync   = require('execsync');
 var chinachu   = require('chinachu-common');
 
 // 引数
@@ -461,7 +462,7 @@ function getEpg() {
 			util.log('WRITE: ' + SCHEDULE_DATA_FILE);
 		}
 		
-		process.nextTick(callback);
+		callback();
 	};
 	
 	var get = function (i, c, callback) {
@@ -470,7 +471,7 @@ function getEpg() {
 		
 		var residue = c;
 		
-		var reuse = function _reuse() {
+		var reuse = function () {
 			
 			var chs = [];
 			
@@ -486,7 +487,7 @@ function getEpg() {
 			if (chs.length !== 0) { s = s.concat(chs); }
 		};
 		
-		var retry = function _retry() {
+		var retry = function () {
 			
 			--residue;
 			
@@ -495,8 +496,8 @@ function getEpg() {
 				reuse();
 				
 				// おわり
-				process.nextTick(callback);
 				util.log('[' + i + '] -- (give up)');
+				callback();
 				
 				return;
 			}
@@ -519,8 +520,8 @@ function getEpg() {
 			for (j = 0, m = s.length; m > j; j++) {
 				if (s[j].channel === channel.channel) {
 					// 取得済み
-					process.nextTick(callback);
 					util.log('[' + i + '] -- (pass)');
+					callback();
 					
 					return;
 				}
@@ -533,8 +534,8 @@ function getEpg() {
 			for (j = 0, m = s.length; m > j; j++) {
 				if ((s[j].channel === channel.channel) && (s[j].sid === channel.sid)) {
 					// 取得済み
-					process.nextTick(callback);
 					util.log('[' + i + '] -- (pass)');
+					callback();
 					
 					return;
 				}
@@ -545,8 +546,8 @@ function getEpg() {
 		default:
 			// todo
 			// 知らないタイプ
-			process.nextTick(callback);
 			util.log('[' + i + '] -- (unknown)');
+			callback();
 			
 			return;
 		}//<-- switch
@@ -555,7 +556,7 @@ function getEpg() {
 		if (opts.get('ch')) {
 			if (opts.get('ch') !== channel.channel) {
 				reuse();
-				process.nextTick(callback);
+				callback();
 				
 				return;
 			}
@@ -594,7 +595,7 @@ function getEpg() {
 				if (err !== null) {
 					util.log('[' + i + '] EPG: 不明なエラー');
 					util.log(err);
-					process.nextTick(retry);
+					retry();
 					
 					return;
 				}
@@ -606,28 +607,28 @@ function getEpg() {
 						if (err) {
 							util.log('[' + i + '] EPG: パースに失敗');
 							util.log(err);
-							process.nextTick(retry);
+							retry();
 							
 							return;
 						}
 						
 						if (result === null) {
 							util.log('[' + i + '] EPG: パースに失敗 (result=null)');
-							process.nextTick(retry);
+							retry();
 							
 							return;
 						}
 
 						if (result.tv.channel === undefined) {
 							util.log('[' + i + '] EPG: データが空 (result.tv.channel is undefined)');
-							process.nextTick(retry);
+							retry();
 
 							return;
 						}
 						
 						if (!result.tv.channel[0]['display-name'] || !result.tv.channel[0]['display-name'][0] || !result.tv.channel[0]['display-name'][0]._) {
 							util.log('[' + i + '] EPG: データが不正 (display-name is incorrect)');
-							process.nextTick(retry);
+							retry();
 							
 							return;
 						}
@@ -794,12 +795,12 @@ function getEpg() {
 								
 						}//<-- switch
 						
-						setTimeout(callback, 3000);
 						util.log('[' + i + '] -- (ok)');
+						callback();
 					});
 				} catch (e) {
 					util.log('[' + i + '] EPG: エラー (' + e + ')');
-					process.nextTick(retry);
+					retry();
 				}
 			});
 			util.log('[' + i + '] EXEC: epgdump (pid=' + epgdumpProc.pid + ')');
@@ -814,7 +815,7 @@ function getEpg() {
 					
 					if (err) {
 						util.log('[' + i + '] ERROR: 一時ファイルの作成に失敗しました');
-						process.nextTick(retry);
+						retry();
 						
 						return;
 					}
@@ -826,7 +827,7 @@ function getEpg() {
 			var load  = opts.get('l');
 			if (!fs.existsSync(load)) {
 				util.log('[' + i + '] WARNING: 指定したファイルが見つかりません');
-				process.nextTick(retry);
+				retry();
 				
 				return;
 			}
@@ -857,7 +858,7 @@ function getEpg() {
 			// チューナーが見つからない
 			if (tuner === null) {
 				util.log('[' + i + '] WARNING: 利用可能なチューナーが見つかりませんでした (存在しないかロックされています)');
-				process.nextTick(retry);
+				retry();
 				
 				return;
 			}
@@ -867,17 +868,17 @@ function getEpg() {
 				chinachu.lockTunerSync(tuner);
 			} catch (e) {
 				util.log('[' + i + '] WARNING: チューナー(' + tuner.n + ')のロックに失敗しました');
-				process.nextTick(retry);
+				retry();
 				
 				return;
 			}
 			util.log('[' + i + '] LOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
 			
-			var unlockTuner = function _unlockTuner() {
+			var unlockTuner = function () {
 				
 				// チューナーのロックを解除
 				try {
-					chinachu.unlockTunerSync(tuner);
+					chinachu.unlockTunerSync(tuner, true);
 					util.log('[' + i + '] UNLOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
 				} catch (e) {
 					util.log(e);
@@ -891,11 +892,8 @@ function getEpg() {
 			
 			// 録画プロセスを生成
 			var recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
-			chinachu.writeTunerPid(tuner, recProc.pid);
+			chinachu.writeTunerPidSync(tuner, recProc.pid);
 			util.log('[' + i + '] SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
-			
-			// プロセスタイムアウト
-			setTimeout(function () { recProc.kill('SIGTERM'); }, 1000 * (config.schedulerEpgRecordTime || 60));
 			
 			// 一時ファイルへの書き込みストリームを作成
 			var recFile = fs.createWriteStream(recPath);
@@ -909,20 +907,23 @@ function getEpg() {
 				util.log('[' + i + '] #' + (recCmd.split(' ')[0] + ': ' + data).replace(/\n/g, ' ').trim());
 			});
 			
-			var removeSignalListener;
+			var removeListeners;
+			
+			// プロセスタイムアウト
+			setTimeout(function () {
+				recProc.kill('SIGKILL');
+			}, 1000 * (config.schedulerEpgRecordTime || 60));
 			
 			// キャンセル時
 			var onCancel = function () {
 				
-				// シグナルリスナー解除
-				removeSignalListener();
+				// リスナ削除
+				removeListeners();
 				
 				// 録画プロセスを終了
-				recProc.removeAllListeners('exit');
-				recProc.kill('SIGTERM');
-				
-				// 書き込みストリームを閉じる
-				recFile.end();
+				execSync('kill -KILL ' + recProc.pid);
+				execSync('sleep 5');
+				util.log('[' + i + '] KILL');
 				
 				// チューナーのロックを解除
 				unlockTuner();
@@ -932,33 +933,25 @@ function getEpg() {
 				util.log('[' + i + '] UNLINK: ' + recPath);
 				
 				// 終了
-				process.nextTick(process.exit);
+				process.exit();
 			};
 			
-			removeSignalListener = function () {
+			removeListeners = function () {
 				
-				process.removeListener('SIGINT', onCancel);
-				process.removeListener('SIGQUIT', onCancel);
-				process.removeListener('SIGTERM', onCancel);
+				process.removeListener('exit', onCancel);
 			};
 			
 			// 終了シグナル時処理
-			process.on('SIGINT', onCancel);
-			process.on('SIGQUIT', onCancel);
-			process.on('SIGTERM', onCancel);
+			process.on('exit', onCancel);
 			
-			// プロセス終了時
-			recProc.on('exit', function (code) {
+			recProc.on('exit', function () {
 				
-				// シグナルリスナー解除
-				removeSignalListener();
-				
-				// 書き込みストリームを閉じる
-				recFile.end();
-				
+				// リスナー削除
+				removeListeners();
+
 				// チューナーのロックを解除
 				unlockTuner();
-				
+
 				dumpEpg();
 			});
 		}//<-- if
@@ -1046,7 +1039,7 @@ function getEpg() {
 			}
 		));
 	};
-	process.nextTick(tick);
+	tick();
 }//<-- getEpg()
 
 // 既に実行中か

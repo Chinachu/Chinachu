@@ -34,7 +34,7 @@
     "string": "~1.5.1",
     "mtwitter": "~1.5.2",
     "hoard": "~0.1.5",
-    "execSync": "^1.0.1-pre"
+    "execsync": "0.0.5"
   },
   "devDependencies": {
     "mocha": "*",
