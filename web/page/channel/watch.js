@@ -118,13 +118,8 @@ P = Class.create(P, {
 						
 						var d = this.form.result();
 						
-						if (program._isRecording) {
-							d.prefix = window.location.protocol + '//' + window.location.host + '/api/recording/' + program.id + '/';
-							window.open('./api/recording/' + program.id + '/watch.xspf?' + Object.toQueryString(d));
-						} else {
-							d.prefix = window.location.protocol + '//' + window.location.host + '/api/recorded/' + program.id + '/';
-							window.open('./api/recorded/' + program.id + '/watch.xspf?' + Object.toQueryString(d));
-						}
+						d.prefix = window.location.protocol + '//' + window.location.host + '/api/channel/' + this.channelId + '/';
+						window.open('./api/channel/' + this.channelId + '/watch.xspf?' + Object.toQueryString(d));
 					}.bind(this)
 				}
 			]
