@@ -22,7 +22,7 @@ P = Class.create(P, {
 	,
 	refresh: function() {
 		
-		this.drawMain();
+		this.app.pm.realizeHash(true);
 		
 		return this;
 	}
@@ -30,49 +30,23 @@ P = Class.create(P, {
 	initToolbar: function _initToolbar() {
 		
 		this.view.toolbar.add({
-			key: 'execute-scheduler',
+			key: 'search',
 			ui : new sakura.ui.Button({
-				label  : 'EXECUTE {0}'.__('CLEANUP'.__()),
-				icon   : './icons/eraser.png',
-				onClick: function() {
-					new chinachu.ui.Cleanup();
-				}.bind(this)
-			})
-		});
-
-		this.view.toolbar.add({
-			key: 'search recored programs',
-			ui : new sakura.ui.Button({
-				label  : '{0}'.__('SEARCH RECORDED PROGRAMS'.__()),
-				icon   : './icons/calendar-search-result.png',
-				onClick: function() {
-					window.location.href = '#!/recorded/search/'
-				}.bind(this)
+				label  : '録画番組検索',
+				icon   : './icons/magnifier-zoom.png',
+				onClick: this.viewSearchModal.bind(this)
 			})
 		});
 		
 		return this;
 	}
 	,
-	updateToolbar: function() {
-		
-		if (!this.grid) return;
-		
-		var selected = this.grid.getSelectedRows();
-		
-		if (selected.length === 0) {
-			
-		} else if (selected.length === 1) {
-			
-		} else {
-			
-		}
-	}
-	,
 	draw: function() {
 		
 		this.view.content.className = '';
 		this.view.content.update();
+		
+		
 		
 		this.grid = new flagrate.Grid({
 			multiSelect  : false,
@@ -119,7 +93,11 @@ P = Class.create(P, {
 			}.bind(this)
 		}).insertTo(this.view.content);
 		
-		this.drawMain();
+		if (!this.self.query.skip) {
+			this.viewSearchModal();
+		} else {
+			this.drawMain();
+		}
 		
 		return this;
 	}
@@ -130,12 +108,40 @@ P = Class.create(P, {
 		
 		var programs = [];
 		
+		var program;
 		for (var i = 0, l = global.chinachu.recorded.length; i < l; i++) {
-			programs.push(global.chinachu.recorded[i]);
+			program = global.chinachu.recorded[i];
+			
+			if (this.self.query.pgid && this.self.query.pgid !== program.id) continue; 
+			if (this.self.query.chid && this.self.query.chid !== program.channel.id) continue; 
+			if (this.self.query.cat && this.self.query.cat !== program.category) continue; 
+			if (this.self.query.type && this.self.query.type !== program.channel.type) continue; 
+			if (this.self.query.title && program.title.match(this.self.query.title) === null) continue;
+			if (this.self.query.desc && (!program.detail || program.detail.match(this.self.query.desc) === null)) continue;
+			
+			if (this.self.query.start || this.self.query.end) {
+				var ruleStart = parseInt(this.self.query.start || 0, 10);
+				var ruleEnd   = parseInt(this.self.query.end || 24, 10);
+				
+				var progStart = new Date(program.start).getHours();
+				var progEnd   = new Date(program.end).getHours();
+				
+				if (progStart > progEnd) {
+					progEnd += 24;
+				}
+				
+				if (ruleStart > ruleEnd) {
+					if ((ruleStart > progStart) && (ruleEnd < progEnd)) continue;
+				} else {
+					if ((ruleStart > progStart) || (ruleEnd < progEnd)) continue;
+				}
+			}
+			
+			programs.push(program);
 		}
 		
 		programs.sort(function(a, b) {
-			return b.start - a.start;
+			return a.start - b.start;
 		});
 		
 		programs.each(function(program, i) {
@@ -150,21 +156,6 @@ P = Class.create(P, {
 					}
 				},
 				menuItems: [
-					{
-						label   : '録画履歴の削除...',
-						icon    : './icons/eraser.png',
-						onSelect: function() {
-							new chinachu.ui.RemoveRecordedProgram(program.id);
-						}
-					},
-					{
-						label   : '録画ファイルの削除...',
-						icon    : './icons/cross-script.png',
-						onSelect: function() {
-							new chinachu.ui.RemoveRecordedFile(program.id);
-						}
-					},
-					'------------------------------------------',
 					{
 						label   : 'ルール作成...',
 						icon    : './icons/regular-expression.png',
@@ -263,10 +254,6 @@ P = Class.create(P, {
 			}
 			titleHtml += '<span class="id">#' + program.id + '</span>';
 			
-			if (program.isManualReserved) {
-				titleHtml = '<span class="flag manual">手動</span>' + titleHtml;
-			}
-			
 			row.cell.title = {
 				sortKey    : program.title,
 				html       : titleHtml,
@@ -282,17 +269,148 @@ P = Class.create(P, {
 			
 			row.cell.datetime = {
 				sortKey    : program.start,
-				element    : new chinachu.ui.DynamicTime({
-					tagName: 'div',
-					type   : 'full',
-					time   : program.start
-				}).entity
+				text       : chinachu.dateToString(new Date(program.start))
 			};
 			
 			rows.push(row);
 		});
 		
 		this.grid.splice(0, null, rows);
+		
+		return this;
+	}
+	,
+	viewSearchModal: function() {
+		
+		var modal = new flagrate.Modal({
+			title  : '録画番組検索',
+			buttons: [
+				{
+					label   : '検索',
+					color   : '@pink',
+					onSelect: function(e, modal) {
+						e.targetButton.disable();
+						
+						var result = viewSearchForm.result();
+						
+						this.self.query = Object.extend(this.self.query, result);
+						this.self.query.skip = 1;
+						
+						modal.close();
+						
+						window.location.hash = '!/recorded/search/' + Object.toQueryString(this.self.query) + '/';
+						//todo
+					}.bind(this)
+				}
+			]
+		}).show();
+		
+		var viewSearchForm = new Hyperform({
+			formWidth  : '100%',
+			labelWidth : '100px',
+			labelAlign : 'right',
+			fields     : [
+				{
+					key   : 'cat',
+					label : 'カテゴリー',
+					input : {
+						type : 'pulldown',
+						items: (function() {
+							var array = [];
+
+							[
+								'anime', 'information', 'news', 'sports',
+								'variety', 'drama', 'music', 'cinema', 'etc'
+							].each(function(a) {
+								array.push({
+									label     : a,
+									value     : a,
+									isSelected: (this.self.query.cat === a)
+								});
+							}.bind(this));
+
+							return array;
+						}.bind(this))()
+					}
+				},
+				{
+					key   : 'title',
+					label : 'タイトル',
+					input : {
+						type : 'text',
+						value: this.self.query.title || ''
+					}
+				},
+				{
+					key   : 'desc',
+					label : '説明',
+					input : {
+						type : 'text',
+						value:  this.self.query.desc || ''
+					}
+				},
+				{
+					key   : 'type',
+					label : 'タイプ',
+					input : {
+						type : 'pulldown',
+						items: (function() {
+							var array = [];
+
+							['GR', 'BS', 'CS', 'EX'].each(function(a) {
+								array.push({
+									label     : a,
+									value     : a,
+									isSelected: ((this.self.query.type || []).indexOf(a) !== -1)
+								});
+							}.bind(this));
+
+							return array;
+						}.bind(this))()
+					}
+				},
+				{
+					key   : 'start',
+					label : '何時から',
+					input : {
+						type      : 'text',
+						width     : 25,
+						maxlength : 2,
+						appendText: '時',
+						value   : this.self.query.start || '',
+						isNumber: true
+					}
+				},
+				{
+					key   : 'end',
+					label : '何時まで',
+					input : {
+						type      : 'text',
+						width     : 25,
+						maxlength : 2,
+						appendText: '時',
+						value     : this.self.query.end || '',
+						isNumber  : true
+					}
+				},
+				{
+					key   : 'pgid',
+					label : 'プログラムID',
+					input : {
+						type : 'text',
+						value:  this.self.query.pgid || ''
+					}
+				},
+				{
+					key   : 'chid',
+					label : 'チャンネルID',
+					input : {
+						type : 'text',
+						value:  this.self.query.chid || ''
+					}
+				}
+			]
+		}).render(modal.content);
 		
 		return this;
 	}
