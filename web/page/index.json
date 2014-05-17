@@ -98,6 +98,11 @@
 					"label": "Recorded",
 					"title": "Recorded",
 					"icon" : "./icons/television-medium.png"
+				},
+				"search": {
+					"label": "Search Recorded Programs",
+					"title": "Search Recorded Programs",
+					"icon" : "./icons/calendar-search-result.png"
 				}
 			}
 		},
