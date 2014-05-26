@@ -385,7 +385,8 @@ function doRecord(program) {
 // 録画準備
 function prepRecord(program) {
 	util.log('PREPARE: ' + dateFormat(new Date(program.start), 'isoDateTime') + ' [' + program.channel.name + '] ' + program.title);
-	
+
+	program.isSigTerm = false;
 	recording.push(program);
 	
 	var timeout = program.start - clock - offsetStart;
@@ -449,9 +450,12 @@ function recordingChecker(program, i) {
 	// 録画開始していない時はreturn
 	if (!program.pid) { return; }
 	
-	util.log('FINISH: ' + dateFormat(new Date(program.start), 'isoDateTime') + ' [' + program.channel.name + '] ' + program.title);
-	
 	execRecCmd(function() {
+		if (program.isSigTerm || ((typeof program.pid) === 'undefined')) {	// WAITが入った際に多重にSIGTERM発行されないようにする
+			return;
+		}
+		program.isSigTerm = true;
+		util.log('FINISH: ' + dateFormat(new Date(program.start), 'isoDateTime') + ' [' + program.channel.name + '] ' + program.title);
 		process.kill(program.pid, 'SIGTERM');
 	}, 0, 'KILLWAIT: ' + program.pid);
 }
