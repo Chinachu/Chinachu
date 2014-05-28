@@ -272,7 +272,7 @@ P = Class.create(P, {
 				sortKey    : program.title,
 				html       : titleHtml,
 				attribute  : {
-					title: program.detail
+					title: program.fullTitle + ' - ' + program.detail
 				}
 			};
 			
