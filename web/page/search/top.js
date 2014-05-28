@@ -272,7 +272,7 @@ P = Class.create(P, {
 				sortKey    : program.title,
 				html       : titleHtml,
 				attribute  : {
-					title: program.detail
+					title: program.fullTitle + ' - ' + program.detail
 				}
 			};
 			
@@ -289,7 +289,7 @@ P = Class.create(P, {
 			rows.push(row);
 		});
 		
-		this.grid.splice(0, null, rows);
+		this.grid.splice(0, void 0, rows);
 		
 		return this;
 	}

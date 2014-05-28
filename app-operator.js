@@ -93,6 +93,27 @@ var next      = 0;
 var scheduler = null;
 var scheduled = 0;
 
+// 録画コマンドのシリアライズ
+var operRecCmdSpan  = config.operRecCmdSpan || 0;
+if (operRecCmdSpan < 0) {
+	operRecCmdSpan = 0;
+}
+var recCmdLastTime = new Date().getTime();
+function execRecCmd(cmd, timeout, msg) {
+	if (timeout > 0) {
+		setTimeout(execRecCmd, timeout, cmd, 0, msg);
+		return;
+	}
+	var t = operRecCmdSpan - (new Date().getTime() - recCmdLastTime);
+	if (t > 0) {
+		util.log(msg + ': ' + t + 'ms');
+		setTimeout(execRecCmd, t, cmd, 0, msg);
+		return;
+	}
+	cmd();
+	recCmdLastTime = new Date().getTime();
+}
+
 // 録画中か
 function isRecording(program) {
 	var i, l;
@@ -243,126 +264,129 @@ function doRecord(program) {
 	recCmd = recCmd.replace('<channel>', program.channel.channel);
 	program.command = recCmd;
 	
-	// 録画プロセスを生成
-	recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
-	chinachu.writeTunerPid(tuner, recProc.pid);
-	util.log('SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
-	program.pid = recProc.pid;
-	
-	// 状態保存
-	fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));
-	util.log('WRITE: ' + RECORDING_DATA_FILE);
-	
-	// 書き込みストリームを作成
-	recFile = fs.createWriteStream(recPath, { flags: 'a' });
-	util.log('STREAM: ' + recPath);
-	
-	// ts出力
-	recProc.stdout.pipe(recFile);
-	
-	// ログ出力
-	recProc.stderr.on('data', function (data) {
-		util.log('#' + (recCmd.split(' ')[0] + ': ' + data).replace(/\n/g, ' ').trim());
-	});
-	
-	// EPG処理
-	/* 廃止: EPGパーサーに再実装予定
-	epgInterval = setInterval(function () {
-		var epgProc, output;
+	execRecCmd(function() {
+		// 録画プロセスを生成
+		recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
+		chinachu.writeTunerPid(tuner, recProc.pid);
+		util.log('SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
+		program.pid = recProc.pid;
 		
-		epgProc = child_process.spawn('node', [
-			'app-scheduler.js', '-f', '-ch', program.channel.channel, '-l', recPath
-		]);
-		util.log('SPAWN: node app-scheduler.js -f -ch ' + program.channel.channel + ' -l ' + recPath + ' (pid=' + epgProc.pid + ')');
-		
-		// ログ用
-		output = fs.createWriteStream('./log/scheduler', { flags: 'a' });
-		util.log('STREAM: ./log/scheduler');
-		
-		epgProc.stdout.on('data', function (data) {
-			output.write(data);
-		});
-		
-		epgProc.on('exit', function () {
-			output.end();
-		});
-	}, 1000 * 300);//300秒
-	*/
-	
-	// お片付け
-	finalize = function () {
-		var i, l, postProcess;
-		
-		process.removeListener('SIGINT', finalize);
-		process.removeListener('SIGQUIT', finalize);
-		process.removeListener('SIGTERM', finalize);
-		recProc.stdout.removeAllListeners();
-		
-		// 書き込みストリームを閉じる
-		recFile.end();
-		
-		// チューナーのロックを解除
-		try {
-			chinachu.unlockTunerSync(tuner);
-			util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
-		} catch (e) {
-			util.log(e);
-		}
-		
-		// EPG処理を終了
-		//clearInterval(epgInterval);
-		
-		// 状態を更新
-		delete program.pid;
-		recorded.push(program);
-		recording.splice(recording.indexOf(program), 1);
-		fs.writeFileSync(RECORDED_DATA_FILE, JSON.stringify(recorded));
+		// 状態保存
 		fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));
-		util.log('WRITE: ' + RECORDED_DATA_FILE);
 		util.log('WRITE: ' + RECORDING_DATA_FILE);
-		if (program.isManualReserved) {
-			for (i = 0, l = reserves.length; i < l; i++) {
-				if (reserves[i].id === program.id) {
-					reserves.splice(i, 1);
-					fs.writeFileSync(RESERVES_DATA_FILE, JSON.stringify(reserves));
-					util.log('WRITE: ' + RESERVES_DATA_FILE);
-					break;
+		
+		// 書き込みストリームを作成
+		recFile = fs.createWriteStream(recPath, { flags: 'a' });
+		util.log('STREAM: ' + recPath);
+		
+		// ts出力
+		recProc.stdout.pipe(recFile);
+		
+		// ログ出力
+		recProc.stderr.on('data', function (data) {
+			util.log('#' + (recCmd.split(' ')[0] + ': ' + data).replace(/\n/g, ' ').trim());
+		});
+		
+		// EPG処理
+		/* 廃止: EPGパーサーに再実装予定
+		epgInterval = setInterval(function () {
+			var epgProc, output;
+			
+			epgProc = child_process.spawn('node', [
+				'app-scheduler.js', '-f', '-ch', program.channel.channel, '-l', recPath
+			]);
+			util.log('SPAWN: node app-scheduler.js -f -ch ' + program.channel.channel + ' -l ' + recPath + ' (pid=' + epgProc.pid + ')');
+			
+			// ログ用
+			output = fs.createWriteStream('./log/scheduler', { flags: 'a' });
+			util.log('STREAM: ./log/scheduler');
+			
+			epgProc.stdout.on('data', function (data) {
+				output.write(data);
+			});
+			
+			epgProc.on('exit', function () {
+				output.end();
+			});
+		}, 1000 * 300);//300秒
+		*/
+		
+		// お片付け
+		finalize = function () {
+			var i, l, postProcess;
+			
+			process.removeListener('SIGINT', finalize);
+			process.removeListener('SIGQUIT', finalize);
+			process.removeListener('SIGTERM', finalize);
+			recProc.stdout.removeAllListeners();
+			
+			// 書き込みストリームを閉じる
+			recFile.end();
+			
+			// チューナーのロックを解除
+			try {
+				chinachu.unlockTunerSync(tuner);
+				util.log('UNLOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
+			} catch (e) {
+				util.log(e);
+			}
+			
+			// EPG処理を終了
+			//clearInterval(epgInterval);
+			
+			// 状態を更新
+			delete program.pid;
+			recorded.push(program);
+			recording.splice(recording.indexOf(program), 1);
+			fs.writeFileSync(RECORDED_DATA_FILE, JSON.stringify(recorded));
+			fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));
+			util.log('WRITE: ' + RECORDED_DATA_FILE);
+			util.log('WRITE: ' + RECORDING_DATA_FILE);
+			if (program.isManualReserved) {
+				for (i = 0, l = reserves.length; i < l; i++) {
+					if (reserves[i].id === program.id) {
+						reserves.splice(i, 1);
+						fs.writeFileSync(RESERVES_DATA_FILE, JSON.stringify(reserves));
+						util.log('WRITE: ' + RESERVES_DATA_FILE);
+						break;
+					}
 				}
 			}
-		}
+			
+			// ポストプロセス
+			if (config.recordedCommand) {
+				postProcess = child_process.spawn(config.recordedCommand, [recPath, JSON.stringify(program)]);
+				util.log('SPAWN: ' + config.recordedCommand + ' (pid=' + postProcess.pid + ')');
+			}
+			
+			finalize = null;
+		};
+		// 録画プロセス終了時処理
+		recProc.on('exit', finalize);
 		
-		// ポストプロセス
-		if (config.recordedCommand) {
-			postProcess = child_process.spawn(config.recordedCommand, [recPath, JSON.stringify(program)]);
-			util.log('SPAWN: ' + config.recordedCommand + ' (pid=' + postProcess.pid + ')');
-		}
+		// 終了シグナル時処理
+		process.on('SIGINT', finalize);
+		process.on('SIGQUIT', finalize);
+		process.on('SIGTERM', finalize);
 		
-		finalize = null;
-	};
-	// 録画プロセス終了時処理
-	recProc.on('exit', finalize);
-	
-	// 終了シグナル時処理
-	process.on('SIGINT', finalize);
-	process.on('SIGQUIT', finalize);
-	process.on('SIGTERM', finalize);
-	
-	// Tweeter (Experimental)
-	if (tweeter && config.operTweeterFormat.start) {
-		tweeterUpdater(
-			config.operTweeterFormat.start
-				.replace('<id>', program.id)
-				.replace('<type>', program.channel.type)
-				.replace('<channel>', ((program.channel.type === 'CS') ? program.channel.sid : program.channel.channel))
-				.replace('<title>',   program.title)
-		);
-	}
+		// Tweeter (Experimental)
+		if (tweeter && config.operTweeterFormat.start) {
+			tweeterUpdater(
+				config.operTweeterFormat.start
+					.replace('<id>', program.id)
+					.replace('<type>', program.channel.type)
+					.replace('<channel>', ((program.channel.type === 'CS') ? program.channel.sid : program.channel.channel))
+					.replace('<title>',   program.title)
+			);
+		}
+	}, 0, 'RECWAIT: ' + tuner.name);
 }
 
 // 録画準備
 function prepRecord(program) {
 	util.log('PREPARE: ' + dateFormat(new Date(program.start), 'isoDateTime') + ' [' + program.channel.name + '] ' + program.title);
-	
+
+	program.isSigTerm = false;
 	recording.push(program);
 	
 	var timeout = program.start - clock - offsetStart;
@@ -426,9 +450,14 @@ function recordingChecker(program, i) {
 	// 録画開始していない時はreturn
 	if (!program.pid) { return; }
 	
-	util.log('FINISH: ' + dateFormat(new Date(program.start), 'isoDateTime') + ' [' + program.channel.name + '] ' + program.title);
-	
-	process.kill(program.pid, 'SIGTERM');
+	execRecCmd(function() {
+		if (program.isSigTerm || ((typeof program.pid) === 'undefined')) {	// WAITが入った際に多重にSIGTERM発行されないようにする
+			return;
+		}
+		program.isSigTerm = true;
+		util.log('FINISH: ' + dateFormat(new Date(program.start), 'isoDateTime') + ' [' + program.channel.name + '] ' + program.title);
+		process.kill(program.pid, 'SIGTERM');
+	}, 0, 'KILLWAIT: ' + program.pid);
 }
 
 // ファイル更新監視: ./data/reserves.json

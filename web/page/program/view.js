@@ -256,6 +256,13 @@ P = Class.create(P, {
 			program.detail
 		).insertTo(this.view.content);
 		
+		new sakura.ui.Alert({
+			title       : '完全なタイトル',
+			type        : 'white',
+			body        : program.fullTitle,
+			disableClose: true
+		}).render(this.view.content);
+		
 		if (program.command) {
 			new sakura.ui.Alert({
 				title       : '録画コマンド',
