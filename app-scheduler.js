@@ -90,6 +90,27 @@ if (fs.existsSync(SCHEDULE_DATA_FILE)) {
 	}
 }
 
+// 録画コマンドのシリアライズ
+var operRecCmdSpan  = config.operRecCmdSpan || 0;
+if (operRecCmdSpan < 0) {
+	operRecCmdSpan = 0;
+}
+var recCmdLastTime = new Date().getTime();
+function execRecCmd(cmd, timeout, msg) {
+	if (timeout > 0) {
+		setTimeout(execRecCmd, timeout, cmd, 0, msg);
+		return;
+	}
+	var t = operRecCmdSpan - (new Date().getTime() - recCmdLastTime);
+	if (t > 0) {
+		util.log(msg + ': ' + t + 'ms');
+		setTimeout(execRecCmd, t, cmd, 0, msg);
+		return;
+	}
+	cmd();
+	recCmdLastTime = new Date().getTime();
+}
+
 // PID file operation
 function createPidFile() {
 	fs.writeFileSync(PID_FILE, process.pid);
@@ -891,66 +912,68 @@ function getEpg() {
 			
 			// recpt1用
 			recCmd = recCmd.replace(' --b25', '').replace(' --strip', '').replace('<sid>', 'epg');
-			
-			// 録画プロセスを生成
-			var recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
-			chinachu.writeTunerPidSync(tuner, recProc.pid);
-			util.log('[' + i + '] SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
-			
-			// 一時ファイルへの書き込みストリームを作成
-			var recFile = fs.createWriteStream(recPath);
-			util.log('[' + i + '] STREAM: ' + recPath);
-			
-			// ts出力
-			recProc.stdout.pipe(recFile);
-			
-			// ログ出力
-			recProc.stderr.on('data', function (data) {
-				util.log('[' + i + '] #' + (recCmd.split(' ')[0] + ': ' + data).replace(/\n/g, ' ').trim());
-			});
-			
-			var removeListeners;
-			
-			// プロセスタイムアウト
-			setTimeout(function () {
-				recProc.kill('SIGKILL');
-			}, 1000 * (config.schedulerEpgRecordTime || 60));
-			
-			// キャンセル時
-			var isCancelled = false;
-			var onCancel = function () {
-				
-				isCancelled = true;
-				recProc.kill('SIGKILL');
-			};
-			
-			removeListeners = function () {
-				
-				process.removeListener('exit', onCancel);
-				recProc.removeAllListeners('exit');
-			};
-			
-			// 終了シグナル時処理
-			process.on('exit', onCancel);
-			
-			recProc.once('exit', function () {
-				
-				// リスナー削除
-				removeListeners();
 
-				// チューナーのロックを解除
-				unlockTuner();
+			execRecCmd(function() {
+				// 録画プロセスを生成
+				var recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
+				chinachu.writeTunerPidSync(tuner, recProc.pid);
+				util.log('[' + i + '] SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
+			
+				// 一時ファイルへの書き込みストリームを作成
+				var recFile = fs.createWriteStream(recPath);
+				util.log('[' + i + '] STREAM: ' + recPath);
+			
+				// ts出力
+				recProc.stdout.pipe(recFile);
+			
+				// ログ出力
+				recProc.stderr.on('data', function (data) {
+					util.log('[' + i + '] #' + (recCmd.split(' ')[0] + ': ' + data).replace(/\n/g, ' ').trim());
+				});
+			
+				var removeListeners;
+			
+				// プロセスタイムアウト
+				execRecCmd(function() {
+					recProc.kill('SIGKILL');
+				}, 1000 * (config.schedulerEpgRecordTime || 60), '[' + i + '] KILLWAIT');
+			
+				// キャンセル時
+				var isCancelled = false;
+				var onCancel = function () {
+				
+					isCancelled = true;
+					recProc.kill('SIGKILL');
+				};
+			
+				removeListeners = function () {
+				
+					process.removeListener('exit', onCancel);
+					recProc.removeAllListeners('exit');
+				};
+			
+				// 終了シグナル時処理
+				process.on('exit', onCancel);
+			
+				recProc.once('exit', function () {
+				
+					// リスナー削除
+					removeListeners();
 
-				if (isCancelled) {
-					// 一時録画ファイル削除
-					fs.unlinkSync(recPath);
+					// チューナーのロックを解除
+					unlockTuner();
+
+					if (isCancelled) {
+						// 一時録画ファイル削除
+						fs.unlinkSync(recPath);
 					
-					// 終了
-					process.exit();
-				} else {
-					dumpEpg();
-				}
-			});
+						// 終了
+						process.exit();
+					} else {
+						dumpEpg();
+					}
+				});
+			}, 0, '[' + i + '] RECWAIT');
 		}//<-- if
 	};//<-- get()
 	
