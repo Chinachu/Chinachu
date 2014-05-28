@@ -292,7 +292,7 @@ P = Class.create(P, {
 			rows.push(row);
 		});
 		
-		this.grid.splice(0, null, rows);
+		this.grid.splice(0, void 0, rows);
 		
 		return this;
 	}

@@ -442,7 +442,7 @@ P = Class.create(P, {
 			rows.push(row);
 		});
 		
-		this.grid.splice(0, null, rows).each(function(row) {
+		this.grid.splice(0, void 0, rows).each(function(row) {
 			this.grid.deselect(row);
 		}.bind(this));
 		
