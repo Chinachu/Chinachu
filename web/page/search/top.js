@@ -93,6 +93,21 @@ P = Class.create(P, {
 			}.bind(this)
 		}).insertTo(this.view.content);
 		
+		// override sort comparator.
+		var orig_grid_sort = this.grid.sort;
+		var orig_rows_sort = this.grid.rows.sort;
+		this.grid.sort = function(key, isAsc) {
+			this.grid.rows.sort = function(arg) {
+				var comparator = arg;
+				if(key === 'title') {
+					comparator = chinachu.util.getGridTitleCompareFunction(key);
+				}
+				return orig_rows_sort.apply(this.grid.rows, [comparator]);
+			}.bind(this);
+
+			return orig_grid_sort.apply(this.grid, [key, isAsc]);
+		}.bind(this);
+		
 		if (!this.self.query.skip) {
 			this.viewSearchModal();
 		} else {
