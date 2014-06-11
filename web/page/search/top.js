@@ -243,19 +243,19 @@ P = Class.create(P, {
 			};
 			
 			row.cell.type = {
-				sortKey  : program.channel.type,
+				sortAlt  : program.channel.type,
 				className: 'types',
 				html     : '<span class="' + program.channel.type + '">' + program.channel.type + '</span>'
 			};
 			
 			row.cell.category = {
-				sortKey    : program.category,
+				sortAlt    : program.category,
 				className  : 'categories',
 				html       : '<span class="bg-cat-' + program.category + '">' + program.category + '</span>'
 			};
 			
 			row.cell.channel = {
-				sortKey    : program.channel.id,
+				sortAlt    : program.channel.id,
 				text       : program.channel.name,
 				attribute  : {
 					title: program.channel.id
@@ -269,7 +269,7 @@ P = Class.create(P, {
 			titleHtml += '<span class="id">#' + program.id + '</span>';
 			
 			row.cell.title = {
-				sortKey    : program.title,
+				sortAlt    : program.title,
 				html       : titleHtml,
 				attribute  : {
 					title: program.fullTitle + ' - ' + program.detail
@@ -277,12 +277,12 @@ P = Class.create(P, {
 			};
 			
 			row.cell.duration = {
-				sortKey    : program.seconds,
+				sortAlt    : program.seconds,
 				text       : program.seconds / 60 + 'm'
 			};
 			
 			row.cell.datetime = {
-				sortKey    : program.start,
+				sortAlt    : program.start,
 				text       : chinachu.dateToString(new Date(program.start))
 			};
 			
