@@ -283,6 +283,49 @@
 		return null;
 	};
 	
+	/**
+	 *  util.getGridTitleCompareFunction(key) -> Function
+	 *  - key (String): sort key
+	 *  リスト表示をタイトルでソートする場合の比較関数を生成します
+	 *  以下の前処理を行ってからタイトルを比較します
+	 *  ・先頭の[新],[字]などフラグ表示のspan要素を除外する
+	 *  ・話数の数値をzero paddingする
+	 */
+	util.getGridTitleCompareFunction = function(key) {
+		return function (a, b) {
+			var A = 0;
+			var B = 0;
+
+			if (a.cell[key]) {
+				A = (a.cell[key].sortAlt !== void 0) ? a.cell[key].sortAlt : a.cell[key].text || a.cell[key].html || (a.cell[key].element && a.cell[key].element.innerHTML) || (a.cell[key]._div && a.cell[key]._div.innerHTML) || 0;
+			}
+			if (b.cell[key]) {
+				B = (b.cell[key].sortAlt !== void 0) ? b.cell[key].sortAlt : b.cell[key].text || b.cell[key].html || (b.cell[key].element && b.cell[key].element.innerHTML) || (b.cell[key]._div && b.cell[key]._div.innerHTML) || 0;
+			}
+
+			var stripLeadingSpanElem = function(content) {
+				var oldstr = content;
+				var newstr = content.replace(/^<span.*?<\/span>/, "");
+				while(newstr.length != oldstr.length) {
+					oldstr = newstr;
+					newstr = oldstr.replace(/^<span.*?<\/span>/, "");
+				}
+				return (newstr.length != 0) ? newstr : content;
+			};
+
+			var zeropadEpisodeNum = function(content) {
+				return content.replace(/(<span\ class=\"episode\">#)(\d+)(<.*)$/,
+					function() { return RegExp.$1 +  ('000'+parseInt(RegExp.$2)).substr(-4) + RegExp.$3; } );
+			};
+
+
+			if(A !== 0) { A = stripLeadingSpanElem( zeropadEpisodeNum(A) ); }
+			if(B !== 0) { B = stripLeadingSpanElem( zeropadEpisodeNum(B) ); }
+
+			return A === B ? 0 : (A > B ? 1 : -1);
+		};
+	};
+	
 	var api = chinachu.api = {};
 	
 	/** section: api
