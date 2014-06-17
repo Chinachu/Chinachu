@@ -8,7 +8,7 @@
 			"icon"       : "./icons/home-medium.png",
 			"label"      : "dashboard",
 			"defaultPage": "top",
-			"pageIndex"  : ["top", "status", "log"],
+			"pageIndex"  : ["top", "status", "log", "storage"],
 			"page"       : {
 				"top": {
 					"label"     : "Top",
@@ -27,6 +27,12 @@
 					"label": "Log",
 					"title": "System Log",
 					"icon" : "./icons/clock-history.png"
+				},
+				
+				"storage": {
+					"label": "Storage",
+					"title": "Storage Usage",
+					"icon" : "./icons/hdd.png"
 				}
 			}
 		},
