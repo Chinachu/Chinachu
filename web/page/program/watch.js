@@ -60,7 +60,6 @@ P = Class.create(P, {
 				label  : 'ニコニコ実況を開く',
 				icon   : 'http://jk.nicovideo.jp/images/nico.ico',
 				onClick: function() {
-					console.log(program);
 					var nicoJkChannels = {
 						"ＮＨＫ総合１・東京": "jk1",
 						"ＮＨＫＥテレ１東京": "jk2",
