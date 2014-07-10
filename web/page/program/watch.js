@@ -57,6 +57,47 @@ P = Class.create(P, {
 		this.view.toolbar.add({
 			key: 'streaming',
 			ui : new sakura.ui.Button({
+				label  : 'ニコニコ実況を開く',
+				icon   : 'http://jk.nicovideo.jp/images/nico.ico',
+				onClick: function() {
+					console.log(program);
+					var nicoJkChannels = {
+						"ＮＨＫ総合１・東京": "jk1",
+						"ＮＨＫＥテレ１東京": "jk2",
+						"ＮＨＫＥテレ３東京": "jk2",
+						"日テレ１": "jk4",
+						"テレビ朝日": "jk5",
+						"ＴＢＳ１": "jk6",
+						"テレビ東京１": "jk7",
+						"フジテレビ": "jk8",
+						"ＴＯＫＹＯ　ＭＸ１": "jk9",
+						"ＴＯＫＹＯ　ＭＸ２": "jk9"
+					};
+					var startDate = new Date(program.start);
+					var endDate = new Date(program.end);
+					if (new Date().getTime() < endDate.getTime()) {
+						// 放送中の番組
+						window.open("http://jk.nicovideo.jp/log/"+nicoJkChannels[program.channel.name]);
+					} else {
+						// アーカイブの番組
+						var startStr = (startDate.getYear() + 1900) + 
+						               ("0"+(startDate.getMonth()+1)).slice(-2) + 
+						               ("0"+startDate.getDate()).slice(-2) + 
+						               ("0"+startDate.getHours()).slice(-2) + 
+						               ("0"+startDate.getMinutes()).slice(-2);
+						var endStr = (endDate.getYear() + 1900) + 
+						               ("0"+(endDate.getMonth()+1)).slice(-2) + 
+						               ("0"+endDate.getDate()).slice(-2) + 
+						               ("0"+endDate.getHours()).slice(-2) + 
+						               ("0"+endDate.getMinutes()).slice(-2);
+						window.open("http://jk.nicovideo.jp/log/"+nicoJkChannels[program.channel.name]+"/"+startStr+"-"+endStr);
+					}
+				}
+			})
+		});
+		this.view.toolbar.add({
+			key: 'streaming',
+			ui : new sakura.ui.Button({
 				label  : '番組詳細',
 				icon   : './icons/film.png',
 				onClick: function() {
@@ -64,7 +105,7 @@ P = Class.create(P, {
 				}
 			})
 		});
-		
+
 		return this;
 	}
 	,
