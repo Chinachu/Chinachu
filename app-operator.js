@@ -259,12 +259,12 @@ function doRecord(program) {
 	
 	// 録画コマンド
 	recCmd = tuner.command;
-	// recCmd = recCmd.replace(' --strip', '');// EPGのSIDが消えてしまうバグへの対策(要調査)
+	recCmd = recCmd.replace(' --strip', '');// メモ:EPGのSIDが消えてしまう
 	recCmd = recCmd.replace('<sid>', program.channel.sid + ',epg');
 	recCmd = recCmd.replace('<channel>', program.channel.channel);
 	program.command = recCmd;
 	
-	execRecCmd(function() {
+	execRecCmd(function () {
 		// 録画プロセスを生成
 		recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
 		chinachu.writeTunerPid(tuner, recProc.pid);
@@ -286,30 +286,6 @@ function doRecord(program) {
 		recProc.stderr.on('data', function (data) {
 			util.log('#' + (recCmd.split(' ')[0] + ': ' + data).replace(/\n/g, ' ').trim());
 		});
-		
-		// EPG処理
-		/* 廃止: EPGパーサーに再実装予定
-		epgInterval = setInterval(function () {
-			var epgProc, output;
-			
-			epgProc = child_process.spawn('node', [
-				'app-scheduler.js', '-f', '-ch', program.channel.channel, '-l', recPath
-			]);
-			util.log('SPAWN: node app-scheduler.js -f -ch ' + program.channel.channel + ' -l ' + recPath + ' (pid=' + epgProc.pid + ')');
-			
-			// ログ用
-			output = fs.createWriteStream('./log/scheduler', { flags: 'a' });
-			util.log('STREAM: ./log/scheduler');
-			
-			epgProc.stdout.on('data', function (data) {
-				output.write(data);
-			});
-			
-			epgProc.on('exit', function () {
-				output.end();
-			});
-		}, 1000 * 300);//300秒
-		*/
 		
 		// お片付け
 		finalize = function () {
@@ -450,7 +426,7 @@ function recordingChecker(program, i) {
 	// 録画開始していない時はreturn
 	if (!program.pid) { return; }
 	
-	execRecCmd(function() {
+	execRecCmd(function () {
 		if (program.isSigTerm || ((typeof program.pid) === 'undefined')) {	// WAITが入った際に多重にSIGTERM発行されないようにする
 			return;
 		}
