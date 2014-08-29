@@ -194,7 +194,7 @@
 					new flagrate.Modal({
 						title   : 'Chinachu',
 						subtitle: 'Copyright (c) 2012 Yuki KAN and Chinachu Project Contributors.',
-						html    : '<a href="http://chinachu.akkar.in/" target="new">Chinachu Project Website</a>, ' +
+						html    : '<a href="https://chinachu.moe/" target="new">Chinachu Project Website</a>, ' +
 						          '<a href="https://github.com/kanreisa/Chinachu" target="new">GitHub</a>, ' +
 						          '<a href="https://github.com/kanreisa/Chinachu/issues" target="new">Issues</a>'
 					}).show();

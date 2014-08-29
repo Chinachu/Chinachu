@@ -2,7 +2,7 @@
  *  Chinachu Task Operator Service (chinachu-operator)
  *
  *  Copyright (c) 2012 Yuki KAN and Chinachu Project Contributors
- *  http://chinachu.akkar.in/
+ *  https://chinachu.moe/
 **/
 /*jslint node:true, nomen: true, plusplus: true, regexp: true */
 /*global gc */
