@@ -48,7 +48,8 @@
       "name"        : "FSUSB2",
       "isScrambling": false,
       "types"       : [ "GR" ],
-      "command"     : "recfsusb2n -b <channel> - -"
+      "command"     : "recfsusb2n -b <channel> - -",
+      "noEpg"       : true
     }
   ],
   
