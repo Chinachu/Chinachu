@@ -434,8 +434,14 @@ function convertPrograms(p, ch) {
 		var startTime = startDate.getTime();
 		var endTime   = endDate.getTime();
 		
+		// 番組ID (v1.2)
+		var programId = '';
+		programId += ch.id.toLowerCase().replace('_', '');
+		programId += '-';
+		programId += (parseInt(c.$.event_id, 10) + title.charCodeAt(0)).toString(36);
+		
 		var programData = {
-			id        : ch.id.toLowerCase().replace('_', '') + '-' + parseInt(c.$.event_id, 10).toString(32),
+			id        : programId,
 			channel   : ch,
 			category  : c.category[1]._,
 			title     : title,
