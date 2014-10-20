@@ -166,12 +166,16 @@ function stopScheduler() {
 }
 
 // スケジューラーを開始
-function startScheduler() {
+function startScheduler(channel) {
 	if ((scheduler !== null) || (recording.length !== 0)) { return; }
 	
 	var output, finalize;
 	
-	scheduler = child_process.spawn('node', [ 'app-scheduler.js', '-f' ]);
+	if (channel) {
+		scheduler = child_process.spawn('node', [ 'app-scheduler.js', '-f', '-ch', channel ]);
+	} else {
+		scheduler = child_process.spawn('node', [ 'app-scheduler.js', '-f' ]);
+	}
 	util.log('SPAWN: node app-scheduler.js -f (pid=' + scheduler.pid + ')');
 	
 	// ログ用
@@ -406,6 +410,9 @@ function reservesChecker(program, i) {
 		if (isRecording(program) === false && isRecorded(program) === false) {
 			prepRecord(program);
 		}
+	} else if (scheduler === null && program.start - clock < prepTime + schedulerEpgRecordTime + 30) {
+		// 録画前EPG確認
+		startScheduler(program.channel.channel);
 	}
 	
 	// 次の開始時間
