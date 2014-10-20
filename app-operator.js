@@ -88,7 +88,7 @@ var prepTime    = config.operRecPrepTime    || 1000 * 60;//60秒
 var offsetStart = config.operRecOffsetStart || 1000 * 5;
 var offsetEnd   = config.operRecOffsetEnd   || -(1000 * 8);
 
-var clock     = new Date().getTime();
+var clock     = Date.now();
 var next      = 0;
 var scheduler = null;
 var scheduled = 0;
@@ -98,20 +98,20 @@ var operRecCmdSpan  = config.operRecCmdSpan || 0;
 if (operRecCmdSpan < 0) {
 	operRecCmdSpan = 0;
 }
-var recCmdLastTime = new Date().getTime();
+var recCmdLastTime = Date.now();
 function execRecCmd(cmd, timeout, msg) {
 	if (timeout > 0) {
 		setTimeout(execRecCmd, timeout, cmd, 0, msg);
 		return;
 	}
-	var t = operRecCmdSpan - (new Date().getTime() - recCmdLastTime);
+	var t = operRecCmdSpan - (Date.now() - recCmdLastTime);
 	if (t > 0) {
 		util.log(msg + ': ' + t + 'ms');
 		setTimeout(execRecCmd, t, cmd, 0, msg);
 		return;
 	}
 	cmd();
-	recCmdLastTime = new Date().getTime();
+	recCmdLastTime = Date.now();
 }
 
 // 録画中か
@@ -166,13 +166,18 @@ function stopScheduler() {
 }
 
 // スケジューラーを開始
-function startScheduler() {
+function startScheduler(channel) {
 	if ((scheduler !== null) || (recording.length !== 0)) { return; }
 	
 	var output, finalize;
 	
-	scheduler = child_process.spawn('node', [ 'app-scheduler.js', '-f' ]);
-	util.log('SPAWN: node app-scheduler.js -f (pid=' + scheduler.pid + ')');
+	if (channel) {
+		scheduler = child_process.spawn('node', [ 'app-scheduler.js', '-f', '-ch', channel ]);
+		util.log('SPAWN: node app-scheduler.js -f -ch ' + channel + ' (pid=' + scheduler.pid + ')');
+	} else {
+		scheduler = child_process.spawn('node', [ 'app-scheduler.js', '-f' ]);
+		util.log('SPAWN: node app-scheduler.js -f (pid=' + scheduler.pid + ')');
+	}
 	
 	// ログ用
 	output = fs.createWriteStream('./log/scheduler', { flags: 'a' });
@@ -212,7 +217,7 @@ function doRecord(program) {
 	
 	util.log('RECORD: ' + dateFormat(new Date(program.start), 'isoDateTime') + ' [' + program.channel.name + '] ' + program.title);
 	
-	timeout = program.end - new Date().getTime() + offsetEnd;
+	timeout = program.end - Date.now() + offsetEnd;
 	
 	if (timeout < 0) {
 		util.log('FATAL: 時間超過による録画中止');
@@ -406,6 +411,11 @@ function reservesChecker(program, i) {
 		if (isRecording(program) === false && isRecorded(program) === false) {
 			prepRecord(program);
 		}
+	} else if (scheduler === null && program.start - clock < prepTime + ((schedulerEpgRecordTime + 30) * 1000)) {
+		if (program.start - clock > prepTime + (schedulerEpgRecordTime * 1000)) {
+			// 録画前EPG確認
+			startScheduler(program.channel.channel);
+		}
 	}
 	
 	// 次の開始時間
@@ -475,7 +485,7 @@ chinachu.jsonWatcher(
 // main
 function main() {
 	try {
-		clock = new Date().getTime();
+		clock = Date.now();
 
 		if (reserves.length !== 0) {
 			reserves.forEach(reservesChecker);
