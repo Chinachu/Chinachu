@@ -941,7 +941,7 @@ function getEpg() {
 			
 				// プロセスタイムアウト
 				execRecCmd(function () {
-					recProc.kill('SIGKILL');
+					recProc.kill('SIGTERM');
 				}, 1000 * (config.schedulerEpgRecordTime || 60), '[' + i + '] KILLWAIT');
 			
 				// キャンセル時
@@ -949,7 +949,7 @@ function getEpg() {
 				var onCancel = function () {
 				
 					isCancelled = true;
-					recProc.kill('SIGKILL');
+					recProc.kill('SIGTERM');
 				};
 			
 				removeListeners = function () {
