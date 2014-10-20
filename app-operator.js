@@ -173,10 +173,11 @@ function startScheduler(channel) {
 	
 	if (channel) {
 		scheduler = child_process.spawn('node', [ 'app-scheduler.js', '-f', '-ch', channel ]);
+		util.log('SPAWN: node app-scheduler.js -f -ch ' + channel + ' (pid=' + scheduler.pid + ')');
 	} else {
 		scheduler = child_process.spawn('node', [ 'app-scheduler.js', '-f' ]);
+		util.log('SPAWN: node app-scheduler.js -f (pid=' + scheduler.pid + ')');
 	}
-	util.log('SPAWN: node app-scheduler.js -f (pid=' + scheduler.pid + ')');
 	
 	// ログ用
 	output = fs.createWriteStream('./log/scheduler', { flags: 'a' });
@@ -410,9 +411,11 @@ function reservesChecker(program, i) {
 		if (isRecording(program) === false && isRecorded(program) === false) {
 			prepRecord(program);
 		}
-	} else if (scheduler === null && program.start - clock < prepTime + schedulerEpgRecordTime + 30) {
-		// 録画前EPG確認
-		startScheduler(program.channel.channel);
+	} else if (scheduler === null && program.start - clock < prepTime + ((schedulerEpgRecordTime + 30) * 1000)) {
+		if (program.start - clock > prepTime + (schedulerEpgRecordTime * 1000)) {
+			// 録画前EPG確認
+			startScheduler(program.channel.channel);
+		}
 	}
 	
 	// 次の開始時間
