@@ -1019,9 +1019,9 @@ function getEpg() {
 			return;
 		}
 		
-		var onGot = function () {
+		var onGot = function (channelNumber) {
 			setTimeout(function () {
-				r.splice(r.indexOf(ch.n), 1);
+				r.splice(r.indexOf(channelNumber), 1);
 				tick();
 			}, 250);
 		};
@@ -1049,7 +1049,7 @@ function getEpg() {
 			
 			c.push(ch.n);
 			r.push(ch.n);
-			get(ch.n, retryCount, onGot);
+			get(ch.n, retryCount, onGot.bind(null, ch.n));
 			
 			if (ch.type === 'GR') {
 				setTimeout(tick, 200);
