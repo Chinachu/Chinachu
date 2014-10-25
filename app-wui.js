@@ -4,7 +4,7 @@
  *  Copyright (c) 2012 Yuki KAN and Chinachu Project Contributors
  *  https://chinachu.moe/
 **/
-/*jslint node:true, nomen:true, plusplus:true, regexp:true, vars:true, continue:true */
+/*jslint node:true, nomen:true, plusplus:true, regexp:true, vars:true, continue:true, bitwise:true */
 /*global gc */
 'use strict';
 
@@ -88,7 +88,9 @@ var tlsEnabled = !!config.wuiTlsKeyPath && !!config.wuiTlsCertPath;
 if (tlsEnabled) {
 	tlsOption = {
 		key : fs.readFileSync(config.wuiTlsKeyPath),
-		cert: fs.readFileSync(config.wuiTlsCertPath)
+		cert: fs.readFileSync(config.wuiTlsCertPath),
+		secureProtocol: 'SSLv23_method',
+		secureOptions: require('constants').SSL_OP_NO_SSLv2 | require('constants').SSL_OP_NO_SSLv3
 	};
 	
 	// 秘密鍵または pfx のパスフレーズを表す文字列
