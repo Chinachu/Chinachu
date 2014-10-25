@@ -4,7 +4,7 @@
  *  Copyright (c) 2012 Yuki KAN and Chinachu Project Contributors
  *  https://chinachu.moe/
 **/
-/*jslint node:true, nomen:true, plusplus:true, regexp:true, vars:true, continue:true */
+/*jslint node:true, nomen:true, plusplus:true, regexp:true, vars:true, continue:true, bitwise:true */
 /*global gc */
 'use strict';
 
@@ -88,7 +88,9 @@ var tlsEnabled = !!config.wuiTlsKeyPath && !!config.wuiTlsCertPath;
 if (tlsEnabled) {
 	tlsOption = {
 		key : fs.readFileSync(config.wuiTlsKeyPath),
-		cert: fs.readFileSync(config.wuiTlsCertPath)
+		cert: fs.readFileSync(config.wuiTlsCertPath),
+		secureProtocol: 'SSLv23_method',
+		secureOptions: require('constants').SSL_OP_NO_SSLv2 | require('constants').SSL_OP_NO_SSLv3
 	};
 	
 	// 秘密鍵または pfx のパスフレーズを表す文字列
@@ -119,7 +121,7 @@ var recording = [];
 var recorded  = [];
 
 // Init HTTP Server
-var server, openServer, httpServer, httpServerMain;
+var server, openServer, httpOpenServer, httpServer, httpServerMain;
 
 if (tlsEnabled) {
 	server = spdy.createServer(tlsOption, httpServer);
@@ -135,13 +137,20 @@ server.listen(config.wuiPort || 10772, config.wuiHost || '::', function () {
 
 // EXPERIMENTAL: Open Server for Access from LAN.
 if (openServerEnabled) {
-	openServer = http.createServer(httpServer);
+	openServer = http.createServer(httpOpenServer);
 	openServer.timeout = 0;
 	dns.lookup(os.hostname(), function (err, hostIp) {
 		openServer.listen(config.wuiOpenPort || 20772, config.wuiOpenHost || hostIp, function () {
 			util.log('HTTP Open Server Listening on ' + util.inspect(openServer.address()));
 		});
 	});
+}
+
+// HTTP Open Server Wrapper
+function httpOpenServer(req, res) {
+	
+	req.isOpen = true;
+	httpServer(req, res);
 }
 
 // HTTP Server
@@ -630,7 +639,7 @@ function httpServerMain(req, res, query) {
 		
 		if (req.url.match(/^\/apple-.+\.png$/) !== null) {
 			process.nextTick(responseStatic);
-		} else if (!basic) {
+		} else if (!basic || req.isOpen) {
 			process.nextTick(responseStatic);
 		} else {
 			basic.apply(req, res, function () {
@@ -638,7 +647,7 @@ function httpServerMain(req, res, query) {
 			});
 		}
 	} else {
-		if (basic) {
+		if (basic && !req.isOpen) {
 			if (!!query._auth) {
 				// Base64文字列を取り出す
 				var auths = query._auth.split(':');
@@ -678,7 +687,7 @@ function httpServerMain(req, res, query) {
 //
 // socket.io server
 //
-var ioServer, ioServerMain, ioServerSocketOnDisconnect;
+var ioOpenServer, ioServer, ioServerMain, ioServerSocketOnDisconnect;
 
 var ios = new events.EventEmitter();
 ios.setMaxListeners(0);
@@ -693,13 +702,13 @@ function iosAddEventListner(io, eventName) {
 	});
 }
 
-function ioAddListener(server) {
+function ioAddListener(server, isOpen) {
 	var io = socketio.listen(server);
 	
 	io.enable('browser client minification');
 	io.set('log level', 1);
 	io.set('transports', ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
-	io.sockets.on('connection', ioServer);
+	io.sockets.on('connection', isOpen ? ioOpenServer : ioServer);
 	
 	// listen event
 	iosAddEventListner(io, 'status');
@@ -713,10 +722,15 @@ function ioAddListener(server) {
 }
 
 ioAddListener(server);
-ioAddListener(openServer);
+ioAddListener(openServer, true);
+
+function ioOpenServer(socket) {
+	socket.isOpen = true;
+	ioServer(socket);
+}
 
 function ioServer(socket) {
-	if (basic) {
+	if (basic && !socket.isOpen) {
 		// ヘッダを確認
 		if (!socket.handshake.headers.authorization || (socket.handshake.headers.authorization.match(/^Basic .+$/) === null)) {
 			socket.disconnect();

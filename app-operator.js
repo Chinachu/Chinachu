@@ -414,6 +414,7 @@ function reservesChecker(program, i) {
 	} else if (scheduler === null && program.start - clock < prepTime + ((schedulerEpgRecordTime + 30) * 1000)) {
 		if (program.start - clock > prepTime + (schedulerEpgRecordTime * 1000)) {
 			// 録画前EPG確認
+			util.log('CHECK: ' + dateFormat(new Date(program.start), 'isoDateTime') + ' [' + program.channel.name + '] ' + program.title);
 			startScheduler(program.channel.channel);
 		}
 	}
