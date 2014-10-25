@@ -165,6 +165,19 @@ function scheduler() {
 	
 	util.log('RUNNING SCHEDULER.');
 	
+	// IDが重複しているかチェックするだけ
+	var idMap = {};
+	schedule.forEach(function (ch) {
+		ch.programs.forEach(function (p) {
+			if (idMap[p.id]) {
+				util.log('**WARNING**: ' + p.id + ' is duplicated!');
+				util.puts(JSON.stringify(idMap[p.id], null, '  '), JSON.stringify(p, null, '  '));
+			} else {
+				idMap[p.id] = p;
+			}
+		});
+	});
+	
 	reserves = JSON.parse(fs.readFileSync(RESERVES_DATA_FILE, { encoding: 'utf8' }) || '[]');//読み込む
 	
 	var typeNum = {};
@@ -438,11 +451,11 @@ function convertPrograms(p, ch) {
 		var startTime = startDate.getTime();
 		var endTime   = endDate.getTime();
 		
-		// 番組ID (v1.2)
+		// 番組ID (v1.3)
 		var programId = '';
 		programId += ch.id.toLowerCase().replace('_', '');
 		programId += '-';
-		programId += (parseInt(c.$.event_id, 10) + title.charCodeAt(0)).toString(36);
+		programId += parseInt(c.$.event_id, 10).toString(36);
 		
 		var programData = {
 			id        : programId,
