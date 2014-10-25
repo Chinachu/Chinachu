@@ -194,7 +194,9 @@ function scheduler() {
 	
 	reserves.forEach(function (reserve) {
 		if (reserve.isManualReserved) {
-			matches.push(reserve);
+			if (reserve.start + 3600000 > Date.now()) {
+				matches.push(chinachu.getProgramById(reserve.id, schedule) || reserve);
+			}
 			return;
 		}
 		var i, l;
