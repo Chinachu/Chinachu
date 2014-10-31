@@ -1016,9 +1016,13 @@ function isMatchedProgram(program) {
 			
 			var progStart = new Date(program.start).getHours();
 			var progEnd   = new Date(program.end).getHours();
+			var progEndMinute = new Date(program.end).getMinutes();
 			
 			if (progStart > progEnd) {
 				progEnd += 24;
+			}
+			if (progEndMinute === 0 ) {
+				progEnd -= 1;
 			}
 			
 			if (ruleStart > ruleEnd) {
