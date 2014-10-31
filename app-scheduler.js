@@ -353,7 +353,7 @@ function convertPrograms(p, ch) {
 			.replace(/\[.\]/g, '')
 			.replace(/([^場版])「.+」/g, '$1')
 			.replace(/(#|＃|♯)[0-9０１２３４５６７８９]+/g, '')
-			.replace(/第([0-9]+|[０１２３４５６７８９零一壱二弐三参四五伍六七八九十拾]+)話/g, '')
+			.replace(/第([0-9]+|[０１２３４５６７８９零一壱二弐三参四五伍六七八九十拾]+)(?:話|回)/g, '')
 			.replace(/([0-9]+|[０１２３４５６７８９]+)品目/g, '')
 			.trim();
 		
@@ -378,7 +378,7 @@ function convertPrograms(p, ch) {
 		if (flags.indexOf('新') !== -1) {
 			episodeNumber = 1;
 		} else {
-			var episodeNumberMatch = (c.title[0]._ + desc).match(/((#|＃|♯)[0-9０１２３４５６７８９]+|第([0-9]+|[０１２３４５６７８９零一二三四五六七八九十]+)話)|([0-9]+|[０１２３４５６７８９]+)品目|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
+			var episodeNumberMatch = (c.title[0]._ + desc).match(/((#|＃|♯)[0-9０１２３４５６７８９]+|第([0-9]+|[０１２３４５６７８９零一二三四五六七八九十]+)(?:話|回))|([0-9]+|[０１２３４５６７８９]+)品目|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
 			if (episodeNumberMatch !== null) {
 				var episodeNumberString = episodeNumberMatch[0];
 				
@@ -388,6 +388,7 @@ function convertPrograms(p, ch) {
 					.replace('♯', '')
 					.replace('第', '')
 					.replace('話', '')
+					.replace('回', '')
 					.replace('喪', '')
 					.replace('品目', '')
 					.replace('Ｅｐｉｓｏｄｅ', '')
