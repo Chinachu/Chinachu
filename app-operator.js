@@ -130,7 +130,7 @@ function isRecording(program) {
 function isRecorded(program) {
 	var i, l;
 	for (i = 0, l = recorded.length; i < l; i++) {
-		if (recorded[i].id === program.id) {
+		if (recorded[i].id === program.id && clock < recorded[i].end) {
 			return true;
 		}
 	}
@@ -316,6 +316,12 @@ function doRecord(program) {
 			
 			// 状態を更新
 			delete program.pid;
+			for (i = 0, l = recorded.length; i < l; i++) {
+				if (recorded[i].id === program.id) {
+					recorded[i].id = recorded[i].id.replace(/^([^\-]+)\-(.+)$/, '$1-_$2');
+					break;
+				}
+			}
 			recorded.push(program);
 			recording.splice(recording.indexOf(program), 1);
 			fs.writeFileSync(RECORDED_DATA_FILE, JSON.stringify(recorded));
