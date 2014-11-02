@@ -847,10 +847,10 @@ chinachu_cleanup () {
 
 chinachu_unlock () {
   echo "Unlock the tuners."
-  echo "*WARNING* Do NOT run this command when on running recording, scheduler."
+  echo "*WARNING* Do NOT run this command when on running Chinachu services."
   
   while [ 1 ]; do
-    echo -n "Do you want to continue [Y/n]? "
+    echo -n "Are you sure [y/n]? "
     read line
     case $line in
       [yY])
@@ -906,7 +906,6 @@ recording               Show a list of recording programs.
 recorded                Show a list of recorded programs.
 
 cleanup                 Clean-up the recorded list.
-unlock                  Unlock the tuners.
 
 ircbot [options]        Connect to IRC server and run a ircbot. (Experimental)
 
