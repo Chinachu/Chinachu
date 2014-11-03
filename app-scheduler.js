@@ -354,7 +354,7 @@ function convertPrograms(p, ch) {
 			.replace(/([^場版])「.+」/g, '$1')
 			.replace(/(#|＃|♯)[0-9０１２３４５６７８９]+/g, '')
 			.replace(/第([0-9]+|[０１２３４５６７８９零一壱二弐三参四五伍六七八九十拾]+)話/g, '')
-			.replace(/([0-9]+|[０１２３４５６７８９]+)品目/g, '')
+			.replace(/([0-9]+|[０１２３４５６７８９]+)憑目/g, '')
 			.trim();
 		
 		var desc = c.desc[0]._ || '';
@@ -378,31 +378,25 @@ function convertPrograms(p, ch) {
 		if (flags.indexOf('新') !== -1) {
 			episodeNumber = 1;
 		} else {
-			var episodeNumberMatch = (c.title[0]._ + desc).match(/((#|＃|♯)[0-9０１２３４５６７８９]+|第([0-9]+|[０１２３４５６７８９零一二三四五六七八九十]+)話)|([0-9]+|[０１２３４５６７８９]+)品目|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
+			var episodeNumberMatch = (c.title[0]._ + ' ' + desc).match(/(#|＃|♯)[0-9０１２３４５６７８９]+|第([0-9]+|[０１２３４５６７８９零一二三四五六七八九十]+)(憑目|話)|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
 			if (episodeNumberMatch !== null) {
 				var episodeNumberString = episodeNumberMatch[0];
 				
 				episodeNumberString = episodeNumberString
-					.replace('#', '')
-					.replace('＃', '')
-					.replace('♯', '')
-					.replace('第', '')
-					.replace('話', '')
-					.replace('喪', '')
-					.replace('品目', '')
-					.replace('Ｅｐｉｓｏｄｅ', '')
-					.replace('Episode', '')
-					.replace(/０/g, '0')
-					.replace(/１/g, '1')
-					.replace(/２/g, '2')
-					.replace(/３/g, '3')
-					.replace(/４/g, '4')
-					.replace(/５/g, '5')
-					.replace(/６/g, '6')
-					.replace(/７/g, '7')
-					.replace(/８/g, '8')
-					.replace(/９/g, '9')
-					.replace(/零/g, '0')
+					.replace(/#|＃|♯|第|話|憑目/g, '')
+					.replace(/０|零/g, '0')
+					.replace(/４|Ⅳ|IV|ＩＶ/g, '4')
+					.replace(/８|Ⅷ|VIII|ＶＩＩＩ/g, '8')
+					.replace(/７|Ⅶ|VII|ＶＩＩ/g, '7')
+					.replace(/６|Ⅵ|VI|ＶＩ/g, '6')
+					.replace(/５|Ⅴ/g, '5')
+					.replace(/９|Ⅸ|IX|ＩＸ/g, '9')
+					.replace(/Ⅻ|XII|ＸＩＩ/g, '12')
+					.replace(/Ⅺ|XI|ＸＩ/g, '11')
+					.replace(/３|Ⅲ|III|ＩＩＩ/g, '3')
+					.replace(/２|Ⅱ|II|ＩＩ/g, '2')
+					.replace(/１|Ⅰ|I|Ｉ/g, '1')
+					.replace(/Ⅹ|X|Ｘ/g, '10')
 					.replace(/二十一/g, '21')
 					.replace(/二十二/g, '22')
 					.replace(/二十三/g, '23')
@@ -427,18 +421,6 @@ function convertPrograms(p, ch) {
 					.replace(/七/g, '7')
 					.replace(/八/g, '8')
 					.replace(/九/g, '9')
-					.replace(/Ⅳ|IV|ＩＶ/g, '4')
-					.replace(/Ⅷ|VIII|ＶＩＩＩ/g, '8')
-					.replace(/Ⅶ|VII|ＶＩＩ/g, '7')
-					.replace(/Ⅵ|VI|ＶＩ/g, '6')
-					.replace(/Ⅴ/g, '5')
-					.replace(/Ⅸ|IX|ＩＸ/g, '9')
-					.replace(/Ⅻ|XII|ＸＩＩ/g, '12')
-					.replace(/Ⅺ|XI|ＸＩ/g, '11')
-					.replace(/Ⅲ|III|ＩＩＩ/g, '3')
-					.replace(/Ⅱ|II|ＩＩ/g, '2')
-					.replace(/Ⅰ|I|Ｉ/g, '1')
-					.replace(/Ⅹ|X|Ｘ/g, '10')
 					.trim();
 				
 				episodeNumber = parseInt(episodeNumberString, 10);
