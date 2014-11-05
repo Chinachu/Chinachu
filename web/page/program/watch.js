@@ -103,18 +103,10 @@ P = Class.create(P, {
 						
 						var d = this.d = this.form.result();
 						
-						/*if ((d.format === 'm2ts') && (!window.navigator.plugins['VLC Web Plugin'])) {
+						if ((d.ext === 'm2ts') && (!window.navigator.plugins['VLC Web Plugin'])) {
 							new flagrate.Modal({
 								title: 'エラー',
 								text : 'MPEG-2 TSコンテナの再生にはVLC Web Pluginが必要です。'
-							}).show();
-							return;
-						}*/
-						
-						if (d.format === 'm2ts') {
-							new flagrate.Modal({
-								title: 'エラー',
-								text : 'MPEG-2 TSコンテナの再生は未サポートです。XSPFが利用できます。'
 							}).show();
 							return;
 						}
