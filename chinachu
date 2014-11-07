@@ -61,7 +61,7 @@ main () {
     reserve | unreserve | skip | unskip | stop | \
     rule | enrule | disrule | rmrule | \
     rules | reserves | recording | recorded | \
-    cleanup | unlock | ircbot | test )
+    cleanup | unlock | ircbot | logrotate | test )
       cmd="chinachu_$cmd"
       ;;
     * )
@@ -865,6 +865,72 @@ chinachu_unlock () {
 
 chinachu_ircbot () {
   node app-cli.js -mode ircbot "$@" && return 0
+}
+
+chinachu_logrotate () {
+  local cmd name action
+  action="$1"
+  case $action in
+    configfile )
+      cmd="chinachu_logrotate_$action"
+      ;;
+    * )
+      cmd="chinachu_logrotate_help"
+      ;;
+  esac
+  $cmd "$name" && return 0
+}
+
+chinachu_logrotate_configfile () {
+  cat <<EOF
+${CHINACHU_DIR}/log/operator {
+	weekly
+	missingok
+	rotate 13
+	copytruncate
+	ifempty
+}
+
+${CHINACHU_DIR}/log/scheduler {
+	weekly
+	missingok
+	rotate 13
+	copytruncate
+	ifempty
+}
+
+${CHINACHU_DIR}/log/wui {
+	weekly
+	missingok
+	rotate 13
+	copytruncate
+	ifempty
+}
+
+EOF
+  
+  return 0
+}
+
+chinachu_logrotate_help () {
+  cat <<EOF
+
+Usage: ./chinachu logrotate <action>
+
+Actions:
+
+configfile  Output a config file for logrotate(8)
+
+Examples:
+
+# Create a config file and Install to system
+./chinachu logrotate configfile > /tmp/chinachu
+sudo chown root:root /tmp/chinachu
+sudo mv /tmp/chinachu /etc/logrotate.d/
+
+EOF
+
+  return 0
 }
 
 chinachu_test () {
