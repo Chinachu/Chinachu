@@ -62,14 +62,6 @@ P = Class.create(P, {
 		this.view.content.update();
 		
 		var titleHtml = "ライブ視聴";
-		// if (typeof program.episode !== 'undefined' && program.episode !== null) {
-		// 	titleHtml += '<span class="episode">#' + program.episode + '</span>';
-		// }
-		// titleHtml += '<span class="id">#' + program.id + '</span>';
-		
-		// if (program.isManualReserved) {
-		// 	titleHtml = '<span class="flag manual">手動</span>' + titleHtml;
-		// }
 		
 		setTimeout(function() {
 			this.view.title.update(titleHtml);
@@ -89,21 +81,13 @@ P = Class.create(P, {
 						
 						var d = this.d = this.form.result();
 						
-						/*if ((d.format === 'm2ts') && (!window.navigator.plugins['VLC Web Plugin'])) {
+						if ((d.ext === 'm2ts') && (!window.navigator.plugins['VLC Web Plugin'])) {
 							new flagrate.Modal({
 								title: 'エラー',
 								text : 'MPEG-2 TSコンテナの再生にはVLC Web Pluginが必要です。'
 							}).show();
 							return;
-						}*/
-						
-						// if (d.format === 'm2ts') {
-						// 	new flagrate.Modal({
-						// 		title: 'エラー',
-						// 		text : 'MPEG-2 TSコンテナの再生は未サポートです。XSPFが利用できます。'
-						// 	}).show();
-						// 	return;
-						// }
+						}
 						
 						modal.close();
 						
@@ -416,14 +400,6 @@ P = Class.create(P, {
 			]
 		});
 		
-		if (Prototype.Browser.MobileSafari) {
-			this.form.fields[0].input.items.push({
-				label     : 'HLS (MPEG-2 TS)',
-				value     : 'm3u8',
-				isSelected: true
-			});
-		}
-		
 		if (!Prototype.Browser.MobileSafari) {
 			this.form.fields[0].input.items.push({
 				label     : 'M2TS',
@@ -456,19 +432,28 @@ P = Class.create(P, {
 		
 		var getRequestURI = function() {
 			
-			var r = './api/channel/' + this.channelId + '/watch.' + d.ext;
+			var r = window.location.protocol + '//' + window.location.host;
+			r += '/api/channel/' + this.channelId + '/watch.' + d.ext;
 			var q = Object.toQueryString(d);
 			
 			return r + '?' + q;
 		}.bind(this);
 		
 		var togglePlay = function() {
-			if (d.ext === 'webm' || d.ext === 'm3u8') {
+			if (d.ext === 'webm') {
 				if (video.paused) {
 					video.play();
 					control.getElementByKey('play').setLabel('Pause');
 				} else {
 					video.pause();
+					control.getElementByKey('play').setLabel('Play');
+				}
+			} else {
+				if (vlc.playlist.isPlaying) {
+					vlc.playlist.pause();
+					control.getElementByKey('play').setLabel('Pause');
+				} else {
+					vlc.playlist.play();
 					control.getElementByKey('play').setLabel('Play');
 				}
 			}
@@ -480,7 +465,7 @@ P = Class.create(P, {
 			'class': 'video-container'
 		}).insertTo(this.view.content);
 		
-		if (d.ext === 'webm' || d.ext === 'm3u8') {
+		if (d.ext === 'webm') {
 			var video = new flagrate.Element('video', {
 				src     : getRequestURI(),
 				autoplay: true
@@ -490,6 +475,24 @@ P = Class.create(P, {
 			
 			//video.load();
 			video.volume = 1;
+		} else {
+			var vlc = flagrate.createElement('embed', {
+				type: 'application/x-vlc-plugin',
+				pluginspage: 'http://www.videolan.org',
+				width: '100%',
+				height: '100%',
+				target: getRequestURI(),
+				autoplay: 'true',
+				controls: 'false'
+			}).insertTo(videoContainer);
+			
+			flagrate.createElement('object', {
+				classid: 'clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921',
+				codebase: 'http://download.videolan.org/pub/videolan/vlc/last/win32/axvlc.cab'
+			}).insertTo(videoContainer);
+			
+			vlc.audio.volume = 100;
+			vlc.currentTime = 0;
 		}
 		
 		// create control view
