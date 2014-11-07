@@ -868,7 +868,7 @@ chinachu_ircbot () {
 }
 
 chinachu_logrotate () {
-  local cmd name action
+  local cmd action
   action="$1"
   case $action in
     configfile )
