@@ -975,6 +975,8 @@ cleanup                 Clean-up the recorded list.
 
 ircbot [options]        Connect to IRC server and run a ircbot. (Experimental)
 
+logrotate <action>      Log rotate utility.
+
 test <app> [options]    Run <app> in ${USR_DIR}/bin
 
 help                    Output this information.
