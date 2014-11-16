@@ -1,8 +1,11 @@
-(function() {
-	
-	var program = chinachu.getProgramById(request.param.id, data.recorded);
-	
-	if (program === null) return response.error(404);
+var program = chinachu.getProgramById(request.param.id, data.recorded);
+if (program === null) {
+	response.error(404);
+} else {
+	init();
+}
+
+function init() {
 	
 	if (!data.status.feature.streamer) return response.error(403);
 	
@@ -10,13 +13,32 @@
 	
 	if (!fs.existsSync(program.recorded)) return response.error(410);
 	
+	// probing
+	child_process.exec('avprobe -v 0 -show_format -of json "' + program.recorded + '"', function (err, std) {
+		
+		if (err) {
+			return response.error(500);
+		}
+		
+		try {
+			main(JSON.parse(std));
+		} catch (e) {
+			return response.error(500);
+		}
+	});
+}
+
+function main(avinfo) {
+	
+	if (request.query.debug) util.log(JSON.stringify(avinfo, null, '  '));
+	
 	switch (request.type) {
 		// HTTP Live Streaming (Experimental)
 		case 'txt'://for debug
 		case 'm3u8':
 			response.head(200);
 			
-			var current  = (program.end - program.start) / 1000;
+			var current = parseInt(avinfo.format.duration, 10);
 			
 			var d = {
 				t    : request.query.t      || '10',//duration(seconds)
@@ -86,6 +108,10 @@
 				r    : request.query.r      || null//rate(fps)
 			};
 			
+			if (parseInt(d.ss, 10) > parseFloat(avinfo.format.duration)) {
+				return response.error(416);
+			}
+			
 			// Convert humanized size String to Bitrate
 			var bitrate = 0;
 			var videoBitrate = 0;
@@ -96,12 +122,16 @@
 				} else if (d['b:v'].match(/^[0-9]+m$/i)) {
 					videoBitrate = parseInt(d['b:v'].match(/^([0-9]+)m$/i)[1], 10) * 1024 * 1024;
 				}
+				if (d['c:a'] === 'copy' || d['b:a'] === null) {
+					d['c:a'] = null;
+					d['b:a'] = '96k';
+				}
 			}
 			if (d['b:a'] !== null) {
 				if (d['b:a'].match(/^[0-9]+k$/i)) {
-					videoBitrate = parseInt(d['b:a'].match(/^([0-9]+)k$/i)[1], 10) * 1024;
+					audioBitrate = parseInt(d['b:a'].match(/^([0-9]+)k$/i)[1], 10) * 1024;
 				} else if (d['b:a'].match(/^[0-9]+m$/i)) {
-					videoBitrate = parseInt(d['b:a'].match(/^([0-9]+)m$/i)[1], 10) * 1024 * 1024;
+					audioBitrate = parseInt(d['b:a'].match(/^([0-9]+)m$/i)[1], 10) * 1024 * 1024;
 				}
 			}
 			if (videoBitrate !== 0 && audioBitrate !== 0) {
@@ -109,35 +139,50 @@
 			}
 			
 			// Caluculate Total Size
-			var fstat = fs.statSync(program.recorded);
-			var tsize = fstat.size;
-			if (bitrate !== 0) {
-				tsize = bitrate / 8 * program.seconds;
+			var isize    = parseInt(avinfo.format.size, 10);
+			var ibitrate = parseFloat(avinfo.format.bit_rate);
+			var tsize    = 0;
+			if (bitrate === 0) {
+				bitrate = ibitrate;
+				tsize = isize;
+			} else {
+				tsize = bitrate / 8 * parseFloat(avinfo.format.duration);
 			}
 			if (d.t) {
-				tsize = Math.floor(tsize / program.seconds * parseInt(d.t, 10));
+				tsize = tsize / parseFloat(avinfo.format.duration) * parseInt(d.t, 10);
+			} else {
+				if (d.ss !== '0') {
+					tsize -= bitrate / 8 * parseInt(d.ss, 10);
+				}
 			}
+			tsize = Math.floor(tsize);
 			
 			// Ranges Support
 			var range = {};
-			if (request.headers.range) {
+			if (d.ss !== '0') {
+				range.start = parseInt(ibitrate / 8 * (parseInt(d.ss, 10) - 1), 10);
+				
+				response.setHeader('Content-Length', tsize);
+				
+				response.head(200);
+			} else if (request.headers.range) {
 				var bytes = request.headers.range.replace(/bytes=/, '').split('-');
-				range.start = parseInt(bytes[0], 10);
-				range.end   = parseInt(bytes[1], 10) || tsize - 1;
+				var rStart = parseInt(bytes[0], 10);
+				var rEnd   = parseInt(bytes[1], 10) || tsize - 1;
 
-				if (range.start > tsize || range.end > tsize) {
+				range.start = rStart / bitrate * ibitrate;
+				range.end   = rEnd / bitrate * ibitrate;
+				if (range.start > isize || range.end > isize) {
 					return response.error(416);
 				}
-				
-				response.setHeader('Content-Range', 'bytes ' + range.start + '-' + range.end + '/' + tsize);
-				response.setHeader('Content-Length', range.end - range.start + 1);
-				
+
+				response.setHeader('Content-Range', 'bytes ' + rStart + '-' + rEnd + '/' + tsize);
+				response.setHeader('Content-Length', rEnd - rStart + 1);
+
 				response.head(206);
 			} else {
 				response.setHeader('Accept-Ranges', 'bytes');
-				if (d.ss === '0' && d.t === null) {
-					response.setHeader('Content-Length', tsize);
-				}
+				response.setHeader('Content-Length', tsize);
 
 				response.head(200);
 			}
@@ -145,6 +190,8 @@
 			switch (request.type) {
 				case 'm2ts':
 					d.f      = 'mpegts';
+					d['c:v'] = d['c:v'] || 'libx264';
+					d['c:a'] = d['c:a'] || 'libfdk_aac';
 					break;
 				case 'webm':
 					d.f      = 'webm';
@@ -172,10 +219,9 @@
 			
 			if (!request.query.debug) args.push('-v', '0');
 			
-			args.push('-ss', (parseInt(d.ss, 10) - 1) + '');
+			args.push('-i', 'pipe:0');
 			
-			args.push('-i', program.recorded);
-			args.push('-ss', '1');
+			if (d.ss !== '0') args.push('-ss', '1');
 			
 			if (d.t) { args.push('-t', d.t); }
 			
@@ -188,27 +234,38 @@
 			if (d.r)  args.push('-r', d.r);
 			if (d.ar) args.push('-ar', d.ar);
 			
-			if (d['b:v']) args.push('-b:v', d['b:v']);
-			if (d['b:a']) args.push('-b:a', d['b:a']);
+			if (d['b:v']) {
+				args.push('-b:v', d['b:v'], '-minrate:v', d['b:v'], '-maxrate:v', d['b:v']);
+				args.push('-bufsize:v', videoBitrate * 8);
+			}
+			if (d['b:a']) {
+				args.push('-b:a', d['b:a'], '-minrate:a', d['b:a'], '-maxrate:a', d['b:a']);
+				args.push('-bufsize:a', audioBitrate * 8);
+			}
 			
 			//if (format === 'flv')     { args.push('-vsync', '2'); }
 			if (d['c:v'] === 'libx264') args.push('-preset', 'ultrafast');
 			if (d['c:v'] === 'libvpx')  args.push('-deadline', 'realtime');
 			
-			//args.push('-metadata', 'Title=Chinachu');
-			//args.push('-metadata', 'Duration=30');
-			
 			args.push('-y', '-f', d.f, 'pipe:1');
 			
-			if (d['c:v'] === 'copy' && d['c:a'] === 'copy' && d.ss === '0' && !d.t) {
-				fs.createReadStream(program.recorded, range || {}).pipe(response);
+			var readStream = fs.createReadStream(program.recorded, range || {});
+			
+			request.on('close', function() {
+				readStream.destroy();
+			});
+			
+			if (d['c:v'] === 'copy' && d['c:a'] === 'copy' && !d.t) {
+				readStream.pipe(response);
 			} else {
 				var avconv = child_process.spawn('avconv', args);
 
 				avconv.stdout.pipe(response);
+				
+				readStream.pipe(avconv.stdin);
 
 				avconv.stderr.on('data', function(d) {
-					util.log('avconv strerr: ' + d);
+					util.log('#avconv: ' + d);
 				});
 
 				avconv.on('exit', function(code) {
@@ -220,11 +277,11 @@
 					avconv.stderr.removeAllListeners('data');
 					avconv.kill('SIGKILL');
 				});
-
+				
 				children.push(avconv);// 安全対策
 			}
 			
 			return;
 	}//<--switch
 
-})();
+}
