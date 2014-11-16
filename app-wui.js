@@ -55,6 +55,12 @@ process.on('SIGQUIT', function () {
 
 // Uncaught Exception
 process.on('uncaughtException', function (err) {
+	
+	if (err.toString() === 'Error: read ECONNRESET') {
+		util.log('ECONNRESET');
+		return;
+	}
+	
 	util.error('uncaughtException: ' + err);
 });
 
@@ -249,8 +255,10 @@ function httpServerMain(req, res, query) {
 	// エラーレスポンス用
 	var resErr = function (code) {
 		
-		res.writeHead(code, {'content-type': 'text/plain'});
-		if (req.method !== 'HEAD') {
+		if (res.headersSent === false) {
+			res.writeHead(code, {'content-type': 'text/plain'});
+		}
+		if (req.method !== 'HEAD' && res.headersSent === false) {
 			switch (code) {
 			case 400:
 				res.write('400 Bad Request\n');
@@ -327,7 +335,11 @@ function httpServerMain(req, res, query) {
 			}
 		}
 		res.end();
-		log(code);
+		if (res.headersSent === true) {
+			log(res.statusCode + '(!' + code + ')');
+		} else {
+			log(code);
+		}
 	};
 	
 	var writeHead = function (code) {
