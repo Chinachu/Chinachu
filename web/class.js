@@ -981,6 +981,13 @@
 		}
 	});
 	
+	ui.DownloadRecordedFile = Class.create({
+		initialize: function _init(id) {
+			window.open('./api/recorded/' + id + '/file.m2ts');
+			return this;
+		}
+	});
+	
 	ui.RemoveRecordedFile = Class.create({
 		initialize: function _init(id) {
 			this.program = util.getProgramById(id);

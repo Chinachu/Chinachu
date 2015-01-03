@@ -144,29 +144,46 @@ P = Class.create(P, {
 				})
 			});
 			
-			this.view.toolbar.add({
-				key: 'remove-file',
-				ui : new sakura.ui.Button({
-					label  : 'ファイルの削除',
-					icon   : './icons/cross-script.png',
-					onClick: function() {
-						new chinachu.ui.RemoveRecordedFile(program.id);
-					}
-				})
-			});
+			if (global.chinachu.status.feature.filer) {
+				this.view.toolbar.add({
+					key: 'remove-file',
+					ui : new sakura.ui.Button({
+						label  : 'ファイルの削除',
+						icon   : './icons/cross-script.png',
+						onClick: function() {
+							new chinachu.ui.RemoveRecordedFile(program.id);
+						}
+					})
+				});
+			}
 		}
 		
 		if (program.recorded) {
-			this.view.toolbar.add({
-				key: 'streaming',
-				ui : new sakura.ui.Button({
-					label  : 'ストリーミング再生',
-					icon   : './icons/film-youtube.png',
-					onClick: function() {
-						new chinachu.ui.Streamer(program.id);
-					}
-				})
-			});
+			if (global.chinachu.status.feature.filer) {
+				this.view.toolbar.add({
+					key: 'download',
+					ui : new sakura.ui.Button({
+						label  : 'ダウンロード',
+						icon   : './icons/disk.png',
+						onClick: function() {
+							new chinachu.ui.DownloadRecordedFile(program.id);
+						}
+					})
+				});
+			}
+			
+			if (global.chinachu.status.feature.streamer && !program.tuner.isScrambling) {
+				this.view.toolbar.add({
+					key: 'streaming',
+					ui : new sakura.ui.Button({
+						label  : 'ストリーミング再生',
+						icon   : './icons/film-youtube.png',
+						onClick: function() {
+							new chinachu.ui.Streamer(program.id);
+						}
+					})
+				});
+			}
 		}
 		
 		return this;
@@ -290,35 +307,12 @@ P = Class.create(P, {
 			}).render(this.view.content);
 		}
 		
-		/* new sakura.ui.Alert({
-			title       : 'EPG/理題',
-			type        : 'white',
-			body        : (
-				'<br>タイトル: "' + program.fullTitle + '", 概要: "' + program.detail + '"<br>' +
-				'∴<br>' +
-				'主題: "' + program.title + '", 副題: "' + program.subTitle + '", 話数: ' + (program.episode || 'n')
-			),
-			disableClose: true
-		}).render(this.view.content); */
-		
 		if (program._isRecorded) {
 			new Ajax.Request('./api/recorded/' + program.id + '/file.json', {
 				method: 'get',
 				onSuccess: function(t) {
 					
 					if (this.app.pm.p.id !== this.id) return;
-					
-					if (global.chinachu.status.feature.filer) {
-						//programViewSub.insert(
-						//	'<a onclick="new app.ui.RemoveRecordedFile(\'' + program.id + '\')">録画ファイルの削除</a>'
-						//);
-					}
-					
-					if (global.chinachu.status.feature.streamer && !program.tuner.isScrambling) {
-						//programViewSub.insert(
-						//	'<a onclick="new app.ui.Streamer(\'' + program.id + '\')">ストリーミング再生</a>'
-						//);
-					}
 					
 					new sakura.ui.Alert({
 						title       : 'ファイルサイズ',
@@ -339,7 +333,8 @@ P = Class.create(P, {
 							disableClose: true
 						}).render(this.view.content);
 						
-						this.view.toolbar.one('remove-file').disable();
+						this.view.toolbar.one('remove-file').disable();									
+						this.view.toolbar.one('download').disable();
 						this.view.toolbar.one('streaming').disable();
 					}
 				}.bind(this)
