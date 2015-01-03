@@ -351,6 +351,7 @@ function convertPrograms(p, ch) {
 		var title = c.title[0]._
 			.replace(/【.{1,2}】/g, '')
 			.replace(/\[.\]/g, '')
+			.replace(/アニメ「([^「」]+)」/g, '$1')
 			.replace(/([^場版])「.+」/g, '$1')
 			.replace(/(#|＃|♯)[0-9０１２３４５６７８９]+/g, '')
 			.replace(/第([0-9]+|[０１２３４５６７８９零一壱二弐三参四五伍六七八九十拾]+)話/g, '')
@@ -369,7 +370,11 @@ function convertPrograms(p, ch) {
 		}
 		
 		var flags = [];
-		var matchedFlags = (c.title[0]._.match(/【(.)】/g) || []).concat(c.title[0]._.match(/\[(.)\]/g) || []);
+		var flagsSource = c.title[0]._
+			.replace(/【/g, '[')
+			.replace(/】/g, ']')
+			.replace(/\[無料\]/g, '[無]');
+		var matchedFlags = (flagsSource.match(/\[(.)\]/g) || []);
 		for (j = 0, m = matchedFlags.length; j < m; j++) {
 			flags.push(matchedFlags[j].match(/(?:【|\[)(.)(?:】|\])/)[1]);
 		}
