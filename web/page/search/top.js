@@ -130,8 +130,8 @@ P = Class.create(P, {
 				if (this.self.query.chid && this.self.query.chid !== program.channel.id) continue; 
 				if (this.self.query.cat && this.self.query.cat !== program.category) continue; 
 				if (this.self.query.type && this.self.query.type !== program.channel.type) continue; 
-				if (this.self.query.title && program.fullTitle.match(this.self.query.title) === null) continue;
-				if (this.self.query.desc && (!program.detail || program.detail.match(this.self.query.desc) === null)) continue;
+				if (this.self.query.title && program.fullTitle.match(decodeURIComponent(this.self.query.title)) === null) continue;
+				if (this.self.query.desc && (!program.detail || program.detail.match(decodeURIComponent(this.self.query.desc)) === null)) continue;
 				
 				if (this.self.query.start || this.self.query.end) {
 					var ruleStart = parseInt(this.self.query.start || 0, 10);
@@ -316,6 +316,9 @@ P = Class.create(P, {
 						
 						var result = viewSearchForm.result();
 						
+						result.title = encodeURIComponent(result.title);
+						result.desc = encodeURIComponent(result.desc);
+						
 						this.self.query = Object.extend(this.self.query, result);
 						this.self.query.skip = 1;
 						
@@ -361,7 +364,7 @@ P = Class.create(P, {
 					label : 'タイトル',
 					input : {
 						type : 'text',
-						value: this.self.query.title || ''
+						value: decodeURIComponent(this.self.query.title || '')
 					}
 				},
 				{
@@ -369,7 +372,7 @@ P = Class.create(P, {
 					label : '説明',
 					input : {
 						type : 'text',
-						value:  this.self.query.desc || ''
+						value:  decodeURIComponent(this.self.query.desc || '')
 					}
 				},
 				{
