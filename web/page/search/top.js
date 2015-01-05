@@ -90,8 +90,17 @@ P = Class.create(P, {
 			],
 			onClick: function(e, row) {
 				window.location.href = '#!/program/view/id=' + row.data.id + '/';
+			},
+			onRendered: function() {
+				this.self.query.page = this.grid.pagePosition;
+				this.app.pm._lastHash = '!/search/top/' + Object.toQueryString(this.self.query) + '/';
+				history.replaceState(null, null, '#' + this.app.pm._lastHash);
 			}.bind(this)
 		}).insertTo(this.view.content);
+		
+		if (this.self.query.page) {
+			this.grid.pagePosition = parseInt(this.self.query.page, 10);
+		}
 		
 		if (!this.self.query.skip) {
 			this.viewSearchModal();
