@@ -470,6 +470,14 @@ div.middle {
 						-o-transition     : background 0.25s ease;
 						transition        : background 0.25s ease; }
 					
+					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button.day {
+						color: rgba(255,255,255,0.7); }
+					
+					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button.selected {
+						color: #fff;
+						background: rgba(179,0,95,0.25);
+						box-shadow: 0 3px 0 rgb(179,0,95); }
+					
 						div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button > span {
 							color         : #aaa;
 							font-size     : 10px;
@@ -1127,7 +1135,8 @@ div.dashboard-timelist[rel="3"]:last-child {
 				font-size   : 10px; }
 }
 
-div.timetable { }
+div.timetable {
+	background: #555; }
 
 div.timetable,
 div.timetable * {
@@ -1190,22 +1199,36 @@ div.timetable > div.board {
 		
 		div.timetable > div.board > div.rect > div {
 			position   : absolute;
-			top        : 5px;
-			right      : 5px;
+			top        : 2px;
+			right      : 2px;
 			bottom     : 0;
-			left       : 5px;
+			left       : 2px;
 			overflow   : hidden;
 			line-height: 1.3em;
 			white-space: normal;
 			word-break : break-all;
-			font-size  : 10px;
 			font-family: "Meiryo UI", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ",
 			             Meiryo, Osaka, "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
 			color      : #444; }
 		
-		div.timetable > div.board > div.rect:hover > div {
-			color      : #000;
-			text-shadow: 0 1px 0 #fff; }
+			div.timetable > div.board > div.rect > div > h4 {
+				margin   : 0 0 2px 0;
+				font-size: 12px; }
+		
+			div.timetable > div.board > div.rect > div > span {
+				color    : rgba(0,0,0,0.7);
+				font-size: 11px; }
+
+			div.timetable > div.board > div.rect:hover > div > h4 {
+				color      : #000; }
+		
+			div.timetable > div.board > div.rect.reserved:not(:hover) > div > span,
+			div.timetable > div.board > div.rect.recording:not(:hover) > div > span {
+				color      : rgba(255,255,255,0.8); }
+		
+			div.timetable > div.board > div.rect.reserved:hover > div > h4,
+			div.timetable > div.board > div.rect.recording:hover > div > h4 {
+				color      : red; }
 		
 		div.timetable > div.board > div.rect.reserved > div,
 		div.timetable > div.board > div.rect.recording > div {
@@ -1213,11 +1236,6 @@ div.timetable > div.board {
 		
 		div.timetable > div.board > div.rect.recording > div {
 			font-weight: bold; }
-		
-		div.timetable > div.board > div.rect.reserved:hover > div,
-		div.timetable > div.board > div.rect.recording:hover > div {
-			color      : red;
-			text-shadow: none; }
 		
 		div.timetable > div.board > div.rect.skip:hover > div {
 			color      : gray;
@@ -1289,25 +1307,28 @@ div.timetable > div.board {
 div.timetable > div.head {
 	z-index   : 98;
 	position  : fixed;
-	top       : 90px;
+	top       : 80px;
 	left      : 20px;
-	height    : 50px;
+	height    : 30px;
+	padding-right: 2px;
 	overflow  : visible; }
 	
 	div.timetable > div.head > div {
 		position   : absolute;
-		color      : #ddd;
+		color      : #bbb;
 		font-size  : 12px;
 		font-weight: bold;
 		cursor     : pointer;
 		overflow   : hidden;
 		top        : 0;
 		bottom     : 0;
+		padding-top: 3px;
 		line-height: 2em;
-		background : rgba(25,25,25,0.7); }
+		background : rgba(25,25,25,0.7);
+		box-shadow : 4px 0 0 rgba(25,25,25,0.7); }
 	
 	div.timetable > div.head > div:hover {
-		color      : white; }
+		color      : #fff; }
 
 div.timetable > div.timescale {
 	z-index   : 99;
@@ -1335,9 +1356,9 @@ div.timetable > div.timescale {
 	
 	div.timetable > div.timescale > div.long {
 		width      : 15px;
-		padding    : 0 2px 0 0;
+		padding    : 1px 2px 1px 2px;
 		border-top : 1px solid #aaa;
-		color      : #777;
+		color      : #fff;
 		box-shadow : inset 0 1px 0 #fff; }
 	
 	div.timetable > div.timescale > div.middle {
@@ -1351,7 +1372,7 @@ div.timetable > div.timescale {
 		width      : 5px;
 		border-top : 1px solid #ccc;
 		background : white; }
-	
+
 	div.timetable > div.timescale > div.h18,
 	div.timetable > div.timescale > div.h19,
 	div.timetable > div.timescale > div.h20,
@@ -1359,7 +1380,7 @@ div.timetable > div.timescale {
 	div.timetable > div.timescale > div.h4,
 	div.timetable > div.timescale > div.h5 {
 		border-color: #06f;
-		color       : #06f; }
+		background  : #06f; }
 	
 	div.timetable > div.timescale > div.h6,
 	div.timetable > div.timescale > div.h7,
@@ -1367,20 +1388,20 @@ div.timetable > div.timescale {
 	div.timetable > div.timescale > div.h9,
 	div.timetable > div.timescale > div.h10 {
 		border-color: #0cf;
-		color       : #0cf; }
+		background  : #0cf; }
 	
 	div.timetable > div.timescale > div.h11,
 	div.timetable > div.timescale > div.h12,
 	div.timetable > div.timescale > div.h13,
 	div.timetable > div.timescale > div.h14 {
 		border-color: #f90;
-		color       : #f90; }
+		background  : #f90; }
 	
 	div.timetable > div.timescale > div.h15,
 	div.timetable > div.timescale > div.h16,
 	div.timetable > div.timescale > div.h17 {
 		border-color: #f30;
-		color       : #f30; }
+		background  : #f30; }
 	
 	div.timetable > div.timescale > div.h22,
 	div.timetable > div.timescale > div.h23,
@@ -1389,7 +1410,7 @@ div.timetable > div.timescale {
 	div.timetable > div.timescale > div.h2,
 	div.timetable > div.timescale > div.h3 {
 		border-color: #63c;
-		color       : #63c; }
+		background  : #63c; }
 
 tr.disabled > td {
 	opacity         : 0.4; }
