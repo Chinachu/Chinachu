@@ -204,7 +204,7 @@
 					}.bind(this)
 				})
 			});
-			
+			/*
 			this.view.toolbar.add({
 				key: 'config',
 				ui : new sakura.ui.Button({
@@ -215,6 +215,7 @@
 					}.bind(this)
 				})
 			});
+			*/
 			
 			return this;
 		},
