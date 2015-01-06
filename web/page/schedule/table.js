@@ -27,93 +27,182 @@
 			this.tick = flagrate.emptyFunction;
 			this.draw = flagrate.emptyFunction;
 			if (this.view.drawerDt) { this.view.drawerDt.remove(); }
-			if (this.view.clock) { this.view.clock.remove(); }
 			
 			return this;
 		},
 		
 		refresh: function () {
 			
-			document.stopObserving('chinachu:schedule', this.onNotify);
+			document.fire('sakurapanel:pm:unload');
 			
-			this.app.pm.realizeHash(true);
+			clearTimeout(this.timer.reloading);
+			this.timer.reloading = setTimeout(function () {
+				if (this.view.drawerDt) { this.view.drawerDt.remove(); }
+
+				this.time = new Date().getTime();
+				this.draw();
+			}.bind(this), 50);
 			
 			return this;
 		},
 		
 		initToolbar: function () {
 			
-			/*
+			var date = new Date(this.time);
+			var days = ['日', '月', '火', '水', '木', '金', '土'];
+			
 			this.view.toolbar.add({
 				key: 'type-gr',
 				ui : flagrate.createCheckbox({
-					label: 'GR'
+					label: 'GR',
+					onChange: function (e) {
+						var types = JSON.parse(localStorage.getItem('schedule.visible.types') || '["GR","BS","CS","EX"]');
+						
+						if (e.targetCheckbox.isChecked()) {
+							types.push('GR');
+						} else {
+							types = types.without('GR');
+						}
+						localStorage.setItem('schedule.visible.types', JSON.stringify(types));
+						
+						this.refresh();
+					}.bind(this)
 				}).disable()
 			});
 			
 			this.view.toolbar.add({
 				key: 'type-bs',
 				ui : flagrate.createCheckbox({
-					label: 'BS'
+					label: 'BS',
+					onChange: function (e) {
+						var types = JSON.parse(localStorage.getItem('schedule.visible.types') || '["GR","BS","CS","EX"]');
+						
+						if (e.targetCheckbox.isChecked()) {
+							types.push('BS');
+						} else {
+							types = types.without('BS');
+						}
+						localStorage.setItem('schedule.visible.types', JSON.stringify(types));
+						
+						this.refresh();
+					}.bind(this)
 				}).disable()
 			});
 			
 			this.view.toolbar.add({
 				key: 'type-cs',
 				ui : flagrate.createCheckbox({
-					label: 'CS'
+					label: 'CS',
+					onChange: function (e) {
+						var types = JSON.parse(localStorage.getItem('schedule.visible.types') || '["GR","BS","CS","EX"]');
+						
+						if (e.targetCheckbox.isChecked()) {
+							types.push('CS');
+						} else {
+							types = types.without('CS');
+						}
+						localStorage.setItem('schedule.visible.types', JSON.stringify(types));
+						
+						this.refresh();
+					}.bind(this)
 				}).disable()
 			});
 			
 			this.view.toolbar.add({
 				key: 'type-ex',
 				ui : flagrate.createCheckbox({
-					label: 'EX'
-				}).disable()
-			});
-			
-			this.view.toolbar.add({
-				key: 'zoom-out',
-				ui : new sakura.ui.Button({
-					label  : '小さく',
-					icon   : './icons/dummy.png',
-					onClick: function () {
+					label: 'EX',
+					onChange: function (e) {
+						var types = JSON.parse(localStorage.getItem('schedule.visible.types') || '["GR","BS","CS","EX"]');
 						
+						if (e.targetCheckbox.isChecked()) {
+							types.push('EX');
+						} else {
+							types = types.without('EX');
+						}
+						localStorage.setItem('schedule.visible.types', JSON.stringify(types));
+						
+						this.refresh();
 					}.bind(this)
 				}).disable()
 			});
 			
 			this.view.toolbar.add({
-				key: 'zoom-in',
+				key: 'day+0',
 				ui : new sakura.ui.Button({
-					label  : '大きく',
-					icon   : './icons/dummy.png',
+					className: 'day',
+					label  : (date.getMonth() + 1) + '/' + date.getDate() + '(' + days[date.getDay()] + ') ' + date.getHours() + '時~',
 					onClick: function () {
-						
+						this.self.query.day = '0';
+						location.hash = '!/schedule/table/' + Object.toQueryString(this.self.query) + '/';
 					}.bind(this)
-				}).disable()
+				})
 			});
-			
 			this.view.toolbar.add({
-				key: 'yesterday',
+				key: 'day+1',
 				ui : new sakura.ui.Button({
-					label  : '前の日',
-					icon   : './icons/dummy.png',
+					className: 'day',
+					label  : (new Date(this.time + 86400000).getDate()) + '(' + days[new Date(this.time + 86400000).getDay()] + ')',
 					onClick: function () {
-						
+						this.self.query.day = '1';
+						location.hash = '!/schedule/table/' + Object.toQueryString(this.self.query) + '/';
 					}.bind(this)
-				}).disable()
+				})
 			});
-			
 			this.view.toolbar.add({
-				key: 'tomorrow',
+				key: 'day+2',
 				ui : new sakura.ui.Button({
-					label  : '次の日',
-					icon   : './icons/dummy.png',
+					className: 'day',
+					label  : (new Date(this.time + 172800000).getDate()) + '(' + days[new Date(this.time + 172800000).getDay()] + ')',
 					onClick: function () {
-						
+						this.self.query.day = '2';
+						location.hash = '!/schedule/table/' + Object.toQueryString(this.self.query) + '/';
 					}.bind(this)
-				}).disable()
+				})
+			});
+			this.view.toolbar.add({
+				key: 'day+3',
+				ui : new sakura.ui.Button({
+					className: 'day',
+					label  : (new Date(this.time + 259200000).getDate()) + '(' + days[new Date(this.time + 259200000).getDay()] + ')',
+					onClick: function () {
+						this.self.query.day = '3';
+						location.hash = '!/schedule/table/' + Object.toQueryString(this.self.query) + '/';
+					}.bind(this)
+				})
+			});
+			this.view.toolbar.add({
+				key: 'day+4',
+				ui : new sakura.ui.Button({
+					className: 'day',
+					label  : (new Date(this.time + 345600000).getDate()) + '(' + days[new Date(this.time + 345600000).getDay()] + ')',
+					onClick: function () {
+						this.self.query.day = '4';
+						location.hash = '!/schedule/table/' + Object.toQueryString(this.self.query) + '/';
+					}.bind(this)
+				})
+			});
+			this.view.toolbar.add({
+				key: 'day+5',
+				ui : new sakura.ui.Button({
+					className: 'day',
+					label  : (new Date(this.time + 432000000).getDate()) + '(' + days[new Date(this.time + 432000000).getDay()] + ')',
+					onClick: function () {
+						this.self.query.day = '5';
+						location.hash = '!/schedule/table/' + Object.toQueryString(this.self.query) + '/';
+					}.bind(this)
+				})
+			});
+			this.view.toolbar.add({
+				key: 'day+6',
+				ui : new sakura.ui.Button({
+					className: 'day',
+					label  : (new Date(this.time + 518400000).getDate()) + '(' + days[new Date(this.time + 518400000).getDay()] + ')',
+					onClick: function () {
+						this.self.query.day = '6';
+						location.hash = '!/schedule/table/' + Object.toQueryString(this.self.query) + '/';
+					}.bind(this)
+				})
 			});
 			
 			this.view.toolbar.add({
@@ -126,14 +215,11 @@
 					}.bind(this)
 				})
 			});
-			*/
 			
 			return this;
 		},
 		
 		draw: function () {
-			
-			this.view.clock = flagrate.createElement('div', {'class': 'clock'}).insertTo(this.app.view.mainHead.entity);
 			
 			this.view.content.className = 'fullscreen timetable';
 			this.view.content.update();
@@ -150,15 +236,29 @@
 			this.data.scrollEnd   = [0, 0];
 			this.data.target      = null;
 			
-			var unitlen = this.unitlen = 50;
-			var linelen      = 80;
-			var types        = eval(window.localStorage.getItem('schedule-param-types') || "['GR','BS','CS','EX']");
-			var categories = this.categories = eval(window.localStorage.getItem('schedule-param-categories') || "['anime', 'information', 'news', 'sports', 'variety', 'drama', 'music', 'cinema', 'etc']");
-			var hideChannels = eval(window.localStorage.getItem('schedule-param-hide-channels') || "[]");
+			var unitlen = this.unitlen = 60;
+			var linelen      = 140;
+			var types        = JSON.parse(window.localStorage.getItem('schedule.visible.types') || '["GR", "BS", "CS", "EX"]');
+			var categories   = this.categories = JSON.parse(window.localStorage.getItem('schedule.visible.categories') || '["anime", "information", "news", "sports", "variety", "drama", "music", "cinema", "etc"]');
+			var hideChannels = JSON.parse(window.localStorage.getItem('schedule-param-hide-channels') || "[]");
+			
+			var day = 0;
+			if (this.self.query.day) {
+				day = parseInt(this.self.query.day, 10);
+				if (day < 0 && day > 6) {
+					day = 0;
+				}
+				(6).times(function (i) {
+					this.view.toolbar.one('day+' + i).entity.removeClassName('selected');
+				}.bind(this));
+				this.view.toolbar.one('day+' + day).entity.addClassName('selected');
+			}
+			var timeRangeStart = this.time + 86400000 * day;
+			var timeRangeEnd   = timeRangeStart + 86400000;
 			
 			var total  = 0;
 			var count  = 0;
-			var maxlen = 0;
+			var maxlen = this.time + 86400000 + 3600000 + 7200000 + 10000;
 			
 			var piece  = this.data.piece  = {};// piece of canvas programs
 			var pieces = this.data.pieces = [];// array of program pieces
@@ -168,7 +268,6 @@
 			this.view.head = flagrate.createElement('div', {'class': 'head'}).insertTo(this.view.content);
 			
 			// ツールバー
-			/*
 			if (types.indexOf('GR') !== -1) { this.view.toolbar.one('type-gr').check(); }
 			if (types.indexOf('BS') !== -1) { this.view.toolbar.one('type-bs').check(); }
 			if (types.indexOf('CS') !== -1) { this.view.toolbar.one('type-cs').check(); }
@@ -177,7 +276,6 @@
 			this.view.toolbar.one('type-bs').enable();
 			this.view.toolbar.one('type-cs').enable();
 			this.view.toolbar.one('type-ex').enable();
-			*/
 			
 			global.chinachu.schedule.forEach(function (channel, i) {
 				if (channel.programs.length === 0) { return; }
@@ -216,15 +314,15 @@
 				});
 				
 				channel.programs.forEach(function (program, j) {
+					if (program.start + 7200000 < timeRangeStart || program.start > timeRangeEnd + 3600000) {
+						return;
+					}
 					if ((program.end - this.time) < 0) {
-						channel.programs = channel.programs.without(program);
 						return;
 					}
 					
-					var posY   = Math.floor(1 + (program.start - this.time) / 1000 / 1000 * unitlen + 100);
-					var height = Math.floor(program.seconds / 1000 * unitlen - 1);
-					
-					if (maxlen < program.end) { maxlen = program.end; }
+					var posY   = Math.floor((program.start - timeRangeStart) / 1000 / 1000 * unitlen + 100);
+					var height = Math.floor(program.seconds / 1000 * unitlen);
 					
 					// color: this.app.def.categoryColor[program.category] || '#ffffff'
 					
@@ -290,7 +388,7 @@
 					this.view.timescale.insert(
 						flagrate.createElement('div', { 'class': 'long h' + date.getHours() }).setStyle({
 							top: ((i - this.time) / 1000 / 1000 * unitlen) + 'px'
-						}).insert(date.getHours() + 'h')
+						}).insert(date.getHours())
 					);
 				}
 				
@@ -404,7 +502,7 @@
 			
 			var onClick = function (e) {
 				
-				var targetId = e.target.getAttribute('rel') || (e.target.parentNode || e.target.parentElement).getAttribute('rel') || null;
+				var targetId = e.target.getAttribute('rel') || (e.target.parentNode || e.target.parentElement).getAttribute('rel') || (e.target.parentNode.parentNode || e.target.parentElement.parentElement).getAttribute('rel') || null;
 				
 				this.data.target = null;
 				
@@ -428,24 +526,6 @@
 				if (this.data.target !== null) {
 					if (e.keyCode === 27) {
 						this.data.target = null;
-					}
-					
-					var target = null;
-					
-					if (e.keyCode === 38 || e.keyCode === 87) {
-						target = chinachu.util.getPrevProgramById(this.data.target.id);
-						if (target !== null) {
-							this.data.target = target;
-							deltaY = this.data.piece[this.data.target.id]._rect.getHeight() * 0.365 + 1;
-						}
-					}
-					
-					if (e.keyCode === 40 || e.keyCode === 83) {
-						target = chinachu.util.getNextProgramById(this.data.target.id);
-						if (target !== null) {
-							this.data.target = target;
-							deltaY = -(this.data.piece[this.data.target.id]._rect.getHeight() * 0.365 + 1);
-						}
 					}
 					
 					viewDrawer();
@@ -486,6 +566,11 @@
 			}.bind(this);
 			
 			var onMousemove = function (e) {
+				
+				if (e.which === 0) {
+					onMouseup(e);
+					return;
+				}
 				
 				e.preventDefault();
 				e.stopPropagation();
@@ -606,8 +691,12 @@
 			}.bind(this);
 			document.observe('sakurapanel:pm:unload', removeListenerOnUnload);
 			
-			// start
-			this.tick();
+			if (!this.started) {
+				this.started = true;
+				
+				// start
+				this.tick();
+			}
 			
 			return this;
 		},//<--draw
@@ -667,6 +756,8 @@
 					(a.posY < bottom || a.posY + a.height < bottom)
 				) {
 					if (typeof a._rect === 'undefined') {
+						var date = new Date(a.program.start);
+						
 						a._rect              = flagrate.createElement('div');
 						a._rect.className    = 'rect bg-cat-' + a.program.category + ((this.categories.indexOf(a.program.category) === -1) ? ' muted' : '');
 						a._rect.style.left   = a.posX + 'px';
@@ -674,7 +765,13 @@
 						a._rect.style.width  = a.width + 'px';
 						a._rect.style.height = a.height + 'px';
 						
-						a._label = flagrate.createElement('div').insertText(a.program.title).insertTo(a._rect);
+						a._label = flagrate.createElement('div').insert(
+							flagrate.createElement('h4').insertText(
+								date.getHours().toPaddedString(2) + ':' + date.getMinutes().toPaddedString(2) + ' ' + a.program.title
+							)
+						).insert(
+							flagrate.createElement('span').insertText(a.program.detail)
+						).insertTo(a._rect);
 						
 						a._rect.title = a.program.fullTitle;
 						
@@ -857,12 +954,6 @@
 					}
 				}
 			}.bind(this));
-			
-			this.view.clock.innerHTML = (
-				chinachu.dateToString(
-					new Date(this.time + (this.view.content.scrollTop * 1000 * 1000 / this.unitlen))
-				)
-			);
 			
 			return this;
 		}//<--render
