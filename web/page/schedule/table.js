@@ -249,11 +249,8 @@
 				if (day < 0 && day > 6) {
 					day = 0;
 				}
-				(6).times(function (i) {
-					this.view.toolbar.one('day+' + i).entity.removeClassName('selected');
-				}.bind(this));
-				this.view.toolbar.one('day+' + day).entity.addClassName('selected');
 			}
+			this.view.toolbar.one('day+' + day).entity.addClassName('selected');
 			var timeRangeStart = this.time + 86400000 * day;
 			var timeRangeEnd   = timeRangeStart + 86400000;
 			
@@ -424,22 +421,6 @@
 								width: (5 + k * (5 + linelen)) + 'px'
 							}
 						}).render(this.view.board);
-					}
-					
-					if (m === 0) {
-						this.view.timescale.insert(
-							flagrate.createElement('div', { 'class': 'long h' + date.getHours() + ' date' }).setStyle({
-								top: ((i - this.time) / 1000 / 1000 * unitlen) + 'px'
-							}).insert(d + 'd')
-						);
-					}
-					
-					if (m !== 0) {
-						this.view.timescale.insert(
-							flagrate.createElement('div', { 'class': 'date' }).setStyle({
-								top: ((i - this.time) / 1000 / 1000 * unitlen) + 'px'
-							}).insert(d + 'd')
-						);
 					}
 				}
 			}
@@ -800,7 +781,6 @@
 								'------------------------------------------',
 								{
 									label   : 'ツイート...',
-									icon    : 'https://abs.twimg.com/favicons/favicon.ico',
 									onSelect: function () {
 										var left = (screen.width - 640) / 2;
 										var top  = (screen.height - 265) / 2;
@@ -929,11 +909,6 @@
 							a._rect.style.display = '';
 						}
 						a.isVisible = true;
-					}
-					
-					if (a.isVisible === true) {
-						//if (a.posX - top
-						//console.log(top, a.posY);
 					}
 					
 					if (this.data.target !== null && this.data.target.id === a.id) {
