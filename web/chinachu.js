@@ -471,6 +471,55 @@
 	app.socket.on('notify-recorded' , socketOnNotifyRecorded);
 	app.socket.on('notify-schedule' , socketOnNotifySchedule);
 	
+	// ジャンル通知
+	var remindedProgramIds = [];
+	var notifiedProgramIds = [];
+	setInterval(function () {
+		
+		if (!localStorage.getItem('schedule.notify.categories')) {
+			return;
+		}
+		
+		var categories = JSON.stringify(localStorage.getItem('schedule.notify.categories') || '[]');
+		
+		if (categories.length === 0 || !app.chinachu.schedule || app.chinachu.schedule.length === 0) {
+			return;
+		}
+		
+		var programs = app.chinachu.schedule.pluck('programs').flatten();
+		
+		var i, l = programs.length, t = Date.now();
+		for (i = 0; l > i; i++) {
+			if (categories.indexOf(programs[i].category) === -1 || t > programs[i].end) {
+				continue;
+			}
+			
+			var text = programs[i].title + ' (' + programs[i].channel.name + ') - ';
+			
+			if (programs[i].start - t < 80000 && programs[i].start - t > 50000 && remindedProgramIds.indexOf(programs[i].id) === -1) {
+				remindedProgramIds.push(programs[i].id);
+
+				text = 'まもなく: ' + text;
+			} else if (programs[i].start - t < 3000 && programs[i].start - t > -10000 && notifiedProgramIds.indexOf(programs[i].id) === -1) {
+				notifiedProgramIds.push(programs[i].id);
+
+				text = '放送開始: ' + text;
+			} else {
+				continue;
+			}
+			
+			text += chinachu.dateToString(new Date(programs[i].start));
+			
+			app.notify.create({
+				text   : text,
+				timeout: 10,
+				onClick: function() {
+					location.hash = '!/program/view/id=' + programs[i].id + '/';
+				}
+			});
+		}
+	}, 10000);
+	
 	// go
 	app.f.enterControlView();
 	

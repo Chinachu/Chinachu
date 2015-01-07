@@ -204,18 +204,88 @@
 					}.bind(this)
 				})
 			});
-			/*
+			
 			this.view.toolbar.add({
 				key: 'config',
 				ui : new sakura.ui.Button({
-					label  : 'ビュー設定',
+					label  : '設定',
 					icon   : './icons/wrench-screwdriver.png',
 					onClick: function () {
 						
+						var form = flagrate.createForm({
+							fields: [
+								{
+									key: 'categories',
+									label: '表示ジャンル',
+									input: {
+										type : 'checkboxes',
+										val  : JSON.parse(localStorage.getItem('schedule.visible.categories') || '["anime", "information", "news", "sports", "variety", "drama", "music", "cinema", "etc"]'),
+										items: [
+											'anime', 'information', 'news', 'sports',
+											'variety', 'drama', 'music', 'cinema', 'etc'
+										]
+									}
+								},
+								{
+									key: 'notifyCategories',
+									label: '通知ジャンル',
+									text: 'WUIを開いている時に番組放送開始を通知します',
+									input: {
+										type : 'checkboxes',
+										val  : JSON.parse(localStorage.getItem('schedule.notify.categories') || '[]'),
+										items: [
+											'anime', 'information', 'news', 'sports',
+											'variety', 'drama', 'music', 'cinema', 'etc'
+										]
+									}
+								},
+								{
+									key  : 'hideChannels',
+									label: '隠すCH',
+									input: {
+										type : 'checkboxes',
+										val  : JSON.parse(localStorage.getItem('schedule.hide.channels') || '[]'),
+										items: global.chinachu.schedule.map(function (a) {
+											return {
+												label: a.name,
+												value: a.id
+											};
+										})
+									}
+								}
+							]
+						});
+						
+						flagrate.createModal({
+							title: '番組表設定',
+							content: form.element,
+							buttons: [
+								{
+									label: '適用',
+									color: '@pink',
+									onSelect: function (e, modal) {
+										
+										var result = form.getResult();
+										
+										localStorage.setItem('schedule.visible.categories', JSON.stringify(result.categories));
+										localStorage.setItem('schedule.notify.categories', JSON.stringify(result.notifyCategories));
+										localStorage.setItem('schedule.hide.channels', JSON.stringify(result.hideChannels));
+										
+										this.refresh();
+										modal.close();
+									}.bind(this)
+								},
+								{
+									label: 'キャンセル'.__(),
+									onSelect: function (e, modal) {
+										modal.close();
+									}
+								}
+							]
+						}).open();
 					}.bind(this)
 				})
 			});
-			*/
 			
 			return this;
 		},
@@ -241,7 +311,7 @@
 			var linelen      = 140;
 			var types        = JSON.parse(window.localStorage.getItem('schedule.visible.types') || '["GR", "BS", "CS", "EX"]');
 			var categories   = this.categories = JSON.parse(window.localStorage.getItem('schedule.visible.categories') || '["anime", "information", "news", "sports", "variety", "drama", "music", "cinema", "etc"]');
-			var hideChannels = JSON.parse(window.localStorage.getItem('schedule-param-hide-channels') || "[]");
+			var hideChannels = JSON.parse(window.localStorage.getItem('schedule.hide.channels') || "[]");
 			
 			var day = 0;
 			if (this.self.query.day) {
@@ -375,7 +445,7 @@
 			// スケール
 			this.view.timescale = flagrate.createElement('div', {'class': 'timescale'}).insertTo(this.view.content);
 			
-			this.view.timescale.setStyle({'height': maxH + 'px'});
+			this.view.timescale.setStyle({'height': maxH + 20 + 'px'});
 			
 			
 			var ld  = -1;
@@ -430,6 +500,30 @@
 						}).render(this.view.board);
 					}
 				}
+			}
+			
+			// 日付上下移動ボタン
+			if (day > 0) {
+				flagrate.createButton({
+					label: '▲',
+					color: '@inverse',
+					className: 'prev',
+					onSelect: function () {
+						this.self.query.day = day - 1;
+						location.hash = '!/schedule/table/' + Object.toQueryString(this.self.query) + '/';
+					}.bind(this)
+				}).insertTo(this.view.timescale);
+			}
+			if (day < 6) {
+				flagrate.createButton({
+					label: '▼',
+					color: '@inverse',
+					className: 'next',
+					onSelect: function () {
+						this.self.query.day = day + 1;
+						location.hash = '!/schedule/table/' + Object.toQueryString(this.self.query) + '/';
+					}.bind(this)
+				}).insertTo(this.view.timescale);
 			}
 			
 			// drawer
@@ -489,7 +583,12 @@
 				);
 			}.bind(this);
 			
-			var onClick = function (e) {
+			//
+			// イベントとか
+			//
+			var onClick, onMousedown, onMousemove, onMouseup;
+			
+			onClick = function (e) {
 				
 				var targetId = e.target.getAttribute('rel') || (e.target.parentNode || e.target.parentElement).getAttribute('rel') || (e.target.parentNode.parentNode || e.target.parentElement.parentElement).getAttribute('rel') || null;
 				
@@ -540,7 +639,7 @@
 				inertiaScroll();
 			}.bind(this);
 			
-			var onMousedown = function (e) {
+			onMousedown = function (e) {
 				
 				e.preventDefault();
 				e.stopPropagation();
@@ -554,7 +653,7 @@
 				this.scroller();
 			}.bind(this);
 			
-			var onMousemove = function (e) {
+			onMousemove = function (e) {
 				
 				if (e.which === 0) {
 					onMouseup(e);
@@ -569,7 +668,7 @@
 				this.scroller();
 			}.bind(this);
 			
-			var onMouseup = function (e) {
+			onMouseup = function (e) {
 				
 				e.preventDefault();
 				e.stopPropagation();
@@ -690,7 +789,7 @@
 			return this;
 		},//<--draw
 		
-		scroller: function _scroller() {
+		scroller: function () {
 			if (
 				(this.data.scrollStart[0] - this.data.scrollEnd[0] !== 0) ||
 				(this.data.scrollStart[1] - this.data.scrollEnd[1] !== 0)
@@ -711,7 +810,7 @@
 			return this;
 		},//<--scroller
 		
-		tick: function _tick() {
+		tick: function () {
 			
 			// window.requestAnimationFrame
 			(
@@ -761,6 +860,10 @@
 								date.getHours().toPaddedString(2) + ':' + date.getMinutes().toPaddedString(2) + ' ' + a.program.title
 							)
 						).insert(
+							flagrate.createElement('div').insert(
+								a.program.flags.invoke('sub', /.+/, '<span rel="' + a.id+ '" class="#{0}">#{0}</span>').join('')
+							)
+						).insert(
 							flagrate.createElement('span').insertText(a.program.detail)
 						).insertTo(a._rect);
 						
@@ -784,7 +887,7 @@
 									label   : 'ルール作成...',
 									icon    : './icons/regular-expression.png',
 									onSelect: function () {
-										new chinachu.ui.CreateRuleByProgram(a.program.id);
+										var dummy = new chinachu.ui.CreateRuleByProgram(a.program.id);
 									}
 								},
 								'------------------------------------------',
@@ -856,7 +959,7 @@
 										label   : '予約取消...',
 										icon    : './icons/cross-script.png',
 										onSelect: function () {
-											new chinachu.ui.Unreserve(a.program.id);
+											var dummy = new chinachu.ui.Unreserve(a.program.id);
 										}
 									});
 								}
@@ -867,7 +970,7 @@
 										label   : 'スキップの取消...',
 										icon    : './icons/tick-circle.png',
 										onSelect: function () {
-											new chinachu.ui.Unskip(a.program.id);
+											var dummy = new chinachu.ui.Unskip(a.program.id);
 										}
 									});
 								} else {
@@ -875,7 +978,7 @@
 										label   : 'スキップ...',
 										icon    : './icons/exclamation-red.png',
 										onSelect: function () {
-											new chinachu.ui.Skip(a.program.id);
+											var dummy = new chinachu.ui.Skip(a.program.id);
 										}
 									});
 								}
@@ -884,7 +987,7 @@
 									label   : '予約...',
 									icon    : './icons/plus-circle.png',
 									onSelect: function () {
-										new chinachu.ui.Reserve(a.program.id);
+										var dummy = new chinachu.ui.Reserve(a.program.id);
 									}
 								});
 							}
@@ -894,12 +997,12 @@
 									label   : '録画中止...',
 									icon    : './icons/cross.png',
 									onSelect: function () {
-										new chinachu.ui.StopRecord(a.program.id);
+										var dummy = new chinachu.ui.StopRecord(a.program.id);
 									}
 								});
 							}
 							
-							new flagrate.ContextMenu({
+							flagrate.createContextMenu({
 								target: a._rect,
 								items : contextMenuItems
 							});
