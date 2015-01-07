@@ -489,7 +489,12 @@
 				);
 			}.bind(this);
 			
-			var onClick = function (e) {
+			//
+			// イベントとか
+			//
+			var onClick, onMousedown, onMousemove, onMouseup;
+			
+			onClick = function (e) {
 				
 				var targetId = e.target.getAttribute('rel') || (e.target.parentNode || e.target.parentElement).getAttribute('rel') || (e.target.parentNode.parentNode || e.target.parentElement.parentElement).getAttribute('rel') || null;
 				
@@ -540,7 +545,7 @@
 				inertiaScroll();
 			}.bind(this);
 			
-			var onMousedown = function (e) {
+			onMousedown = function (e) {
 				
 				e.preventDefault();
 				e.stopPropagation();
@@ -554,7 +559,7 @@
 				this.scroller();
 			}.bind(this);
 			
-			var onMousemove = function (e) {
+			onMousemove = function (e) {
 				
 				if (e.which === 0) {
 					onMouseup(e);
@@ -569,7 +574,7 @@
 				this.scroller();
 			}.bind(this);
 			
-			var onMouseup = function (e) {
+			onMouseup = function (e) {
 				
 				e.preventDefault();
 				e.stopPropagation();
@@ -690,7 +695,7 @@
 			return this;
 		},//<--draw
 		
-		scroller: function _scroller() {
+		scroller: function () {
 			if (
 				(this.data.scrollStart[0] - this.data.scrollEnd[0] !== 0) ||
 				(this.data.scrollStart[1] - this.data.scrollEnd[1] !== 0)
@@ -711,7 +716,7 @@
 			return this;
 		},//<--scroller
 		
-		tick: function _tick() {
+		tick: function () {
 			
 			// window.requestAnimationFrame
 			(
@@ -784,7 +789,7 @@
 									label   : 'ルール作成...',
 									icon    : './icons/regular-expression.png',
 									onSelect: function () {
-										new chinachu.ui.CreateRuleByProgram(a.program.id);
+										var dummy = new chinachu.ui.CreateRuleByProgram(a.program.id);
 									}
 								},
 								'------------------------------------------',
@@ -856,7 +861,7 @@
 										label   : '予約取消...',
 										icon    : './icons/cross-script.png',
 										onSelect: function () {
-											new chinachu.ui.Unreserve(a.program.id);
+											var dummy = new chinachu.ui.Unreserve(a.program.id);
 										}
 									});
 								}
@@ -867,7 +872,7 @@
 										label   : 'スキップの取消...',
 										icon    : './icons/tick-circle.png',
 										onSelect: function () {
-											new chinachu.ui.Unskip(a.program.id);
+											var dummy = new chinachu.ui.Unskip(a.program.id);
 										}
 									});
 								} else {
@@ -875,7 +880,7 @@
 										label   : 'スキップ...',
 										icon    : './icons/exclamation-red.png',
 										onSelect: function () {
-											new chinachu.ui.Skip(a.program.id);
+											var dummy = new chinachu.ui.Skip(a.program.id);
 										}
 									});
 								}
@@ -884,7 +889,7 @@
 									label   : '予約...',
 									icon    : './icons/plus-circle.png',
 									onSelect: function () {
-										new chinachu.ui.Reserve(a.program.id);
+										var dummy = new chinachu.ui.Reserve(a.program.id);
 									}
 								});
 							}
@@ -894,12 +899,12 @@
 									label   : '録画中止...',
 									icon    : './icons/cross.png',
 									onSelect: function () {
-										new chinachu.ui.StopRecord(a.program.id);
+										var dummy = new chinachu.ui.StopRecord(a.program.id);
 									}
 								});
 							}
 							
-							new flagrate.ContextMenu({
+							flagrate.createContextMenu({
 								target: a._rect,
 								items : contextMenuItems
 							});
