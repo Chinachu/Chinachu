@@ -736,6 +736,8 @@
 			this.view.timescale.style.marginLeft = (left + 200) + 'px';
 			this.view.head.style.marginLeft = '-' + (left + 200) + 'px';
 			
+			this.view.hand.entity.style.top = Math.round((Date.now() - this.time) / 1000 / 1000 * this.unitlen + 100) + 'px';
+			
 			this.data.pieces.forEach(function (a, i) {
 				// 表示範囲か
 				if (
