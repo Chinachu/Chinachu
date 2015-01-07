@@ -256,7 +256,8 @@
 			
 			var total  = 0;
 			var count  = 0;
-			var maxlen = this.time + 86400000 + 3600000 + 7200000 + 10000;
+			var maxlen = this.time + 86400000 + 3600000;
+			var maxH   = (maxlen - this.time) / 1000 / 1000 * unitlen;
 			
 			var piece  = this.data.piece  = {};// piece of canvas programs
 			var pieces = this.data.pieces = [];// array of program pieces
@@ -322,6 +323,12 @@
 					var posY   = Math.floor((program.start - timeRangeStart) / 1000 / 1000 * unitlen + 100);
 					var height = Math.floor(program.seconds / 1000 * unitlen);
 					
+					if (posY > maxH) {
+						return;
+					} else if (posY + height > maxH) {
+						height = maxH - posY;
+					}
+					
 					// color: this.app.def.categoryColor[program.category] || '#ffffff'
 					
 					// add to piece
@@ -368,7 +375,7 @@
 			// スケール
 			this.view.timescale = flagrate.createElement('div', {'class': 'timescale'}).insertTo(this.view.content);
 			
-			this.view.timescale.setStyle({'height': ((maxlen - this.time) / 1000 / 1000 * unitlen + 100) + 'px'});
+			this.view.timescale.setStyle({'height': maxH + 'px'});
 			
 			
 			var ld  = -1;
