@@ -1190,7 +1190,7 @@ div.timetable > div.board {
 		background  : gray !important; }
 	
 	div.timetable > div.board > div.rect.muted {
-		opacity     : 0.5; }
+		opacity     : 0.5 !important; }
 	
 	div.timetable > div.board > div.rect.spot {
 		z-index     : 1;

@@ -204,18 +204,88 @@
 					}.bind(this)
 				})
 			});
-			/*
+			
 			this.view.toolbar.add({
 				key: 'config',
 				ui : new sakura.ui.Button({
-					label  : 'ビュー設定',
+					label  : '設定',
 					icon   : './icons/wrench-screwdriver.png',
 					onClick: function () {
 						
+						var form = flagrate.createForm({
+							fields: [
+								{
+									key: 'categories',
+									label: '表示ジャンル',
+									input: {
+										type : 'checkboxes',
+										val  : JSON.parse(localStorage.getItem('schedule.visible.categories') || '["anime", "information", "news", "sports", "variety", "drama", "music", "cinema", "etc"]'),
+										items: [
+											'anime', 'information', 'news', 'sports',
+											'variety', 'drama', 'music', 'cinema', 'etc'
+										]
+									}
+								},
+								{
+									key: 'notifyCategories',
+									label: '通知ジャンル',
+									text: 'WUIを開いている時に番組放送開始を通知します',
+									input: {
+										type : 'checkboxes',
+										val  : JSON.parse(localStorage.getItem('schedule.notify.categories') || '[]'),
+										items: [
+											'anime', 'information', 'news', 'sports',
+											'variety', 'drama', 'music', 'cinema', 'etc'
+										]
+									}
+								},
+								{
+									key  : 'hideChannels',
+									label: '隠すCH',
+									input: {
+										type : 'checkboxes',
+										val  : JSON.parse(localStorage.getItem('schedule.hide.channels') || '[]'),
+										items: global.chinachu.schedule.map(function (a) {
+											return {
+												label: a.name,
+												value: a.id
+											};
+										})
+									}
+								}
+							]
+						});
+						
+						flagrate.createModal({
+							title: '番組表設定',
+							content: form.element,
+							buttons: [
+								{
+									label: '適用',
+									color: '@pink',
+									onSelect: function (e, modal) {
+										
+										var result = form.getResult();
+										
+										localStorage.setItem('schedule.visible.categories', JSON.stringify(result.categories));
+										localStorage.setItem('schedule.notify.categories', JSON.stringify(result.notifyCategories));
+										localStorage.setItem('schedule.hide.channels', JSON.stringify(result.hideChannels));
+										
+										this.refresh();
+										modal.close();
+									}.bind(this)
+								},
+								{
+									label: 'キャンセル'.__(),
+									onSelect: function (e, modal) {
+										modal.close();
+									}
+								}
+							]
+						}).open();
 					}.bind(this)
 				})
 			});
-			*/
 			
 			return this;
 		},
@@ -241,7 +311,7 @@
 			var linelen      = 140;
 			var types        = JSON.parse(window.localStorage.getItem('schedule.visible.types') || '["GR", "BS", "CS", "EX"]');
 			var categories   = this.categories = JSON.parse(window.localStorage.getItem('schedule.visible.categories') || '["anime", "information", "news", "sports", "variety", "drama", "music", "cinema", "etc"]');
-			var hideChannels = JSON.parse(window.localStorage.getItem('schedule-param-hide-channels') || "[]");
+			var hideChannels = JSON.parse(window.localStorage.getItem('schedule.hide.channels') || "[]");
 			
 			var day = 0;
 			if (this.self.query.day) {
