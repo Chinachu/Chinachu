@@ -766,6 +766,10 @@
 								date.getHours().toPaddedString(2) + ':' + date.getMinutes().toPaddedString(2) + ' ' + a.program.title
 							)
 						).insert(
+							flagrate.createElement('div').insert(
+								a.program.flags.invoke('sub', /.+/, '<span rel="' + a.id+ '" class="#{0}">#{0}</span>').join('')
+							)
+						).insert(
 							flagrate.createElement('span').insertText(a.program.detail)
 						).insertTo(a._rect);
 						

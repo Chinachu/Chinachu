@@ -1215,7 +1215,33 @@ div.timetable > div.board {
 				margin   : 0 0 2px 0;
 				font-size: 12px; }
 		
+			div.timetable > div.board > div.rect > div > div {
+				display: block;
+				float: left;
+				width: 11px;
+				color    : #fff;
+				font-size: 10px; }
+
+				div.timetable > div.board > div.rect > div > div > span {
+					display: block;
+					background-color: rgba(0,0,0,0.4);
+					padding: 0 0 1px 0;
+					width: 11px;
+					text-align: center;
+					margin-bottom: 1px; }
+
+				div.timetable > div.board > div.rect > div > div > span.新 {
+					background-color: #4cc915; }
+
+				div.timetable > div.board > div.rect > div > div > span.再 {
+					background-color: #6198ff; }
+
+				div.timetable > div.board > div.rect > div > div > span.終 {
+					background-color: #ff6161; }
+		
 			div.timetable > div.board > div.rect > div > span {
+				display: block;
+				margin-left: 12px;
 				color    : rgba(0,0,0,0.7);
 				font-size: 11px; }
 
