@@ -375,7 +375,7 @@
 			// スケール
 			this.view.timescale = flagrate.createElement('div', {'class': 'timescale'}).insertTo(this.view.content);
 			
-			this.view.timescale.setStyle({'height': maxH + 'px'});
+			this.view.timescale.setStyle({'height': maxH + 20 + 'px'});
 			
 			
 			var ld  = -1;
@@ -430,6 +430,30 @@
 						}).render(this.view.board);
 					}
 				}
+			}
+			
+			// 日付上下移動ボタン
+			if (day > 0) {
+				flagrate.createButton({
+					label: '▲',
+					color: '@inverse',
+					className: 'prev',
+					onSelect: function () {
+						this.self.query.day = day - 1;
+						location.hash = '!/schedule/table/' + Object.toQueryString(this.self.query) + '/';
+					}.bind(this)
+				}).insertTo(this.view.timescale);
+			}
+			if (day < 6) {
+				flagrate.createButton({
+					label: '▼',
+					color: '@inverse',
+					className: 'next',
+					onSelect: function () {
+						this.self.query.day = day + 1;
+						location.hash = '!/schedule/table/' + Object.toQueryString(this.self.query) + '/';
+					}.bind(this)
+				}).insertTo(this.view.timescale);
 			}
 			
 			// drawer
