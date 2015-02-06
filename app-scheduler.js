@@ -320,6 +320,15 @@ function scheduler() {
 		}
 	}
 	
+	// ruleにもしあればreserveにrecordedFormatを追加
+	reserves.forEach(function(reserve){
+		rules.forEach(function(rule){
+			if(typeof(rule.recorded_format) !== 'undefined' && chinachu.programMatchesRule(rule, reserve)){
+				reserve.recordedFormat = rule.recorded_format;
+			}
+		});
+	});
+	
 	// results
 	util.log('MATCHES: ' + matches.length.toString(10));
 	util.log('DUPLICATES: ' + duplicateCount.toString(10));
