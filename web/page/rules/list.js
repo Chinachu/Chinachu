@@ -245,6 +245,10 @@ P = Class.create(P, {
 				{
 					key  : 'ignore_descriptions',
 					label: '無視説明文'
+				},
+				{
+					key  : 'recorded_format',
+					label: '録画ファイル名フォーマット'
 				}
 			],
 			onSelect  : this.updateToolbar.bind(this),
@@ -436,6 +440,19 @@ P = Class.create(P, {
 					className: 'default',
 					sortKey  : 0,
 					text     : 'none'
+				};
+			}
+
+			if (rule.recorded_format) {
+				row.cell.recorded_format = {
+					text       : rule.recorded_format,
+					attribute  : { title: rule.recorded_format.truncate(256) }
+				};
+			} else {
+				row.cell.recorded_format = {
+					className: 'default',
+					sortKey  : 0,
+					text     : 'default'
 				};
 			}
 			

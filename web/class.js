@@ -1283,6 +1283,15 @@
 									}
 								},
 								{
+									key	: 'recorded_format',
+									label	: '録画ファイル名フォーマット',
+									input	: {
+										type	: 'text',
+										style	: { width: '100%' },
+										val	: rule.recorded_format
+									}
+								},
+								{
 									key   : 'isEnabled',
 									label : 'ルールの状態',
 									input : {
@@ -1506,6 +1515,14 @@
 							input : {
 								type : formInputTypeStrings,
 								style: { width: '100%' }
+							}
+						},
+						{
+							key	: 'recorded_format',
+							label	: '録画ファイル名フォーマット',
+							input	: {
+								type	: 'text',
+								style	: { width: '100%' },
 							}
 						},
 						{
@@ -1735,6 +1752,14 @@
 							input : {
 								type : formInputTypeStrings,
 								style: { width: '100%' }
+							}
+						},
+						{
+							key	: 'recorded_format',
+							label	: '録画ファイル名フォーマット',
+							input	: {
+								type	: 'text',
+								style	: { width: '100%' },
 							}
 						},
 						{
