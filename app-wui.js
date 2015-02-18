@@ -478,7 +478,7 @@ function httpServerMain(req, res, query) {
 			}
 			
 			if (target === null) { return resErr(400); }
-			if (target.methods.indexOf(req.method.toLowerCase()) === -1) {
+			if (target.methods.indexOf(req.method.toLowerCase()) === -1 && req.method !== 'HEAD') {
 				res.setHeader('Allow', target.methods.join(', ').toUpperCase());
 				return resErr(405);
 			}
@@ -487,6 +487,12 @@ function httpServerMain(req, res, query) {
 			var scriptFile = './api/script-' + target.script + '.vm.js';
 			
 			if (fs.existsSync(scriptFile) === false) { return resErr(501); }
+			
+			if (req.method === 'HEAD' && target.methods.indexOf('head') === -1) {
+				writeHead(200);
+				log(200);
+				return res.end();
+			}
 			
 			res._end = res.end;
 			res.end  = function () {
