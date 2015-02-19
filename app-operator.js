@@ -252,7 +252,7 @@ function doRecord(program) {
 	program.tuner = tuner;
 	
 	// 保存先パス
-	recPath = config.recordedDir + chinachu.formatRecordedName(program, config.recordedFormat);
+	recPath = config.recordedDir + chinachu.formatRecordedName(program, program.recordedFormat || config.recordedFormat);
 	program.recorded = recPath;
 	
 	// 保存先ディレクトリ
