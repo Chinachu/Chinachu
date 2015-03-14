@@ -502,9 +502,23 @@ function main() {
 
 		recording.forEach(recordingChecker);
 
-		if ((scheduler === null) && (clock - scheduled > schedulerIntervalTime) && ((next === 0) || (next - clock > schedulerProcessTime)) && ((schedulerSleepStartHour > new Date().getHours()) || (schedulerSleepEndHour <= new Date().getHours()))) {
-			startScheduler();
-			scheduled = clock;
+		if ((scheduler === null) && (clock - scheduled > schedulerIntervalTime) && ((next === 0) || (next - clock > schedulerProcessTime))) {
+			if (
+				(
+					schedulerSleepStartHour < schedulerSleepEndHour && (
+						schedulerSleepStartHour > new Date().getHours() ||
+						schedulerSleepEndHour <= new Date().getHours()
+					)
+				) || (
+					schedulerSleepStartHour > schedulerSleepEndHour && (
+						schedulerSleepStartHour > new Date().getHours() &&
+						schedulerSleepEndHour <= new Date().getHours()
+					)
+				)
+			) {
+				startScheduler();
+				scheduled = clock;
+			}
 		}
 	} catch (e) {
 		util.error('ERROR: ' + e.stack);
