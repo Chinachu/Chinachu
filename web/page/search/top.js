@@ -5,10 +5,10 @@ P = Class.create(P, {
 		this.view.content.className = 'loading';
 		
 		// Firefox あかん https://bugzilla.mozilla.org/show_bug.cgi?id=378962
-		if (/^[%A-Z0-9]+$/.test(this.self.query.title) === true) {
+		if (/^[%A-Z0-9\.]+$/.test(this.self.query.title) === true) {
 			this.self.query.title = decodeURIComponent(this.self.query.title || '');
 		}
-		if (/^[%A-Z0-9]+$/.test(this.self.query.desc) === true) {
+		if (/^[%A-Z0-9\.]+$/.test(this.self.query.desc) === true) {
 			this.self.query.desc = decodeURIComponent(this.self.query.desc || '');
 		}
 		
@@ -148,10 +148,10 @@ P = Class.create(P, {
 				
 				if (program.end < time) continue;
 				
-				if (this.self.query.pgid && this.self.query.pgid !== program.id) continue; 
-				if (this.self.query.chid && this.self.query.chid !== program.channel.id) continue; 
-				if (this.self.query.cat && this.self.query.cat !== program.category) continue; 
-				if (this.self.query.type && this.self.query.type !== program.channel.type) continue; 
+				if (this.self.query.pgid && this.self.query.pgid !== program.id) continue;
+				if (this.self.query.chid && this.self.query.chid !== program.channel.id) continue;
+				if (this.self.query.cat && this.self.query.cat !== program.category) continue;
+				if (this.self.query.type && this.self.query.type !== program.channel.type) continue;
 				if (this.self.query.title && program.fullTitle.match(this.self.query.title) === null) continue;
 				if (this.self.query.desc && (!program.detail || program.detail.match(this.self.query.desc) === null)) continue;
 				
@@ -163,7 +163,7 @@ P = Class.create(P, {
 					var progEnd   = new Date(program.end).getHours();
 					
 					if (progStart > progEnd) {
-					progEnd += 24;
+						progEnd += 24;
 					}
 					
 					if (ruleStart > ruleEnd) {
@@ -328,10 +328,10 @@ P = Class.create(P, {
 	viewSearchModal: function() {
 		
 		// Firefox あかん https://bugzilla.mozilla.org/show_bug.cgi?id=378962
-		if (/^[%A-Z0-9]+$/.test(this.self.query.title) === true) {
+		if (/^[%A-Z0-9\.]+$/.test(this.self.query.title) === true) {
 			this.self.query.title = decodeURIComponent(this.self.query.title || '');
 		}
-		if (/^[%A-Z0-9]+$/.test(this.self.query.desc) === true) {
+		if (/^[%A-Z0-9\.]+$/.test(this.self.query.desc) === true) {
 			this.self.query.desc = decodeURIComponent(this.self.query.desc || '');
 		}
 		
