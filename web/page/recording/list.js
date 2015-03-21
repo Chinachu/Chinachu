@@ -237,6 +237,9 @@ P = Class.create(P, {
 			};
 			
 			var titleHtml = program.flags.invoke('sub', /.+/, '<span class="flag #{0}">#{0}</span>').join('') + program.title;
+			if (program.subTitle && program.title.match(program.subTitle) === null) {
+				titleHtml += '<span class="subtitle">' + program.subTitle + '</span>';
+			}
 			if (typeof program.episode !== 'undefined' && program.episode !== null) {
 				titleHtml += '<span class="episode">#' + program.episode + '</span>';
 			}

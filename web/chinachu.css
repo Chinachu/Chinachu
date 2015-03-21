@@ -415,8 +415,14 @@ div.middle {
 						vertical-align: top;
 						padding       : 0 2px; }
 					
+					div.middle > div.main > div.main-head > div.main-head-title > h1 > span.subtitle {
+						font-size     : 14px;
+						background    : rgba(0,0,0,0.1);
+						color         : rgba(255,255,255,0.8);
+						vertical-align: top;
+						padding       : 0 5px; }
+					
 					div.middle > div.main > div.main-head > div.main-head-title > h1 > span.episode {
-						margin-left   : 4px;
 						font-size     : 12px;
 						background    : rgba(255,255,255,0.8);
 						color         : rgb(194,65,134);
@@ -424,7 +430,6 @@ div.middle {
 						padding       : 0 2px; }
 					
 					div.middle > div.main > div.main-head > div.main-head-title > h1 > span.id {
-						margin-left   : 4px;
 						font-size     : 12px;
 						color         : rgba(255,255,255,0.5);
 						vertical-align: top;
@@ -1496,6 +1501,13 @@ td > div > span.flag.終 {
 
 td > div > span.flag.再 {
 	background  : #2a45c0; }
+
+td > div > span.subtitle {
+	margin-left : 4px;
+	padding     : 1px 2px 0;
+	color       : #e95295;
+	font-size   : 11px;
+	font-weight : bold; }
 
 td > div > span.episode {
 	margin-left    : 2px;
