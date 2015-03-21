@@ -201,17 +201,20 @@ P = Class.create(P, {
 		this.view.content.update();
 		
 		var titleHtml = program.flags.invoke('sub', /.+/, '<span class="flag #{0}">#{0}</span>').join('') + program.title;
-		if (typeof program.episode !== 'undefined' && program.episode !== null) {
-			titleHtml += '<span class="episode">#' + program.episode + '</span>';
+		if (program.subTitle && program.title.match(program.subTitle) === null) {
+			titleHtml += ' <span class="subtitle">' + program.subTitle + '</span>';
 		}
-		titleHtml += '<span class="id">#' + program.id + '</span>';
+		if (typeof program.episode !== 'undefined' && program.episode !== null) {
+			titleHtml += ' <span class="episode">#' + program.episode + '</span>';
+		}
+		titleHtml += ' <span class="id">#' + program.id + '</span>';
 		
 		if (program.isManualReserved) {
-			titleHtml = '<span class="flag manual">手動</span>' + titleHtml;
+			titleHtml = ' <span class="flag manual">手動</span>' + titleHtml;
 		}
 		
 		if (program.isSkip) {
-			titleHtml = '<span class="flag skip">スキップ</span>' + titleHtml;
+			titleHtml = ' <span class="flag skip">スキップ</span>' + titleHtml;
 		}
 		
 		setTimeout(function() {

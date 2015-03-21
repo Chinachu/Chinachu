@@ -357,15 +357,19 @@ function convertPrograms(p, ch) {
 			continue;
 		}
 		
-		var title = c.title[0]._
+		var title = c.title[0]._;
+		
+		title = title
 			.replace(/【.{1,2}】/g, '')
 			.replace(/\[.\]/g, '')
-			.replace(/アニメ「([^「」]+)」/g, '$1')
-			.replace(/([^場版])「.+」/g, '$1')
 			.replace(/(#|＃|♯)[0-9０１２３４５６７８９]+/g, '')
-			.replace(/第([0-9]+|[０１２３４５６７８９零一壱二弐三参四五伍六七八九十拾]+)話/g, '')
-			.replace(/([0-9]+|[０１２３４５６７８９]+)憑目/g, '')
-			.trim();
+			.replace(/第([0-9]+|[０１２３４５６７８９零一壱二弐三参四五伍六七八九十拾]+)話/g, '');
+		
+		if (c.category[1]._ === 'anime') {
+			title = title.replace(/アニメ「([^「」]+)」/g, '$1');
+		}
+		
+		title = title.trim();
 		
 		var desc = c.desc[0]._ || '';
 		
