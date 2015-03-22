@@ -171,7 +171,7 @@ function scheduler() {
 		ch.programs.forEach(function (p) {
 			if (idMap[p.id]) {
 				util.log('**WARNING**: ' + p.id + ' is duplicated!');
-				util.puts(JSON.stringify(idMap[p.id], null, '  '), JSON.stringify(p, null, '  '));
+				console.log(JSON.stringify(idMap[p.id], null, '  '), JSON.stringify(p, null, '  '));
 			} else {
 				idMap[p.id] = p;
 			}

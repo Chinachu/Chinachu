@@ -30,44 +30,12 @@ function init() {
 
 function main(avinfo) {
 	
-	if (request.query.debug) util.log(JSON.stringify(avinfo, null, '  '));
+	if (request.query.debug) {
+		util.log(JSON.stringify(avinfo, null, '  '));
+		util.log(JSON.stringify(request.headers, null, '  '));
+	}
 	
 	switch (request.type) {
-		// HTTP Live Streaming (Experimental)
-		case 'txt'://for debug
-		case 'm3u8':
-			response.head(200);
-			
-			var current = parseInt(avinfo.format.duration, 10);
-			
-			var d = {
-				t    : request.query.t      || '10',//duration(seconds)
-				s    : request.query.s      || '1024x576',//size(WxH)
-				'c:v': request.query['c:v'] || 'libx264',//vcodec
-				'c:a': request.query['c:a'] || 'libfdk_aac',//acodec
-				'b:v': request.query['b:v'] || '1M',//bitrate
-				'b:a': request.query['b:a'] || '96k'//ab
-			};
-			
-			d.t = parseInt(d.t, 10);
-			
-			response.write('#EXTM3U\n');
-			response.write('#EXT-X-VERSION:3\n');
-			response.write('#EXT-X-TARGETDURATION:' + d.t + '\n');
-			response.write('#EXT-X-MEDIA-SEQUENCE:0\n');
-			
-			var target = request.query.prefix || '';
-			target += 'watch.m2ts?t=' + d.t + '&c:v=' + d['c:v'] + '&c:a=' + d['c:a'];
-			target += '&b:v=' + d['b:v'] + '&s=' + d.s + '&b:a=' + d['b:a'];
-			
-			for (var i = 0; i < current; i += d.t) {
-				response.write('#EXTINF:' + d.t + ',\n');
-				response.write(target + '&ss=' + i + '\n');
-			}
-			
-			response.end('#EXT-X-ENDLIST');
-			return;
-		
 		case 'xspf':
 			response.setHeader('content-disposition', 'attachment; filename="' + program.id + '.xspf"');
 			response.head(200);
@@ -93,6 +61,7 @@ function main(avinfo) {
 		case 'flv':
 		case 'webm':
 		case 'asf':
+		case 'mp4':
 			util.log('STREAMING: ' + request.url);
 			
 			var d = {
@@ -159,7 +128,13 @@ function main(avinfo) {
 			
 			// Ranges Support
 			var range = {};
-			if (d.ss !== '0') {
+			if (request.type === 'mp4') {
+				range.start = parseInt(ibitrate / 8 * (parseInt(d.ss, 10) - 1), 10);
+				
+				response.setHeader('Content-Length', tsize);
+				
+				response.head(200);
+			} else if (d.ss !== '0') {
 				range.start = parseInt(ibitrate / 8 * (parseInt(d.ss, 10) - 1), 10);
 				
 				response.setHeader('Content-Length', tsize);
@@ -169,9 +144,9 @@ function main(avinfo) {
 				var bytes = request.headers.range.replace(/bytes=/, '').split('-');
 				var rStart = parseInt(bytes[0], 10);
 				var rEnd   = parseInt(bytes[1], 10) || tsize - 1;
-
-				range.start = rStart / bitrate * ibitrate;
-				range.end   = rEnd / bitrate * ibitrate;
+				
+				range.start = Math.round(rStart / bitrate * ibitrate);
+				range.end   = Math.round(rEnd / bitrate * ibitrate);
 				if (range.start > isize || range.end > isize) {
 					return response.error(416);
 				}
@@ -190,6 +165,11 @@ function main(avinfo) {
 			switch (request.type) {
 				case 'm2ts':
 					d.f      = 'mpegts';
+					d['c:v'] = d['c:v'] || 'libx264';
+					d['c:a'] = d['c:a'] || 'libfdk_aac';
+					break;
+				case 'mp4':
+					d.f      = 'mp4';
 					d['c:v'] = d['c:v'] || 'libx264';
 					d['c:a'] = d['c:a'] || 'libfdk_aac';
 					break;
@@ -243,9 +223,19 @@ function main(avinfo) {
 				args.push('-bufsize:a', audioBitrate * 8);
 			}
 			
-			//if (format === 'flv')     { args.push('-vsync', '2'); }
-			if (d['c:v'] === 'libx264') args.push('-preset', 'ultrafast');
-			if (d['c:v'] === 'libvpx')  args.push('-deadline', 'realtime');
+			if (d['c:v'] === 'libx264') {
+				args.push('-vsync', '1');
+				args.push('-profile:v', 'baseline');
+				args.push('-level', '31');
+				args.push('-preset', 'ultrafast');
+			}
+			if (d['c:v'] === 'libvpx') {
+				args.push('-deadline', 'realtime');
+			}
+			
+			if (d.f === 'mp4') {
+				args.push('-movflags', 'frag_keyframe+empty_moov+faststart');
+			}
 			
 			args.push('-y', '-f', d.f, 'pipe:1');
 			
