@@ -396,6 +396,7 @@ chinachu_installer_libav () {
     --enable-libvpx \
     --enable-libfdk-aac \
     --enable-libvorbis \
+    --enable-zlib \
     --disable-debug \
     --disable-decoders \
     --disable-encoders \
