@@ -371,7 +371,7 @@ chinachu_installer_libvorbis () {
 chinachu_installer_libav () {
   remove_dir "$USR_DIR/src/libav"
   
-  local LIBAV_TB="https://libav.org/releases/libav-10.5.tar.gz"
+  local LIBAV_TB="https://libav.org/releases/libav-11.3.tar.gz"
   
   echo "Installing libav from $LIBAV_TB"
   mkdir "$USR_DIR/src/libav"
@@ -379,7 +379,7 @@ chinachu_installer_libav () {
 
   wget $LIBAV_TB -O libav.tar.gz
   tar xvzf libav.tar.gz
-  cd libav-10.5
+  cd libav-11.3
   
   ./configure \
     --prefix=$USR_DIR \
@@ -388,7 +388,6 @@ chinachu_installer_libav () {
     --enable-nonfree \
     --enable-gpl \
     --disable-avplay \
-    --disable-avserver \
     --disable-avdevice \
     --disable-network \
     --disable-devices \
@@ -401,8 +400,10 @@ chinachu_installer_libav () {
     --disable-encoders \
     --disable-demuxers \
     --disable-muxers \
+    --disable-parsers \
     --disable-protocols \
     --disable-filters \
+    --enable-zlib \
     --enable-decoder=aac \
     --enable-decoder=ac3 \
     --enable-decoder=mp2 \
@@ -421,21 +422,25 @@ chinachu_installer_libav () {
     --enable-encoder=libfdk_aac \
     --enable-encoder=mpeg2video \
     --enable-encoder=mpeg4 \
-    --enable-encoder=wmv2 \
-    --enable-encoder=wmav2 \
-    --enable-encoder=flv \
     --enable-demuxer=mpegts \
     --enable-muxer=gif \
     --enable-muxer=mjpeg \
-    --enable-muxer=m4v \
     --enable-muxer=mp4 \
-    --enable-muxer=mpeg2video \
     --enable-muxer=mpegts \
     --enable-muxer=webm \
-    --enable-muxer=flv \
     --enable-muxer=image2 \
-    --enable-muxer=asf \
-    --enable-muxer=asf_stream \
+    --enable-parser=aac \
+    --enable-parser=ac3 \
+    --enable-parser=h264 \
+    --enable-parser=hevc \
+    --enable-parser=mjpeg \
+    --enable-parser=mpeg4video \
+    --enable-parser=mpegaudio \
+    --enable-parser=mpegvideo \
+    --enable-parser=opus \
+    --enable-parser=png \
+    --enable-parser=vorbis \
+    --enable-parser=vp8 \
     --enable-protocol=pipe \
     --enable-protocol=file \
     --enable-filter=crop \

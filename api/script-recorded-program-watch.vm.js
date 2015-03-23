@@ -57,10 +57,7 @@ function main(avinfo) {
 			return;
 		
 		case 'm2ts':
-		case 'f4v':
-		case 'flv':
 		case 'webm':
-		case 'asf':
 		case 'mp4':
 			util.log('STREAMING: ' + request.url);
 			
@@ -177,21 +174,6 @@ function main(avinfo) {
 					d.f      = 'webm';
 					d['c:v'] = d['c:v'] || 'libvpx';
 					d['c:a'] = d['c:a'] || 'libvorbis';
-					break;
-				case 'flv':
-					d.f      = 'flv';
-					d['c:v'] = d['c:v'] || 'flv';
-					d['c:a'] = d['c:a'] || 'libfdk_aac';
-					break;
-				case 'f4v':
-					d.f      = 'flv';
-					d['c:v'] = d['c:v'] || 'libx264';
-					d['c:a'] = d['c:a'] || 'libfdk_aac';
-					break;
-				case 'asf':
-					d.f      = 'asf';
-					d['c:v'] = d['c:v'] || 'wmv2';
-					d['c:a'] = d['c:a'] || 'wmav2';//or libfdk_aac ?
 					break;
 			}
 			

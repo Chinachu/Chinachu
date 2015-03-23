@@ -26,6 +26,6 @@
   "/:id/watch": {
     "script" : "recorded-program-watch",
     "methods": ["get"],
-    "types"  : ["mp4", "xspf", "m2ts", "f4v", "flv", "webm", "asf"]
+    "types"  : ["mp4", "xspf", "m2ts", "webm"]
   }
 }
