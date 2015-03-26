@@ -490,7 +490,6 @@ P = Class.create(P, {
 		
 		if (d.ext === 'webm' || d.ext === 'mp4') {
 			var video = new flagrate.Element('video', {
-				src     : getRequestURI(),
 				autoplay: true,
 				controls: true
 			}).insertTo(videoContainer);
@@ -502,8 +501,9 @@ P = Class.create(P, {
 			
 			video.addEventListener('click', togglePlay);
 			
-			//video.load();
 			video.volume = 1;
+			
+			video.play();
 		} else {
 			var vlc = flagrate.createElement('embed', {
 				type: 'application/x-vlc-plugin',
@@ -531,7 +531,7 @@ P = Class.create(P, {
 			items: [
 				{
 					key    : 'play',
-					element: new flagrate.Button({ label: 'Play / Pause', onSelect: togglePlay})
+					element: new flagrate.Button({ label: 'Pause', onSelect: togglePlay})
 				},
 				'--',
 				{
@@ -577,11 +577,13 @@ P = Class.create(P, {
 			fastForward.disable();
 			fastRewind.disable();
 			
-			if (d.ext === 'webm') {
+			if (d.ext === 'webm' || d.ext === 'mp4') {
 				video.src = uri;
 			} else {
 				vlc.playlist.playItem(vlc.playlist.add(uri));
 			}
+			
+			video.play();
 			
 			setTimeout(function() {
 				seek.enable();
