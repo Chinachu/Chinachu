@@ -98,7 +98,8 @@ div.fullscreen {
 	background-color: #2b2b2b; }
 	
 .bg-black {
-	background-color: #000; }
+	background-color: #000;
+	color: #fff; }
 
 .bg-silver {
 	background-color: #ddd; }
@@ -1541,7 +1542,6 @@ div.video-control {
 	right           : 0;
 	bottom          : 0;
 	left            : 0;
-	background-color: #2b2b2b;
 	padding         : 10px 20px 10px;
 	text-align      : center; }
 	
