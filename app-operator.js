@@ -5,7 +5,6 @@
  *  https://chinachu.moe/
 **/
 /*jslint node:true, nomen: true, plusplus: true, regexp: true */
-/*global gc */
 'use strict';
 
 var CONFIG_FILE         = __dirname + '/config.json';
@@ -525,10 +524,3 @@ function main() {
 	}
 }
 setInterval(main, 1000);
-
-//
-// gc
-//
-if (typeof gc !== 'undefined') {
-	setInterval(gc, 1000 * 60 * 2);
-}

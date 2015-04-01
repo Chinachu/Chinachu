@@ -5,7 +5,6 @@
  *  https://chinachu.moe/
 **/
 /*jslint node:true, nomen:true, plusplus:true, regexp:true, vars:true, continue:true */
-/*global gc */
 'use strict';
 
 var PID_FILE = __dirname + '/data/scheduler.pid';
