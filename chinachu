@@ -48,6 +48,7 @@ main () {
   
   export PATH=$USR_DIR/bin:${NAVE_DIR}/installed/${NODE_VER}/bin:$PATH
   export LD_LIBRARY_PATH=$USR_DIR/lib:$LD_LIBRARY_PATH
+  export PKG_CONFIG_PATH=$USR_DIR/lib/pkgconfig
   
   cd $CHINACHU_DIR
   
@@ -696,7 +697,7 @@ chinachu_service_execute () {
   ensure_dir log
   ensure_dir data
   
-  node --expose_gc app-${name}.js > /dev/stdout 2>&1 | tee -a ./log/${name} && return 0
+  node app-${name}.js > /dev/stdout 2>&1 | tee -a ./log/${name} && return 0
 }
 
 chinachu_service_help () {
