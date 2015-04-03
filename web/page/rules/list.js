@@ -88,7 +88,9 @@ P = Class.create(P, {
 					selected.each(function(row) {
 						nums.push(global.chinachu.rules.indexOf(row.data));
 					});
-					nums.sort();
+					nums.sort(function (a, b) {
+						return a - b;
+					});
 					
 					var modal  = new flagrate.Modal({
 						title: 'ルール削除',

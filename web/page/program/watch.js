@@ -474,10 +474,10 @@ P = Class.create(P, {
 			} else {
 				if (vlc.playlist.isPlaying) {
 					vlc.playlist.pause();
-					control.getElementByKey('play').setLabel('Pause');
+					control.getElementByKey('play').setLabel('Play');
 				} else {
 					vlc.playlist.play();
-					control.getElementByKey('play').setLabel('Play');
+					control.getElementByKey('play').setLabel('Pause');
 				}
 			}
 		};
@@ -579,11 +579,10 @@ P = Class.create(P, {
 			
 			if (d.ext === 'webm' || d.ext === 'mp4') {
 				video.src = uri;
+				video.play();
 			} else {
 				vlc.playlist.playItem(vlc.playlist.add(uri));
 			}
-			
-			video.play();
 			
 			setTimeout(function() {
 				seek.enable();
