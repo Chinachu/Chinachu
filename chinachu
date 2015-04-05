@@ -483,7 +483,7 @@ chinachu_updater () {
   while [ 1 ]; do
     echo -n "Do you want to update [Y/n]? "
     read line
-    case $line in
+    case ${line:-y} in
       [yY])
         chinachu_updater_main && return 0
         ;;
@@ -499,7 +499,7 @@ chinachu_updater_main () {
     while [ 1 ]; do
       echo -n "Do you want to stop chinachu services [Y/n]? "
       read line
-      case $line in
+      case ${line:-y} in
         [yY])
           if type sudo > /dev/null 2>&1; then
             sudo /etc/init.d/chinachu-operator stop
@@ -522,7 +522,7 @@ chinachu_updater_main () {
   while [ 1 ]; do
     echo -n "Do you want to run chinachu installer (fast) [Y/n]? "
     read line
-    case $line in
+    case ${line:-y} in
       [yY])
         echo 2 | ./chinachu installer
         break
@@ -537,7 +537,7 @@ chinachu_updater_main () {
     while [ 1 ]; do
       echo -n "Do you want to start chinachu services [Y/n]? "
       read line
-      case $line in
+      case ${line:-y} in
         [yY])
           if type sudo > /dev/null 2>&1; then
             sudo /etc/init.d/chinachu-operator start
@@ -747,7 +747,7 @@ chinachu_reserve () {
   while [ 1 ]; do
     echo -n "Run a scheduler [Y/n]? "
     read line
-    case $line in
+    case ${line:-y} in
       [yY])
         node app-scheduler.js > /dev/stdout 2>&1 | tee -a ./log/scheduler && return 0
         ;;
@@ -840,7 +840,7 @@ chinachu_cleanup () {
   while [ 1 ]; do
     echo -n "Do you want to continue [Y/n]? "
     read line
-    case $line in
+    case ${line:-y} in
       [yY])
         node app-cli.js -mode cleanup "$@" && return 0
         ;;
