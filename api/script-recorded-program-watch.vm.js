@@ -196,6 +196,10 @@ function main(avinfo) {
 			if (d.r)  args.push('-r', d.r);
 			if (d.ar) args.push('-ar', d.ar);
 			
+			if (!d.s || d.s === '1920x1080') {
+				args.push('-filter:v', 'yadif');
+			}
+			
 			if (d['b:v']) {
 				args.push('-b:v', d['b:v'], '-minrate:v', d['b:v'], '-maxrate:v', d['b:v']);
 				args.push('-bufsize:v', videoBitrate * 8);
