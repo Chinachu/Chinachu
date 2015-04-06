@@ -14,7 +14,7 @@ function init() {
 	if (!fs.existsSync(program.recorded)) return response.error(410);
 	
 	// probing
-	child_process.exec('avprobe -v 0 -show_format -of json "' + program.recorded + '"', function (err, std) {
+	child_process.exec('ffprobe -v 0 -show_format -of json "' + program.recorded + '"', function (err, std) {
 		
 		if (err) {
 			return response.error(500);
@@ -234,27 +234,27 @@ function main(avinfo) {
 			if (d['c:v'] === 'copy' && d['c:a'] === 'copy' && !d.t) {
 				readStream.pipe(response);
 			} else {
-				var avconv = child_process.spawn('avconv', args);
+				var ffmpeg = child_process.spawn('ffmpeg', args);
 
-				avconv.stdout.pipe(response);
+				ffmpeg.stdout.pipe(response);
 				
-				readStream.pipe(avconv.stdin);
+				readStream.pipe(ffmpeg.stdin);
 
-				avconv.stderr.on('data', function(d) {
-					util.log('#avconv: ' + d);
+				ffmpeg.stderr.on('data', function(d) {
+					util.log('#ffmpeg: ' + d);
 				});
 
-				avconv.on('exit', function(code) {
+				ffmpeg.on('exit', function(code) {
 					setTimeout(function() { response.end(); }, 1000);
 				});
 
 				request.on('close', function() {
-					avconv.stdout.removeAllListeners('data');
-					avconv.stderr.removeAllListeners('data');
-					avconv.kill('SIGKILL');
+					ffmpeg.stdout.removeAllListeners('data');
+					ffmpeg.stderr.removeAllListeners('data');
+					ffmpeg.kill('SIGKILL');
 				});
 				
-				children.push(avconv);// 安全対策
+				children.push(ffmpeg);// 安全対策
 			}
 			
 			return;

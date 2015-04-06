@@ -167,28 +167,28 @@ Usushio では使わない
 				// ts -> response
 				recProc.stdout.pipe(response);
 			} else {
-				var avconv = child_process.spawn('avconv', args);
-				children.push(avconv);// 安全対策
-				util.log('SPAWN: avconv ' + args.join(' ') + ' (pid=' + avconv.pid + ')');
+				var ffmpeg = child_process.spawn('ffmpeg', args);
+				children.push(ffmpeg);// 安全対策
+				util.log('SPAWN: ffmpeg ' + args.join(' ') + ' (pid=' + ffmpeg.pid + ')');
 
 				request.on('close', function() {
-					avconv.stdout.removeAllListeners('data');
-					avconv.stderr.removeAllListeners('data');
-					avconv.kill('SIGKILL');
+					ffmpeg.stdout.removeAllListeners('data');
+					ffmpeg.stderr.removeAllListeners('data');
+					ffmpeg.kill('SIGKILL');
 				});
 
 				// * -> response
-				avconv.stdout.pipe(response);
+				ffmpeg.stdout.pipe(response);
 
 				// ts - *
-				recProc.stdout.pipe(avconv.stdin);
+				recProc.stdout.pipe(ffmpeg.stdin);
 
-				avconv.stderr.on('data', function(data) {
+				ffmpeg.stderr.on('data', function(data) {
 					util.log(data);
-					util.log('#avconv: ' + data.replace(/\n/g, ' ').trim());
+					util.log('#ffmpeg: ' + data.replace(/\n/g, ' ').trim());
 				});
 
-				avconv.on('exit', function(code) {
+				ffmpeg.on('exit', function(code) {
 					response.end();
 				});
 			}

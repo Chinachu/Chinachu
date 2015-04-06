@@ -89,7 +89,7 @@ chinachu_installer () {
   PS3="what do you install? > "
   select item in \
     "Auto (full)" "Auto (fast)" "submodule" "Node.js Environment" "Node.js Modules" \
-    "epgdump" "libx264" "libvpx" "libfdk-aac" "libogg" "libvorbis" "libav"
+    "epgdump" "libx264" "libvpx" "libfdk-aac" "libogg" "libvorbis" "ffmpeg"
   do
     echo "selected: ${item}"
     case $item in
@@ -126,8 +126,8 @@ chinachu_installer () {
       "libvorbis" )
         cmd="chinachu_installer_libvorbis"
         ;;
-      "libav" )
-        cmd="chinachu_installer_libav"
+      "ffmpeg" )
+        cmd="chinachu_installer_ffmpeg"
         ;;
       * )
         cmd="chinachu_installer"
@@ -149,7 +149,7 @@ chinachu_installer_auto_full () {
   chinachu_installer_libfdk-aac
   chinachu_installer_libogg
   chinachu_installer_libvorbis
-  chinachu_installer_libav
+  chinachu_installer_ffmpeg
   
   return 0
 }
@@ -369,18 +369,18 @@ chinachu_installer_libvorbis () {
   return 0
 }
 
-chinachu_installer_libav () {
-  remove_dir "$USR_DIR/src/libav"
+chinachu_installer_ffmpeg () {
+  remove_dir "$USR_DIR/src/ffmpeg"
   
-  local LIBAV_TB="https://libav.org/releases/libav-11.3.tar.gz"
+  local FFMPEG_TB="http://ffmpeg.org/releases/ffmpeg-2.6.1.tar.bz2"
   
-  echo "Installing libav from $LIBAV_TB"
-  mkdir "$USR_DIR/src/libav"
-  cd "$USR_DIR/src/libav"
+  echo "Installing ffmpeg from $FFMPEG_TB"
+  mkdir "$USR_DIR/src/ffmpeg"
+  cd "$USR_DIR/src/ffmpeg"
 
-  wget $LIBAV_TB -O libav.tar.gz
-  tar xvzf libav.tar.gz
-  cd libav-11.3
+  wget $FFMPEG_TB -O ffmpeg.tar.bz2
+  tar xjvf ffmpeg.tar.bz2
+  cd ffmpeg-2.6.1
   
   ./configure \
     --prefix=$USR_DIR \
@@ -388,7 +388,7 @@ chinachu_installer_libav () {
     --disable-shared \
     --enable-nonfree \
     --enable-gpl \
-    --disable-avplay \
+    --disable-ffplay \
     --disable-avdevice \
     --disable-network \
     --disable-devices \
@@ -423,6 +423,7 @@ chinachu_installer_libav () {
     --enable-encoder=libfdk_aac \
     --enable-encoder=mpeg2video \
     --enable-encoder=mpeg4 \
+    --enable-encoder=nvenc \
     --enable-demuxer=mpegts \
     --enable-muxer=gif \
     --enable-muxer=mjpeg \
@@ -448,6 +449,7 @@ chinachu_installer_libav () {
     --enable-filter=hqdn3d \
     --enable-filter=pad \
     --enable-filter=resample \
+    --enable-filter=aresample \
     --enable-filter=scale \
     --enable-filter=setpts \
     --enable-filter=settb \
@@ -456,14 +458,21 @@ chinachu_installer_libav () {
     --extra-cflags="-I${USR_DIR}/include --static" \
     --extra-ldflags="-L${USR_DIR}/lib"
   
-  make || fail "couldn't make libav"
+  make || fail "couldn't make ffmpeg"
   make install && make clean
   
   cd $CHINACHU_DIR
   
-  remove_dir "$USR_DIR/src/libav"
+  remove_dir "$USR_DIR/src/ffmpeg"
+
+  echo "Creating libav aliases..."
+
+  rm -rfv "$USR_DIR/bin/avconv"
+  rm -rfv "$USR_DIR/bin/avprobe"
+  ln -sv "$USR_DIR/bin/ffmpeg" "$USR_DIR/bin/avconv"
+  ln -sv "$USR_DIR/bin/ffprobe" "$USR_DIR/bin/avprobe"
   
-  echo "libav --> done."
+  echo "ffmpeg --> done."
   
   return 0
 }

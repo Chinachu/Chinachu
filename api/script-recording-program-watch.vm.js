@@ -135,35 +135,35 @@
 					}
 				});
 			} else {
-				var avconv = child_process.spawn('avconv', args);
-				children.push(avconv);// 安全対策
+				var ffmpeg = child_process.spawn('ffmpeg', args);
+				children.push(ffmpeg);// 安全対策
 				
 				if (!d.ss) {
 					var tailf = child_process.spawn('tail', ['-f', program.recorded]);
 					children.push(tailf);// 安全対策
 					
-					tailf.stdout.pipe(avconv.stdin);
+					tailf.stdout.pipe(ffmpeg.stdin);
 					
 					tailf.on('exit', function(code) {
-						if (avconv) avconv.kill('SIGKILL');
+						if (ffmpeg) ffmpeg.kill('SIGKILL');
 						tailf = null;
 					});
 				}
 				
-				avconv.stdout.pipe(response);
+				ffmpeg.stdout.pipe(response);
 				
-				avconv.stderr.on('data', function(d) {
+				ffmpeg.stderr.on('data', function(d) {
 					util.log(d);
 				});
 				
-				avconv.on('exit', function(code) {
+				ffmpeg.on('exit', function(code) {
 					if (tailf) {
 						tailf.stdout.removeAllListeners('data');
 						tailf.stderr.removeAllListeners('data');
 						tailf.kill('SIGKILL');
 						tailf = null;
 					} else {
-						avconv = null;
+						ffmpeg = null;
 					}
 					
 					setTimeout(function() { response.end(); }, 1000);
@@ -175,10 +175,10 @@
 						tailf.stderr.removeAllListeners('data');
 						tailf.kill('SIGKILL');
 					} else {
-						avconv.stdout.removeAllListeners('data');
-						avconv.stderr.removeAllListeners('data');
-						avconv.kill('SIGKILL');
-						avconv = null;
+						ffmpeg.stdout.removeAllListeners('data');
+						ffmpeg.stderr.removeAllListeners('data');
+						ffmpeg.kill('SIGKILL');
+						ffmpeg = null;
 					}
 				});
 			}
