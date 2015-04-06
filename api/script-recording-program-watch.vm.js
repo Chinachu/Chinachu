@@ -93,6 +93,10 @@
 			if (d.r)  args.push('-r', d.r);
 			if (d.ar) args.push('-ar', d.ar);
 			
+			if (!d.s || d.s === '1920x1080') {
+				args.push('-filter:v', 'yadif');
+			}
+			
 			if (d['b:v']) args.push('-b:v', d['b:v']);
 			if (d['b:a']) args.push('-b:a', d['b:a']);
 			
