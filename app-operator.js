@@ -82,7 +82,7 @@ var schedulerProcessTime    = config.operSchedulerProcessTime    || 1000 * 60 * 
 var schedulerIntervalTime   = config.operSchedulerIntervalTime   || 1000 * 60 * 60;//60分
 var schedulerSleepStartHour = config.operSchedulerSleepStartHour || 1;
 var schedulerSleepEndHour   = config.operSchedulerSleepEndHour   || 5;
-var schedulerEpgRecordTime  = config.schedulerEpgRecordTime      || 60;
+var schedulerEpgRecordTime  = config.schedulerEpgRecordTime      || 1000 * 60;//60秒
 var prepTime    = config.operRecPrepTime    || 1000 * 60;//60秒
 var offsetStart = config.operRecOffsetStart || 1000 * 5;
 var offsetEnd   = config.operRecOffsetEnd   || -(1000 * 8);
@@ -416,8 +416,8 @@ function reservesChecker(program, i) {
 		if (isRecording(program) === false && isRecorded(program) === false) {
 			prepRecord(program);
 		}
-	} else if (scheduler === null && program.start - clock < prepTime + ((schedulerEpgRecordTime + 30) * 1000)) {
-		if (program.start - clock > prepTime + (schedulerEpgRecordTime * 1000)) {
+	} else if (scheduler === null && program.start - clock < prepTime + schedulerEpgRecordTime + 1000 * 30) {
+		if (program.start - clock > prepTime + schedulerEpgRecordTime) {
 			// 録画前EPG確認
 			util.log('CHECK: ' + dateFormat(new Date(program.start), 'isoDateTime') + ' [' + program.channel.name + '] ' + program.title);
 			startScheduler(program.channel.channel);
