@@ -89,7 +89,7 @@ chinachu_installer () {
   PS3="what do you install? > "
   select item in \
     "Auto (full)" "Auto (fast)" "submodule" "Node.js Environment" "Node.js Modules" \
-    "epgdump" "libx264" "libvpx" "libfdk-aac" "libogg" "libvorbis" "ffmpeg"
+    "epgdump" "yasm" "libx264" "libvpx" "libfdk-aac" "libogg" "libvorbis" "ffmpeg"
   do
     echo "selected: ${item}"
     case $item in
@@ -110,6 +110,9 @@ chinachu_installer () {
         ;;
       "epgdump" )
         cmd="chinachu_installer_epgdump"
+        ;;
+      "yasm" )
+        cmd="chinachu_installer_yasm"
         ;;
       "libx264" )
         cmd="chinachu_installer_libx264"
@@ -144,6 +147,7 @@ chinachu_installer_auto_full () {
   chinachu_installer_node
   chinachu_installer_node_modules
   chinachu_installer_epgdump
+  chinachu_installer_yasm
   chinachu_installer_libx264
   chinachu_installer_libvpx
   chinachu_installer_libfdk-aac
@@ -217,6 +221,30 @@ chinachu_installer_epgdump () {
   remove_dir "$USR_DIR/src/epgdump"
 
   echo "epgdump --> done."
+
+  return 0
+}
+
+chinachu_installer_yasm () {
+  remove_dir "$USR_DIR/src/yasm"
+  ensure_dir "$USR_DIR/src/yasm"
+
+  local YASM_TB="http://www.tortall.net/projects/yasm/releases/yasm-1.3.0.tar.gz"
+  wget -O - $YASM_TB | tar zxvf - -C $USR_DIR/src/yasm
+
+  echo "Installing yasm from $YASM_TB"
+  cd "$USR_DIR/src/yasm/yasm-1.3.0"
+
+  ./configure --prefix=$USR_DIR
+
+  make || fail "couldn't make yasm"
+  make install && make clean
+
+  cd $CHINACHU_DIR
+
+  remove_dir "$USR_DIR/src/yasm"
+
+  echo "yasm --> done."
 
   return 0
 }
