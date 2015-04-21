@@ -28,7 +28,7 @@ main () {
   SELF_PATH=$( cd -P -- "$(dirname -- "$SELF_PATH")" \
             && pwd -P \
             ) && SELF_PATH=$SELF_PATH/$(basename -- "$0")
-  
+
   # resolve symlinks
   while [ -h "$SELF_PATH" ]; do
     DIR=$(dirname -- "$SELF_PATH")
@@ -38,23 +38,23 @@ main () {
               && pwd \
               )/$(basename -- "$SYM")
   done
-  
+
   # path
   CHINACHU_DIR=$(dirname -- "$SELF_PATH")
   NAVE_DIR=${CHINACHU_DIR}/.nave
   NODE_PATH=${NAVE_DIR}/installed/${NODE_VER}/bin/node
   NPM_PATH=${NAVE_DIR}/installed/${NODE_VER}/bin/npm
   USR_DIR=${CHINACHU_DIR}/usr
-  
+
   export PATH=$USR_DIR/bin:${NAVE_DIR}/installed/${NODE_VER}/bin:$PATH
   export LD_LIBRARY_PATH=$USR_DIR/lib:$LD_LIBRARY_PATH
   export PKG_CONFIG_PATH=$USR_DIR/lib/pkgconfig
-  
+
   cd $CHINACHU_DIR
-  
+
   export CHINACHU_DIR
   export NAVE_DIR
-  
+
   local cmd="$1"
   shift
   case $cmd in
@@ -76,15 +76,15 @@ chinachu_installer () {
   ensure_dir "$USR_DIR"
   ensure_dir "$USR_DIR/src"
   ensure_dir "$USR_DIR/bin"
-  
+
   export CFLAGS="-O2 -w -pipe -march=native"
   export CXXFLAGS="-O2 -w -pipe -march=native"
   export MAKEFLAGS="-j $((`grep processor /proc/cpuinfo | wc -l` + 1)) -l 3"
-  
+
   echo "Chinachu Installer Menu:"
   echo "[!] These are installed under all ${CHINACHU_DIR}/..."
   echo "[!] Recommend the Auto installation."
-  
+
   local PS3 item cmd
   PS3="what do you install? > "
   select item in \
@@ -135,7 +135,7 @@ chinachu_installer () {
     esac
     $cmd && break
   done
-  
+
   return 0
 }
 
@@ -150,7 +150,7 @@ chinachu_installer_auto_full () {
   chinachu_installer_libogg
   chinachu_installer_libvorbis
   chinachu_installer_ffmpeg
-  
+
   return 0
 }
 
@@ -172,7 +172,7 @@ chinachu_installer_submodule () {
 chinachu_installer_node () {
   remove_dir "$NAVE_DIR"
   ensure_dir "$NAVE_DIR"
-  
+
   echo "Installing Node using Nave..."
   wget -O - https://github.com/isaacs/nave/archive/master.tar.gz | tar zxvf - -C $NAVE_DIR nave-master/nave.sh
   mv $NAVE_DIR/nave-master/nave.sh $NAVE_DIR/
@@ -181,55 +181,55 @@ chinachu_installer_node () {
   rm -fv ${NAVE_DIR}/node
   ln -sv $NODE_PATH ${NAVE_DIR}/node
   ln -sv $NPM_PATH ${NAVE_DIR}/npm
-  
+
   echo "done."
-  
+
   return 0
 }
 
 chinachu_installer_node_modules () {
   echo "Installing Node Modules using NPM..."
-  
+
   npm install
   npm update
 
   echo "done."
-  
+
   return 0
 }
 
 chinachu_installer_epgdump () {
   remove_dir "$USR_DIR/src/epgdump"
   ensure_dir "$USR_DIR/src/epgdump"
-  
+
   local EPGDUMP_TB="https://github.com/stz2012/epgdump/archive/master.tar.gz"
-  
-  echo "Installing epgdump from $EPGDUMP_GIT"
+
+  echo "Installing epgdump from $EPGDUMP_TB"
   wget -O - $EPGDUMP_TB | tar zxvf - -C $USR_DIR/src/epgdump
   cd "$USR_DIR/src/epgdump/epgdump-master"
-  
+
   make || fail "couldn't make epgdump"
-  
+
   cp epgdump $USR_DIR/bin/
-  
+
   cd $CHINACHU_DIR
-  
+
   remove_dir "$USR_DIR/src/epgdump"
-  
+
   echo "epgdump --> done."
-  
+
   return 0
 }
 
 chinachu_installer_libx264 () {
   remove_dir "$USR_DIR/src/libx264"
-  
+
   local LIBX264_GIT="git://git.videolan.org/x264.git"
-  
+
   echo "Installing libx264 from $LIBX264_GIT"
   git clone --depth=1 --branch=master $LIBX264_GIT "$USR_DIR/src/libx264"
   cd "$USR_DIR/src/libx264"
-  
+
   ./configure \
     --prefix=$USR_DIR \
     --enable-static \
@@ -240,28 +240,28 @@ chinachu_installer_libx264 () {
     --disable-gpac \
     --disable-lavf \
     --disable-swscale
-  
+
   make || fail "couldn't make libx264"
   make install && make clean
-  
+
   cd $CHINACHU_DIR
-  
+
   remove_dir "$USR_DIR/src/libx264"
-  
+
   echo "libx264 --> done."
-  
+
   return 0
 }
 
 chinachu_installer_libvpx () {
   remove_dir "$USR_DIR/src/libvpx"
-  
+
   local LIBVPX_GIT="http://git.chromium.org/webm/libvpx.git"
-  
+
   echo "Installing libvpx from $LIBVPX_GIT"
   git clone --branch=master $LIBVPX_GIT "$USR_DIR/src/libvpx"
   cd "$USR_DIR/src/libvpx"
-  
+
   ./configure \
     --prefix=$USR_DIR \
     --disable-shared \
@@ -270,110 +270,110 @@ chinachu_installer_libvpx () {
     --disable-docs \
     --disable-vp9 \
     --disable-unit-tests
-  
+
   make || fail "couldn't make libvpx"
   make install && make clean
-  
+
   cd $CHINACHU_DIR
-  
+
   remove_dir "$USR_DIR/src/libvpx"
-  
+
   echo "libvpx --> done."
-  
+
   return 0
 }
 
 chinachu_installer_libfdk-aac () {
   remove_dir "$USR_DIR/src/libfdk-aac"
-  
+
   local LIBFDK_GIT="git://git.code.sf.net/p/opencore-amr/fdk-aac"
-  
+
   echo "Installing libfdk-aac from $LIBFDK_GIT"
   git clone --depth=1 --branch=master $LIBFDK_GIT "$USR_DIR/src/libfdk-aac"
   cd "$USR_DIR/src/libfdk-aac"
-  
+
   autoreconf -fiv
-  
+
   ./configure \
     --prefix=$USR_DIR \
     --disable-shared
-  
+
   make || fail "couldn't make libfdk-aac"
   make install-strip && make clean
-  
+
   cd $CHINACHU_DIR
-  
+
   remove_dir "$USR_DIR/src/libfdk-aac"
-  
+
   echo "libfdk-aac --> done."
-  
+
   return 0
 }
 
 chinachu_installer_libogg () {
   remove_dir "$USR_DIR/src/libogg"
-  
+
   local LIBOGG_TB="http://downloads.xiph.org/releases/ogg/libogg-1.3.1.tar.gz"
-  
+
   echo "Installing libogg from $LIBOGG_TB"
   mkdir "$USR_DIR/src/libogg"
   cd "$USR_DIR/src/libogg"
-  
+
   wget $LIBOGG_TB
   tar xzvf libogg-1.3.1.tar.gz
   cd libogg-1.3.1
-  
+
   ./configure \
     --prefix=$USR_DIR \
     --disable-shared
-  
+
   make || fail "couldn't make libogg"
   make install && make clean
-  
+
   cd $CHINACHU_DIR
-  
+
   remove_dir "$USR_DIR/src/libogg"
-  
+
   echo "libogg --> done."
-  
+
   return 0
 }
 
 chinachu_installer_libvorbis () {
   remove_dir "$USR_DIR/src/libvorbis"
-  
+
   local LIBVORBIS_TB="http://downloads.xiph.org/releases/vorbis/libvorbis-1.3.3.tar.gz"
-  
+
   echo "Installing libvorbis from $LIBVORBIS_TB"
   mkdir "$USR_DIR/src/libvorbis"
   cd "$USR_DIR/src/libvorbis"
-  
+
   wget $LIBVORBIS_TB
   tar xzvf libvorbis-1.3.3.tar.gz
   cd libvorbis-1.3.3
-  
+
   ./configure \
     --prefix=$USR_DIR \
     --disable-shared \
     --with-ogg=$LIBOGG_DIR
-  
+
   make || fail "couldn't make libvorbis"
   make install-strip && make clean
-  
+
   cd $CHINACHU_DIR
-  
+
   remove_dir "$USR_DIR/src/libvorbis"
-  
+
   echo "libvorbis --> done."
-  
+
   return 0
 }
 
 chinachu_installer_ffmpeg () {
   remove_dir "$USR_DIR/src/ffmpeg"
-  
+
   local FFMPEG_TB="http://ffmpeg.org/releases/ffmpeg-2.6.1.tar.bz2"
-  
+
   echo "Installing ffmpeg from $FFMPEG_TB"
   mkdir "$USR_DIR/src/ffmpeg"
   cd "$USR_DIR/src/ffmpeg"
@@ -381,7 +381,7 @@ chinachu_installer_ffmpeg () {
   wget $FFMPEG_TB -O ffmpeg.tar.bz2
   tar xjvf ffmpeg.tar.bz2
   cd ffmpeg-2.6.1
-  
+
   ./configure \
     --prefix=$USR_DIR \
     --enable-static \
@@ -457,12 +457,12 @@ chinachu_installer_ffmpeg () {
     --enable-filter=trim \
     --extra-cflags="-I${USR_DIR}/include --static" \
     --extra-ldflags="-L${USR_DIR}/lib"
-  
+
   make || fail "couldn't make ffmpeg"
   make install && make clean
-  
+
   cd $CHINACHU_DIR
-  
+
   remove_dir "$USR_DIR/src/ffmpeg"
 
   echo "Creating libav aliases..."
@@ -471,9 +471,9 @@ chinachu_installer_ffmpeg () {
   rm -rfv "$USR_DIR/bin/avprobe"
   ln -sv "$USR_DIR/bin/ffmpeg" "$USR_DIR/bin/avconv"
   ln -sv "$USR_DIR/bin/ffprobe" "$USR_DIR/bin/avprobe"
-  
+
   echo "ffmpeg --> done."
-  
+
   return 0
 }
 
@@ -481,14 +481,14 @@ chinachu_updater () {
   if [ -e "/etc/init.d/chinachu-operator" ]; then
     /etc/init.d/chinachu-operator status
   fi
-  
+
   if [ -e "/etc/init.d/chinachu-wui" ]; then
     /etc/init.d/chinachu-wui status
   fi
-  
+
   git fetch
   git status
-  
+
   while [ 1 ]; do
     echo -n "Do you want to update [Y/n]? "
     read line
@@ -527,7 +527,7 @@ chinachu_updater_main () {
 
   git pull || fail "failed: git pull"
   git gc
-  
+
   while [ 1 ]; do
     echo -n "Do you want to run chinachu installer (fast) [Y/n]? "
     read line
@@ -588,7 +588,7 @@ chinachu_service () {
 
 chinachu_service_initscript () {
   local name="$1"
-  
+
   cat <<EOF
 #!/bin/bash
 # /etc/
@@ -614,7 +614,7 @@ test -x \$DAEMON || exit 0
 
 start () {
   echo -n "Starting \${NAME}: "
-  
+
   if [ -f \$PIDFILE ]; then
     PID=\`cat \$PIDFILE\`
     if [ -z "\`ps axf | grep \${PID} | grep -v grep\`" ]; then
@@ -624,22 +624,22 @@ start () {
       exit
     fi
   fi
-  
+
   PID=\$(su \$USER -c "exec \$DAEMON \$DAEMON_OPTS < /dev/null > /dev/null 2>&1 & echo \\\$!")
-  
+
   if [ -z \$PID ]; then
     echo "Failed!"
     exit
   else
     echo \$PID > \$PIDFILE
   fi
-  
+
   echo "OK."
 }
 
 stop () {
   echo -n "Stopping \${NAME}: "
-  
+
   PID=\`cat \$PIDFILE\`
   if [ -f \$PIDFILE ]; then
     PGID=\`ps -p \$PID -o pgrp | grep -v PGRP\`
@@ -688,24 +688,24 @@ esac
 exit 0
 
 EOF
-  
+
   return 0
 }
 
 chinachu_service_execute () {
   local name="$1"
-  
+
   if ! [ -f "config.json" ]; then
     cp -v config.sample.json config.json
   fi
-  
+
   if ! [ -f "rules.json" ]; then
     cp -v rules.sample.json rules.json
   fi
-  
+
   ensure_dir log
   ensure_dir data
-  
+
   node app-${name}.js > /dev/stdout 2>&1 | tee -a ./log/${name} && return 0
 }
 
@@ -750,9 +750,9 @@ chinachu_reserve () {
   if [ ! "$1" ]; then
     fail "Usage: reserve <pgid>"
   fi
-  
+
   node app-cli.js -mode reserve -id "$1" || fail "couldn't reserve $1"
-  
+
   while [ 1 ]; do
     echo -n "Run a scheduler [Y/n]? "
     read line
@@ -771,7 +771,7 @@ chinachu_unreserve () {
   if [ ! "$1" ]; then
     fail "Usage: unreserve <pgid>"
   fi
-  
+
   node app-cli.js -mode unreserve -id "$1" || fail "couldn't unreserve $1"
 }
 
@@ -795,7 +795,7 @@ chinachu_stop () {
   if [ ! "$1" ]; then
     fail "Usage: stop <pgid>"
   fi
-  
+
   node app-cli.js -mode stop -id "$1" || fail "couldn't stop $1"
 }
 
@@ -807,7 +807,7 @@ chinachu_enrule () {
   if [ ! "$1" ]; then
     fail "Usage: enrule <ruleid>"
   fi
-  
+
   node app-cli.js -mode rule -n "$1" --enable && return 0
 }
 
@@ -815,7 +815,7 @@ chinachu_disrule () {
   if [ ! "$1" ]; then
     fail "Usage: disrule <ruleid>"
   fi
-  
+
   node app-cli.js -mode rule -n "$1" --disable && return 0
 }
 
@@ -823,7 +823,7 @@ chinachu_rmrule () {
   if [ ! "$1" ]; then
     fail "Usage: rmrule <ruleid>"
   fi
-  
+
   node app-cli.js -mode rule -n "$1" --remove && return 0
 }
 
@@ -845,7 +845,7 @@ chinachu_recorded () {
 
 chinachu_cleanup () {
   echo "Clean-up the recorded list."
-  
+
   while [ 1 ]; do
     echo -n "Do you want to continue [Y/n]? "
     read line
@@ -863,7 +863,7 @@ chinachu_cleanup () {
 chinachu_unlock () {
   echo "Unlock the tuners."
   echo "*WARNING* Do NOT run this command when on running Chinachu services."
-  
+
   while [ 1 ]; do
     echo -n "Are you sure [y/n]? "
     read line
@@ -886,7 +886,7 @@ chinachu_test () {
   if [ ! "$1" ]; then
     fail "Usage: test <app> [options]"
   fi
-  
+
   ${USR_DIR}/bin/"$@" && return 0
 }
 
