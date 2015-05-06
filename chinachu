@@ -569,7 +569,7 @@ chinachu_service () {
   name="$1"
   action="$2"
   case $action in
-    initscript | execute )
+    unitfile | initscript | execute )
       case $name in
         operator | wui )
           cmd="chinachu_service_$action"
@@ -584,6 +584,24 @@ chinachu_service () {
       ;;
   esac
   $cmd "$name" && return 0
+}
+
+chinachu_service_unitfile () {
+  local name="$1"
+
+  cat <<EOF
+[Unit]
+Description=starts the chinachu-${name} (USER=$USER)
+After=syslog.target network.target local-fs.target remote-fs.target
+
+[Service]
+User=$USER
+ExecStart=${CHINACHU_DIR}/chinachu service ${name} execute
+ExecStop=/bin/kill -QUIT \$MAINPID
+
+[Install]
+WantedBy=multi-user.target
+EOF
 }
 
 chinachu_service_initscript () {
