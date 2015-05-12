@@ -596,8 +596,11 @@ After=syslog.target network.target local-fs.target remote-fs.target
 
 [Service]
 User=$USER
+PermissionsStartOnly=true
 ExecStart=${CHINACHU_DIR}/chinachu service ${name} execute
+ExecStartPost=-/bin/bash -c "echo \$MAINPID > /var/run/chinachu-wui.pid"
 ExecStop=/bin/kill -QUIT \$MAINPID
+ExecStopPost=rm -f -- /var/run/chinachu-wui.pid
 
 [Install]
 WantedBy=multi-user.target
