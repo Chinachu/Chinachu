@@ -743,6 +743,7 @@ wui         Chinachu WebUI Server Service
 Actions:
 
 initscript  Output a LSB init script
+initscript  Output a SystemD unit file
 execute     Execute
 
 Examples:
