@@ -447,6 +447,15 @@ function convertPrograms(p, ch) {
 			episodeNumber = 1;
 		}
 		
+		if (c.category[1]._ === 'drama' && c.title[0]._.match(/(連続テレビ小説.+?)（([0-9０１２３４５６７８９]+)）「(.+)」/) !== null) {
+			title = RegExp.$1;
+			subtitle = RegExp.$3;
+			episodeNumberString = RegExp.$2.replace(/[０-９]/g, function(s) {
+				return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+			});
+			episodeNumber = parseInt(episodeNumberString, 10);
+		}
+
 		var tcRegex   = /^(.{4})(.{2})(.{2})(.{2})(.{2})(.{2}).+$/;
 		var startDate = new Date(c.$.start.replace(tcRegex, '$1/$2/$3 $4:$5:$6'));
 		var endDate   = new Date(c.$.stop.replace(tcRegex, '$1/$2/$3 $4:$5:$6'));
