@@ -1327,6 +1327,26 @@
 									}
 								},
 								{
+									key	: 'offset_start',
+									point   : '/offset/start',
+									label	: '録画開始オフセット(ms)',
+									input	: {
+										type : 'number',
+										style: { width: '80px' },
+										val  : !!rule.offset ? rule.offset.start : void 0
+									}
+								},
+								{
+									key	: 'offset_end',
+									point   : '/offset/end',
+									label	: '録画終了オフセット(ms)',
+									input	: {
+										type : 'number',
+										style: { width: '80px' },
+										val  : !!rule.offset ? rule.offset.end : void 0
+									}
+								},
+								{
 									key   : 'isEnabled',
 									label : 'ルールの状態',
 									input : {
@@ -1358,6 +1378,16 @@
 										}
 										if (!query.duration.min && !query.duration.max) {
 											delete query.duration;
+										}
+
+										if (!query.offset.start) {
+											delete query.offset.start;
+										}
+										if (!query.offset.end) {
+											delete query.offset.end;
+										}
+										if (!query.offset.start && !query.offset.end) {
+											delete query.offset;
 										}
 										
 										var i;
@@ -1558,6 +1588,24 @@
 							input	: {
 								type	: 'text',
 								style	: { width: '100%' },
+							}
+						},
+						{
+							key	: 'offset_start',
+							point   : '/offset/start',
+							label	: '録画開始オフセット(ms)',
+							input	: {
+								type : 'number',
+								style: { width: '80px' }
+							}
+						},
+						{
+							key	: 'offset_end',
+							point   : '/offset/end',
+							label	: '録画終了オフセット(ms)',
+							input	: {
+								type : 'number',
+								style: { width: '80px' }
 							}
 						},
 						{
@@ -1795,6 +1843,24 @@
 							input	: {
 								type	: 'text',
 								style	: { width: '100%' },
+							}
+						},
+						{
+							key	: 'offset_start',
+							point   : '/offset/start',
+							label	: '録画開始オフセット(ms)',
+							input	: {
+								type : 'number',
+								style: { width: '80px' },
+							}
+						},
+						{
+							key	: 'offset_end',
+							point   : '/offset/end',
+							label	: '録画終了オフセット(ms)',
+							input	: {
+								type : 'number',
+								style: { width: '80px' },
 							}
 						},
 						{

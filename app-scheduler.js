@@ -329,6 +329,14 @@ function scheduler() {
 			if(typeof(rule.recorded_format) !== 'undefined' && chinachu.programMatchesRule(rule, reserve)){
 				reserve.recordedFormat = rule.recorded_format;
 			}
+			if(typeof(rule.offset) !== 'undefined' && chinachu.programMatchesRule(rule, reserve)){
+				if(typeof(rule.offset.start) !== 'undefined'){
+					reserve.offsetStart = rule.offset.start;
+				}
+				if(typeof(rule.offset.end) !== 'undefined'){
+					reserve.offsetEnd = rule.offset.end;
+				}
+			}
 		});
 	});
 	

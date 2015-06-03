@@ -216,7 +216,7 @@ function doRecord(program) {
 	
 	util.log('RECORD: ' + dateFormat(new Date(program.start), 'isoDateTime') + ' [' + program.channel.name + '] ' + program.title);
 	
-	timeout = program.end - Date.now() + offsetEnd;
+	timeout = program.end - Date.now() + (typeof program.offsetEnd !== 'undefined' ? program.offsetEnd : offsetEnd);
 	
 	if (timeout < 0) {
 		util.log('FATAL: 時間超過による録画中止');
@@ -379,7 +379,7 @@ function prepRecord(program) {
 	program.isSigTerm = false;
 	recording.push(program);
 	
-	var timeout = program.start - clock - offsetStart;
+	var timeout = program.start - clock - (typeof program.offsetStart !== 'undefined' ? program.offsetStart : offsetStart);
 	if (timeout < 0) { timeout = 3000; }
 	
 	setTimeout(function () {
@@ -438,7 +438,7 @@ function reservesChecker(program, i) {
 // 録画中チェック
 function recordingChecker(program, i) {
 	
-	var timeout = program.end - clock + offsetEnd;
+	var timeout = program.end - clock + (typeof program.offsetEnd !== 'undefined' ? program.offsetEnd : offsetEnd);
 	
 	// 録画時間内はreturn
 	if (timeout >= 0) { return; }
