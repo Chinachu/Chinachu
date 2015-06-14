@@ -256,7 +256,7 @@ chinachu_installer_libx264 () {
 chinachu_installer_libvpx () {
   remove_dir "$USR_DIR/src/libvpx"
   
-  local LIBVPX_GIT="http://git.chromium.org/webm/libvpx.git"
+  local LIBVPX_GIT="https://chromium.googlesource.com/webm/libvpx"
   
   echo "Installing libvpx from $LIBVPX_GIT"
   git clone --branch=master $LIBVPX_GIT "$USR_DIR/src/libvpx"
