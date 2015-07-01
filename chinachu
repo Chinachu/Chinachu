@@ -751,7 +751,7 @@ chinachu_reserve () {
     fail "Usage: reserve <pgid>"
   fi
   
-  node app-cli.js -mode reserve -id "$1" || fail "couldn't reserve $1"
+  node app-cli.js -mode reserve -id "$@" || fail "couldn't reserve $1"
   
   while [ 1 ]; do
     echo -n "Run a scheduler [Y/n]? "
@@ -772,7 +772,7 @@ chinachu_unreserve () {
     fail "Usage: unreserve <pgid>"
   fi
   
-  node app-cli.js -mode unreserve -id "$1" || fail "couldn't unreserve $1"
+  node app-cli.js -mode unreserve -id "$@" || fail "couldn't unreserve $1"
 }
 
 chinachu_skip () {
@@ -780,7 +780,7 @@ chinachu_skip () {
     fail "Usage: skip <pgid>"
   fi
 
-  node app-cli.js -mode skip -id "$1" || fail "couldn't skip $1"
+  node app-cli.js -mode skip -id "$@" || fail "couldn't skip $1"
 }
 
 chinachu_unskip () {
@@ -788,7 +788,7 @@ chinachu_unskip () {
     fail "Usage: unskip <pgid>"
   fi
 
-  node app-cli.js -mode unskip -id "$1" || fail "couldn't skip $1"
+  node app-cli.js -mode unskip -id "$@" || fail "couldn't skip $1"
 }
 
 chinachu_stop () {
@@ -796,7 +796,7 @@ chinachu_stop () {
     fail "Usage: stop <pgid>"
   fi
   
-  node app-cli.js -mode stop -id "$1" || fail "couldn't stop $1"
+  node app-cli.js -mode stop -id "$@" || fail "couldn't stop $1"
 }
 
 chinachu_rule () {
@@ -808,7 +808,7 @@ chinachu_enrule () {
     fail "Usage: enrule <ruleid>"
   fi
   
-  node app-cli.js -mode rule -n "$1" --enable && return 0
+  node app-cli.js -mode rule --enable -n "$@" && return 0
 }
 
 chinachu_disrule () {
@@ -816,7 +816,7 @@ chinachu_disrule () {
     fail "Usage: disrule <ruleid>"
   fi
   
-  node app-cli.js -mode rule -n "$1" --disable && return 0
+  node app-cli.js -mode rule --disable -n "$@" && return 0
 }
 
 chinachu_rmrule () {
@@ -824,7 +824,7 @@ chinachu_rmrule () {
     fail "Usage: rmrule <ruleid>"
   fi
   
-  node app-cli.js -mode rule -n "$1" --remove && return 0
+  node app-cli.js -mode rule --remove -n "$@" && return 0
 }
 
 chinachu_rules () {
