@@ -240,6 +240,13 @@ opts.parse([
 		description: 'nick',
 		value      : true,
 		required   : false
+	},
+	{
+		short      : '1seg',
+		long       : '1seg',
+		description: 'ワンセグ録画',
+		value      : false,
+		required   : false
 	}
 ].reverse(), true);
 
@@ -410,6 +417,10 @@ function chinachuReserve() {
 	}
 	
 	target.isManualReserved = true;
+	
+	if (opts.get('1seg')) {
+		target['1seg'] = true;
+	}
 	
 	reserves.push(target);
 	reserves.sort(function(a, b) {

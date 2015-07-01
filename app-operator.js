@@ -263,8 +263,13 @@ function doRecord(program) {
 	
 	// 録画コマンド
 	recCmd = tuner.command;
-	recCmd = recCmd.replace('<sid>', program.channel.sid);
 	recCmd = recCmd.replace('<channel>', program.channel.channel);
+	if (program['1seg'] === true) {
+		recCmd = recCmd.replace(' --b25', '');
+		recCmd = recCmd.replace('<sid>', '1seg');
+	} else {
+		recCmd = recCmd.replace('<sid>', program.channel.sid);
+	}
 	program.command = recCmd;
 	
 	execRecCmd(function () {

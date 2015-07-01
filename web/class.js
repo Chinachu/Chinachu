@@ -623,44 +623,79 @@
 					text : '番組が見つかりませんでした'
 				});
 			} else {
+				var buttons = [];
+				
+				buttons.push({
+					label   : '予約',
+					color   : '@red',
+					onSelect: function (e, modal) {
+						e.targetButton.disable();
+
+						var dummy = new Ajax.Request('./api/program/' + this.program.id + '.json', {
+							method    : 'put',
+							onComplete: function () {
+								modal.close();
+							},
+							onSuccess: function () {
+								new flagrate.Modal({
+									title: '成功',
+									text : '予約しました'
+								}).show();
+							},
+							onFailure: function (t) {
+								new flagrate.Modal({
+									title: '失敗',
+									text : '予約に失敗しました (' + t.status + ')'
+								}).show();
+							}
+						});
+					}.bind(this)
+				});
+				
+				if (this.program.channel.type === 'GR') {
+					buttons.push({
+						label   : '予約 (ワンセグ)',
+						color   : '@red',
+						onSelect: function (e, modal) {
+							e.targetButton.disable();
+
+							var dummy = new Ajax.Request('./api/program/' + this.program.id + '.json', {
+								method    : 'put',
+								parameters: {
+									mode: '1seg'
+								},
+								onComplete: function () {
+									modal.close();
+								},
+								onSuccess: function () {
+									new flagrate.Modal({
+										title: '成功',
+										text : '予約しました'
+									}).show();
+								},
+								onFailure: function (t) {
+									new flagrate.Modal({
+										title: '失敗',
+										text : '予約に失敗しました (' + t.status + ')'
+									}).show();
+								}
+							});
+						}.bind(this)
+					});
+				}
+				
+				buttons.push({
+					label   : 'キャンセル',
+					onSelect: function (e, modal) {
+						modal.close();
+					}
+				});
+				
 				this.modal = new flagrate.Modal({
 					title   : '手動予約',
 					subtitle: this.program.title + ' #' + this.program.id,
 					text    : '予約しますか？',
-					buttons: [
-						{
-							label   : '予約',
-							color   : '@red',
-							onSelect: function (e, modal) {
-								e.targetButton.disable();
-								
-								var dummy = new Ajax.Request('./api/program/' + this.program.id + '.json', {
-									method    : 'put',
-									onComplete: function () {
-										modal.close();
-									},
-									onSuccess: function () {
-										new flagrate.Modal({
-											title: '成功',
-											text : '予約しました'
-										}).show();
-									},
-									onFailure: function (t) {
-										new flagrate.Modal({
-											title: '失敗',
-											text : '予約に失敗しました (' + t.status + ')'
-										}).show();
-									}
-								});
-							}.bind(this)
-						},
-						{
-							label   : 'キャンセル',
-							onSelect: function (e, modal) {
-								modal.close();
-							}
-						}
-					]
+					buttons : buttons
 				});
 			}
 			
