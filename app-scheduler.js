@@ -207,8 +207,12 @@ function scheduler() {
 	reserves.forEach(function (reserve) {
 		if (reserve.isManualReserved) {
 			if (reserve.start + 86400000 > Date.now()) {
+				var isOneseg = reserve['1seg'] === true;
 				reserve = chinachu.getProgramById(reserve.id, schedule) || reserve;
 				reserve.isManualReserved = true;
+				if (isOneseg = true) {
+					reserve['1seg'] = true;
+				}
 				matches.push(reserve);
 			}
 			return;
