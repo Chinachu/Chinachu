@@ -32,7 +32,8 @@
 	};
 	
 	app.socket = io.connect(window.location.protocol + '//' + window.location.host, {
-		connectTimeout: 3000
+		connectTimeout: 3000,
+		resource: window.location.pathname.replace(/^\/|[^\/]*$/g, '') + 'socket.io',
 	});
 	
 	// コントロールビュー初期化
