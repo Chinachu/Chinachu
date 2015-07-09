@@ -210,7 +210,7 @@ function scheduler() {
 				var isOneseg = reserve['1seg'] === true;
 				reserve = chinachu.getProgramById(reserve.id, schedule) || reserve;
 				reserve.isManualReserved = true;
-				if (isOneseg = true) {
+				if (isOneseg === true) {
 					reserve['1seg'] = true;
 				}
 				matches.push(reserve);
