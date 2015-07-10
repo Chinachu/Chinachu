@@ -575,7 +575,7 @@ function httpServerMain(req, res, query) {
 				}
 			};
 			
-			var onEnd = function () {
+			var onClose = function () {
 				
 				if (!isClosed) {
 					isClosed = true;
@@ -586,14 +586,12 @@ function httpServerMain(req, res, query) {
 				cleanup();
 			};
 			
-			var onError = function () {
+			var onResponseClose = function () {
 				
 				if (!isClosed) {
 					isClosed = true;
 					
-					req.emit('close');
-					
-					resErr(500);
+					log(res.statusCode);
 				}
 				
 				cleanup();
@@ -602,22 +600,28 @@ function httpServerMain(req, res, query) {
 			cleanup = function () {
 				
 				setTimeout(function () {
-					sandbox.children.forEach(function (child) {
-						child.kill('SIGKILL');
+					
+					sandbox.children.forEach(function (pid) {
+						
+						util.log('child process killing: PID=' + pid);
+						
+						try {
+							process.kill(pid, 'SIGKILL');
+						} catch (e) {
+						}
 					});
+					
 					sandbox = null;
-				}, 3000);
+				}, 1000);
 				
-				req.connection.removeListener('close', onEnd);
-				req.connection.removeListener('error', onError);
-				req.removeListener('end', onEnd);
+				req.removeListener('close', onClose);
+				res.removeListener('close', onResponseClose);
 				
 				cleanup = emptyFunction;
 			};
 			
-			req.connection.on('close', onEnd);
-			req.connection.on('error', onError);
-			res.on('end', onEnd);
+			req.on('close', onClose);
+			res.on('close', onResponseClose);
 			
 			try {
 				vm.runInNewContext(fs.readFileSync(scriptFile), sandbox, scriptFile);
