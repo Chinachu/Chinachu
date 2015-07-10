@@ -245,7 +245,7 @@ function httpServerMain(req, res, query) {
 	}
 	
 	var filename = path.join('./web/', location);
-	
+
 	var ext = null;
 	if (filename.match(/[^\/]+\..+$/) !== null) {
 		ext = filename.split('.').pop();
@@ -642,11 +642,10 @@ function httpServerMain(req, res, query) {
 	
 	// 静的ファイルまたはAPIレスポンスの分岐
 	if (req.url.match(/^\/api\/.*$/) === null) {
+		if (/^web\//.test(filename) === false) { return resErr(400); }
 		if (fs.existsSync(filename) === false) { return resErr(404); }
 		
-		if (req.url.match(/^\/apple-.+\.png$/) !== null) {
-			process.nextTick(responseStatic);
-		} else if (!basic || req.isOpen) {
+		if (!basic || req.isOpen) {
 			process.nextTick(responseStatic);
 		} else {
 			basic.apply(req, res, function () {
