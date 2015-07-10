@@ -140,6 +140,7 @@ Usushio では使わない
 			recCmd = recCmd.replace('<channel>', channel.channel);
 			
 			var recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
+			children.push(recProc.pid);
 			chinachu.writeTunerPid(tuner, recProc.pid);
 			util.log('SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
 			
@@ -168,7 +169,7 @@ Usushio では使わない
 				recProc.stdout.pipe(response);
 			} else {
 				var ffmpeg = child_process.spawn('ffmpeg', args);
-				children.push(ffmpeg);// 安全対策
+				children.push(ffmpeg.pid);
 				util.log('SPAWN: ffmpeg ' + args.join(' ') + ' (pid=' + ffmpeg.pid + ')');
 
 				request.on('close', function() {
@@ -192,8 +193,6 @@ Usushio では使わない
 					response.end();
 				});
 			}
-			
-			children.push(recProc);// 安全対策
 			
 			return;
 	}//<--switch

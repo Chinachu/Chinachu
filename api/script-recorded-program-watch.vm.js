@@ -235,7 +235,9 @@ function main(avinfo) {
 				readStream.pipe(response);
 			} else {
 				var ffmpeg = child_process.spawn('ffmpeg', args);
-
+				children.push(ffmpeg.pid);
+				util.log('SPAWN: ffmpeg ' + args.join(' ') + ' (pid=' + ffmpeg.pid + ')');
+				
 				ffmpeg.stdout.pipe(response);
 				
 				readStream.pipe(ffmpeg.stdin);
@@ -244,8 +246,8 @@ function main(avinfo) {
 					util.log('#ffmpeg: ' + d);
 				});
 
-				ffmpeg.on('exit', function(code) {
-					setTimeout(function() { response.end(); }, 1000);
+				ffmpeg.on('exit', function() {
+					response.end();
 				});
 
 				request.on('close', function() {
@@ -253,8 +255,6 @@ function main(avinfo) {
 					ffmpeg.stderr.removeAllListeners('data');
 					ffmpeg.kill('SIGKILL');
 				});
-				
-				children.push(ffmpeg);// 安全対策
 			}
 			
 			return;

@@ -118,7 +118,7 @@
 			
 			if ((!d.ss) && (d['c:v'] === 'copy') && (d['c:a'] === 'copy') && (d.f === 'mpegts')) {
 				var tailf = child_process.spawn('tail', ['-f', '-c', '61440', program.recorded]);// 1KB
-				children.push(tailf);// 安全対策
+				children.push(tailf.pid);
 				
 				tailf.stdout.pipe(response);
 				
@@ -136,11 +136,12 @@
 				});
 			} else {
 				var ffmpeg = child_process.spawn('ffmpeg', args);
-				children.push(ffmpeg);// 安全対策
+				children.push(ffmpeg.pid);
+				util.log('SPAWN: ffmpeg ' + args.join(' ') + ' (pid=' + ffmpeg.pid + ')');
 				
 				if (!d.ss) {
 					var tailf = child_process.spawn('tail', ['-f', program.recorded]);
-					children.push(tailf);// 安全対策
+					children.push(tailf.pid);
 					
 					tailf.stdout.pipe(ffmpeg.stdin);
 					
@@ -166,7 +167,7 @@
 						ffmpeg = null;
 					}
 					
-					setTimeout(function() { response.end(); }, 1000);
+					response.end();
 				});
 				
 				request.on('close', function() {
