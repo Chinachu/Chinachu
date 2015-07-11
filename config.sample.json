@@ -12,6 +12,7 @@
   "wuiTlsCertPath" : null,
   "wuiOpenServer"  : false,
   "wuiOpenPort"    : 20772,
+  "wuiXFF"         : false,
   "wuiPreviewer"   : true,
   "wuiStreamer"    : true,
   "wuiFiler"       : true,

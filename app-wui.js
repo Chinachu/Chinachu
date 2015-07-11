@@ -218,13 +218,19 @@ function httpServer(req, res) {
 }
 
 function httpServerMain(req, res, query) {
+	var remoteAddress = req.client.remoteAddress;
+    
+	if (config.wuiXFF === true && req.headers['x-forwarded-for']) {
+		remoteAddress = req.headers['x-forwarded-for'];
+	}
+    
 	// http request logging
 	var log = function (statusCode) {
 		util.log([
 			statusCode,
 			req.method + ':' + req.url,
-			req.headers['x-forwarded-for'] || req.client.remoteAddress,
-			(req.headers['user-agent'] || '').split(' ').pop() || '-'
+			remoteAddress,
+			'"' + (req.headers['user-agent'] || '-') + '"'
 		].join(' '));
 	};
 	
