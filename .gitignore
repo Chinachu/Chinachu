@@ -34,3 +34,4 @@
 /node_modules/string
 /node_modules/hoard
 /node_modules/execsync
+/node_modules/geoip-lite

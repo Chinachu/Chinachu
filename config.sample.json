@@ -5,6 +5,7 @@
   "wuiUsers": [
     "akari:bakuhatsu"
   ],
+  "wuiAllowCountries": ["JP"],
   
   "wuiPort"        : 10772,
   "wuiHost"        : "::",

@@ -25,6 +25,7 @@
   "dependencies": {
     "dateformat": "~1.0.6-1.2.3",
     "easy-table": "~0.2.0",
+    "geoip-lite": "^1.1.6",
     "hoard": "~0.1.5",
     "http-auth": "^2.2.8",
     "mkdirp": "~0.3.5",

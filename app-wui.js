@@ -38,6 +38,7 @@ var auth          = require('http-auth');
 var socketio      = require('socket.io');
 var chinachu      = require('chinachu-common');
 var S             = require('string');
+var geoip         = require('geoip-lite');
 
 // Directory Checking
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
@@ -130,9 +131,17 @@ var recorded  = [];
 var server, openServer, httpOpenServer, httpServer, httpServerMain;
 
 if (tlsEnabled) {
-	server = https.createServer(basic, tlsOption, httpServer);
+	if (basicAuthEnabled) {
+		server = https.createServer(basic, tlsOption, httpServer);
+	} else {
+		server = https.createServer(tlsOption, httpServer);
+	}
 } else {
-	server = http.createServer(basic, httpServer);
+	if (basicAuthEnabled) {
+		server = http.createServer(basic, httpServer);
+	} else {
+		server = http.createServer(httpServer);
+	}
 	
 	util.error('**SELF-REGULATION WARNING**: If you want to access from outside of LAN, Please activate TLS.');
 }
@@ -215,7 +224,7 @@ function httpServerMain(req, res, query) {
 	var remoteAddress = req.client.remoteAddress;
     
 	if (config.wuiXFF === true && req.headers['x-forwarded-for']) {
-		remoteAddress = req.headers['x-forwarded-for'];
+		remoteAddress = req.headers['x-forwarded-for'].split(',')[0];
 	}
     
 	// http request logging
@@ -227,6 +236,17 @@ function httpServerMain(req, res, query) {
 			'"' + (req.headers['user-agent'] || '-') + '"'
 		].join(' '));
 	};
+	
+	// country restriction
+	if (Array.isArray(config.wuiAllowCountries) && config.wuiAllowCountries.length > 0) {
+		var geo = geoip.lookup(remoteAddress);
+		if (geo !== null && config.wuiAllowCountries.indexOf(geo.country) === -1) {
+			res.writeHead(403, {'content-type': 'text/plain'});
+			res.end('403 Forbidden\n');
+			log(403);
+			console.warn('Non-allowed Country IP Blocked', remoteAddress, JSON.stringify(geo));
+		}
+	}
 	
 	// serve static file
 	var location = req.url;
