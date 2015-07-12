@@ -226,6 +226,10 @@ function httpServerMain(req, res, query) {
 	if (config.wuiXFF === true && req.headers['x-forwarded-for']) {
 		remoteAddress = req.headers['x-forwarded-for'].split(',')[0];
 	}
+	
+	if (/^\:\:ffff\:[^\:]+/.test(remoteAddress) === true) {
+		remoteAddress = remoteAddress.split(':')[3];
+	}
     
 	// http request logging
 	var log = function (statusCode) {
