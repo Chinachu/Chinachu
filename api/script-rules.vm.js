@@ -7,9 +7,12 @@
 			return;
 		
 		case 'POST':
-			if (request.headers['content-type'].match(/^application\/json/)) {
-				var newRule = request.query;
-				
+			var newRule = request.query;
+			if (request.headers['content-type'].match(/^application\/json/) === null) {
+				response.error(400);
+			} else if (JSON.stringify(newRule) === '{}') {
+				response.error(400);
+			} else {
 				if (newRule.isEnabled === false) {
 					newRule.isDisabled = true;
 				}
@@ -20,8 +23,6 @@
 				
 				response.head(201);
 				response.end(JSON.stringify(newRule));
-			} else {
-				response.error(400);
 			}
 			return;
 	}
