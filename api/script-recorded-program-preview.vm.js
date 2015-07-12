@@ -19,7 +19,7 @@
 		width  = request.query.size.split('x')[0];
 		height = request.query.size.split('x')[1];
 	}
-
+	
 	width = parseInt(width, 10).toString(10);
 	height = parseInt(height, 10).toString(10);
 	if (width === 'NaN' || width === '0') width = '320';
