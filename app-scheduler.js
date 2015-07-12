@@ -369,7 +369,7 @@ function convertPrograms(p, ch) {
 			.replace(/第([0-9]+|[０１２３４５６７８９零一壱二弐三参四五伍六七八九十拾]+)(話|回)/g, '');
 		
 		if (c.category[1]._ === 'anime') {
-			title = title.replace(/アニメ「([^「」]+)」/g, '$1');
+			title = title.replace(/(?:TV|ＴＶ)?アニメ「([^「」]+)」/g, '$1');
 		}
 		
 		title = title.trim();
