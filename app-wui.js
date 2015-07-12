@@ -33,7 +33,7 @@ var zlib          = require('zlib');
 var events        = require('events');
 var dns           = require('dns');
 var http          = require('http');
-var spdy          = require('spdy');
+var https         = require('https');
 var auth          = require('http-auth');
 var socketio      = require('socket.io');
 var chinachu      = require('chinachu-common');
@@ -110,9 +110,10 @@ if (tlsEnabled) {
 var basic = null;
 var basicAuthEnabled = config.wuiUsers && (config.wuiUsers.length > 0);
 if (basicAuthEnabled) {
-	basic = auth({
-		authRealm: 'Authentication.',
-		authList : config.wuiUsers
+	basic = auth.basic({
+		realm: 'Authentication.'
+	}, function (username, password, callback) {
+		callback(config.wuiUsers.indexOf([username, password].join(':')) !== -1);
 	});
 }
 
@@ -129,9 +130,9 @@ var recorded  = [];
 var server, openServer, httpOpenServer, httpServer, httpServerMain;
 
 if (tlsEnabled) {
-	server = spdy.createServer(tlsOption, httpServer);
+	server = https.createServer(basic, tlsOption, httpServer);
 } else {
-	server = http.createServer(httpServer);
+	server = http.createServer(basic, httpServer);
 	
 	util.error('**SELF-REGULATION WARNING**: If you want to access from outside of LAN, Please activate TLS.');
 }
@@ -142,20 +143,13 @@ server.listen(config.wuiPort || 10772, config.wuiHost || '::', function () {
 
 // EXPERIMENTAL: Open Server for Access from LAN.
 if (openServerEnabled) {
-	openServer = http.createServer(httpOpenServer);
+	openServer = http.createServer(httpServer);
 	openServer.timeout = 0;
 	dns.lookup(os.hostname(), function (err, hostIp) {
 		openServer.listen(config.wuiOpenPort || 20772, config.wuiOpenHost || hostIp, function () {
 			util.log('HTTP Open Server Listening on ' + util.inspect(openServer.address()));
 		});
 	});
-}
-
-// HTTP Open Server Wrapper
-function httpOpenServer(req, res) {
-	
-	req.isOpen = true;
-	httpServer(req, res);
 }
 
 // HTTP Server
@@ -651,48 +645,9 @@ function httpServerMain(req, res, query) {
 		if (/^web\//.test(filename) === false) { return resErr(400); }
 		if (fs.existsSync(filename) === false) { return resErr(404); }
 		
-		if (!basic || req.isOpen) {
-			process.nextTick(responseStatic);
-		} else {
-			basic.apply(req, res, function () {
-				process.nextTick(responseStatic);
-			});
-		}
+		responseStatic();
 	} else {
-		if (basic && !req.isOpen) {
-			if (!!query._auth) {
-				// Base64文字列を取り出す
-				var auths = query._auth.split(':');
-				
-				// バリデーション
-				if (auths[0] !== 'basic' || auths.length !== 2) {
-					return resErr(400);
-				}
-				
-				var auth = decodeURIComponent(auths[1]);
-				
-				// Base64デコード
-				try {
-					auth = new Buffer(auth, 'base64').toString('ascii');
-				} catch (e) {
-					return resErr(401);
-				}
-				
-				// 認証
-				if (config.wuiUsers && config.wuiUsers.indexOf(auth) === -1) {
-					return resErr(401);
-				}
-				
-				// 通ってよし
-				process.nextTick(responseApi);
-			} else {
-				basic.apply(req, res, function () {
-					process.nextTick(responseApi);
-				});
-			}
-		} else {
-			process.nextTick(responseApi);
-		}
+		responseApi();
 	}
 }
 
@@ -742,7 +697,7 @@ function ioOpenServer(socket) {
 }
 
 function ioServer(socket) {
-	if (basic && !socket.isOpen) {
+	if (basicAuthEnabled && !socket.isOpen) {
 		// ヘッダを確認
 		if (!socket.handshake.headers.authorization || (socket.handshake.headers.authorization.match(/^Basic .+$/) === null)) {
 			socket.disconnect();

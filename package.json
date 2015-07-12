@@ -25,15 +25,14 @@
   "dependencies": {
     "dateformat": "~1.0.6-1.2.3",
     "easy-table": "~0.2.0",
-    "http-auth": "~1.2.9",
+    "hoard": "~0.1.5",
+    "http-auth": "^2.2.8",
+    "mkdirp": "~0.3.5",
+    "mtwitter": "~1.5.2",
     "opts": "~1.2.2",
     "socket.io": "~0.9.16",
-    "xml2js": "~0.2.8",
-    "mkdirp": "~0.3.5",
-    "spdy": "~1.31.0",
     "string": "~1.5.1",
-    "mtwitter": "~1.5.2",
-    "hoard": "~0.1.5"
+    "xml2js": "~0.2.8"
   },
   "devDependencies": {
     "mocha": "*",
