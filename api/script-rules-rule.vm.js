@@ -1,6 +1,7 @@
 (function() {
 	
-	var rule = data.rules[parseInt(request.param.num, 10)] || null;
+	var num = parseInt(request.param.num, 10).toString(10);
+	var rule = data.rules[num] || null;
 	
 	if (rule === null) return response.error(404);
 	
@@ -30,7 +31,7 @@
 			return;
 		
 		case 'DELETE':
-			child_process.exec('node app-cli.js -mode rule --remove -n ' + request.param.num, function(err, stdout, stderr) {
+			child_process.exec('node app-cli.js -mode rule --remove -n ' + num, function(err, stdout, stderr) {
 				if (err) return response.error(500);
 				
 				response.head(200);
