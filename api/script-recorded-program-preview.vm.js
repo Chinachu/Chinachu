@@ -20,10 +20,10 @@
 		height = request.query.size.split('x')[1];
 	}
 
-	width = parseInt(width).toString(10);
-	height = parseInt(height).toString(10);
-	if (width === 'NaN') width = '320';
-	if (height === 'NaN') height = '180';
+	width = parseInt(width, 10).toString(10);
+	height = parseInt(height, 10).toString(10);
+	if (width === 'NaN' || width === '0') width = '320';
+	if (height === 'NaN' || height === '0') height = '180';
 	
 	var vcodec = 'mjpeg';
 	
