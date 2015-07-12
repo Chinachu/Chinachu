@@ -1,6 +1,7 @@
 (function() {
 	
-	var rule = data.rules[parseInt(request.param.num, 10)] || null;
+	var num = parseInt(request.param.num, 10).toString(10);
+	var rule = data.rules[num] || null;
 	
 	if (rule === null) return response.error(404);
 	
@@ -10,10 +11,10 @@
 			
 			switch (request.param.action) {
 				case 'enable':
-					cmd = 'node app-cli.js -mode rule --enable -n ' + request.param.num;
+					cmd = 'node app-cli.js -mode rule --enable -n ' + num;
 					break;
 				case 'disable':
-					cmd = 'node app-cli.js -mode rule --disable -n ' + request.param.num;
+					cmd = 'node app-cli.js -mode rule --disable -n ' + num;
 					break;
 			}
 			
