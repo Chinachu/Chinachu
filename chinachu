@@ -590,7 +590,7 @@ chinachu_service_initscript () {
   local name="$1"
   
   cat <<EOF
-#!/bin/sh
+#!/bin/bash
 # /etc/
 
 ### BEGIN INIT INFO
