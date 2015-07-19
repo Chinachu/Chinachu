@@ -42,7 +42,7 @@ var geoip         = require('geoip-lite');
 
 // Directory Checking
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
-	util.error('FATAL: Current working directory is invalid.');
+	console.error('FATAL: Current working directory is invalid.');
 	process.exit(1);
 }
 
@@ -61,7 +61,7 @@ process.on('uncaughtException', function (err) {
 		return;
 	}
 	
-	util.error('uncaughtException: ' + err);
+	console.error('uncaughtException: ' + err);
 });
 
 // etc.
@@ -143,7 +143,7 @@ if (tlsEnabled) {
 		server = http.createServer(httpServer);
 	}
 	
-	util.error('**SELF-REGULATION WARNING**: If you want to access from outside of LAN, Please activate TLS.');
+	console.error('**SELF-REGULATION WARNING**: If you want to access from outside of LAN, Please activate TLS.');
 }
 server.timeout = 240000;
 server.listen(config.wuiPort || 10772, config.wuiHost || '::', function () {
@@ -473,7 +473,7 @@ function httpServerMain(req, res, query) {
 			try {
 				r = JSON.parse(json);
 			} catch (e) {
-				util.error(e);
+				console.error(e);
 				return resErr(500);
 			}
 			
@@ -655,7 +655,7 @@ function httpServerMain(req, res, query) {
 					isClosed = true;
 				}
 				
-				util.error(ee);
+				console.error(ee);
 			}
 			
 			return;
@@ -775,7 +775,7 @@ chinachu.jsonWatcher(
 	RULES_FILE,
 	function _onUpdated(err, data, mes) {
 		if (err) {
-			util.error(err);
+			console.error(err);
 			return;
 		}
 		
@@ -791,7 +791,7 @@ chinachu.jsonWatcher(
 	SCHEDULE_DATA_FILE,
 	function _onUpdated(err, data, mes) {
 		if (err) {
-			util.error(err);
+			console.error(err);
 			return;
 		}
 		
@@ -807,7 +807,7 @@ chinachu.jsonWatcher(
 	RESERVES_DATA_FILE,
 	function _onUpdated(err, data, mes) {
 		if (err) {
-			util.error(err);
+			console.error(err);
 			return;
 		}
 		
@@ -823,7 +823,7 @@ chinachu.jsonWatcher(
 	RECORDING_DATA_FILE,
 	function _onUpdated(err, data, mes) {
 		if (err) {
-			util.error(err);
+			console.error(err);
 			return;
 		}
 		
@@ -839,7 +839,7 @@ chinachu.jsonWatcher(
 	RECORDED_DATA_FILE,
 	function _onUpdated(err, data, mes) {
 		if (err) {
-			util.error(err);
+			console.error(err);
 			return;
 		}
 		

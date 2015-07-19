@@ -20,7 +20,7 @@ var child_process = require('child_process');
 
 // ディレクトリチェック
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
-	util.error('必要なディレクトリが存在しないか、カレントワーキングディレクトリが不正です。');
+	console.error('必要なディレクトリが存在しないか、カレントワーキングディレクトリが不正です。');
 	process.exit(1);
 }
 
@@ -33,7 +33,7 @@ process.on('SIGQUIT', function () {
 
 // 例外処理
 process.on('uncaughtException', function (err) {
-	util.error('uncaughtException: ' + err.stack);
+	console.error('uncaughtException: ' + err.stack);
 });
 
 // 追加モジュールのロード
@@ -461,7 +461,7 @@ chinachu.jsonWatcher(
 	RESERVES_DATA_FILE,
 	function _onUpdated(err, data, mes) {
 		if (err) {
-			util.error(err);
+			console.error(err);
 			return;
 		}
 		
@@ -483,7 +483,7 @@ chinachu.jsonWatcher(
 	RECORDED_DATA_FILE,
 	function _onUpdated(err, data, mes) {
 		if (err) {
-			util.error(err);
+			console.error(err);
 			return;
 		}
 		
@@ -525,7 +525,7 @@ function main() {
 			}
 		}
 	} catch (e) {
-		util.error('ERROR: ' + e.stack);
+		console.error('ERROR: ' + e.stack);
 	}
 }
 setInterval(main, 1000);

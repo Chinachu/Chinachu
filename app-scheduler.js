@@ -22,7 +22,7 @@ var child_process = require('child_process');
 
 // ディレクトリチェック
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
-	util.error('必要なディレクトリが存在しないか、カレントワーキングディレクトリが不正です。');
+	console.error('必要なディレクトリが存在しないか、カレントワーキングディレクトリが不正です。');
 	process.exit(1);
 }
 
@@ -1090,7 +1090,7 @@ function getEpg() {
 // 既に実行中か
 isRunning(function (running) {
 	if (running) {
-		util.error('ERROR: Scheduler is already running.');
+		console.error('ERROR: Scheduler is already running.');
 		process.exit(1);
 	} else {
 		createPidFile();
