@@ -286,7 +286,7 @@ chinachu_installer_libvpx () {
 chinachu_installer_libfdk-aac () {
   remove_dir "$USR_DIR/src/libfdk-aac"
   
-  local LIBFDK_GIT="git://git.code.sf.net/p/opencore-amr/fdk-aac"
+  local LIBFDK_GIT="https://github.com/mstorsjo/fdk-aac.git"
   
   echo "Installing libfdk-aac from $LIBFDK_GIT"
   git clone --depth=1 --branch=master $LIBFDK_GIT "$USR_DIR/src/libfdk-aac"
