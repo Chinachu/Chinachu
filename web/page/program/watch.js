@@ -1,15 +1,15 @@
 P = Class.create(P, {
-	
+
 	init: function() {
-		
+
 		this.view.content.className = 'loading';
-		
+
 		this.program = chinachu.util.getProgramById(this.self.query.id);
-		
+
 		this.onNotify = this.refresh.bindAsEventListener(this);
 		document.observe('chinachu:recording', this.onNotify);
 		document.observe('chinachu:recorded', this.onNotify);
-		
+
 		if (this.program === null) {
 			this.modal = new flagrate.Modal({
 				title: '番組が見つかりません',
@@ -26,34 +26,34 @@ P = Class.create(P, {
 			}).show();
 			return this;
 		}
-		
+
 		this.initToolbar();
 		this.draw();
-		
+
 		return this;
 	}
 	,
 	deinit: function() {
-		
+
 		if (this.modal) setTimeout(function() { this.modal.close(); }.bind(this), 0);
-		
+
 		document.stopObserving('chinachu:recording', this.onNotify);
 		document.stopObserving('chinachu:recorded', this.onNotify);
-		
+
 		return this;
 	}
 	,
 	refresh: function() {
-		
+
 		if (!this.isPlaying) this.app.pm.realizeHash(true);
-		
+
 		return this;
 	}
 	,
 	initToolbar: function _initToolbar() {
-		
+
 		var program = this.program;
-		
+
 		this.view.toolbar.add({
 			key: 'streaming',
 			ui : new sakura.ui.Button({
@@ -64,37 +64,50 @@ P = Class.create(P, {
 				}
 			})
 		});
-		
+
 		return this;
 	}
 	,
 	draw: function() {
-		
+
 		var program = this.program;
-		
+
 		this.view.content.className = 'bg-black';
 		this.view.content.update();
-		
+
 		var titleHtml = program.flags.invoke('sub', /.+/, '<span class="flag #{0}">#{0}</span>').join('') + program.title;
 		if (typeof program.episode !== 'undefined' && program.episode !== null) {
 			titleHtml += '<span class="episode">#' + program.episode + '</span>';
 		}
 		titleHtml += '<span class="id">#' + program.id + '</span>';
-		
+
 		if (program.isManualReserved) {
 			titleHtml = '<span class="flag manual">手動</span>' + titleHtml;
 		}
-		
+
 		setTimeout(function() {
 			this.view.title.update(titleHtml);
 		}.bind(this), 0);
-		
+
 		var saveSettings = function (d) {
 			localStorage.setItem('program.watch.settings', JSON.stringify(d));
 		};
-		
+
 		var set = JSON.parse(localStorage.getItem('program.watch.settings') || '{}');
-		
+
+		if (!set.s) {
+			set.s = '1280x720';
+		}
+		if (!set.ext) {
+			set.ext = 'mp4';
+		}
+		if (!set['b:v']) {
+			set['b:v'] = '1M';
+		}
+		if (!set['b:a']) {
+			set['b:a'] = '96k';
+		}
+
 		var modal = this.modal = new flagrate.Modal({
 			disableCloseByMask: true,
 			disableCloseButton: true,
@@ -106,11 +119,11 @@ P = Class.create(P, {
 					color  : '@pink',
 					onSelect: function(e, modal) {
 						if (this.form.validate() === false) { return; }
-						
+
 						var d = this.d = this.form.result();
-						
+
 						saveSettings(d);
-						
+
 						if ((d.ext === 'm2ts') && (!window.navigator.plugins['VLC Web Plugin'])) {
 							new flagrate.Modal({
 								title: 'エラー',
@@ -118,9 +131,9 @@ P = Class.create(P, {
 							}).show();
 							return;
 						}
-						
+
 						modal.close();
-						
+
 						this.play();
 					}.bind(this)
 				},
@@ -129,11 +142,11 @@ P = Class.create(P, {
 					color  : '@orange',
 					onSelect: function(e, modal) {
 						if (this.form.validate() === false) { return; }
-						
+
 						var d = this.form.result();
-						
+
 						saveSettings(d);
-						
+
 						if (program._isRecording) {
 							d.prefix = window.location.protocol + '//' + window.location.host + '/api/recording/' + program.id + '/';
 							window.open('./api/recording/' + program.id + '/watch.xspf?' + Object.toQueryString(d));
@@ -145,33 +158,33 @@ P = Class.create(P, {
 				}
 			]
 		}).show();
-		
+
 		if (Prototype.Browser.MobileSafari) {
 			modal.buttons[1].disable();
 		}
-		
+
 		var exts = [];
-		
+
 		exts.push({
 			label     : 'M2TS',
 			value     : 'm2ts',
 			isSelected: set.ext === 'm2ts'
 		});
 
-		if (/Trident/.test(navigator.userAgent) === true) {
-			exts.push({
-				label     : 'MP4',
-				value     : 'mp4',
-				isSelected: set.ext === 'mp4'
-			});
-		} else {
+		exts.push({
+			label     : 'MP4',
+			value     : 'mp4',
+			isSelected: set.ext === 'mp4'
+		});
+
+		if (/Trident/.test(navigator.userAgent) === false) {
 			exts.push({
 				label     : 'WebM',
 				value     : 'webm',
 				isSelected: set.ext === 'webm'
 			});
 		}
-		
+
 		this.form = new Hyperform({
 			formWidth  : '100%',
 			labelWidth : '100px',
@@ -461,36 +474,36 @@ P = Class.create(P, {
 				}
 			]
 		});
-		
+
 		this.form.render(modal.content);
-		
+
 		return this;
 	}
 	,
 	play: function() {
-		
+
 		this.isPlaying = true;
-		
+
 		var p = this.program;
 		var d = this.d;
-		
+
 		d.ss = d.ss || 0;
-		
+
 		if (p._isRecording) d.ss = '';
-		
+
 		var getRequestURI = function() {
-			
+
 			var r = window.location.protocol + '//' + window.location.host;
 			r += '/api/' + (!!p._isRecording ? 'recording' : 'recorded') + '/' + p.id + '/watch.' + d.ext;
 			var q = Object.toQueryString(d);
-			
+
 			return r + '?' + q;
 		};
-		
+
 		var togglePlay = function() {
-			
+
 			if (p._isRecording) return;
-			
+
 			if (d.ext === 'webm' || d.ext === 'mp4') {
 				if (video.paused) {
 					video.play();
@@ -509,28 +522,28 @@ P = Class.create(P, {
 				}
 			}
 		};
-		
+
 		// create video view
-		
+
 		var videoContainer = new flagrate.Element('div', {
 			'class': 'video-container'
 		}).insertTo(this.view.content);
-		
+
 		if (d.ext === 'webm' || d.ext === 'mp4') {
 			var video = new flagrate.Element('video', {
 				autoplay: true,
 				controls: true
 			}).insertTo(videoContainer);
-			
+
 			new flagrate.Element('source', {
 				src     : getRequestURI(),
 				type    : 'video/' + d.ext
 			}).insertTo(video);
-			
+
 			video.addEventListener('click', togglePlay);
-			
+
 			video.volume = 1;
-			
+
 			video.play();
 		} else {
 			var vlc = flagrate.createElement('embed', {
@@ -542,18 +555,18 @@ P = Class.create(P, {
 				autoplay: 'true',
 				controls: 'false'
 			}).insertTo(videoContainer);
-			
+
 			flagrate.createElement('object', {
 				classid: 'clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921',
 				codebase: 'http://download.videolan.org/pub/videolan/vlc/last/win32/axvlc.cab'
 			}).insertTo(videoContainer);
-			
+
 			vlc.audio.volume = 100;
 			vlc.currentTime = 0;
 		}
-		
+
 		// create control view
-		
+
 		var control = new flagrate.Toolbar({
 			className: 'video-control',
 			items: [
@@ -597,21 +610,21 @@ P = Class.create(P, {
 
 		var seekSlideEvent = function() {
 			var value = seek.getValue();
-			
+
 			d.ss = value;
 			var uri = getRequestURI();
-			
+
 			seek.disable();
 			fastForward.disable();
 			fastRewind.disable();
-			
+
 			if (d.ext === 'webm' || d.ext === 'mp4') {
 				video.src = uri;
 				video.play();
 			} else {
 				vlc.playlist.playItem(vlc.playlist.add(uri));
 			}
-			
+
 			setTimeout(function() {
 				seek.enable();
 				fastForward.enable();
@@ -637,32 +650,32 @@ P = Class.create(P, {
 			seekValue(-15);
 		});
 
-		
+
 		if (p._isRecording) {
 			seek.disable();
 			control.getElementByKey('play').updateText('Live');
 			control.getElementByKey('play').disable();
 		}
-		
+
 		control.getElementByKey('vol').addEventListener('slide', function() {
-			
+
 			var vol = control.getElementByKey('vol');
-			
+
 			if (d.ext === 'webm' || d.ext === 'mp4') {
 				video.volume = vol.getValue() / 10;
 			} else {
 				vlc.audio.volume = vol.getValue() * 10;
 			}
 		});
-		
+
 		seek.addEventListener('slide', seekSlideEvent);
-		
+
 		var updateTime = function() {
-			
+
 			if (seek.isEnabled() === false) return;
-			
+
 			var current = 0;
-			
+
 			if (d.ext === 'webm' || d.ext === 'mp4') {
 				current = video.currentTime;
 			} else {
@@ -671,39 +684,39 @@ P = Class.create(P, {
 				}
 				current = vlc.currentTime / 1000;
 			}
-			
+
 			current += d.ss;
-			
+
 			current = Math.floor(current);
-			
+
 			control.getElementByKey('played').updateText(
 				Math.floor(current / 60).toPaddedString(2) + ':' + (current % 60).toPaddedString(2)
 			);
 			seek.setValue(current);
 		};
-		
+
 		var updateLiveTime = function() {
-			
+
 			var current = (new Date().getTime() - p.start) / 1000;
-			
+
 			current = Math.floor(current);
-			
+
 			if (current > p.seconds) {
 				this.app.pm.realizeHash(true);
 			}
-			
+
 			control.getElementByKey('played').updateText(
 				Math.floor(current / 60).toPaddedString(2) + ':' + (current % 60).toPaddedString(2)
 			);
 			seek.setValue(current);
 		}.bind(this);
-		
+
 		if (p._isRecording) {
 			this.timer.updateLiveTime = setInterval(updateLiveTime, 250);
 		} else {
 			this.timer.updateTime = setInterval(updateTime, 250);
 		}
-		
+
 		return this;
 	}
 });
