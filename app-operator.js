@@ -84,8 +84,8 @@ var schedulerSleepStartHour = config.operSchedulerSleepStartHour || 1;
 var schedulerSleepEndHour   = config.operSchedulerSleepEndHour   || 5;
 var schedulerEpgRecordTime  = config.schedulerEpgRecordTime      || 60;
 var prepTime    = config.operRecPrepTime    || 1000 * 60;//60秒
-var offsetStart = config.operRecOffsetStart || 1000 * 5;
-var offsetEnd   = config.operRecOffsetEnd   || -(1000 * 8);
+var offsetStart = (typeof config.operRecOffsetStart !== 'undefined' ? config.operRecOffsetStart : 1000 * 5);
+var offsetEnd   = (typeof config.operRecOffsetEnd !== 'undefined' ? config.operRecOffsetEnd : -(1000 * 8));
 
 var clock     = Date.now();
 var next      = 0;
