@@ -14,15 +14,21 @@
 			var storageUsage = {};
 			storageUsage.recorded = sumOfFileSize(recordedFiles);
 			
-			child_process.exec('df --block-size=512 --output=size,used,avail ' + config.recordedDir , function(err, stdout, stderr) {
-				if (err) return response.error(500);
+			child_process.exec('df --block-size=512 ' + config.recordedDir , function(err, stdout, stderr) {
+				if (err) {
+					util.log(stderr);
+					return response.error(500);
+				}
 				
 				var line = stdout.split('\n')[1]; //ignore header line.
 				var usage = line.replace(/^\s*/,"").split(/\s+/); // left trim and sprit.
 				
-				storageUsage.size  = parseInt(usage[0]) * 512;
-				storageUsage.used  = parseInt(usage[1]) * 512;
-				storageUsage.avail = parseInt(usage[2]) * 512;
+				//var IGNORE_fs      = usage[0];
+				storageUsage.size  = parseInt(usage[1]) * 512;
+				storageUsage.used  = parseInt(usage[2]) * 512;
+				storageUsage.avail = parseInt(usage[3]) * 512;
+				//var IGNORE_percent = usage[4];
+				//var IGNORE_mounton = usage[5];
 				
 				response.head(200);
 				response.end(JSON.stringify(storageUsage, null, '  '));
