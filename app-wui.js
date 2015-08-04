@@ -599,17 +599,6 @@ function httpServerMain(req, res, query) {
 				}
 			};
 			
-			var onClose = function () {
-				
-				if (!isClosed) {
-					isClosed = true;
-					
-					log(res.statusCode);
-				}
-				
-				cleanup();
-			};
-			
 			var onResponseClose = function () {
 				
 				if (!isClosed) {
@@ -638,14 +627,14 @@ function httpServerMain(req, res, query) {
 					sandbox = null;
 				}, 1000);
 				
-				req.removeListener('close', onClose);
 				res.removeListener('close', onResponseClose);
+				res.removeListener('finish', onResponseClose);
 				
 				cleanup = emptyFunction;
 			};
 			
-			req.on('close', onClose);
 			res.on('close', onResponseClose);
+			res.on('finish', onResponseClose);
 			
 			try {
 				vm.runInNewContext(fs.readFileSync(scriptFile), sandbox, scriptFile);
