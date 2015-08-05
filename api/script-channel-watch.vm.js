@@ -111,7 +111,7 @@ Usushio では使わない
 			args.push('-y', '-f', d.f, 'pipe:1');
 
 			// チューナーを選ぶ
-			var tuner = chinachu.getFreeTunerSync(config.tuners, channel.type);
+			var tuner = chinachu.getFreeTunerSync(config.tuners, channel.type, false, 1);
 			
 			// チューナーが見つからない
 			if (tuner === null) {
@@ -127,7 +127,7 @@ Usushio では使わない
 			
 			// チューナーをロック
 			try {
-				chinachu.lockTunerSync(tuner);
+				chinachu.lockTunerSync(tuner, 1);
 			} catch (e) {
 				util.log('WARNING: チューナー(' + tuner.n + ')のロックに失敗しました');
 				return response.error(500);
@@ -141,7 +141,7 @@ Usushio では使わない
 			
 			var recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
 			children.push(recProc.pid);
-			chinachu.writeTunerPid(tuner, recProc.pid);
+			chinachu.writeTunerPidSync(tuner, recProc.pid, 1);
 			util.log('SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
 			
 			recProc.on('exit', function () {

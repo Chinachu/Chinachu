@@ -229,7 +229,7 @@ function doRecord(program) {
 	}
 	
 	// チューナーを選ぶ
-	tuner = chinachu.getFreeTunerSync(config.tuners, program.channel.type);
+	tuner = chinachu.getFreeTunerSync(config.tuners, program.channel.type, false, 2);
 	
 	// チューナーが見つからない
 	if (tuner === null) {
@@ -242,7 +242,7 @@ function doRecord(program) {
 	
 	// チューナーをロック
 	try {
-		chinachu.lockTunerSync(tuner);
+		chinachu.lockTunerSync(tuner, 2);
 	} catch (e) {
 		util.log('WARNING: チューナー(' + tuner.n + ')のロックに失敗しました');
 	}
@@ -275,7 +275,7 @@ function doRecord(program) {
 	execRecCmd(function () {
 		// 録画プロセスを生成
 		recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
-		chinachu.writeTunerPid(tuner, recProc.pid);
+		chinachu.writeTunerPidSync(tuner, recProc.pid, 2);
 		util.log('SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
 		program.pid = recProc.pid;
 		
