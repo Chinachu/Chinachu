@@ -242,7 +242,7 @@ function doRecord(program) {
 	
 	// チューナーをロック
 	try {
-		chinachu.lockTunerSync(tuner);
+		chinachu.lockTunerSync(tuner, true);
 	} catch (e) {
 		util.log('WARNING: チューナー(' + tuner.n + ')のロックに失敗しました');
 	}
