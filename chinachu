@@ -16,7 +16,7 @@ fi
 shopt -s extglob
 
 # variables
-NODE_VER=0.12.7
+NODE_VER=4.0.0
 
 main () {
   local SELF_PATH DIR SYM
