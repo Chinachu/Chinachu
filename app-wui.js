@@ -39,7 +39,7 @@ var socketio      = require('socket.io');
 var chinachu      = require('chinachu-common');
 var S             = require('string');
 var geoip         = require('geoip-lite');
-var UPnPServer    = require('/home/kanreisa/store/store/kanreisa/dev/upnpserver');
+var UPnPServer    = require('chinachu-upnp-server');
 
 // Directory Checking
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
@@ -777,17 +777,14 @@ function ioServerSocketOnDisconnect(socket) {
 if (config.wuiDLNAServerEnabled === true) {
 	var dlnaServer = new UPnPServer({
 		log: true,
-		logLevel: 'INFO',
+		logLevel: 'TRACE',
 		ssdpLog: true,
-		ssdpLogLevel: 'INFO',
+		ssdpLogLevel: 'DEBUG',
 		name: 'Chinachu (beta)',
 		httpPort: 20773,
 		uuid: '49ee272d-f140-4cf0-a8cf-b7caa23ff772'
 	}, [
-		{
-			path: path.resolve(config.recordedDir),
-			mountPoint: '/recorded'
-		}
+		path.resolve(config.recordedDir)
 	]);
 
 	dlnaServer.start();
