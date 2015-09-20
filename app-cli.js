@@ -1051,7 +1051,7 @@ function isMatchedProgram(program) {
 		// ignore_titles
 		if (rule.ignore_titles) {
 			for (var i = 0; i < rule.ignore_titles.length; i++) {
-				if (program.title.match(rule.ignore_titles[i]) !== null) return;
+				if (program.title.match(new RegExp(rule.ignore_titles[i])) !== null) return;
 			}
 		}
 		
@@ -1060,7 +1060,7 @@ function isMatchedProgram(program) {
 			var isFound = false;
 			
 			for (var i = 0; i < rule.reserve_titles.length; i++) {
-				if (program.title.match(rule.reserve_titles[i]) !== null) isFound = true;
+				if (program.title.match(new RegExp(rule.reserve_titles[i])) !== null) isFound = true;
 			}
 			
 			if (!isFound) return;
@@ -1071,7 +1071,7 @@ function isMatchedProgram(program) {
 			if (!program.detail) return;
 			
 			for (var i = 0; i < rule.ignore_descriptions.length; i++) {
-				if (program.detail.match(rule.ignore_descriptions[i]) !== null) return;
+				if (program.detail.match(new RegExp(rule.ignore_descriptions[i])) !== null) return;
 			}
 		}
 		
@@ -1082,7 +1082,7 @@ function isMatchedProgram(program) {
 			var isFound = false;
 			
 			for (var i = 0; i < rule.reserve_descriptions.length; i++) {
-				if (program.detail.match(rule.reserve_descriptions[i]) !== null) isFound = true;
+				if (program.detail.match(new RegExp(rule.reserve_descriptions[i])) !== null) isFound = true;
 			}
 			
 			if (!isFound) return;
