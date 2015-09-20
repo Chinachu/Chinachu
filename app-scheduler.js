@@ -161,8 +161,17 @@ function outputReserves() {
 function scheduler() {
 	
 	var i, j, k, l, a;
+	var commandProcess;
 	
 	util.log('RUNNING SCHEDULER.');
+
+	// schedulerStartフック
+	if (!opts.get('s')) {
+		if (config.schedulerStartCommand) {
+			commandProcess = child_process.spawnSync(config.schedulerStartCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
+			util.log('SPAWN: ' + config.schedulerStartCommand + ' (pid=' + commandProcess.pid + ')');
+		}
+	}
 	
 	// IDが重複しているかチェックするだけ
 	var idMap = {};
@@ -300,6 +309,12 @@ function scheduler() {
 			util.log('!CONFLICT: ' + a.id + ' ' + dateFormat(new Date(a.start), 'isoDateTime') + ' [' + a.channel.name + '] ' + a.title);
 			
 			++conflictCount;
+			var commandProcess;
+			// conflict フック
+			if (config.conflictCommand) {
+				commandProcess = child_process.spawn(config.conflictCommand, [process.pid, a.id, dateFormat(new Date(a.start), 'isoDateTime'), a.channel.name, a.title, JSON.stringify(a)]);
+				util.log('SPAWN: ' + config.conflictCommand + ' (pid=' + commandProcess.pid + ')');
+			}
 		}
 	}
 	
@@ -341,6 +356,11 @@ function scheduler() {
 	
 	if (!opts.get('s')) {
 		outputReserves();
+		// schedulerEnd フック
+		if (config.schedulerEndCommand) {
+			commandProcess = child_process.spawn(config.schedulerEndCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE, matches.length.toString(10), duplicateCount.toString(10), conflictCount.toString(10), skipCount.toString(10), reservedCount.toString(10)]);
+			util.log('SPAWN: ' + config.schedulerEndCommand + ' (pid=' + commandProcess.pid + ')');
+		}
 	}
 	
 	// プロセス終了
@@ -1101,7 +1121,16 @@ isRunning(function (running) {
 		
 		// EPGデータを取得または番組表を読み込む
 		if (opts.get('f') || schedule.length === 0) {
+			var commandProcess;
+			if (config.epgStartCommand) {
+				commandProcess = child_process.spawnSync(config.epgStartCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
+				util.log('SPAWN: ' + config.epgStartCommand + ' (pid=' + commandProcess.pid + ')');
+			}
 			getEpg();
+			if (config.epgEndCommand) {
+				commandProcess = child_process.spawn(config.epgEndCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
+				util.log('SPAWN: ' + config.epgEndCommand + ' (pid=' + commandProcess.pid + ')');
+			}
 		} else {
 			scheduler();
 		}
