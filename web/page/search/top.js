@@ -142,6 +142,12 @@ P = Class.create(P, {
 		var programs = [];
 		
 		var program;
+
+		// query.titleの正規化をキャッシュ
+		var query_title_norm;
+		if (this.self.query.title) {
+			query_title_norm 
+		}
 		for (var i = 0, l = global.chinachu.schedule.length; i < l; i++) {
 			for (var j = 0, m = global.chinachu.schedule[i].programs.length; j < m; j++) {
 				program = global.chinachu.schedule[i].programs[j];

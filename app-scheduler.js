@@ -207,7 +207,7 @@ function scheduler() {
 	
 	schedule.forEach(function (ch) {
 		ch.programs.forEach(function (p) {
-			if (chinachu.isMatchedProgram(rules, p)) {
+			if (chinachu.isMatchedProgram(rules, p, config.normalizationForm)) {
 				matches.push(p);
 			}
 		});
@@ -341,7 +341,7 @@ function scheduler() {
 	// ruleにもしあればreserveにrecordedFormatを追加
 	reserves.forEach(function(reserve){
 		rules.forEach(function(rule){
-			if(typeof(rule.recorded_format) !== 'undefined' && chinachu.programMatchesRule(rule, reserve)){
+			if(typeof(rule.recorded_format) !== 'undefined' && chinachu.programMatchesRule(rule, reserve, config.normalizationForm)){
 				reserve.recordedFormat = rule.recorded_format;
 			}
 		});
