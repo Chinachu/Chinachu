@@ -984,9 +984,6 @@ function chinachuIrcbot() {
 function isMatchedProgram(program) {
 	var result = false;
 	var nf = "NFKC";
-	if (config.normalizationForm) {
-		nf = config.normalizationForm;
-	}
 	
 	// -id, --id
 	if (opts.get('id') && (opts.get('id') === program.id)) {
