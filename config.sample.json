@@ -18,6 +18,8 @@
   "wuiStreamer"    : true,
   "wuiFiler"       : true,
   "wuiConfigurator": true,
+
+  "normalizationForm": "NFKC",
   
   "recordedFormat": "[<date:yymmdd-HHMM>][<type><channel>][<tuner>]<title>.m2ts",
   
