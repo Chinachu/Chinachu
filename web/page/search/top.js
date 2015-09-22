@@ -42,7 +42,9 @@ P = Class.create(P, {
 			ui : new sakura.ui.Button({
 				label  : '番組検索',
 				icon   : './icons/magnifier-zoom.png',
-				onClick: this.viewSearchModal.bind(this)
+				onClick: function() {
+					new chinachu.ui.SearchProgram(this);
+				}.bind(this)
 			})
 		});
 		
@@ -125,7 +127,7 @@ P = Class.create(P, {
 		}
 		
 		if (!this.self.query.skip) {
-			this.viewSearchModal();
+			new chinachu.ui.SearchProgram(this);
 		} else {
 			this.drawMain();
 		}
@@ -142,36 +144,35 @@ P = Class.create(P, {
 		var programs = [];
 		
 		var program;
+
+		// 検索文字列がひとつだけの場合に配列化する
+		if (typeof(this.self.query.reserve_titles) === 'string') {
+			this.self.query.reserve_titles = [this.self.query.reserve_titles];
+		}
+		if (typeof(this.self.ignore_titles) === 'string') {
+			this.self.ignore_titles = [this.self.ignore_titles];
+		}
+		if (typeof(this.self.query.reserve_descriptions) === 'string') {
+			this.self.reserve_descriptions = [this.self.reserve_descriptions];
+		}
+		if (typeof(this.self.query.ignore_descriptions) === 'string') {
+			this.self.ignore_descriptions = [this.self.ignore_descriptions];
+		}
+		if (typeof(this.self.query.ignore_flags) === 'string') {
+			this.self.query.ignore_flags = [this.self.query.ignore_flags];
+		}
+		if (typeof(this.self.query.reserve_flags) === 'string') {
+			this.self.query.reserve_flags = [this.self.query.reserve_flags];
+		}
 		for (var i = 0, l = global.chinachu.schedule.length; i < l; i++) {
 			for (var j = 0, m = global.chinachu.schedule[i].programs.length; j < m; j++) {
 				program = global.chinachu.schedule[i].programs[j];
 				
 				if (program.end < time) continue;
 				
-				if (this.self.query.pgid && this.self.query.pgid !== program.id) continue;
-				if (this.self.query.chid && this.self.query.chid !== program.channel.id) continue;
-				if (this.self.query.cat && this.self.query.cat !== program.category) continue;
-				if (this.self.query.type && this.self.query.type !== program.channel.type) continue;
-				if (this.self.query.title && program.fullTitle.match(this.self.query.title) === null) continue;
-				if (this.self.query.desc && (!program.detail || program.detail.match(this.self.query.desc) === null)) continue;
-				
-				if (this.self.query.start || this.self.query.end) {
-					var ruleStart = parseInt(this.self.query.start || 0, 10);
-					var ruleEnd   = parseInt(this.self.query.end || 24, 10);
-					
-					var progStart = new Date(program.start).getHours();
-					var progEnd   = new Date(program.end).getHours();
-					
-					if (progStart > progEnd) {
-						progEnd += 24;
-					}
-					
-					if (ruleStart > ruleEnd) {
-						if ((ruleStart > progStart) && (ruleEnd < progEnd)) continue;
-					} else {
-						if ((ruleStart > progStart) || (ruleEnd < progEnd)) continue;
-					}
-				}
+				var ret = chinachu.ui.programMatchesRule(this.self.query, program);
+
+				if (!ret) continue;
 				
 				programs.push(program);
 			}
