@@ -170,7 +170,7 @@ P = Class.create(P, {
 				
 				if (program.end < time) continue;
 				
-				var ret = chinachu.ui.programMatchesRule(this.self.query, program);
+				var ret = chinachu.programMatchesRule(this.self.query, program);
 
 				if (!ret) continue;
 				
