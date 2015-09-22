@@ -116,7 +116,7 @@ P = Class.create(P, {
 			if (this.self.query.chid && this.self.query.chid !== program.channel.id) continue; 
 			if (this.self.query.cat && this.self.query.cat !== program.category) continue; 
 			if (this.self.query.type && this.self.query.type !== program.channel.type) continue; 
-			if (this.self.query.title && program.title.match(this.self.query.title) !== -1) continue;
+			if (this.self.query.title && program.title.match(this.self.query.title) === null) continue;
 			if (this.self.query.desc && (!program.detail || program.detail.match(this.self.query.desc) === null)) continue;
 			
 			if (this.self.query.start || this.self.query.end) {
