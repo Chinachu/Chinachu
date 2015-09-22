@@ -169,8 +169,11 @@ P = Class.create(P, {
 				program = global.chinachu.schedule[i].programs[j];
 				
 				if (program.end < time) continue;
+
+				if (this.self.query.pgid && this.self.query.pgid !== program.id) continue;
+				if (this.self.query.chid && this.self.query.chid !== program.channel.id) continue;
 				
-				var ret = chinachu.programMatchesRule(this.self.query, program);
+				var ret = chinachu.util.programMatchesRule(this.self.query, program);
 
 				if (!ret) continue;
 				

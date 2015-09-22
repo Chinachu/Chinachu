@@ -2080,7 +2080,7 @@
 	});
 
 	// 単体のルールとのマッチ判定
-	programMatchesRule = function (rule, program) {
+	util.programMatchesRule = function (rule, program) {
 		var i, j, l, m, isFound;
 	
 		// isDisabled
