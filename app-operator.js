@@ -369,6 +369,10 @@ function doRecord(program) {
 					.replace('<title>',   program.title)
 			);
 		}
+		if (config.recordStartCommand) {
+			var commandProcess = child_process.spawn(config.recordStartCommand, [recPath, JSON.stringify(program)]);
+			util.log('SPAWN: ' + config.recordStartCommand + ' (pid=' + commandProcess.pid + ')');
+		}
 	}, 0, 'RECWAIT: ' + tuner.name);
 }
 
@@ -402,6 +406,10 @@ function prepRecord(program) {
 				.replace('<channel>', ((program.channel.type === 'CS') ? program.channel.sid : program.channel.channel))
 				.replace('<title>',   program.title)
 		);
+	}
+	if ((timeout !== 0) && config.recordPrepareCommand) {
+		var commandProcess = child_process.spawn(config.recordPrepareCommand, [JSON.stringify(program)]);
+		util.log('SPAWN: ' + config.recordPrepareCommand + ' (pid=' + commandProcess.pid + ')');
 	}
 }
 
