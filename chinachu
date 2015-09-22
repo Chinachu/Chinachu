@@ -869,7 +869,7 @@ chinachu_unlock () {
     read line
     case $line in
       [yY])
-        rm -vf "${CHINACHU_DIR}"/data/tuner.*.lock && echo "done." && return 0
+        rm -vf "${CHINACHU_DIR}"/data/tuner.*.priority && rm -vf "${CHINACHU_DIR}"/data/tuner.*.lock && echo "done." && return 0
         ;;
       [nN])
         echo "Abort." && return 0

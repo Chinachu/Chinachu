@@ -921,7 +921,7 @@ function getEpg() {
 			readStream.pipe(writeStream);
 		} else {
 			// チューナーを選ぶ
-			var tuner = chinachu.getFreeTunerSync(config.tuners, channel.type, true);
+			var tuner = chinachu.getFreeTunerSync(config.tuners, channel.type, true, 0);
 			
 			// チューナーが見つからない
 			if (tuner === null) {
@@ -933,7 +933,7 @@ function getEpg() {
 			
 			// チューナーをロック
 			try {
-				chinachu.lockTunerSync(tuner);
+				chinachu.lockTunerSync(tuner, 0);
 			} catch (e) {
 				util.log('[' + i + '] WARNING: チューナー(' + tuner.n + ')のロックに失敗しました');
 				retry();
@@ -961,7 +961,7 @@ function getEpg() {
 			execRecCmd(function () {
 				// 録画プロセスを生成
 				var recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
-				chinachu.writeTunerPidSync(tuner, recProc.pid);
+				chinachu.writeTunerPidSync(tuner, recProc.pid, 0);
 				util.log('[' + i + '] SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
 			
 				// 一時ファイルへの書き込みストリームを作成
@@ -1069,7 +1069,7 @@ function getEpg() {
 		for (i = 0, l = chs.length; i < l; i++) {
 			ch = chs[i];
 			
-			if (!opts.get('ch') && !opts.get('l') && chinachu.getFreeTunerSync(config.tuners, ch.type, true) === null) {
+			if (!opts.get('ch') && !opts.get('l') && chinachu.getFreeTunerSync(config.tuners, ch.type, true, 0) === null) {
 				continue;
 			}
 			
