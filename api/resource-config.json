@@ -3,5 +3,10 @@
     "script" : "config",
     "methods": ["get", "put"],
     "types"  : ["json"]
+  },
+  "/normalizationForm": {
+    "script" : "config-normalization-form",
+    "methods": ["get"],
+    "types"  : ["json"]
   }
 }
