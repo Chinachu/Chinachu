@@ -85,18 +85,19 @@
       "oneOf": [
         { "type": "string", "format": "ipv4" },
         { "type": "string", "format": "ipv6" },
-        { "type": "string", "format": "hostname" }
+        { "type": "string", "format": "hostname" },
+        { "type": "null" }
       ]
     },
     "wuiTlsKeyPath": {
       "oneOf": [
-        { "type": "string" },
+        { "type": "string", "format": "readable" },
         { "type": "null" }
       ]
     },
     "wuiTlsCertPath": {
       "oneOf": [
-        { "type": "string" },
+        { "type": "string", "format": "readable" },
         { "type": "null" }
       ]
     },

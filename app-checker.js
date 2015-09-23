@@ -47,9 +47,21 @@ function check_execute(filename) {
 	}
 }
 
+// 拡張フォーマット3：読み込み可能なファイルか
+function check_readable(filename) {
+	try {
+		fs.accessSync(filename, fs.R_OK);
+		return true;
+	}
+	catch (e) {
+		return false;
+	}
+}
+
 // フォーマットの拡張
 ajv.addFormat("directory", check_exists_dir);
 ajv.addFormat("executable", check_execute);
+ajv.addFormat("readable", check_readable);
 
 
 // JSONファイルをスキーマでチェックする
