@@ -53,6 +53,12 @@ var config = require(CONFIG_FILE);
 // 録画中リストをクリア
 fs.writeFileSync(RECORDING_DATA_FILE, '[]');
 
+// 保存先ディレクトリが存在しない場合には作成
+if (!fs.existsSync(config.recordedDir)) {
+	util.log('MKDIR: ' + config.recordedDir);
+	mkdirp.sync(config.recordedDir);
+}
+
 // Tweeter (Experimental)
 if (config.operTweeter && config.operTweeterAuth && config.operTweeterFormat) {
 	var tweeter = new Mtwitter({

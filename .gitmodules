@@ -4,3 +4,12 @@
 [submodule "web/lib/flagrate"]
 	path = web/lib/flagrate
 	url = git://github.com/webnium/flagrate.git
+[submodule "web/lib/d3"]
+	path = web/lib/d3
+	url = https://github.com/mbostock/d3
+[submodule "web/lib/dc.js"]
+	path = web/lib/dc.js
+	url = https://github.com/dc-js/dc.js
+[submodule "web/lib/crossfilter"]
+	path = web/lib/crossfilter
+	url = https://github.com/square/crossfilter
