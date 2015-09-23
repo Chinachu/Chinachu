@@ -62,7 +62,7 @@ function main(avinfo) {
 			util.log('STREAMING: ' + request.url);
 			
 			var d = {
-				ss   : request.query.ss     || '0', //start(seconds)
+				ss   : request.query.ss     || '2', //start(seconds)
 				t    : request.query.t      || null,//duration(seconds)
 				s    : request.query.s      || null,//size(WxH)
 				f    : request.query.f      || null,//format
@@ -73,6 +73,10 @@ function main(avinfo) {
 				ar   : request.query.ar     || null,//ar(Hz)
 				r    : request.query.r      || null//rate(fps)
 			};
+			
+			if (parseInt(d.ss, 10) < 2) {
+				d.ss = '2';
+			}
 			
 			if (parseInt(d.ss, 10) > parseFloat(avinfo.format.duration)) {
 				return response.error(416);
@@ -117,22 +121,20 @@ function main(avinfo) {
 			if (d.t) {
 				tsize = tsize / parseFloat(avinfo.format.duration) * parseInt(d.t, 10);
 			} else {
-				if (d.ss !== '0') {
-					tsize -= bitrate / 8 * parseInt(d.ss, 10);
-				}
+				tsize -= bitrate / 8 * (parseInt(d.ss, 10) - 2);
 			}
 			tsize = Math.floor(tsize);
 			
 			// Ranges Support
 			var range = {};
 			if (request.type === 'mp4') {
-				range.start = parseInt(ibitrate / 8 * (parseInt(d.ss, 10) - 1), 10);
+				range.start = parseInt(ibitrate / 8 * (parseInt(d.ss, 10) - 2), 10);
 				
 				response.setHeader('Content-Length', tsize);
 				
 				response.head(200);
 			} else if (d.ss !== '0') {
-				range.start = parseInt(ibitrate / 8 * (parseInt(d.ss, 10) - 1), 10);
+				range.start = parseInt(ibitrate / 8 * (parseInt(d.ss, 10) - 2), 10);
 				
 				response.setHeader('Content-Length', tsize);
 				
@@ -140,7 +142,7 @@ function main(avinfo) {
 			} else if (request.headers.range) {
 				var bytes = request.headers.range.replace(/bytes=/, '').split('-');
 				var rStart = parseInt(bytes[0], 10);
-				var rEnd   = parseInt(bytes[1], 10) || tsize - 1;
+				var rEnd   = parseInt(bytes[1], 10) || tsize - 2;
 				
 				range.start = Math.round(rStart / bitrate * ibitrate);
 				range.end   = Math.round(rEnd / bitrate * ibitrate);
@@ -183,7 +185,7 @@ function main(avinfo) {
 			
 			args.push('-i', 'pipe:0');
 			
-			if (d.ss !== '0') args.push('-ss', '1');
+			args.push('-ss', '2');
 			
 			if (d.t) { args.push('-t', d.t); }
 			
@@ -196,9 +198,7 @@ function main(avinfo) {
 			if (d.r)  args.push('-r', d.r);
 			if (d.ar) args.push('-ar', d.ar);
 			
-			if (!d.s || d.s === '1920x1080') {
-				args.push('-filter:v', 'yadif');
-			}
+			args.push('-filter:v', 'yadif');
 			
 			if (d['b:v']) {
 				args.push('-b:v', d['b:v'], '-minrate:v', d['b:v'], '-maxrate:v', d['b:v']);
@@ -210,13 +210,13 @@ function main(avinfo) {
 			}
 			
 			if (d['c:v'] === 'libx264') {
-				args.push('-vsync', '1');
 				args.push('-profile:v', 'baseline');
-				args.push('-level', '31');
 				args.push('-preset', 'ultrafast');
+				args.push('-tune', 'fastdecode,zerolatency');
 			}
 			if (d['c:v'] === 'libvpx') {
 				args.push('-deadline', 'realtime');
+				args.push('-cpu-used', '-16');
 			}
 			
 			if (d.f === 'mp4') {

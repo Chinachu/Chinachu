@@ -2,6 +2,6 @@
   "/:chid/watch": {
     "script" : "channel-watch",
     "methods": ["get"],
-    "types"  : ["xspf", "m2ts", "f4v", "flv", "webm", "asf"]
+    "types"  : ["xspf", "m2ts", "mp4", "webm"]
   }
 }

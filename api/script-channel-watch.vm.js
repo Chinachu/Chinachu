@@ -37,10 +37,8 @@ Usushio では使わない
 			return;
 		
 		case 'm2ts':
-		case 'f4v':
-		case 'flv':
+		case 'mp4':
 		case 'webm':
-		case 'asf':
 			response.head(200);
 			
 			// util.log('[streamer] streaming: ' + program.recorded);
@@ -65,21 +63,6 @@ Usushio では使わない
 					d['c:v'] = d['c:v'] || 'libvpx';
 					d['c:a'] = d['c:a'] || 'libvorbis';
 					break;
-				case 'flv':
-					d.f      = 'flv';
-					d['c:v'] = d['c:v'] || 'flv';
-					d['c:a'] = d['c:a'] || 'libfdk_aac';
-					break;
-				case 'f4v':
-					d.f      = 'flv';
-					d['c:v'] = d['c:v'] || 'libx264';
-					d['c:a'] = d['c:a'] || 'libfdk_aac';
-					break;
-				case 'asf':
-					d.f      = 'asf';
-					d['c:v'] = d['c:v'] || 'wmv2';
-					d['c:a'] = d['c:a'] || 'wmav2';//or libfdk_aac ?
-					break;
 			}
 			
 			var args = [];
@@ -97,16 +80,24 @@ Usushio では使わない
 			if (d.r)  args.push('-r', d.r);
 			if (d.ar) args.push('-ar', d.ar);
 			
-			if (!d.s || d.s === '1920x1080') {
-				args.push('-filter:v', 'yadif');
-			}
+			args.push('-filter:v', 'yadif');
 			
 			if (d['b:v']) args.push('-b:v', d['b:v']);
 			if (d['b:a']) args.push('-b:a', d['b:a']);
 			
-			//if (format === 'flv')     { args.push('-vsync', '2'); }
-			if (d['c:v'] === 'libx264') args.push('-preset', 'ultrafast');
-			if (d['c:v'] === 'libvpx')  args.push('-deadline', 'realtime');
+			if (d['c:v'] === 'libx264') {
+				args.push('-profile:v', 'baseline');
+				args.push('-preset', 'ultrafast');
+				args.push('-tune', 'fastdecode,zerolatency');
+			}
+			if (d['c:v'] === 'libvpx') {
+				args.push('-deadline', 'realtime');
+				args.push('-cpu-used', '-16');
+			}
+			
+			if (d.f === 'mp4') {
+				args.push('-movflags', 'frag_keyframe+empty_moov+faststart');
+			}
 			
 			args.push('-y', '-f', d.f, 'pipe:1');
 

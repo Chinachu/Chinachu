@@ -80,7 +80,7 @@
 			if (d.ss) args.push('-ss', (parseInt(d.ss, 10) - 1) + '');
 			
 			args.push('-re', '-i', (!d.ss) ? 'pipe:0' : program.recorded);
-			args.push('-ss', '1');
+			args.push('-ss', '2');
 			
 			if (d.t) { args.push('-t', d.t); }
 			
@@ -93,21 +93,19 @@
 			if (d.r)  args.push('-r', d.r);
 			if (d.ar) args.push('-ar', d.ar);
 			
-			if (!d.s || d.s === '1920x1080') {
-				args.push('-filter:v', 'yadif');
-			}
+			args.push('-filter:v', 'yadif');
 			
 			if (d['b:v']) args.push('-b:v', d['b:v']);
 			if (d['b:a']) args.push('-b:a', d['b:a']);
 			
 			if (d['c:v'] === 'libx264') {
-				args.push('-vsync', '1');
 				args.push('-profile:v', 'baseline');
-				args.push('-level', '31');
 				args.push('-preset', 'ultrafast');
+				args.push('-tune', 'fastdecode,zerolatency');
 			}
 			if (d['c:v'] === 'libvpx') {
 				args.push('-deadline', 'realtime');
+				args.push('-cpu-used', '-16');
 			}
 			
 			if (d.f === 'mp4') {
