@@ -33,6 +33,7 @@
     "opts": "~1.2.2",
     "socket.io": "~0.9.16",
     "string": "~1.5.1",
+    "chinachu-upnp-server": "^0.0.1",
     "xml2js": "~0.2.8"
   },
   "devDependencies": {
