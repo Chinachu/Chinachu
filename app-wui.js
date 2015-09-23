@@ -630,13 +630,13 @@ function httpServerMain(req, res, query) {
 
 				res.removeListener('close', onResponseClose);
 				res.removeListener('finish', onResponseClose);
-				
+
 				cleanup = emptyFunction;
 			};
 
 			res.on('close', onResponseClose);
 			res.on('finish', onResponseClose);
-			
+
 			try {
 				vm.runInNewContext(fs.readFileSync(scriptFile), sandbox, scriptFile);
 			} catch (ee) {
@@ -703,7 +703,9 @@ function ioAddListener(server, isOpen) {
 }
 
 ioAddListener(server);
-ioAddListener(openServer, true);
+if (openServerEnabled === true) {
+	ioAddListener(openServer, true);
+}
 
 function ioOpenServer(socket) {
 	socket.isOpen = true;
