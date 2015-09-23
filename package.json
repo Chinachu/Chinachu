@@ -23,17 +23,19 @@
     "url": "https://github.com/kanreisa/Chinachu/issues"
   },
   "dependencies": {
+    "ajv": "^1.4.1",
+    "chinachu-upnp-server": "^0.0.2",
     "dateformat": "~1.0.6-1.2.3",
     "easy-table": "~0.2.0",
     "geoip-lite": "^1.1.6",
     "hoard": "~0.1.5",
     "http-auth": "^2.2.8",
+    "json-parse-helpfulerror": "^1.0.3",
     "mkdirp": "~0.3.5",
     "mtwitter": "~1.5.2",
     "opts": "~1.2.2",
     "socket.io": "~0.9.16",
     "string": "~1.5.1",
-    "chinachu-upnp-server": "^0.0.2",
     "xml2js": "~0.2.8"
   },
   "devDependencies": {

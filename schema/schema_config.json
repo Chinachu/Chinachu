@@ -1,0 +1,234 @@
+{
+  "type": "object",
+  "properties": {
+    "recordedDir": {
+      "type": "string",
+      "format": "directory"
+    },
+    "temporaryDir": {
+      "type": "string",
+      "format": "directory"
+    },
+    "wuiPort": {
+      "type": "number"
+    },
+    "recordedFormat": {
+      "type": "string"
+    },
+    "recordedCommand": {
+      "type": "string",
+      "format": "executable"
+    },
+    "tuners": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "isScrambling": {
+            "type": "boolean"
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["GR", "BS", "CS"]
+            }
+          },
+          "command": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": ["name", "isScrambling", "types", "command"]
+      }
+    },
+    "channels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["GR", "BS", "CS"]
+          },
+          "channel": {
+            "type": "string",
+            "pattern": "^(?:CS)?\\d+$"
+          },
+          "sid": {
+            "type": "string",
+            "pattern": "^\\d+$"
+          }
+        },
+        "additionalProperties": false,
+        "required": ["type", "channel"]
+      }
+    },
+    "wuiUsers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^.+:.+$"
+      }
+    },
+    "wuiAllowCountries": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z]{2}$"
+      }
+    },
+    "wuiHost": {
+      "oneOf": [
+        { "type": "string", "format": "ipv4" },
+        { "type": "string", "format": "ipv6" },
+        { "type": "string", "format": "hostname" }
+      ]
+    },
+    "wuiTlsKeyPath": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "null" }
+      ]
+    },
+    "wuiTlsCertPath": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "null" }
+      ]
+    },
+    "wuiOpenServer": {
+      "type": "boolean"
+    },
+    "wuiOpenPort": {
+      "type": "number"
+    },
+    "wuiXFF": {
+      "type": "boolean"
+    },
+    "wuiPreviewer": {
+      "type": "boolean"
+    },
+    "wuiStreamer": {
+      "type": "boolean"
+    },
+    "wuiFiler": {
+      "type": "boolean"
+    },
+    "wuiConfigurator": {
+      "type": "boolean"
+    },
+    "operTweeter": {
+      "type": "boolean"
+    },
+    "operTweeterAuth": {
+      "type": "object",
+      "properties": {
+        "consumerKey": {
+          "type": "string"
+        },
+        "consumerSecret": {
+          "type": "string"
+        },
+        "accessToken": {
+          "type": "string"
+        },
+        "accessTokenSecret": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": ["consumerKey", "consumerSecret", "accessToken", "accessTokenSecret"]
+    },
+    "operTweeterFormat": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "string"
+        },
+        "prepare": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "operSchedulerProcessTime": {
+      "type": "number"
+    },
+    "operSchedulerIntervalTime": {
+      "type": "number"
+    },
+    "operSchedulerSleepStartHour": {
+      "type": "number"
+    },
+    "operSchedulerSleepEndHour": {
+      "type": "number"
+    },
+    "schedulerEpgRecordTime": {
+      "type": "number"
+    },
+    "operRecPrepTime": {
+      "type": "number"
+    },
+    "operRecOffsetStart": {
+      "type": "number"
+    },
+    "operRecOffsetEnd": {
+      "type": "number"
+    },
+    "operRecCmdSpan": {
+      "type": "number"
+    },
+    "normalizationForm": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": ["NFC", "NFD", "NFKC", "NFKD", ""]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "conflictCommand": {
+      "type": "string",
+      "format": "executable"
+    },
+    "schedulerStartCommand": {
+      "type": "string",
+      "format": "executable"
+    },
+    "schedulerEndCommand": {
+      "type": "string",
+      "format": "executable"
+    },
+    "recordStartCommand": {
+      "type": "string",
+      "format": "executable"
+    },
+    "recordPrepareCommand": {
+      "type": "string",
+      "format": "executable"
+    },
+    "epgStartCommand": {
+      "type": "string",
+      "format": "executable"
+    },
+    "epgEndCommand": {
+      "type": "string",
+      "format": "executable"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "recordedDir",
+    "temporaryDir",
+    "wuiPort",
+    "recordedFormat",
+    "tuners",
+    "channels"
+  ]
+}

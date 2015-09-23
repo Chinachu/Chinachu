@@ -62,7 +62,7 @@ main () {
     reserve | unreserve | skip | unskip | stop | \
     rule | enrule | disrule | rmrule | \
     rules | reserves | recording | recorded | \
-    cleanup | unlock | ircbot | test )
+    cleanup | unlock | ircbot | test | check )
       cmd="chinachu_$cmd"
       ;;
     * )
@@ -888,6 +888,10 @@ chinachu_test () {
   fi
   
   ${USR_DIR}/bin/"$@" && return 0
+}
+
+chinachu_check() {
+  node app-checker.js
 }
 
 chinachu_help () {
