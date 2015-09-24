@@ -101,6 +101,15 @@
         { "type": "null" }
       ]
     },
+    "wuiTlsPassphrase": {
+      "type": "string"
+    },
+    "wuiTlsRequestCert": {
+      "type": "boolean"
+    },
+    "wuiTlsRejectUnauthorized": {
+      "type": "boolean"
+    },
     "wuiOpenServer": {
       "type": "boolean"
     },
@@ -113,6 +122,10 @@
     "wuiPreviewer": {
       "type": "boolean"
     },
+    "wuiTlsCaPath": {
+      "type": "string",
+      "format": "readable"
+    },
     "wuiStreamer": {
       "type": "boolean"
     },
@@ -121,6 +134,12 @@
     },
     "wuiConfigurator": {
       "type": "boolean"
+    },
+    "wuiDLNAServerEnabled": {
+      "type": "boolean"
+    },
+    "schedulerGetEpgRetryCount": {
+      "type": "number"
     },
     "operTweeter": {
       "type": "boolean"
