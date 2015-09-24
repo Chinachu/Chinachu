@@ -58,6 +58,11 @@ Usushio では使わない
 				case 'm2ts':
 					d.f      = 'mpegts';
 					break;
+				case 'mp4':
+					d.f      = 'mp4';
+					d['c:v'] = d['c:v'] || 'libx264';
+					d['c:a'] = d['c:a'] || 'libfdk_aac';
+					break;
 				case 'webm':
 					d.f      = 'webm';
 					d['c:v'] = d['c:v'] || 'libvpx';
