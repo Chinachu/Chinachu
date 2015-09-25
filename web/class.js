@@ -1876,12 +1876,4 @@
 		}
 	});
 	
-	util.getNormalizationFormConfig = function() {
-		var req = new Ajax.Request('./api/config/normalizationForm.json', {
-			method: 'get',
-			asynchronous: false
-		});
-		var configText = req.transport.responseText;
-		return JSON.parse(configText);
-	};
 })();

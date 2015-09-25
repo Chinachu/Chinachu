@@ -111,7 +111,10 @@ P = Class.create(P, {
 		var program;
 
 		// 正規化方法
-		var nf = chinachu.util.getNormalizationFormConfig();
+		var nf;
+		if (global.chinachu.status.feature) {
+			nf = global.chinachu.status.feature.normalizationForm;
+		}
 
 		// query.title, query.descの正規化をキャッシュ
 		var query_title_norm, query_desc_norm;
