@@ -125,6 +125,11 @@ function main(avinfo) {
 			}
 			tsize = Math.floor(tsize);
 			
+			if (request.query.mode == 'download') {
+				var pi = path.parse(program.recorded);
+				response.setHeader('Content-disposition', 'attachment; filename*=UTF-8\'\'' + encodeURIComponent(pi.name + '.' + request.query.ext));
+			}
+
 			// Ranges Support
 			var range = {};
 			if (request.type === 'mp4') {
