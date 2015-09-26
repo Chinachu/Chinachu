@@ -27,6 +27,8 @@
   "SYSTEM LOG"               : "システムログ",
   "LOG"                      : "ログ",
   "STATUS"                   : "ステータス",
+  "STORAGE USAGE"            : "ストレージ使用量",
+  "STORAGE"                  : "ストレージ",
   "SCHEDULE"                 : "番組表",
   "SCHEDULES"                : "番組表",
   "SCHEDULER"                : "スケジューラー",
@@ -45,6 +47,8 @@
   "LIST"                     : "リスト",
   "CONFIG"                   : "設定",
   "LIVE"                     : "ライブ",
+  "FREE"                     : "空き",
+  "USED BY OTHER PROGRAMS"   : "他のプログラムが使用",
   
   "ADD"          : "追加",
   "COPY"         : "コピー",
