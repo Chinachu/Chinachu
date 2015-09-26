@@ -124,10 +124,10 @@ P = Class.create(P, {
 
 						saveSettings(d);
 
-						if ((d.ext === 'm2ts') && (!window.navigator.plugins['VLC Web Plugin'])) {
+						if (d.ext === 'm2ts') {
 							new flagrate.Modal({
 								title: 'エラー',
-								text : 'MPEG-2 TSコンテナの再生にはVLC Web Pluginが必要です。'
+								text : 'MPEG-2 TSコンテナの再生はサポートしていません。'
 							}).show();
 							return;
 						}
@@ -504,22 +504,12 @@ P = Class.create(P, {
 
 			if (p._isRecording) return;
 
-			if (d.ext === 'webm' || d.ext === 'mp4') {
-				if (video.paused) {
-					video.play();
-					control.getElementByKey('play').setLabel('Pause');
-				} else {
-					video.pause();
-					control.getElementByKey('play').setLabel('Play');
-				}
+			if (video.paused) {
+				video.play();
+				control.getElementByKey('play').setLabel('Pause');
 			} else {
-				if (vlc.playlist.isPlaying) {
-					vlc.playlist.pause();
-					control.getElementByKey('play').setLabel('Play');
-				} else {
-					vlc.playlist.play();
-					control.getElementByKey('play').setLabel('Pause');
-				}
+				video.pause();
+				control.getElementByKey('play').setLabel('Play');
 			}
 		};
 
@@ -529,41 +519,21 @@ P = Class.create(P, {
 			'class': 'video-container'
 		}).insertTo(this.view.content);
 
-		if (d.ext === 'webm' || d.ext === 'mp4') {
-			var video = new flagrate.Element('video', {
-				autoplay: true,
-				controls: true
-			}).insertTo(videoContainer);
+		var video = new flagrate.Element('video', {
+			autoplay: true,
+			controls: true
+		}).insertTo(videoContainer);
 
-			new flagrate.Element('source', {
-				src     : getRequestURI(),
-				type    : 'video/' + d.ext
-			}).insertTo(video);
+		new flagrate.Element('source', {
+			src     : getRequestURI(),
+			type    : 'video/' + d.ext
+		}).insertTo(video);
 
-			video.addEventListener('click', togglePlay);
+		video.addEventListener('click', togglePlay);
 
-			video.volume = 1;
+		video.volume = 1;
 
-			video.play();
-		} else {
-			var vlc = flagrate.createElement('embed', {
-				type: 'application/x-vlc-plugin',
-				pluginspage: 'http://www.videolan.org',
-				width: '100%',
-				height: '100%',
-				target: getRequestURI(),
-				autoplay: 'true',
-				controls: 'false'
-			}).insertTo(videoContainer);
-
-			flagrate.createElement('object', {
-				classid: 'clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921',
-				codebase: 'http://download.videolan.org/pub/videolan/vlc/last/win32/axvlc.cab'
-			}).insertTo(videoContainer);
-
-			vlc.audio.volume = 100;
-			vlc.currentTime = 0;
-		}
+		video.play();
 
 		// create control view
 
@@ -618,12 +588,8 @@ P = Class.create(P, {
 			fastForward.disable();
 			fastRewind.disable();
 
-			if (d.ext === 'webm' || d.ext === 'mp4') {
-				video.src = uri;
-				video.play();
-			} else {
-				vlc.playlist.playItem(vlc.playlist.add(uri));
-			}
+			video.src = uri;
+			video.play();
 
 			setTimeout(function() {
 				seek.enable();
@@ -661,11 +627,7 @@ P = Class.create(P, {
 
 			var vol = control.getElementByKey('vol');
 
-			if (d.ext === 'webm' || d.ext === 'mp4') {
-				video.volume = vol.getValue() / 10;
-			} else {
-				vlc.audio.volume = vol.getValue() * 10;
-			}
+			video.volume = vol.getValue() / 10;
 		});
 
 		seek.addEventListener('slide', seekSlideEvent);
@@ -676,14 +638,7 @@ P = Class.create(P, {
 
 			var current = 0;
 
-			if (d.ext === 'webm' || d.ext === 'mp4') {
-				current = video.currentTime;
-			} else {
-				if (vlc.playlist.isPlaying) {
-					vlc.currentTime += 250;
-				}
-				current = vlc.currentTime / 1000;
-			}
+			current = video.currentTime;
 
 			current += d.ss;
 
