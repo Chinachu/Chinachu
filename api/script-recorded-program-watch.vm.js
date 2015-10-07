@@ -133,7 +133,7 @@ function main(avinfo) {
 				response.setHeader('Content-Length', tsize);
 				
 				response.head(200);
-			} else if (d.ss !== '0') {
+			} else if (d.ss !== '2') {
 				range.start = parseInt(ibitrate / 8 * (parseInt(d.ss, 10) - 2), 10);
 				
 				response.setHeader('Content-Length', tsize);
