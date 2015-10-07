@@ -16,7 +16,7 @@ fi
 shopt -s extglob
 
 # variables
-NODE_VER=4.0.0
+NODE_VER=4.1.2
 
 main () {
   local SELF_PATH DIR SYM
@@ -174,9 +174,9 @@ chinachu_installer_node () {
   ensure_dir "$NAVE_DIR"
   
   echo "Installing Node using Nave..."
-  wget -O - https://github.com/isaacs/nave/archive/master.tar.gz | tar zxvf - -C $NAVE_DIR nave-master/nave.sh
-  mv $NAVE_DIR/nave-master/nave.sh $NAVE_DIR/
-  rm -rfv $NAVE_DIR/nave-master
+  wget -O - https://github.com/isaacs/nave/archive/v0.5.1.tar.gz | tar zxvf - -C $NAVE_DIR nave-0.5.1/nave.sh
+  mv $NAVE_DIR/nave-0.5.1/nave.sh $NAVE_DIR/
+  rm -rfv $NAVE_DIR/nave-0.5.1
   ${NAVE_DIR}/nave.sh install $NODE_VER
   rm -fv ${NAVE_DIR}/node
   ln -sv $NODE_PATH ${NAVE_DIR}/node
