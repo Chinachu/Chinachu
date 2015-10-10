@@ -578,10 +578,20 @@
 								onComplete: function () {
 									modal.close();
 								},
-								onSuccess: function () {
+								onSuccess: function (response) {
+									var json = response.responseJSON;
+									var conflictMsg = '';
+									var title = '成功';
+									if (json.conflicts_count > 0) {
+										conflictMsg = '。競合が' + json.conflicts_count + '件あります';
+										title = '競合あり';
+									} else if (json.conflicts_count == -1) {
+										conflictMsg = '。競合の検出に失敗しました。ログを確認してください';
+										title = '競合検出失敗';
+									}
 									new flagrate.Modal({
-										title: '成功',
-										text : 'スケジューラーを実行しました'
+										title: title,
+										text : 'スケジューラーを実行しました' + conflictMsg
 									}).show();
 								},
 								onFailure: function (t) {
