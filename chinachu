@@ -739,7 +739,8 @@ EOF
 }
 
 chinachu_update () {
-  node app-scheduler.js "$@" > /dev/stdout 2>&1 | tee -a ./log/scheduler && return 0
+  node app-scheduler.js "$@" > /dev/stdout 2>&1 | tee -a ./log/scheduler
+  return ${PIPESTATUS[0]}
 }
 
 chinachu_search () {
