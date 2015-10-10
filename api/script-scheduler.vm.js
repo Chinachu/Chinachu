@@ -20,7 +20,8 @@
 			var result = {
 				time     : 0,
 				conflicts: [],
-				reserves : []
+				reserves : [],
+				conflicts_count: -1
 			};
 			
 			if (!fs.existsSync(define.SCHEDULER_LOG_FILE)) {
@@ -65,6 +66,10 @@
 					if (t === 'RESERVE') {
 						result.reserves.push(f);
 					}
+				}
+				
+				if (line.match('CONFLICTS:') !== null) {
+					result.conflicts_count = line.match(/CONFLICTS: ([0-9]+)/)[1];
 				}
 			}
 			
