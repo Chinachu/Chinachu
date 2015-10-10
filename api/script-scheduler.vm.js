@@ -31,7 +31,27 @@
 			
 			result.time = fs.statSync(define.SCHEDULER_LOG_FILE).mtime.getTime();
 			
-			var schedulerLog  = child_process.execSync('tail -n 256 "' + define.SCHEDULER_LOG_FILE + '"', {
+			var numMatches = 256;
+			var numConflicts = 0;
+			
+			var schedulerLogFirst = child_process.execSync('tail -n 10 "' + define.SCHEDULER_LOG_FILE + '"', {
+				encoding: 'utf8'
+			});
+			
+			var lines = schedulerLogFirst.split('\n');
+			for (var k = 0; k < lines.length; k++) {
+				var line = lines[k] || '';
+				if (line.match('MATCHES: ') !== null) {
+					numMatches = Number(line.match(/MATCHES: ([0-9]+)/)[1]);
+				}
+				if (line.match('CONFLICTS: ') !== null) {
+					numConflicts = Number(line.match(/CONFLICTS: ([0-9]+)/)[1]);
+				}
+			}
+			
+			var numToRead = numMatches + numConflicts + 10;
+			
+			var schedulerLog  = child_process.execSync('tail -n ' + numToRead + ' "' + define.SCHEDULER_LOG_FILE + '"', {
 				encoding: 'utf8'
 			});
 			

@@ -578,10 +578,17 @@
 								onComplete: function () {
 									modal.close();
 								},
-								onSuccess: function () {
+								onSuccess: function (response) {
+									var json = response.responseJSON;
+									var conflictMsg = '';
+									var title = '成功';
+									if (Array.isArray(json.conflicts) && json.conflicts.length > 0) {
+										conflictMsg = '。競合が' + json.conflicts.length + '件ありました';
+										title = '競合検出';
+									}
 									new flagrate.Modal({
-										title: '成功',
-										text : 'スケジューラーを実行しました'
+										title: title,
+										text : 'スケジューラーを実行しました' + conflictMsg
 									}).show();
 								},
 								onFailure: function (t) {
