@@ -8,6 +8,7 @@
 var CONFIG_FILE         = __dirname + '/config.json';
 var RULES_FILE          = __dirname + '/rules.json';
 var RESERVES_DATA_FILE  = __dirname + '/data/reserves.json';
+var MANUAL_RESERVES_DATA_FILE = __dirname + '/data/manual_reserves.json';
 var SCHEDULE_DATA_FILE  = __dirname + '/data/schedule.json';
 var RECORDING_DATA_FILE = __dirname + '/data/recording.json';
 var RECORDED_DATA_FILE  = __dirname + '/data/recorded.json';
@@ -255,6 +256,7 @@ var config    = require(CONFIG_FILE);
 var rules     = JSON.parse( fs.readFileSync(RULES_FILE,          { encoding: 'utf8' }) || '[]' );
 var schedule  = JSON.parse( fs.readFileSync(SCHEDULE_DATA_FILE,  { encoding: 'utf8' }) || '[]' );
 var reserves  = JSON.parse( fs.readFileSync(RESERVES_DATA_FILE,  { encoding: 'utf8' }) || '[]' );
+var manual_reserves = JSON.parse( fs.readFileSync(MANUAL_RESERVES_DATA_FILE, { encoding: 'utf8'}) || '[]' );
 var recording = JSON.parse( fs.readFileSync(RECORDING_DATA_FILE, { encoding: 'utf8' }) || '[]' );
 var recorded  = JSON.parse( fs.readFileSync(RECORDED_DATA_FILE,  { encoding: 'utf8' }) || '[]' );
 var channels  = JSON.parse( JSON.stringify(config.channels) );
@@ -427,6 +429,11 @@ function chinachuReserve() {
 		return a.start - b.start;
 	});
 	
+	manual_reserves.push(target);
+	manual_reserves.sort(function(a, b) {
+		return a.start - b.start;
+	});
+	
 	if (opts.get('simulation')) {
 		console.log('[simulation] reserve:');
 		console.log(JSON.stringify(target, null, '  '));
@@ -435,6 +442,7 @@ function chinachuReserve() {
 		console.log(JSON.stringify(target, null, '  '));
 		
 		fs.writeFileSync(RESERVES_DATA_FILE, JSON.stringify(reserves));
+		fs.writeFileSync(MANUAL_RESERVES_DATA_FILE, JSON.stringify(manual_reserves));
 		
 		console.log('予約しました。 スケジューラーを実行して競合を確認することをお勧めします');
 	}
@@ -463,6 +471,13 @@ function chinachuUnreserve() {
 		}
 	}
 	
+	for (var i = 0; manual_reserves.length > i; i++) {
+		if (target.id === manual_reserves[i].id) {
+			manual_reserves.splice(i, 1);
+			break;
+		}
+	}
+	
 	if (opts.get('simulation')) {
 		console.log('[simulation] unreserve:');
 		console.log(JSON.stringify(target, null, '  '));
@@ -471,6 +486,7 @@ function chinachuUnreserve() {
 		console.log(JSON.stringify(target, null, '  '));
 		
 		fs.writeFileSync(RESERVES_DATA_FILE, JSON.stringify(reserves));
+		fs.writeFileSync(MANUAL_RESERVES_DATA_FILE, JSON.stringify(manual_reserves));
 		
 		console.log('予約を解除しました。 ');
 	}

@@ -12,6 +12,7 @@ var PID_FILE = __dirname + '/data/scheduler.pid';
 var CONFIG_FILE         = __dirname + '/config.json';
 var RULES_FILE          = __dirname + '/rules.json';
 var RESERVES_DATA_FILE  = __dirname + '/data/reserves.json';
+var MANUAL_RESERVES_DATA_FILE = __dirname + '/data/manual_reserves.json';
 var SCHEDULE_DATA_FILE  = __dirname + '/data/schedule.json';
 
 // 標準モジュールのロード
@@ -69,6 +70,7 @@ opts.parse([
 var config   = require(CONFIG_FILE);
 var rules    = JSON.parse(fs.readFileSync(RULES_FILE, { encoding: 'utf8' }) || '[]');
 var reserves = null;//まだ読み込まない
+var manual_reserves = null;//まだ読み込まない
 
 // チャンネルリスト
 var channels = JSON.parse(JSON.stringify(config.channels));
@@ -187,6 +189,7 @@ function scheduler() {
 	});
 	
 	reserves = JSON.parse(fs.readFileSync(RESERVES_DATA_FILE, { encoding: 'utf8' }) || '[]');//読み込む
+	manual_reserves = JSON.parse(fs.readFileSync(MANUAL_RESERVES_DATA_FILE, { encoding: 'utf8' }) || '[]');
 	
 	var typeNum = {};
 	
@@ -235,6 +238,20 @@ function scheduler() {
 				}
 			}
 			return;
+		}
+	});
+	
+	manual_reserves.forEach(function (reserve) {
+		var found = false;
+		var i, l;
+		for (i = 0, l = matches.length; i < l; i++) {
+			if (matches[i].id === reserve.id) {
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			matches.push(reserve);
 		}
 	});
 	
