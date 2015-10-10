@@ -31,27 +31,7 @@
 			
 			result.time = fs.statSync(define.SCHEDULER_LOG_FILE).mtime.getTime();
 			
-			var numMatches = 256;
-			var numConflicts = 0;
-			
-			var schedulerLogFirst = child_process.execSync('tail -n 10 "' + define.SCHEDULER_LOG_FILE + '"', {
-				encoding: 'utf8'
-			});
-			
-			var lines = schedulerLogFirst.split('\n');
-			for (var k = 0; k < lines.length; k++) {
-				var line = lines[k] || '';
-				if (line.match('MATCHES: ') !== null) {
-					numMatches = Number(line.match(/MATCHES: ([0-9]+)/)[1]);
-				}
-				if (line.match('CONFLICTS: ') !== null) {
-					numConflicts = Number(line.match(/CONFLICTS: ([0-9]+)/)[1]);
-				}
-			}
-			
-			var numToRead = numMatches + numConflicts + 10;
-			
-			var schedulerLog  = child_process.execSync('tail -n ' + numToRead + ' "' + define.SCHEDULER_LOG_FILE + '"', {
+			var schedulerLog  = child_process.execSync('tail -n $\(tac "' + define.SCHEDULER_LOG_FILE + '" 2>/dev/null | grep -n -m 1 "RUNNING SCHEDULER." | cut -d : -f 1\) "' + define.SCHEDULER_LOG_FILE + '"', {
 				encoding: 'utf8'
 			});
 			
