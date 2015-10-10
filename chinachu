@@ -706,7 +706,8 @@ chinachu_service_execute () {
   ensure_dir log
   ensure_dir data
   
-  node app-${name}.js > /dev/stdout 2>&1 | tee -a ./log/${name} && return 0
+  node app-${name}.js > /dev/stdout 2>&1 | tee -a ./log/${name}
+  return ${PIPESTATUS[0]}
 }
 
 chinachu_service_help () {
@@ -759,7 +760,8 @@ chinachu_reserve () {
     read line
     case ${line:-y} in
       [yY])
-        node app-scheduler.js > /dev/stdout 2>&1 | tee -a ./log/scheduler && return 0
+        node app-scheduler.js > /dev/stdout 2>&1 | tee -a ./log/scheduler
+        return ${PIPESTATUS[0]}
         ;;
       [nN])
         echo "Ok." && return 0
