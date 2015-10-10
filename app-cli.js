@@ -413,7 +413,7 @@ function chinachuReserve() {
 		process.exit(1);
 	}
 	
-	if (chinachu.getProgramById(opts.get('id'), reserves) !== null) {
+	if (chinachu.getProgramById(opts.get('id'), reserves) !== null || chinachu.getProgramById(opt.get('id'), manual_reserves) !== null) {
 		util.error('既に予約されています');
 		process.exit(1);
 	}
