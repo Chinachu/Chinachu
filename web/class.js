@@ -639,7 +639,7 @@
 							onSuccess: function () {
 								new flagrate.Modal({
 									title: '成功',
-									text : '予約しました'
+									text : '予約しました。競合を確認するためスケジューラを実行することをお勧めします'
 								}).show();
 							},
 							onFailure: function (t) {
@@ -670,7 +670,7 @@
 								onSuccess: function () {
 									new flagrate.Modal({
 										title: '成功',
-										text : '予約しました'
+										text : '予約しました。競合を確認するためスケジューラを実行することをお勧めします'
 									}).show();
 								},
 								onFailure: function (t) {
@@ -739,7 +739,7 @@
 									onSuccess: function () {
 										new flagrate.Modal({
 											title: '成功',
-											text : '予約を取り消しました'
+											text : '予約を取り消しました。競合を解決するにはスケジューラを実行する必要があります'
 										}).show();
 									},
 									onFailure: function (t) {
@@ -801,7 +801,7 @@
 									onSuccess: function () {
 										new flagrate.Modal({
 											title: '成功',
-											text : 'スキップを有効にしました'
+											text : 'スキップを有効にしました。競合を解決するにはスケジューラを実行する必要があります'
 										}).show();
 									},
 									onFailure: function (t) {
@@ -863,7 +863,7 @@
 									onSuccess: function () {
 										new flagrate.Modal({
 											title: '成功',
-											text : 'スキップを取り消しました'
+											text : 'スキップを取り消しました。競合を確認するため、スケジューラの実行をお勧めします'
 										}).show();
 									},
 									onFailure: function (t) {
