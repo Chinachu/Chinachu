@@ -670,7 +670,7 @@
 								onSuccess: function () {
 									new flagrate.Modal({
 										title: '成功',
-										text : '予約しました。競合を確認するためスケジューラを実行することをお勧めします'
+										text : '予約しました。スケジューラーを実行して競合を確認することをお勧めします'
 									}).show();
 								},
 								onFailure: function (t) {
@@ -863,7 +863,7 @@
 									onSuccess: function () {
 										new flagrate.Modal({
 											title: '成功',
-											text : 'スキップを取り消しました。競合を確認するため、スケジューラの実行をお勧めします'
+											text : 'スキップを取り消しました。スケジューラーを実行して競合を確認することをお勧めします'
 										}).show();
 									},
 									onFailure: function (t) {
