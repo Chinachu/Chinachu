@@ -415,12 +415,12 @@ function convertPrograms(p, ch) {
 		}
 		
 		var episodeNumber = null;
-		var episodeNumberMatch = (c.title[0]._ + ' ' + desc).match(/(#|＃|♯)[0-9０１２３４５６７８９]+|第([0-9]+|[０１２３４５６７８９零一二三四五六七八九十]+)(話|回)|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
+		var episodeNumberMatch = (c.title[0]._ + ' ' + desc).match(/[「|（|#|＃|♯|第]+([0-9０-９零一壱二弐三参四五伍六七八九十拾]+)[話|回|」|）]*|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
 		if (episodeNumberMatch !== null) {
 			var episodeNumberString = episodeNumberMatch[0];
 
 			episodeNumberString = episodeNumberString
-				.replace(/#|＃|♯|第|話|回/g, '')
+				.replace(/「|（|#|＃|♯|第|話|回|」|）/g, '')
 				.replace(/０|零/g, '0')
 				.replace(/４|Ⅳ|IV|ＩＶ/g, '4')
 				.replace(/８|Ⅷ|VIII|ＶＩＩＩ/g, '8')
