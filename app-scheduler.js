@@ -385,7 +385,7 @@ function convertPrograms(p, ch) {
 		title = title
 			.replace(/【.{1,2}】/g, '')
 			.replace(/\[.\]/g, '')
-			.replace(/[「|（|#|＃|♯|第]+[0-9０-９零一壱二弐三参四五伍六七八九十拾]+[話|回|」|）]*/g, '');
+			.replace(/[「（#＃♯第]+[0-9０-９零一壱二弐三参四五伍六七八九十拾]+[話回」）]*/g, '');
 		
 		if (c.category[1]._ === 'anime') {
 			title = title.replace(/(?:TV|ＴＶ)?アニメ「([^「」]+)」/g, '$1');
@@ -415,7 +415,7 @@ function convertPrograms(p, ch) {
 		}
 		
 		var episodeNumber = null;
-		var episodeNumberMatch = (c.title[0]._ + ' ' + desc).match(/[「|（|#|＃|♯|第]+([0-9０-９零一壱二弐三参四五伍六七八九十拾]+)[話|回|」|）]*|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
+		var episodeNumberMatch = (c.title[0]._ + ' ' + desc).match(/[「（#＃♯第]+[0-9０-９零一壱二弐三参四五伍六七八九十拾]+[話回」）]*|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
 		if (episodeNumberMatch !== null) {
 			var episodeNumberString = episodeNumberMatch[0];
 
