@@ -531,7 +531,7 @@ function getEpg() {
 		}
 		
 		if (config.epgEndCommand) {
-			commandProcess = child_process.spawn(config.epgEndCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
+			var commandProcess = child_process.spawn(config.epgEndCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
 			util.log('SPAWN: ' + config.epgEndCommand + ' (pid=' + commandProcess.pid + ')');
 		}
 		
