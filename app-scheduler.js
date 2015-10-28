@@ -530,6 +530,11 @@ function getEpg() {
 			util.log('WRITE: ' + SCHEDULE_DATA_FILE);
 		}
 		
+		if (config.epgEndCommand) {
+			commandProcess = child_process.spawn(config.epgEndCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
+			util.log('SPAWN: ' + config.epgEndCommand + ' (pid=' + commandProcess.pid + ')');
+		}
+		
 		callback();
 	};
 	
@@ -1054,11 +1059,6 @@ function getEpg() {
 			isFinished = true;
 			
 			writeOut(scheduler);
-			
-			if (config.epgEndCommand) {
-				commandProcess = child_process.spawn(config.epgEndCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
-				util.log('SPAWN: ' + config.epgEndCommand + ' (pid=' + commandProcess.pid + ')');
-			}
 			
 			return;
 		}
