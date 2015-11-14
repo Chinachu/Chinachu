@@ -9,6 +9,7 @@
 
 var CONFIG_FILE         = __dirname + '/config.json';
 var RESERVES_DATA_FILE  = __dirname + '/data/reserves.json';
+var MANUAL_RESERVES_DATA_FILE = __dirname + '/data/manual_reserves.json';
 var RECORDING_DATA_FILE = __dirname + '/data/recording.json';
 var RECORDED_DATA_FILE  = __dirname + '/data/recorded.json';
 
@@ -44,6 +45,7 @@ var chinachu   = require('chinachu-common');
 
 //
 var reserves  = [];
+var manual_reserves = [];
 var recorded  = [];
 var recording = [];
 
@@ -347,6 +349,14 @@ function doRecord(program) {
 						break;
 					}
 				}
+				for (i = 0, l = manual_reserves.length; i < l; i++) {
+					if (manual_reserves[i].id === program.id) {
+						manual_reserves.splice(i, 1);
+						fs.writeFileSync(MANUAL_RESERVES_DATA_FILE, JSON.stringify(manual_reserves));
+						util.log('WRITE: ' + MANUAL_RESERVES_DATA_FILE);
+						break;
+					}
+				}
 			}
 			
 			// ポストプロセス
@@ -480,6 +490,21 @@ chinachu.jsonWatcher(
 			fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));
 			util.log('WRITE: ' + RECORDING_DATA_FILE);
 		}
+	},
+	{ create: [], now: true }
+);
+ 
+// ファイル更新監視: ./data/manual_reserves.json
+chinachu.jsonWatcher(
+	MANUAL_RESERVES_DATA_FILE,
+	function _onUpdated(err, data, mes) {
+		if (err) {
+			console.error(err);
+			return;
+		}
+		
+		manual_reserves = data;
+		util.log(mes);
 	},
 	{ create: [], now: true }
 );
