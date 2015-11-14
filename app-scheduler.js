@@ -214,8 +214,16 @@ function scheduler() {
 	});
 	
 	reserves.forEach(function (reserve) {
+		var i, l;
 		if (reserve.isManualReserved) {
 			if (reserve.start + 86400000 > Date.now()) {
+				for (i = 0, l = matches.length; i < l; i++) {
+					if (matches[i].id === reserve.id) {
+						// ルールと重複していた場合、ルール予約が手動予約に優先するよう、matchesにpushせずreturnする
+						util.log('OVERRIDEBYRULE: ' + reserve.id + ' ' + dateFormat(new Date(reserve.start), 'isoDateTime') + ' [' + reserve.channel.name + '] ' + reserve.title);
+						return;
+					}
+				}
 				var isOneseg = reserve['1seg'] === true;
 				reserve = chinachu.getProgramById(reserve.id, schedule) || reserve;
 				reserve.isManualReserved = true;
@@ -226,7 +234,6 @@ function scheduler() {
 			}
 			return;
 		}
-		var i, l;
 		if (reserve.isSkip) {
 			for (i = 0, l = matches.length; i < l; i++) {
 				if (matches[i].id === reserve.id) {
