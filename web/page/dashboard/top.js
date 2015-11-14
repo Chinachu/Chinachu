@@ -208,6 +208,9 @@
 								}
 							});
 						} else if (program._data._isReserves) {
+							if (program.isConflict) {
+								program._it.entity.addClassName('conflict');
+							}
 							if (program.isManualReserved) {
 								contextMenuItems.unshift({
 									label   : '予約取消...',
