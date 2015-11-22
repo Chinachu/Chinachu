@@ -31,7 +31,7 @@
 			
 			result.time = fs.statSync(define.SCHEDULER_LOG_FILE).mtime.getTime();
 			
-			var schedulerLog  = child_process.execSync('tail -n 256 "' + define.SCHEDULER_LOG_FILE + '"', {
+			var schedulerLog  = child_process.execSync('tail -n $\(tac "' + define.SCHEDULER_LOG_FILE + '" 2>/dev/null | grep -n -m 1 "RUNNING SCHEDULER." | cut -d : -f 1\) "' + define.SCHEDULER_LOG_FILE + '"', {
 				encoding: 'utf8'
 			});
 			

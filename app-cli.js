@@ -771,6 +771,7 @@ function chinachuProgramList(target) {
 		if (opts.get('simple')) {
 			t.cell('Datetime', dateFormat(new Date(a.start), 'dd HH:MM'));
 		} else {
+			// TODO: isConflict を見る
 			t.cell('By', a.isManualReserved ? 'user' : 'rule');
 			t.cell('Datetime', dateFormat(new Date(a.start), 'yy/mm/dd HH:MM'));
 		}
