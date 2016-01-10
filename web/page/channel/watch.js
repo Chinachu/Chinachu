@@ -221,7 +221,7 @@ P = Class.create(P, {
 							},
 							{
 								label     : 'AAC',
-								value     : 'libfdk_aac'
+								value     : 'libvo_aacenc'
 							},
 							{
 								label     : 'Vorbis',
@@ -260,7 +260,7 @@ P = Class.create(P, {
 						items     : [
 							{
 								label     : 'AAC',
-								value     : 'libfdk_aac',
+								value     : 'libvo_aacenc',
 								isSelected: true
 							}
 						]
@@ -278,7 +278,7 @@ P = Class.create(P, {
 						items     : [
 							{
 								label     : 'AAC',
-								value     : 'libfdk_aac',
+								value     : 'libvo_aacenc',
 								isSelected: true
 							}
 						]
