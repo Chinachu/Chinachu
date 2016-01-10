@@ -224,7 +224,7 @@ chinachu_installer_epgdump () {
 chinachu_installer_libx264 () {
   remove_dir "$USR_DIR/src/libx264"
   
-  local LIBX264_GIT="git://git.videolan.org/x264.git"
+  local LIBX264_GIT="git://git.videolan.org/git/x264.git"
   
   echo "Installing libx264 from $LIBX264_GIT"
   git clone --depth=1 --branch=master $LIBX264_GIT "$USR_DIR/src/libx264"
