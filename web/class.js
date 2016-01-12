@@ -1882,5 +1882,344 @@
 			return this;
 		}
 	});
+
+	var pageObj;
+
+	ui.SearchProgram = Class.create({
+		initialize: function _init(that) {
+			
+			pageObj = that;
+			
+			this.create();
+
+			return this;
+		},
+		create: function _create() {
+			if (false) { //のちにエラー処理を追加
+				var modal = new flagrate.Modal({
+					title: 'エラー',
+					text : '不正なアクセスです。'
+				}).show(); 
+			} else {
+				var form = flagrate.createForm({
+					fields: [
+						{
+							key  : 'types',
+							label: 'タイプ',
+							input: {
+								type : 'checkboxes',
+								items: ['GR', 'BS', 'CS', 'EX']
+							}
+						},
+						{
+							key  : 'categories',
+							label: 'ジャンル',
+							input: {
+								type : 'checkboxes',
+								items: [
+									'anime', 'information', 'news', 'sports',
+									'variety', 'drama', 'music', 'cinema', 'etc'
+								]
+							}
+						},
+						{
+							key  : 'channels',
+							label: '対象CH',
+							input: {
+								type : formInputTypeChannels,
+								style: { width: '100%' }
+							}
+						},
+						{
+							key  : 'ignore_channels',
+							label: '無視CH',
+							input: {
+								type : formInputTypeChannels,
+								style: { width: '100%' }
+							}
+						},
+						{
+							key  : 'reserve_flags',
+							label: '対象フラグ',
+							input: {
+								type : 'checkboxes',
+								items: ['新', '終', '再', '字', 'デ', '解', '無', '二', 'Ｓ']
+							}
+						},
+						{
+							key  : 'ignore_flags',
+							label: '無視フラグ',
+							input: {
+								type : 'checkboxes',
+								items: ['新', '終', '再', '字', 'デ', '解', '無', '二', 'Ｓ']
+							}
+						},
+						{
+							key  : 'start',
+							point: '/hour/start',
+							label: '何時から',
+							input: {
+								type     : 'number',
+								style    : { width: '60px' },
+								maxLength: 2,
+								max      : 24,
+								min      : 0,
+								val      : 0
+							}
+						},
+						{
+							key   : 'end',
+							point : '/hour/end',
+							label : '何時まで',
+							input : {
+								type     : 'number',
+								style    : { width: '60px' },
+								maxLength: 2,
+								max      : 24,
+								min      : 0,
+								val      : 24
+							}
+						},
+						{
+							key  : 'mini',
+							point: '/duration/min',
+							label: '最短長さ(秒)',
+							input: {
+								type : 'number',
+								style: { width: '80px' }
+							}
+						},
+						{
+							key   : 'maxi',
+							point: '/duration/max',
+							label : '最長長さ(秒)',
+							input : {
+								type : 'number',
+								style: { width: '80px' }
+							}
+						},
+						{
+							key   : 'reserve_titles',
+							label : '対象タイトル',
+							input : {
+								type : formInputTypeStrings,
+								style: { width: '100%' }
+							}
+						},
+						{
+							key   : 'ignore_titles',
+							label : '無視タイトル',
+							input : {
+								type : formInputTypeStrings,
+								style: { width: '100%' }
+							}
+						},
+						{
+							key   : 'reserve_descriptions',
+							label : '対象説明文',
+							input : {
+								type : formInputTypeStrings,
+								style: { width: '100%' }
+							}
+						},
+						{
+							key   : 'ignore_descriptions',
+							label : '無視説明文',
+							input : {
+								type : formInputTypeStrings,
+								style: { width: '100%' }
+							}
+						}
+					]
+				});
+				
+				var modal = flagrate.createModal({
+					title: '番組検索',
+					element: form.element,
+					buttons: [
+						{
+							label  : '検索',
+							color  : '@pink',
+							onSelect: function(e, modal) {
+								e.targetButton.disable();
+								
+								var query = form.getResult();
+
+								if (!query.duration.min) {
+									delete query.duration.min;
+								}
+								if (!query.duration.max) {
+									delete query.duration.max;
+								}
+								if (!query.duration.min && !query.duration.max) {
+									delete query.duration;
+								}
+
+								var i;
+								for (i in query) {
+									if (typeof query[i] === 'object' && query[i].length === 0) {
+										delete query[i];
+									}
+								}
+
+								console.log(query);
+
+								query.skip = 1;
+								query.page = 0;
+
+								pageObj.self.query = Object.extend(pageObj.self.query, query);
+								window.location.hash = '!/search/top/' + Object.toQueryString(pageObj.self.query) + '/';
+								modal.close();
+							}
+						},
+						{
+							label  : 'キャンセル',
+							onSelect: function(e, modal) {
+								modal.close();
+							}
+						}
+					]
+				}).show();
+			}
+			
+			return this;
+		}
+	});
+
+	// 単体のルールとのマッチ判定
+	util.programMatchesRule = function (rule, program) {
+		var i, j, l, m, isFound;
 	
+		// isDisabled
+		// if (rule.isDisabled) { return false; }
+	
+		// sid
+		if (rule.sid && rule.sid !== program.channel.sid) { return false; }
+	
+		// types
+		if (rule.types) {
+			if (rule.types.indexOf(program.channel.type) === -1) { return false; }
+		}
+	
+		// channels
+		if (rule.channels) {
+			if (rule.channels.indexOf(program.channel.id) === -1) {
+				if (rule.channels.indexOf(program.channel.channel) === -1) {
+					return false;
+				}
+			}
+		}
+	
+		// ignore_channels
+		if (rule.ignore_channels) {
+			if (rule.ignore_channels.indexOf(program.channel.id) !== -1) {
+				return false;
+			}
+			if (rule.ignore_channels.indexOf(program.channel.channel) !== -1) {
+				return false;
+			}
+		}
+	
+		// category
+		if (rule.category && rule.category !== program.category) { return false; }
+	
+		// categories
+		if (rule.categories) {
+			if (rule.categories.indexOf(program.category) === -1) { return false; }
+		}
+	
+		// hour
+		if (rule.hour && (typeof rule.hour.start === 'number') && (typeof rule.hour.end === 'number') && !(rule.hour.start === 0 && rule.hour.end === 24)) {
+			var ruleStart = rule.hour.start;
+			var ruleEnd   = rule.hour.end;
+	
+			var progStart = new Date(program.start).getHours();
+			var progEnd   = new Date(program.end).getHours();
+			var progEndMinute = new Date(program.end).getMinutes();
+	
+			if (progStart > progEnd) {
+				progEnd += 24;
+			}
+			if (progEndMinute === 0) {
+				progEnd -= 1;
+			}
+	
+			if (ruleStart > ruleEnd) {
+				if ((ruleStart > progStart) && (ruleEnd < progEnd)) { return false; }
+			} else {
+				if ((ruleStart > progStart) || (ruleEnd < progEnd)) { return false; }
+			}
+		}
+	
+		// duration
+		if (rule.duration && (typeof rule.duration.min !== 'undefined') && (typeof rule.duration.max !== 'undefined')) {
+			if ((rule.duration.min > program.seconds) || (rule.duration.max < program.seconds)) { return false; }
+		}
+	
+		// reserve_titles
+		if (rule.reserve_titles) {
+			isFound = false;
+	
+			for (i = 0; i < rule.reserve_titles.length; i++) {
+				if (program.fullTitle.match(rule.reserve_titles[i]) !== null) { isFound = true; }
+			}
+	
+			if (!isFound) { return false; }
+		}
+	
+		// ignore_titles
+		if (rule.ignore_titles) {
+			for (i = 0; i < rule.ignore_titles.length; i++) {
+				if (program.fullTitle.match(rule.ignore_titles[i]) !== null) { return false; }
+			}
+		}
+	
+		// reserve_descriptions
+		if (rule.reserve_descriptions) {
+			if (!program.detail) { return false; }
+	
+			isFound = false;
+	
+			for (i = 0; i < rule.reserve_descriptions.length; i++) {
+				if (program.detail.match(rule.reserve_descriptions[i]) !== null) { isFound = true; }
+			}
+	
+			if (!isFound) { return false; }
+		}
+	
+		// ignore_descriptions
+		if (rule.ignore_descriptions) {
+			if (!program.detail) { return false; }
+	
+			for (i = 0; i < rule.ignore_descriptions.length; i++) {
+				if (program.detail.match(rule.ignore_descriptions[i]) !== null) { return false; }
+			}
+		}
+	
+		// ignore_flags
+		if (rule.ignore_flags) {
+			for (i = 0; i < rule.ignore_flags.length; i++) {
+				for (j = 0; j < program.flags.length; j++) {
+					if (rule.ignore_flags[i] === program.flags[j]) { return false; }
+				}
+			}
+		}
+	
+		// reserve_flags
+		if (rule.reserve_flags) {
+			if (!program.flags) { return false; }
+	
+			isFound = false;
+	
+			for (i = 0; i < rule.reserve_flags.length; i++) {
+				for (j = 0; j < program.flags.length; j++) {
+					if (rule.reserve_flags[i] === program.flags[j]) { isFound = true; }
+				}
+			}
+	
+			if (!isFound) { return false; }
+		}
+	
+		return true;
+	};
 })();
