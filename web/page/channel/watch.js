@@ -81,10 +81,10 @@ P = Class.create(P, {
 
 						var d = this.d = this.form.result();
 
-						if ((d.ext === 'm2ts') && (!window.navigator.plugins['VLC Web Plugin'])) {
+						if (d.ext === 'm2ts') {
 							new flagrate.Modal({
 								title: 'エラー',
-								text : 'MPEG-2 TSコンテナの再生にはVLC Web Pluginが必要です。'
+								text : 'MPEG-2 TSコンテナの再生はサポートしていません。'
 							}).show();
 							return;
 						}
@@ -102,7 +102,8 @@ P = Class.create(P, {
 
 						var d = this.form.result();
 
-						d.prefix = window.location.protocol + '//' + window.location.host + '/api/channel/' + this.channelId + '/';
+						d.prefix = window.location.protocol + '//' + window.location.host;
+						d.prefix += window.location.pathname.replace(/\/[^\/]*$/, '') + '/api/channel/' + this.channelId + '/';
 						window.open('./api/channel/' + this.channelId + '/watch.xspf?' + Object.toQueryString(d));
 					}.bind(this)
 				}
@@ -221,7 +222,7 @@ P = Class.create(P, {
 							},
 							{
 								label     : 'AAC',
-								value     : 'libfdk_aac'
+								value     : 'libvo_aacenc'
 							},
 							{
 								label     : 'Vorbis',
@@ -260,7 +261,7 @@ P = Class.create(P, {
 						items     : [
 							{
 								label     : 'AAC',
-								value     : 'libfdk_aac',
+								value     : 'libvo_aacenc',
 								isSelected: true
 							}
 						]
@@ -278,7 +279,7 @@ P = Class.create(P, {
 						items     : [
 							{
 								label     : 'AAC',
-								value     : 'libfdk_aac',
+								value     : 'libvo_aacenc',
 								isSelected: true
 							}
 						]
@@ -432,7 +433,7 @@ P = Class.create(P, {
 
 		var getRequestURI = function() {
 
-			var r = window.location.protocol + '//' + window.location.host;
+			var r = window.location.protocol + '//' + window.location.host + window.location.pathname.replace(/\/[^\/]*$/, '');
 			r += '/api/channel/' + this.channelId + '/watch.' + d.ext;
 			var q = Object.toQueryString(d);
 
@@ -440,22 +441,12 @@ P = Class.create(P, {
 		}.bind(this);
 
 		var togglePlay = function() {
-			if (d.ext !== 'm2ts') {
-				if (video.paused) {
-					video.play();
-					control.getElementByKey('play').setLabel('Pause');
-				} else {
-					video.pause();
-					control.getElementByKey('play').setLabel('Play');
-				}
+			if (video.paused) {
+				video.play();
+				control.getElementByKey('play').setLabel('Pause');
 			} else {
-				if (vlc.playlist.isPlaying) {
-					vlc.playlist.pause();
-					control.getElementByKey('play').setLabel('Pause');
-				} else {
-					vlc.playlist.play();
-					control.getElementByKey('play').setLabel('Play');
-				}
+				video.pause();
+				control.getElementByKey('play').setLabel('Play');
 			}
 		};
 
@@ -465,35 +456,15 @@ P = Class.create(P, {
 			'class': 'video-container'
 		}).insertTo(this.view.content);
 
-		if (d.ext !== 'm2ts') {
-			var video = new flagrate.Element('video', {
-				src     : getRequestURI(),
-				autoplay: true
-			}).insertTo(videoContainer);
+		var video = new flagrate.Element('video', {
+			src     : getRequestURI(),
+			autoplay: true
+		}).insertTo(videoContainer);
 
-			video.addEventListener('click', togglePlay);
+		video.addEventListener('click', togglePlay);
 
-			//video.load();
-			video.volume = 1;
-		} else {
-			var vlc = flagrate.createElement('embed', {
-				type: 'application/x-vlc-plugin',
-				pluginspage: 'http://www.videolan.org',
-				width: '100%',
-				height: '100%',
-				target: getRequestURI(),
-				autoplay: 'true',
-				controls: 'false'
-			}).insertTo(videoContainer);
-
-			flagrate.createElement('object', {
-				classid: 'clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921',
-				codebase: 'http://download.videolan.org/pub/videolan/vlc/last/win32/axvlc.cab'
-			}).insertTo(videoContainer);
-
-			vlc.audio.volume = 100;
-			vlc.currentTime = 0;
-		}
+		//video.load();
+		video.volume = 1;
 
 		// create control view
 
@@ -516,9 +487,7 @@ P = Class.create(P, {
 
 			var vol = control.getElementByKey('vol');
 
-			if (d.ext !== 'm2ts') {
-				video.volume = vol.getValue() / 10;
-			}
+			video.volume = vol.getValue() / 10;
 		});
 
 		return this;

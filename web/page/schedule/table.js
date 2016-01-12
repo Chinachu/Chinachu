@@ -426,6 +426,9 @@
 				if (program.isSkip) {
 					piece[program.id].isSkip = true;
 				}
+				if (program.isConflict) {
+					piece[program.id].isConflict = true;
+				}
 			});
 			
 			global.chinachu.recording.forEach(function (program) {
@@ -978,6 +981,9 @@
 											var dummy = new chinachu.ui.Skip(a.program.id);
 										}
 									});
+								}
+								if (a.isConflict) {
+									a._rect.addClassName('conflict');
 								}
 							} else {
 								contextMenuItems.unshift({

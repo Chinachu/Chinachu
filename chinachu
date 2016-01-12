@@ -16,7 +16,7 @@ fi
 shopt -s extglob
 
 # variables
-NODE_VER=4.0.0
+NODE_VER=4.1.2
 
 main () {
   local SELF_PATH DIR SYM
@@ -62,7 +62,7 @@ main () {
     reserve | unreserve | skip | unskip | stop | \
     rule | enrule | disrule | rmrule | \
     rules | reserves | recording | recorded | \
-    cleanup | unlock | ircbot | test )
+    cleanup | ircbot | test )
       cmd="chinachu_$cmd"
       ;;
     * )
@@ -89,7 +89,7 @@ chinachu_installer () {
   PS3="what do you install? > "
   select item in \
     "Auto (full)" "Auto (fast)" "submodule" "Node.js Environment" "Node.js Modules" \
-    "epgdump" "libx264" "libvpx" "libfdk-aac" "libogg" "libvorbis" "ffmpeg"
+    "epgdump" "ffmpeg"
   do
     echo "selected: ${item}"
     case $item in
@@ -111,21 +111,6 @@ chinachu_installer () {
       "epgdump" )
         cmd="chinachu_installer_epgdump"
         ;;
-      "libx264" )
-        cmd="chinachu_installer_libx264"
-        ;;
-      "libvpx" )
-        cmd="chinachu_installer_libvpx"
-        ;;
-      "libfdk-aac" )
-        cmd="chinachu_installer_libfdk-aac"
-        ;;
-      "libogg" )
-        cmd="chinachu_installer_libogg"
-        ;;
-      "libvorbis" )
-        cmd="chinachu_installer_libvorbis"
-        ;;
       "ffmpeg" )
         cmd="chinachu_installer_ffmpeg"
         ;;
@@ -144,11 +129,6 @@ chinachu_installer_auto_full () {
   chinachu_installer_node
   chinachu_installer_node_modules
   chinachu_installer_epgdump
-  chinachu_installer_libx264
-  chinachu_installer_libvpx
-  chinachu_installer_libfdk-aac
-  chinachu_installer_libogg
-  chinachu_installer_libvorbis
   chinachu_installer_ffmpeg
   
   return 0
@@ -174,9 +154,9 @@ chinachu_installer_node () {
   ensure_dir "$NAVE_DIR"
   
   echo "Installing Node using Nave..."
-  wget -O - https://github.com/isaacs/nave/archive/master.tar.gz | tar zxvf - -C $NAVE_DIR nave-master/nave.sh
-  mv $NAVE_DIR/nave-master/nave.sh $NAVE_DIR/
-  rm -rfv $NAVE_DIR/nave-master
+  wget -O - https://github.com/isaacs/nave/archive/v0.5.1.tar.gz | tar zxvf - -C $NAVE_DIR nave-0.5.1/nave.sh
+  mv $NAVE_DIR/nave-0.5.1/nave.sh $NAVE_DIR/
+  rm -rfv $NAVE_DIR/nave-0.5.1
   ${NAVE_DIR}/nave.sh install $NODE_VER
   rm -fv ${NAVE_DIR}/node
   ln -sv $NODE_PATH ${NAVE_DIR}/node
@@ -221,250 +201,29 @@ chinachu_installer_epgdump () {
   return 0
 }
 
-chinachu_installer_libx264 () {
-  remove_dir "$USR_DIR/src/libx264"
-  
-  local LIBX264_GIT="git://git.videolan.org/x264.git"
-  
-  echo "Installing libx264 from $LIBX264_GIT"
-  git clone --depth=1 --branch=master $LIBX264_GIT "$USR_DIR/src/libx264"
-  cd "$USR_DIR/src/libx264"
-  
-  ./configure \
-    --prefix=$USR_DIR \
-    --enable-static \
-    --enable-pic \
-    --disable-opencl \
-    --disable-cli \
-    --disable-ffms \
-    --disable-gpac \
-    --disable-lavf \
-    --disable-swscale
-  
-  make || fail "couldn't make libx264"
-  make install && make clean
-  
-  cd $CHINACHU_DIR
-  
-  remove_dir "$USR_DIR/src/libx264"
-  
-  echo "libx264 --> done."
-  
-  return 0
-}
-
-chinachu_installer_libvpx () {
-  remove_dir "$USR_DIR/src/libvpx"
-  
-  local LIBVPX_GIT="https://chromium.googlesource.com/webm/libvpx"
-  
-  echo "Installing libvpx from $LIBVPX_GIT"
-  git clone --branch=master $LIBVPX_GIT "$USR_DIR/src/libvpx"
-  cd "$USR_DIR/src/libvpx"
-  
-  ./configure \
-    --prefix=$USR_DIR \
-    --disable-shared \
-    --enable-optimizations \
-    --disable-examples \
-    --disable-docs \
-    --disable-vp9 \
-    --disable-unit-tests
-  
-  make || fail "couldn't make libvpx"
-  make install && make clean
-  
-  cd $CHINACHU_DIR
-  
-  remove_dir "$USR_DIR/src/libvpx"
-  
-  echo "libvpx --> done."
-  
-  return 0
-}
-
-chinachu_installer_libfdk-aac () {
-  remove_dir "$USR_DIR/src/libfdk-aac"
-  
-  local LIBFDK_GIT="https://github.com/mstorsjo/fdk-aac.git"
-  
-  echo "Installing libfdk-aac from $LIBFDK_GIT"
-  git clone --depth=1 --branch=master $LIBFDK_GIT "$USR_DIR/src/libfdk-aac"
-  cd "$USR_DIR/src/libfdk-aac"
-  
-  autoreconf -fiv
-  
-  ./configure \
-    --prefix=$USR_DIR \
-    --disable-shared
-  
-  make || fail "couldn't make libfdk-aac"
-  make install-strip && make clean
-  
-  cd $CHINACHU_DIR
-  
-  remove_dir "$USR_DIR/src/libfdk-aac"
-  
-  echo "libfdk-aac --> done."
-  
-  return 0
-}
-
-chinachu_installer_libogg () {
-  remove_dir "$USR_DIR/src/libogg"
-  
-  local LIBOGG_TB="http://downloads.xiph.org/releases/ogg/libogg-1.3.1.tar.gz"
-  
-  echo "Installing libogg from $LIBOGG_TB"
-  mkdir "$USR_DIR/src/libogg"
-  cd "$USR_DIR/src/libogg"
-  
-  wget $LIBOGG_TB
-  tar xzvf libogg-1.3.1.tar.gz
-  cd libogg-1.3.1
-  
-  ./configure \
-    --prefix=$USR_DIR \
-    --disable-shared
-  
-  make || fail "couldn't make libogg"
-  make install && make clean
-  
-  cd $CHINACHU_DIR
-  
-  remove_dir "$USR_DIR/src/libogg"
-  
-  echo "libogg --> done."
-  
-  return 0
-}
-
-chinachu_installer_libvorbis () {
-  remove_dir "$USR_DIR/src/libvorbis"
-  
-  local LIBVORBIS_TB="http://downloads.xiph.org/releases/vorbis/libvorbis-1.3.3.tar.gz"
-  
-  echo "Installing libvorbis from $LIBVORBIS_TB"
-  mkdir "$USR_DIR/src/libvorbis"
-  cd "$USR_DIR/src/libvorbis"
-  
-  wget $LIBVORBIS_TB
-  tar xzvf libvorbis-1.3.3.tar.gz
-  cd libvorbis-1.3.3
-  
-  ./configure \
-    --prefix=$USR_DIR \
-    --disable-shared \
-    --with-ogg=$LIBOGG_DIR
-  
-  make || fail "couldn't make libvorbis"
-  make install-strip && make clean
-  
-  cd $CHINACHU_DIR
-  
-  remove_dir "$USR_DIR/src/libvorbis"
-  
-  echo "libvorbis --> done."
-  
-  return 0
-}
-
 chinachu_installer_ffmpeg () {
   remove_dir "$USR_DIR/src/ffmpeg"
-  
-  local FFMPEG_TB="http://ffmpeg.org/releases/ffmpeg-2.6.1.tar.bz2"
-  
-  echo "Installing ffmpeg from $FFMPEG_TB"
-  mkdir "$USR_DIR/src/ffmpeg"
-  cd "$USR_DIR/src/ffmpeg"
+  ensure_dir "$USR_DIR/src/ffmpeg"
 
-  wget $FFMPEG_TB -O ffmpeg.tar.bz2
-  tar xjvf ffmpeg.tar.bz2
-  cd ffmpeg-2.6.1
+  cd $USR_DIR
+
+  MACHINE=`uname -m`
+  if [ ${MACHINE} == "x86_64" ]; then
+    local FFMPEG_FN="ffmpeg-release-64bit-static"
+  else
+    local FFMPEG_FN="ffmpeg-release-32bit-static"
+  fi
   
-  ./configure \
-    --prefix=$USR_DIR \
-    --enable-static \
-    --disable-shared \
-    --enable-nonfree \
-    --enable-gpl \
-    --disable-ffplay \
-    --disable-avdevice \
-    --disable-network \
-    --disable-devices \
-    --enable-libx264 \
-    --enable-libvpx \
-    --enable-libfdk-aac \
-    --enable-libvorbis \
-    --disable-debug \
-    --disable-decoders \
-    --disable-encoders \
-    --disable-demuxers \
-    --disable-muxers \
-    --disable-parsers \
-    --disable-protocols \
-    --disable-filters \
-    --enable-zlib \
-    --enable-decoder=aac \
-    --enable-decoder=ac3 \
-    --enable-decoder=mp2 \
-    --enable-decoder=mp3 \
-    --enable-decoder=mpeg2video \
-    --enable-decoder=mpeg4 \
-    --enable-decoder=pcm_alaw \
-    --enable-decoder=pcm_bluray \
-    --enable-decoder=h264 \
-    --enable-encoder=aac \
-    --enable-encoder=png \
-    --enable-encoder=mjpeg \
-    --enable-encoder=libx264 \
-    --enable-encoder=libvorbis \
-    --enable-encoder=libvpx_vp8 \
-    --enable-encoder=libfdk_aac \
-    --enable-encoder=mpeg2video \
-    --enable-encoder=mpeg4 \
-    --enable-encoder=nvenc \
-    --enable-demuxer=mpegts \
-    --enable-muxer=gif \
-    --enable-muxer=mjpeg \
-    --enable-muxer=mp4 \
-    --enable-muxer=mpegts \
-    --enable-muxer=webm \
-    --enable-muxer=image2 \
-    --enable-parser=aac \
-    --enable-parser=ac3 \
-    --enable-parser=h264 \
-    --enable-parser=hevc \
-    --enable-parser=mjpeg \
-    --enable-parser=mpeg4video \
-    --enable-parser=mpegaudio \
-    --enable-parser=mpegvideo \
-    --enable-parser=opus \
-    --enable-parser=png \
-    --enable-parser=vorbis \
-    --enable-parser=vp8 \
-    --enable-protocol=pipe \
-    --enable-protocol=file \
-    --enable-filter=crop \
-    --enable-filter=hqdn3d \
-    --enable-filter=pad \
-    --enable-filter=resample \
-    --enable-filter=aresample \
-    --enable-filter=scale \
-    --enable-filter=setpts \
-    --enable-filter=settb \
-    --enable-filter=yadif \
-    --enable-filter=trim \
-    --extra-cflags="-I${USR_DIR}/include --static" \
-    --extra-ldflags="-L${USR_DIR}/lib"
-  
-  make || fail "couldn't make ffmpeg"
-  make install && make clean
+  local FFMPEG_XZ="http://johnvansickle.com/ffmpeg/releases/${FFMPEG_FN}.tar.xz"
+
+  wget $FFMPEG_XZ
+  xz -dv "${FFMPEG_FN}.tar.xz"
+
+  tar -xvf "${FFMPEG_FN}.tar" -C bin --strip-components 1
+  rm -v "${FFMPEG_FN}.tar"
   
   cd $CHINACHU_DIR
   
-  remove_dir "$USR_DIR/src/ffmpeg"
-
   echo "Creating libav aliases..."
 
   rm -rfv "$USR_DIR/bin/avconv"
@@ -706,7 +465,8 @@ chinachu_service_execute () {
   ensure_dir log
   ensure_dir data
   
-  node app-${name}.js > /dev/stdout 2>&1 | tee -a ./log/${name} && return 0
+  node app-${name}.js > /dev/stdout 2>&1 | tee -a ./log/${name}
+  return ${PIPESTATUS[0]}
 }
 
 chinachu_service_help () {
@@ -739,7 +499,8 @@ EOF
 }
 
 chinachu_update () {
-  node app-scheduler.js "$@" > /dev/stdout 2>&1 | tee -a ./log/scheduler && return 0
+  node app-scheduler.js "$@" > /dev/stdout 2>&1 | tee -a ./log/scheduler
+  return ${PIPESTATUS[0]}
 }
 
 chinachu_search () {
@@ -758,7 +519,8 @@ chinachu_reserve () {
     read line
     case ${line:-y} in
       [yY])
-        node app-scheduler.js > /dev/stdout 2>&1 | tee -a ./log/scheduler && return 0
+        node app-scheduler.js > /dev/stdout 2>&1 | tee -a ./log/scheduler
+        return ${PIPESTATUS[0]}
         ;;
       [nN])
         echo "Ok." && return 0
@@ -852,24 +614,6 @@ chinachu_cleanup () {
     case ${line:-y} in
       [yY])
         node app-cli.js -mode cleanup "$@" && return 0
-        ;;
-      [nN])
-        echo "Abort." && return 0
-        ;;
-    esac
-  done
-}
-
-chinachu_unlock () {
-  echo "Unlock the tuners."
-  echo "*WARNING* Do NOT run this command when on running Chinachu services."
-  
-  while [ 1 ]; do
-    echo -n "Are you sure [y/n]? "
-    read line
-    case $line in
-      [yY])
-        rm -vf "${CHINACHU_DIR}"/data/tuner.*.priority && rm -vf "${CHINACHU_DIR}"/data/tuner.*.lock && echo "done." && return 0
         ;;
       [nN])
         echo "Abort." && return 0

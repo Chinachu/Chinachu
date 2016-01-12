@@ -1053,6 +1053,9 @@ div.dashboard-timelist[rel="3"]:last-child {
 		div.dashboard-timelist > div.main > a.skip {
 			opacity: 0.4; }
 		
+		div.dashboard-timelist > div.main > a.conflict {
+			opacity: 0.4; ;}
+		
 		div.dashboard-timelist > div.main > a:hover {
 			z-index        : 2;
 			background     : rgba(0,0,0,0.25);
@@ -1193,6 +1196,9 @@ div.timetable > div.board {
 		background  : white !important; }
 	
 	div.timetable > div.board > div.rect.skip {
+		background  : gray !important; }
+	
+	div.timetable > div.board > div.rect.conflict {
 		background  : gray !important; }
 	
 	div.timetable > div.board > div.rect.muted {
@@ -1490,6 +1496,9 @@ td > div > span.flag {
 	color       : #fff;
 	font-size   : 11px;
 	background  : #999; }
+
+td > div > span.flag.conflict {
+	background: #f00; }
 
 td > div > span.flag.manual {
 	background  : #000; }

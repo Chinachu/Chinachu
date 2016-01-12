@@ -578,10 +578,17 @@
 								onComplete: function () {
 									modal.close();
 								},
-								onSuccess: function () {
+								onSuccess: function (response) {
+									var json = response.responseJSON;
+									var conflictMsg = '';
+									var title = '成功';
+									if (Array.isArray(json.conflicts) && json.conflicts.length > 0) {
+										conflictMsg = '。競合が' + json.conflicts.length + '件ありました';
+										title = '競合検出';
+									}
 									new flagrate.Modal({
-										title: '成功',
-										text : 'スケジューラーを実行しました'
+										title: title,
+										text : 'スケジューラーを実行しました' + conflictMsg
 									}).show();
 								},
 								onFailure: function (t) {
@@ -639,7 +646,7 @@
 							onSuccess: function () {
 								new flagrate.Modal({
 									title: '成功',
-									text : '予約しました'
+									text : '予約しました。競合を確認するためスケジューラを実行することをお勧めします'
 								}).show();
 							},
 							onFailure: function (t) {
@@ -670,7 +677,7 @@
 								onSuccess: function () {
 									new flagrate.Modal({
 										title: '成功',
-										text : '予約しました'
+										text : '予約しました。スケジューラーを実行して競合を確認することをお勧めします'
 									}).show();
 								},
 								onFailure: function (t) {
@@ -739,7 +746,7 @@
 									onSuccess: function () {
 										new flagrate.Modal({
 											title: '成功',
-											text : '予約を取り消しました'
+											text : '予約を取り消しました。競合を解決するにはスケジューラを実行する必要があります'
 										}).show();
 									},
 									onFailure: function (t) {
@@ -801,7 +808,7 @@
 									onSuccess: function () {
 										new flagrate.Modal({
 											title: '成功',
-											text : 'スキップを有効にしました'
+											text : 'スキップを有効にしました。競合を解決するにはスケジューラを実行する必要があります'
 										}).show();
 									},
 									onFailure: function (t) {
@@ -863,7 +870,7 @@
 									onSuccess: function () {
 										new flagrate.Modal({
 											title: '成功',
-											text : 'スキップを取り消しました'
+											text : 'スキップを取り消しました。スケジューラーを実行して競合を確認することをお勧めします'
 										}).show();
 									},
 									onFailure: function (t) {
