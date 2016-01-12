@@ -124,6 +124,11 @@ function main(avinfo) {
 				tsize -= bitrate / 8 * (parseInt(d.ss, 10) - 2);
 			}
 			tsize = Math.floor(tsize);
+			
+			if (request.query.mode == 'download') {
+				var pi = path.parse(program.recorded);
+				response.setHeader('Content-disposition', 'attachment; filename*=UTF-8\'\'' + encodeURIComponent(pi.name + '.' + request.query.ext));
+			}
 
 			// Ranges Support
 			var range = {};

@@ -108,57 +108,76 @@ P = Class.create(P, {
 			set['b:a'] = '96k';
 		}
 
+		var buttons = [
+			{
+				label  : '再生',
+				color  : '@pink',
+				onSelect: function(e, modal) {
+					if (this.form.validate() === false) { return; }
+
+					var d = this.d = this.form.result();
+
+					saveSettings(d);
+
+					if (d.ext === 'm2ts') {
+						new flagrate.Modal({
+							title: 'エラー',
+							text : 'MPEG-2 TSコンテナの再生はサポートしていません。'
+						}).show();
+						return;
+					}
+
+					modal.close();
+
+					this.play();
+				}.bind(this)
+			},
+			{
+				label  : 'XSPF',
+				color  : '@orange',
+				onSelect: function(e, modal) {
+					if (this.form.validate() === false) { return; }
+
+					var d = this.form.result();
+
+					saveSettings(d);
+
+					if (program._isRecording) {
+						d.prefix = window.location.protocol + '//' + window.location.host;
+						d.prefix += window.location.pathname.replace(/\/[^\/]*$/, '') + '/api/recording/' + program.id + '/';
+						window.open('./api/recording/' + program.id + '/watch.xspf?' + Object.toQueryString(d));
+					} else {
+						d.prefix = window.location.protocol + '//' + window.location.host;
+						d.prefix += window.location.pathname.replace(/\/[^\/]*$/, '') + '/api/recorded/' + program.id + '/';
+						window.open('./api/recorded/' + program.id + '/watch.xspf?' + Object.toQueryString(d));
+					}
+				}.bind(this)
+			}
+		];
+		if (! program._isRecording) {
+			buttons.push({
+				label: 'ダウンロード',
+				color: '@blue',
+				onSelect: function(e, model) {
+
+					if (this.form.validate() === false) { return; }
+
+					var d = this.form.result();
+
+					saveSettings(d);
+
+					d.prefix = window.location.protocol + '//' + window.location.host + '/api/recording/' + program.id + '/';
+					d.mode = 'download';
+					location.href = './api/recorded/' + program.id + '/watch.' + d.ext + '?' + Object.toQueryString(d);
+				}.bind(this)
+			});
+		}
 		var modal = this.modal = new flagrate.Modal({
 			disableCloseByMask: true,
 			disableCloseButton: true,
 			target: this.view.content,
 			title : 'ストリーミング再生',
-			buttons: [
-				{
-					label  : '再生',
-					color  : '@pink',
-					onSelect: function(e, modal) {
-						if (this.form.validate() === false) { return; }
-
-						var d = this.d = this.form.result();
-
-						saveSettings(d);
-
-						if (d.ext === 'm2ts') {
-							new flagrate.Modal({
-								title: 'エラー',
-								text : 'MPEG-2 TSコンテナの再生はサポートしていません。'
-							}).show();
-							return;
-						}
-
-						modal.close();
-
-						this.play();
-					}.bind(this)
-				},
-				{
-					label  : 'XSPF',
-					color  : '@orange',
-					onSelect: function(e, modal) {
-						if (this.form.validate() === false) { return; }
-
-						var d = this.form.result();
-
-						saveSettings(d);
-
-						if (program._isRecording) {
-							d.prefix = window.location.protocol + '//' + window.location.host;
-							d.prefix += window.location.pathname.replace(/\/[^\/]*$/, '') + '/api/recording/' + program.id + '/';
-							window.open('./api/recording/' + program.id + '/watch.xspf?' + Object.toQueryString(d));
-						} else {
-							d.prefix = window.location.protocol + '//' + window.location.host;
-							d.prefix += window.location.pathname.replace(/\/[^\/]*$/, '') + '/api/recorded/' + program.id + '/';
-							window.open('./api/recorded/' + program.id + '/watch.xspf?' + Object.toQueryString(d));
-						}
-					}.bind(this)
-				}
-			]
+			buttons: buttons
 		}).show();
 
 		if (Prototype.Browser.MobileSafari) {
