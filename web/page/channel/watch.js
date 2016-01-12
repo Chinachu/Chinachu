@@ -102,7 +102,8 @@ P = Class.create(P, {
 
 						var d = this.form.result();
 
-						d.prefix = window.location.protocol + '//' + window.location.host + '/api/channel/' + this.channelId + '/';
+						d.prefix = window.location.protocol + '//' + window.location.host;
+						d.prefix += window.location.pathname.replace(/\/[^\/]*$/, '') + '/api/channel/' + this.channelId + '/';
 						window.open('./api/channel/' + this.channelId + '/watch.xspf?' + Object.toQueryString(d));
 					}.bind(this)
 				}
@@ -432,7 +433,7 @@ P = Class.create(P, {
 
 		var getRequestURI = function() {
 
-			var r = window.location.protocol + '//' + window.location.host;
+			var r = window.location.protocol + '//' + window.location.host + window.location.pathname.replace(/\/[^\/]*$/, '');
 			r += '/api/channel/' + this.channelId + '/watch.' + d.ext;
 			var q = Object.toQueryString(d);
 

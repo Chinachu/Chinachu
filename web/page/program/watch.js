@@ -148,10 +148,12 @@ P = Class.create(P, {
 						saveSettings(d);
 
 						if (program._isRecording) {
-							d.prefix = window.location.protocol + '//' + window.location.host + '/api/recording/' + program.id + '/';
+							d.prefix = window.location.protocol + '//' + window.location.host;
+							d.prefix += window.location.pathname.replace(/\/[^\/]*$/, '') + '/api/recording/' + program.id + '/';
 							window.open('./api/recording/' + program.id + '/watch.xspf?' + Object.toQueryString(d));
 						} else {
-							d.prefix = window.location.protocol + '//' + window.location.host + '/api/recorded/' + program.id + '/';
+							d.prefix = window.location.protocol + '//' + window.location.host;
+							d.prefix += window.location.pathname.replace(/\/[^\/]*$/, '') + '/api/recorded/' + program.id + '/';
 							window.open('./api/recorded/' + program.id + '/watch.xspf?' + Object.toQueryString(d));
 						}
 					}.bind(this)
@@ -493,7 +495,7 @@ P = Class.create(P, {
 
 		var getRequestURI = function() {
 
-			var r = window.location.protocol + '//' + window.location.host;
+			var r = window.location.protocol + '//' + window.location.host + window.location.pathname.replace(/\/[^\/]*$/, '');
 			r += '/api/' + (!!p._isRecording ? 'recording' : 'recorded') + '/' + p.id + '/watch.' + d.ext;
 			var q = Object.toQueryString(d);
 
