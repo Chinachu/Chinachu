@@ -69,9 +69,9 @@ div.fullscreen {
 
 .color-cat-anime { color: #e04caf !important; }
 .color-cat-information { color: #26d49d !important; }
-.color-cat-news { color: #6edb21 !important; }
+.color-cat-news { color: #8bda1a !important; }
 .color-cat-sports { color: #26b3d1 !important; }
-.color-cat-variety { color: #d6d91e !important; }
+.color-cat-variety { color: #dcd213 !important; }
 .color-cat-drama { color: #de8a31 !important; }
 .color-cat-music { color: #2848d1 !important; }
 .color-cat-cinema { color: #6e25db !important; }
@@ -929,7 +929,7 @@ div.dashboard-timelist.recording {
 	right     : 350px;
 	height    : 150px;
 	left      : 0;
-	background: #ffc4d0; }
+	background: rgb(241, 225, 233); }
 
 div.dashboard-timelist.recorded {
 	top       : 0;
@@ -1009,12 +1009,10 @@ div.dashboard-timelist[rel="3"]:last-child {
 		line-height: 20px;
 		font-size  : 20px;
 		font-weight: normal;
-		color      : #444;
-		text-shadow: 0 1px 0 white; }
+		color      : #444; }
 	
 	div.dashboard-timelist.recorded > div.head {
-		color      : #ddd;
-		text-shadow: 0 -1px 0 black; }
+		color      : #ddd; }
 	
 	div.dashboard-timelist.recording > div.head {
 		color      : #ab0022; }
@@ -1043,12 +1041,10 @@ div.dashboard-timelist[rel="3"]:last-child {
 			margin         : 0 5px 5px 0;
 			overflow       : visible;
 			border         : 1px solid transparent;
-			color          : rgba(0,0,0,0.8);
-			text-shadow    : 0 1px 0 rgba(255,255,255,0.5); }
+			color          : rgba(0,0,0,0.8); }
 		
 		div.dashboard-timelist.recorded > div.main > a {
-			color          : rgba(255,255,255,0.8);
-			text-shadow    : 0 -1px 0 rgba(0,0,0,0.5); }
+			color          : rgba(255,255,255,0.8); }
 		
 		div.dashboard-timelist > div.main > a.skip {
 			opacity: 0.4; }
@@ -1115,6 +1111,12 @@ div.dashboard-timelist[rel="3"]:last-child {
 				font-weight : normal;
 				text-shadow : none; }
 
+			div.dashboard-timelist > div.main > a > div.flagrate-progress {
+				margin-top: 5px;
+				height: 2px; }
+
+				div.dashboard-timelist > div.main > a > div.flagrate-progress > div {
+					background-color: rgb(194,65,134); }
 
 @media screen and (min-width: 1000px){
 		div.dashboard-timelist.recording > div.main > a,
@@ -1142,6 +1144,28 @@ div.dashboard-timelist[rel="3"]:last-child {
 			
 			div.dashboard-timelist > div.main > a > div.dynamic-time {
 				font-size   : 10px; }
+}
+
+@media screen and (max-width: 750px){
+		div.middle > div.main > div.main-body > div {
+			padding: 0; }
+	
+		div.dashboard-timelist,
+		div.dashboard-timelist > * {
+			position: relative !important;
+			width: 100% !important;
+			height: auto !important;
+			top: auto !important;
+			left: auto !important;
+			right: auto !important;
+			bottom: auto !important;
+			padding: 20px 10px;
+			box-sizing: border-box;
+			box-shadow: none !important; }
+	
+			div.dashboard-timelist > div.head {
+				position: relative !important;
+				padding: 0 0 10px 5px; }
 }
 
 div.timetable {
