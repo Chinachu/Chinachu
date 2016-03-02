@@ -74,7 +74,8 @@ var status = {
 		previewer   : !!config.wuiPreviewer,
 		streamer    : !!config.wuiStreamer,
 		filer       : !!config.wuiFiler,
-		configurator: !!config.wuiConfigurator
+		configurator: !!config.wuiConfigurator,
+		normalizationForm: config.normalizationForm
 	},
 	system: {
 		core: os.cpus().length

@@ -142,6 +142,24 @@ P = Class.create(P, {
 		var programs = [];
 		
 		var program;
+
+		// 正規化方法
+		var nf;
+		if (global.chinachu.status.feature) {
+			nf = global.chinachu.status.feature.normalizationForm;
+		}
+
+		// query.title, query.descの正規化をキャッシュ
+		var query_title_norm, query_desc_norm;
+		if (nf) {
+			if (this.self.query.title) {
+				query_title_norm = this.self.query.title.normalize(nf);
+			}
+			if (this.self.query.desc) {
+				query_desc_norm = this.self.query.desc.normalize(nf);
+			}
+		}
+
 		for (var i = 0, l = global.chinachu.schedule.length; i < l; i++) {
 			for (var j = 0, m = global.chinachu.schedule[i].programs.length; j < m; j++) {
 				program = global.chinachu.schedule[i].programs[j];
@@ -152,8 +170,14 @@ P = Class.create(P, {
 				if (this.self.query.chid && this.self.query.chid !== program.channel.id) continue;
 				if (this.self.query.cat && this.self.query.cat !== program.category) continue;
 				if (this.self.query.type && this.self.query.type !== program.channel.type) continue;
-				if (this.self.query.title && program.fullTitle.match(this.self.query.title) === null) continue;
-				if (this.self.query.desc && (!program.detail || program.detail.match(this.self.query.desc) === null)) continue;
+				if (nf) {
+					if (this.self.query.title && program.fullTitle.normalize(nf).match(query_title_norm) === null) continue;
+					if (this.self.query.desc && (!program.detail || program.detail.normalize(nf).match(query_desc_norm) === null)) continue;
+				}
+				else {
+					if (this.self.query.title && program.fullTitle.match(this.self.query.title) === null) continue;
+					if (this.self.query.desc && (!program.detail || program.detail.match(this.self.query.desc) === null)) continue;
+				}
 				
 				if (this.self.query.start || this.self.query.end) {
 					var ruleStart = parseInt(this.self.query.start || 0, 10);

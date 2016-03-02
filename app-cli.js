@@ -984,6 +984,7 @@ function chinachuIrcbot() {
 // (function) rule checker
 function isMatchedProgram(program) {
 	var result = false;
+	var nf = config.normalizationForm;
 	
 	// -id, --id
 	if (opts.get('id') && (opts.get('id') === program.id)) {
@@ -1049,10 +1050,22 @@ function isMatchedProgram(program) {
 			if ((rule.duration.min > program.seconds) || (rule.duration.max < program.seconds)) return;
 		}
 		
+		var title_norm, detail_norm;
+		if (nf) {
+			title_norm = program.title.normalize(nf);
+			if (program.detail) {
+				detail_norm = program.detail.normalize(nf);
+			}
+		}
 		// ignore_titles
 		if (rule.ignore_titles) {
 			for (var i = 0; i < rule.ignore_titles.length; i++) {
-				if (program.title.match(new RegExp(rule.ignore_titles[i])) !== null) return;
+				if (nf) {
+					if (title_norm.match(new RegExp(rule.ignore_titles[i].normalize(nf))) !== null) return;
+				}
+				else {
+					if (program.title.match(new RegExp(rule.ignore_titles[i])) !== null) return;
+				}
 			}
 		}
 		
@@ -1061,7 +1074,12 @@ function isMatchedProgram(program) {
 			var isFound = false;
 			
 			for (var i = 0; i < rule.reserve_titles.length; i++) {
-				if (program.title.match(new RegExp(rule.reserve_titles[i])) !== null) isFound = true;
+				if (nf) {
+					if (title_norm.match(new RegExp(rule.reserve_titles[i].normalize(nf))) !== null) isFound = true;
+				}
+				else {
+					if (program.title.match(new RegExp(rule.reserve_titles[i])) !== null) isFound = true;
+				}
 			}
 			
 			if (!isFound) return;
@@ -1072,7 +1090,12 @@ function isMatchedProgram(program) {
 			if (!program.detail) return;
 			
 			for (var i = 0; i < rule.ignore_descriptions.length; i++) {
-				if (program.detail.match(new RegExp(rule.ignore_descriptions[i])) !== null) return;
+				if (nf) {
+					if (detail_norm.match(new RegExp(rule.ignore_descriptions[i].normalize(nf))) !== null) return;
+				}
+				else {
+					if (program.detail.match(new RegExp(rule.ignore_descriptions[i])) !== null) return;
+				}
 			}
 		}
 		
@@ -1083,7 +1106,12 @@ function isMatchedProgram(program) {
 			var isFound = false;
 			
 			for (var i = 0; i < rule.reserve_descriptions.length; i++) {
-				if (program.detail.match(new RegExp(rule.reserve_descriptions[i])) !== null) isFound = true;
+				if (nf) {
+					if (detail_norm.match(new RegExp(rule.reserve_descriptions[i].normalize(nf))) !== null) isFound = true;
+				}
+				else {
+					if (program.detail.match(new RegExp(rule.reserve_descriptions[i])) !== null) isFound = true;
+				}
 			}
 			
 			if (!isFound) return;
