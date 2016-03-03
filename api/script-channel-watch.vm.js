@@ -61,7 +61,7 @@ Usushio では使わない
 				case 'mp4':
 					d.f      = 'mp4';
 					d['c:v'] = d['c:v'] || 'libx264';
-					d['c:a'] = d['c:a'] || 'libvo_aacenc';
+					d['c:a'] = d['c:a'] || 'aac';
 					break;
 				case 'webm':
 					d.f      = 'webm';
