@@ -316,8 +316,8 @@ P = Class.create(P, {
 							},
 							{
 								label     : 'AAC',
-								value     : 'libvo_aacenc',
-								isSelected: set['c:a'] === 'libvo_aacenc'
+								value     : 'aac',
+								isSelected: set['c:a'] === 'aac'
 							},
 							{
 								label     : 'Vorbis',
@@ -346,42 +346,6 @@ P = Class.create(P, {
 					},
 					depends: [
 						{ key: 'ext', value: 'webm' }
-					]
-				},
-				{
-					key  : 'c:a',
-					label: '音声コーデック',
-					input: {
-						type      : 'radio',
-						isRequired: true,
-						items     : [
-							{
-								label     : 'AAC',
-								value     : 'libvo_aacenc',
-								isSelected: true
-							}
-						]
-					},
-					depends: [
-						{ key: 'ext', value: 'mp4' }
-					]
-				},
-				{
-					key  : 'c:a',
-					label: '音声コーデック',
-					input: {
-						type      : 'radio',
-						isRequired: true,
-						items     : [
-							{
-								label     : 'AAC',
-								value     : 'libvo_aacenc',
-								isSelected: true
-							}
-						]
-					},
-					depends: [
-						{ key: 'ext', value: 'flv' }
 					]
 				},
 				{
