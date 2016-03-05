@@ -376,149 +376,6 @@ function scheduler() {
 	process.exit(0);
 }
 
-// (function) program converter
-function convertPrograms(p, ch) {
-	var programs = [];
-	
-	var i, l;
-	for (i = 0, l = p.length; i < l; i++) {
-		var j, m;
-		var c = p[i];
-		
-		if (c.$.channel !== ch.id || !c.title[0]._) {
-			continue;
-		}
-		
-		var title = c.title[0]._;
-		
-		title = title
-			.replace(/【.{1,2}】/g, '')
-			.replace(/\[.\]/g, '')
-			.replace(/[「（#＃♯第]+[0-9０-９零一壱壹弌二弐貮貳三参參弎四肆五伍六陸七柒漆八捌九玖十拾廿卄]+[話回」）]*/g, '');
-		
-		if (c.category[1]._ === 'anime') {
-			title = title.replace(/(?:TV|ＴＶ)?アニメ「([^「」]+)」/g, '$1');
-		}
-		
-		title = title.trim();
-		
-		var desc = c.desc[0]._ || '';
-		
-		var subtitle = '';
-		if (c.title[0]._.match(/[^版]「([^「」]+)」/) !== null) {
-			subtitle = c.title[0]._.match(/[^版]「([^「」]+)」/)[1];
-		} else if (desc.match(/「([^「」]+)」/) !== null) {
-			subtitle = desc.match(/「([^「」]+)」/)[1];
-		} else if (desc.match(/『([^『』]+)』/) !== null) {
-			subtitle = desc.match(/『([^『』]+)』/)[1];
-		}
-		
-		var flags = [];
-		var flagsSource = c.title[0]._
-			.replace(/【/g, '[')
-			.replace(/】/g, ']')
-			.replace(/\[無料\]/g, '[無]');
-		var matchedFlags = (flagsSource.match(/\[(.)\]/g) || []);
-		for (j = 0, m = matchedFlags.length; j < m; j++) {
-			flags.push(matchedFlags[j].match(/(?:【|\[)(.)(?:】|\])/)[1]);
-		}
-		
-		var episodeNumber = null;
-		var episodeNumberMatch = (c.title[0]._ + ' ' + desc).match(/[「（#＃♯第]+[0-9０-９零一壱壹弌二弐貮貳三参參弎四肆五伍六陸七柒漆八捌九玖十拾廿卄]+[話回」）]*|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
-		if (episodeNumberMatch !== null) {
-			var episodeNumberString = episodeNumberMatch[0];
-
-			episodeNumberString = episodeNumberString
-				.replace(/「|（|#|＃|♯|第|話|回|」|）/g, '')
-				.replace(/０|零/g, '0')
-				.replace(/４|Ⅳ|IV|ＩＶ/g, '4')
-				.replace(/８|Ⅷ|VIII|ＶＩＩＩ/g, '8')
-				.replace(/７|Ⅶ|VII|ＶＩＩ/g, '7')
-				.replace(/６|Ⅵ|VI|ＶＩ/g, '6')
-				.replace(/５|Ⅴ/g, '5')
-				.replace(/９|Ⅸ|IX|ＩＸ/g, '9')
-				.replace(/Ⅻ|XII|ＸＩＩ/g, '12')
-				.replace(/Ⅺ|XI|ＸＩ/g, '11')
-				.replace(/３|Ⅲ|III|ＩＩＩ/g, '3')
-				.replace(/２|Ⅱ|II|ＩＩ/g, '2')
-				.replace(/１|Ⅰ|I|Ｉ/g, '1')
-				.replace(/Ⅹ|X|Ｘ/g, '10')
-				.replace(/廿|卄/g, '二十')
-				.replace(/拾/g, '十')
-				.replace(/壱|壹|弌/g, '一')
-				.replace(/弐|貮|貳/g, '二')
-				.replace(/参|參|弎/g, '三')
-				.replace(/肆/g, '四')
-				.replace(/伍/g, '五')
-				.replace(/陸/g, '六')
-				.replace(/柒|漆/g, '七')
-				.replace(/捌/g, '八')
-				.replace(/玖/g, '九')
-				.replace(/二十一/g, '21')
-				.replace(/二十二/g, '22')
-				.replace(/二十三/g, '23')
-				.replace(/二十四/g, '24')
-				.replace(/二十/g, '20')
-				.replace(/十一/g, '11')
-				.replace(/十二/g, '12')
-				.replace(/十三/g, '13')
-				.replace(/十四/g, '14')
-				.replace(/十五/g, '15')
-				.replace(/十六/g, '16')
-				.replace(/十七/g, '17')
-				.replace(/十八/g, '18')
-				.replace(/十九/g, '19')
-				.replace(/十/g, '10')
-				.replace(/一/g, '1')
-				.replace(/二/g, '2')
-				.replace(/三/g, '3')
-				.replace(/四/g, '4')
-				.replace(/五/g, '5')
-				.replace(/六/g, '6')
-				.replace(/七/g, '7')
-				.replace(/八/g, '8')
-				.replace(/九/g, '9')
-				.trim();
-
-			episodeNumber = parseInt(episodeNumberString, 10);
-		}
-		if (episodeNumber === null && flags.indexOf('新') !== -1) {
-			episodeNumber = 1;
-		}
-		
-		var tcRegex   = /^(.{4})(.{2})(.{2})(.{2})(.{2})(.{2}).+$/;
-		var startDate = new Date(c.$.start.replace(tcRegex, '$1/$2/$3 $4:$5:$6'));
-		var endDate   = new Date(c.$.stop.replace(tcRegex, '$1/$2/$3 $4:$5:$6'));
-		var startTime = startDate.getTime();
-		var endTime   = endDate.getTime();
-		
-		// 番組ID (v1.3)
-		var programId = '';
-		programId += ch.id.toLowerCase().replace('_', '');
-		programId += '-';
-		programId += parseInt(c.$.event_id, 10).toString(36);
-		
-		var programData = {
-			id        : programId,
-			channel   : ch,
-			category  : c.category[1]._,
-			title     : title,
-			subTitle  : subtitle,
-			fullTitle : c.title[0]._,
-			detail    : desc,
-			episode   : episodeNumber,
-			start     : startTime,
-			end       : endTime,
-			seconds   : ((endTime - startTime) / 1000),
-			flags     : flags
-		};
-		
-		programs.push(programData);
-	}
-	
-	return programs;
-}
-
 // EPGデータを取得
 function getEpg() {
 	
@@ -733,7 +590,7 @@ function getEpg() {
 									sid    : a.service_id[0]
 								};
 								
-								ch.programs = convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
+								ch.programs = chinachu.convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
 								
 								s.forEach(function (c) {
 									c.programs.forEach(function (p) {
@@ -788,7 +645,7 @@ function getEpg() {
 									sid    : a.service_id[0]
 								};
 								
-								ch.programs = convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
+								ch.programs = chinachu.convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
 								
 								s.push(ch);
 								
@@ -828,7 +685,7 @@ function getEpg() {
 									sid    : a.service_id[0]
 								};
 								
-								ch.programs = convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
+								ch.programs = chinachu.convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
 								
 								s.push(ch);
 								
@@ -868,7 +725,7 @@ function getEpg() {
 									sid    : a.service_id[0]
 								};
 								
-								ch.programs = convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
+								ch.programs = chinachu.convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
 								
 								s.push(ch);
 								
