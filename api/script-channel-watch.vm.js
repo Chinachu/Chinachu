@@ -101,7 +101,7 @@ Usushio では使わない
 			}
 
 			if (d.f === 'mp4') {
-				args.push('-movflags', 'frag_keyframe+empty_moov+faststart');
+				args.push('-movflags', 'frag_keyframe+empty_moov+faststart+default_base_moof');
 			}
 
 			args.push('-y', '-f', d.f, 'pipe:1');
