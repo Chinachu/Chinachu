@@ -316,7 +316,6 @@ function scheduler() {
 			util.log('!CONFLICT: ' + a.id + ' ' + dateFormat(new Date(a.start), 'isoDateTime') + ' [' + a.channel.name + '] ' + a.title);
 			
 			++conflictCount;
-			var commandProcess;
 			// conflict フック
 			if (config.conflictCommand) {
 				commandProcess = child_process.spawn(config.conflictCommand, [process.pid, a.id, dateFormat(new Date(a.start), 'isoDateTime'), a.channel.name, a.title, JSON.stringify(a)]);
@@ -348,9 +347,9 @@ function scheduler() {
 	}
 	
 	// ruleにもしあればreserveにrecordedFormatを追加
-	reserves.forEach(function(reserve){
-		rules.forEach(function(rule){
-			if(typeof(rule.recorded_format) !== 'undefined' && chinachu.programMatchesRule(rule, reserve, config.normalizationForm)){
+	reserves.forEach(function (reserve) {
+		rules.forEach(function (rule) {
+			if (typeof rule.recorded_format !== 'undefined' && chinachu.programMatchesRule(rule, reserve, config.normalizationForm)) {
 				reserve.recordedFormat = rule.recorded_format;
 			}
 		});
