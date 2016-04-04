@@ -1136,6 +1136,10 @@ function getEpg() {
 // experimental
 function getEpgFromMirakurun(path) {
 	
+	if (/^http:\/\/unix:/.test(path) === true) {
+		path = 'http+unix://' + path.split(':')[2].replace(/\//g, '%2F') + path.split(':')[3];
+	}
+	
 	util.log('GETTING EPG from Mirakurun.');
 	
 	// new schedule
