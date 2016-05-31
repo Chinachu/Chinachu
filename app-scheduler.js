@@ -980,6 +980,7 @@ function getEpg() {
 			};
 			
 			var recCmd = tuner.command.replace('<channel>', channel.channel);
+			recCmd = recCmd.replace('<type>', channel.type);
 			
 			// recpt1用
 			recCmd = recCmd.replace(' --b25', '').replace(' --strip', '').replace('<sid>', 'epg');
