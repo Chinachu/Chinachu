@@ -134,7 +134,7 @@ Usushio では使わない
 			var recCmd = tuner.command;
 			recCmd = recCmd.replace('<sid>', channel.sid);
 			recCmd = recCmd.replace('<channel>', channel.channel);
-
+			recCmd = recCmd.replace('<type>', channel.type);
 			var recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
 			children.push(recProc.pid);
 			chinachu.writeTunerPidSync(tuner, recProc.pid, 1);
