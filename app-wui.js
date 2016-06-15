@@ -282,89 +282,88 @@ function httpServerMain(req, res, query) {
 
 		if (res.headersSent === false) {
 			res.writeHead(code, {'content-type': 'text/plain'});
-		}
-		if (req.method !== 'HEAD' && res.headersSent === false) {
-			switch (code) {
-			case 400:
-				res.write('400 Bad Request\n');
-				break;
-			case 402:
-				res.write('402 Payment Required\n');
-				break;
-			case 401:
-				res.write('401 Unauthorized\n');
-				break;
-			case 403:
-				res.write('403 Forbidden\n');
-				break;
-			case 404:
-				res.write('404 Not Found\n');
-				break;
-			case 405:
-				res.write('405 Method Not Allowed\n');
-				break;
-			case 406:
-				res.write('406 Not Acceptable\n');
-				break;
-			case 407:
-				res.write('407 Proxy Authentication Required\n');
-				break;
-			case 408:
-				res.write('408 Request Timeout\n');
-				break;
-			case 409:
-				res.write('409 Conflict\n');
-				break;
-			case 410:
-				res.write('410 Gone\n');
-				break;
-			case 411:
-				res.write('411 Length Required\n');
-				break;
-			case 412:
-				res.write('412 Precondition Failed\n');
-				break;
-			case 413:
-				res.write('413 Request Entity Too Large\n');
-				break;
-			case 414:
-				res.write('414 Request-URI Too Long\n');
-				break;
-			case 415:
-				res.write('415 Unsupported Media Type\n');
-				break;
-			case 416:
-				res.write('416 Requested Range Not Satisfiable\n');
-				break;
-			case 417:
-				res.write('417 Expectation Failed\n');
-				break;
-			case 429:
-				res.write('429 Too Many Requests\n');
-				break;
-			case 451:
-				res.write('451 Unavailable For Legal Reasons\n');
-				break;
-			case 500:
-				res.write('500 Internal Server Error\n');
-				break;
-			case 501:
-				res.write('501 Not Implemented\n');
-				break;
-			case 502:
-				res.write('502 Bad Gateway\n');
-				break;
-			case 503:
-				res.write('503 Service Unavailable\n');
-				break;
+
+			if (req.method !== 'HEAD') {
+				switch (code) {
+				case 400:
+					res.write('400 Bad Request\n');
+					break;
+				case 402:
+					res.write('402 Payment Required\n');
+					break;
+				case 401:
+					res.write('401 Unauthorized\n');
+					break;
+				case 403:
+					res.write('403 Forbidden\n');
+					break;
+				case 404:
+					res.write('404 Not Found\n');
+					break;
+				case 405:
+					res.write('405 Method Not Allowed\n');
+					break;
+				case 406:
+					res.write('406 Not Acceptable\n');
+					break;
+				case 407:
+					res.write('407 Proxy Authentication Required\n');
+					break;
+				case 408:
+					res.write('408 Request Timeout\n');
+					break;
+				case 409:
+					res.write('409 Conflict\n');
+					break;
+				case 410:
+					res.write('410 Gone\n');
+					break;
+				case 411:
+					res.write('411 Length Required\n');
+					break;
+				case 412:
+					res.write('412 Precondition Failed\n');
+					break;
+				case 413:
+					res.write('413 Request Entity Too Large\n');
+					break;
+				case 414:
+					res.write('414 Request-URI Too Long\n');
+					break;
+				case 415:
+					res.write('415 Unsupported Media Type\n');
+					break;
+				case 416:
+					res.write('416 Requested Range Not Satisfiable\n');
+					break;
+				case 417:
+					res.write('417 Expectation Failed\n');
+					break;
+				case 429:
+					res.write('429 Too Many Requests\n');
+					break;
+				case 451:
+					res.write('451 Unavailable For Legal Reasons\n');
+					break;
+				case 500:
+					res.write('500 Internal Server Error\n');
+					break;
+				case 501:
+					res.write('501 Not Implemented\n');
+					break;
+				case 502:
+					res.write('502 Bad Gateway\n');
+					break;
+				case 503:
+					res.write('503 Service Unavailable\n');
+					break;
+				}
 			}
+			log(code);
+		} else {
+			log(res.statusCode + '(!' + code + ')');
 		}
 		res.end();
-		if (res.headersSent === true) {
-			log(res.statusCode + '(!' + code + ')');
-		} else {
-			log(code);
-		}
 	};
 
 	var writeHead = function (code) {
