@@ -29,6 +29,7 @@
     "geoip-lite": "^1.1.6",
     "hoard": "~0.1.5",
     "http-auth": "^2.2.8",
+    "mdns-js": "^0.5.0",
     "mkdirp": "~0.3.5",
     "mtwitter": "~1.5.2",
     "opts": "~1.2.2",
