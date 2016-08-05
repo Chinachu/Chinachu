@@ -160,6 +160,7 @@ server.listen(config.wuiPort || 10772, config.wuiHost || '::', function () {
 	// Start mDNS advertisement
 	serverMdns = mdns.createAdvertisement(mdns.tcp(tlsEnabled ? '_https' : '_http'), config.wuiPort || 10772, {
 		name: 'Chinachu',
+		host: 'chinachu',
 		txt: {
 			txtvers: '1',
 			'Version': 'beta',
@@ -180,6 +181,7 @@ if (openServerEnabled) {
 			// Start mDNS advertisement
 			openServerMdns = mdns.createAdvertisement(mdns.tcp('_http'), config.wuiOpenPort || 20772, {
 				name: 'Chinachu Open Server',
+				host: 'chinachu-open-server',
 				txt: {
 					txtvers: '1',
 					'Version': 'beta',
