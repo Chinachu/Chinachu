@@ -1265,38 +1265,97 @@ function mirakurunProgramsToLegacyPrograms(ch, service, programs) {
 	ch.programs = convertPrograms(programme, JSON.parse(JSON.stringify(ch)));
 }
 
-// 既に実行中か
-isRunning(function (running) {
-	if (running) {
-		console.error('ERROR: Scheduler is already running.');
-		process.exit(1);
+var transaction = new Promise(function(resolve, reject){
+	if (config.schedulerMirakurunPath && channels.length === 0) {
+		// チャンネル情報が空であり、かつMirakurun 設定がある場合は参照
+		getChannelsFromMirakurun(resolve, reject, config.schedulerMirakurunPath);
 	} else {
-		createPidFile();
-		
-		process.on('exit', function () {
-			deletePidFile();
-		});
-		
-		// EPGデータを取得または番組表を読み込む
-		if (opts.get('f') || schedule.length === 0) {
-			var commandProcess;
-			if (config.epgStartCommand) {
-				commandProcess = child_process.spawnSync(config.epgStartCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
-				util.log('SPAWN: ' + config.epgStartCommand + ' (pid=' + commandProcess.pid + ')');
-			}
-			
-			if (config.schedulerMirakurunPath) {
-				getEpgFromMirakurun(config.schedulerMirakurunPath);
-			} else {
-				getEpg();
-			}
-			
-			if (config.epgEndCommand) {
-				commandProcess = child_process.spawn(config.epgEndCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
-				util.log('SPAWN: ' + config.epgEndCommand + ' (pid=' + commandProcess.pid + ')');
-			}
-		} else {
-			scheduler();
-		}
+		resolve();
 	}
+}).then(function() {
+	// 既に実行中か
+	isRunning(function (running) {
+		if (running) {
+			console.error('ERROR: Scheduler is already running.');
+			process.exit(1);
+		} else {
+			createPidFile();
+			
+			process.on('exit', function () {
+				deletePidFile();
+			});
+			
+			// EPGデータを取得または番組表を読み込む
+			if (opts.get('f') || schedule.length === 0) {
+				var commandProcess;
+				if (config.epgStartCommand) {
+					commandProcess = child_process.spawnSync(config.epgStartCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
+					util.log('SPAWN: ' + config.epgStartCommand + ' (pid=' + commandProcess.pid + ')');
+				}
+				
+				if (config.schedulerMirakurunPath) {
+					getEpgFromMirakurun(config.schedulerMirakurunPath);
+				} else {
+					getEpg();
+				}
+				
+				if (config.epgEndCommand) {
+					commandProcess = child_process.spawn(config.epgEndCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
+					util.log('SPAWN: ' + config.epgEndCommand + ' (pid=' + commandProcess.pid + ')');
+				}
+			} else {
+				scheduler();
+			}
+		}
+	});
 });
+
+function getChannelsFromMirakurun(resolve, reject, path) {
+	if (/^http:\/\/unix:/.test(path) === true) {
+		path = 'http+unix://' + path.split(':')[2].replace(/\//g, '%2F') + path.split(':')[3];
+	}
+
+	util.log('GETTING Channels from Mirakurun.');
+
+	new Swagger({
+		url: path + 'api/docs',
+		usePromise: true
+	}).then(function(client) {
+		util.log('Mirakurun is OK.');
+
+		client.channels.getChannels({})
+		.then(function(res) {
+			const mirakurun_channels = res.obj;
+
+			mirakurun_channels.forEach((channel, i) => {
+				if (channel.type != 'GR') {
+					channel.services.forEach(service => {
+						util.log('Mirakurun -> channel : ' + channel.channel + ', type : ' + channel.type +', name : ' + service.name +', sid : ' + service.serviceId);
+
+						const ch = {
+							type   : channel.type,
+							channel: channel.channel,
+							sid    : service.serviceId.toString(10),
+							name   : service.name
+						};
+
+						channels.push(ch);
+					});
+
+				} else if(channel.services.length > 0) {
+					util.log('Mirakurun -> channel : ' + channel.channel + ', type : ' + channel.type +', name : ' + channel.services[0].name);
+					const ch = {
+						type   : channel.type,
+						channel: channel.channel,
+						name   : channel.services[0].name
+					};
+					channels.push(ch);
+				}
+			});
+			resolve();
+		});
+	}).catch(function(err) {
+		util.log('ERROR: Mirakurun -> channels の取得に失敗しました');
+		reject();
+	});
+}

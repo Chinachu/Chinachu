@@ -29,6 +29,7 @@ var chinachu   = require('chinachu-common');
 var opts       = require('opts');
 var dateFormat = require('dateformat');
 var Table      = require('easy-table');
+var Swagger    = require('swagger-client');
 
 // 引数
 opts.parse([
@@ -290,58 +291,67 @@ if (opts.get('^desc'))  rule.ignore_descriptions  = opts.get('^desc').split(',')
 if (opts.get('flag'))   rule.reserve_flags        = opts.get('flag').split(',');
 if (opts.get('^flag'))  rule.ignore_flags         = opts.get('^flag').split(',');
 
-// 動作モード
-switch (opts.get('mode')) {
-	// 検索
-	case 'search':
-		chinachuSearch();
-		break;
-	// 予約
-	case 'reserve':
-		chinachuReserve();
-		break;
-	// 予約解除
-	case 'unreserve':
-		chinachuUnreserve();
-		break;
-	// スキップ
-	case 'skip':
-		chinachuSkip();
-		break;
-	// スキップ解除
-	case 'unskip':
-		chinachuUnskip();
-		break;
-	// 録画中止
-	case 'stop':
-		chinachuStop();
-		break;
-	// Rule
-	case 'rule':
-		chinachuRule();
-		break;
-	// Rule List
-	case 'rules':
-		chinachuRuleList();
-		break;
-	// Program List
-	case 'reserves':
-	case 'recording':
-	case 'recorded':
-		chinachuProgramList(eval(opts.get('mode')));
-		break;
-	// Clean-up
-	case 'cleanup':
-		chinachuCleanup();
-		break;
-	// IRC bot
-	case 'ircbot':
-		chinachuIrcbot();
-		break;
-	default:
-		process.exit(1);
-		break;
-}
+var transaction = new Promise(function(resolve, reject){
+	if (config.schedulerMirakurunPath && channels.length === 0) {
+		// チャンネル情報が空であり、かつMirakurun 設定がある場合は参照
+		getChannelsFromMirakurun(resolve, reject, config.schedulerMirakurunPath);
+	} else {
+		resolve();
+	}
+}).then(function() {
+	// 動作モード
+	switch (opts.get('mode')) {
+		// 検索
+		case 'search':
+			chinachuSearch();
+			break;
+		// 予約
+		case 'reserve':
+			chinachuReserve();
+			break;
+		// 予約解除
+		case 'unreserve':
+			chinachuUnreserve();
+			break;
+		// スキップ
+		case 'skip':
+			chinachuSkip();
+			break;
+		// スキップ解除
+		case 'unskip':
+			chinachuUnskip();
+			break;
+		// 録画中止
+		case 'stop':
+			chinachuStop();
+			break;
+		// Rule
+		case 'rule':
+			chinachuRule();
+			break;
+		// Rule List
+		case 'rules':
+			chinachuRuleList();
+			break;
+		// Program List
+		case 'reserves':
+		case 'recording':
+		case 'recorded':
+			chinachuProgramList(eval(opts.get('mode')));
+			break;
+		// Clean-up
+		case 'cleanup':
+			chinachuCleanup();
+			break;
+		// IRC bot
+		case 'ircbot':
+			chinachuIrcbot();
+			break;
+		default:
+			process.exit(1);
+			break;
+	}
+});
 
 // 検索
 function chinachuSearch() {
@@ -1161,4 +1171,54 @@ function isMatchedProgram(program) {
 	}
 	
 	return result;
+}
+
+function getChannelsFromMirakurun(resolve, reject, path) {
+	if (/^http:\/\/unix:/.test(path) === true) {
+		path = 'http+unix://' + path.split(':')[2].replace(/\//g, '%2F') + path.split(':')[3];
+	}
+
+	util.log('GETTING Channels from Mirakurun.');
+
+	new Swagger({
+		url: path + 'api/docs',
+		usePromise: true
+	}).then(function(client) {
+		util.log('Mirakurun is OK.');
+
+		client.channels.getChannels({})
+		.then(function(res) {
+			const mirakurun_channels = res.obj;
+
+			mirakurun_channels.forEach((channel, i) => {
+				if (channel.type != 'GR') {
+					channel.services.forEach(service => {
+						util.log('Mirakurun -> channel : ' + channel.channel + ', type : ' + channel.type +', name : ' + service.name +', sid : ' + service.serviceId);
+
+						const ch = {
+							type   : channel.type,
+							channel: channel.channel,
+							sid    : service.serviceId.toString(10),
+							name   : service.name
+						};
+
+						channels.push(ch);
+					});
+
+				} else if(channel.services.length > 0) {
+					util.log('Mirakurun -> channel : ' + channel.channel + ', type : ' + channel.type +', name : ' + channel.services[0].name);
+					const ch = {
+						type   : channel.type,
+						channel: channel.channel,
+						name   : channel.services[0].name
+					};
+					channels.push(ch);
+				}
+			});
+			resolve();
+		});
+	}).catch(function(err) {
+		util.log('ERROR: Mirakurun -> channels の取得に失敗しました');
+		reject();
+	});
 }
