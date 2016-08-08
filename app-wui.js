@@ -157,18 +157,20 @@ if (tlsEnabled) {
 server.timeout = 240000;
 server.listen(config.wuiPort || 10772, config.wuiHost || '::', function () {
 	util.log((tlsEnabled ? 'HTTPS' : 'HTTP') + ' Server Listening on ' + util.inspect(server.address()));
-	// Start mDNS advertisement
-	serverMdns = mdns.createAdvertisement(mdns.tcp(tlsEnabled ? '_https' : '_http'), config.wuiPort || 10772, {
-		name: 'Chinachu on ' + os.hostname(),
-		host: os.hostname(),
-		txt: {
-			txtvers: '1',
-			'Version': 'beta',
-			'Password': basicAuthEnabled
-		}
-	});
-	serverMdns.start();
-	util.log((tlsEnabled ? 'HTTPS' : 'HTTP') + ' Server mDNS advertising started.');
+	if (config.wuiMdnsAdvertisement === true) {
+		// Start mDNS advertisement
+		serverMdns = mdns.createAdvertisement(mdns.tcp(tlsEnabled ? '_https' : '_http'), config.wuiPort || 10772, {
+			name: 'Chinachu on ' + os.hostname(),
+			host: os.hostname(),
+			txt: {
+				txtvers: '1',
+				'Version': 'beta',
+				'Password': basicAuthEnabled
+			}
+		});
+		serverMdns.start();
+		util.log((tlsEnabled ? 'HTTPS' : 'HTTP') + ' Server mDNS advertising started.');
+	}
 });
 
 // EXPERIMENTAL: Open Server for Access from LAN.
@@ -178,18 +180,20 @@ if (openServerEnabled) {
 	dns.lookup(os.hostname(), function (err, hostIp) {
 		openServer.listen(config.wuiOpenPort || 20772, config.wuiOpenHost || hostIp, function () {
 			util.log('HTTP Open Server Listening on ' + util.inspect(openServer.address()));
-			// Start mDNS advertisement
-			openServerMdns = mdns.createAdvertisement(mdns.tcp('_http'), config.wuiOpenPort || 20772, {
-				name: 'Chinachu Open Server on ' + os.hostname(),
-				host: os.hostname(),
-				txt: {
-					txtvers: '1',
-					'Version': 'beta',
-					'Password': false
-				}
-			});
-			openServerMdns.start();
-			util.log('HTTP Open Server mDNS advertising started.');
+			if (config.wuiMdnsAdvertisement === true) {
+				// Start mDNS advertisement
+				openServerMdns = mdns.createAdvertisement(mdns.tcp('_http'), config.wuiOpenPort || 20772, {
+					name: 'Chinachu Open Server on ' + os.hostname(),
+					host: os.hostname(),
+					txt: {
+						txtvers: '1',
+						'Version': 'beta',
+						'Password': false
+					}
+				});
+				openServerMdns.start();
+				util.log('HTTP Open Server mDNS advertising started.');
+			}
 		});
 	});
 }
