@@ -980,6 +980,7 @@ function getEpg() {
 			};
 			
 			var recCmd = tuner.command.replace('<channel>', channel.channel);
+			recCmd = recCmd.replace('<type>', channel.type);
 			
 			// recpt1用
 			recCmd = recCmd.replace(' --b25', '').replace(' --strip', '').replace('<sid>', 'epg');
@@ -1135,6 +1136,8 @@ function getEpg() {
 
 // experimental
 function getEpgFromMirakurun(path) {
+
+	child_process.execSync('renice -n 19 -p ' + process.pid);
 	
 	if (/^http:\/\/unix:/.test(path) === true) {
 		path = 'http+unix://' + path.split(':')[2].replace(/\//g, '%2F') + path.split(':')[3];

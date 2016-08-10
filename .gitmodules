@@ -1,9 +1,6 @@
 [submodule "web/lib/ace"]
 	path = web/lib/ace
 	url = git://github.com/ajaxorg/ace-builds.git
-[submodule "web/lib/flagrate"]
-	path = web/lib/flagrate
-	url = git://github.com/webnium/flagrate.git
 [submodule "web/lib/d3"]
 	path = web/lib/d3
 	url = https://github.com/mbostock/d3

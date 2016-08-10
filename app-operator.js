@@ -270,6 +270,7 @@ function doRecord(program) {
 	// 録画コマンド
 	recCmd = tuner.command;
 	recCmd = recCmd.replace('<channel>', program.channel.channel);
+	recCmd = recCmd.replace('<type>', program.channel.type);
 	if (program['1seg'] === true) {
 		recCmd = recCmd.replace(' --b25', '');
 		recCmd = recCmd.replace('<sid>', '1seg');
@@ -363,6 +364,7 @@ function doRecord(program) {
 						.replace('<type>', program.channel.type)
 						.replace('<channel>', ((program.channel.type === 'CS') ? program.channel.sid : program.channel.channel))
 						.replace('<title>',   program.title)
+						.replace('<fullTitle>', program.fullTitle)
 						.replace('<channelname>', program.channel.name)
 						.replace('<date>', dateFormat(new Date(program.start), "mm/dd"))
 						.replace('<starttime>', dateFormat(new Date(program.start), "h:MM"))
@@ -388,6 +390,7 @@ function doRecord(program) {
 					.replace('<type>', program.channel.type)
 					.replace('<channel>', ((program.channel.type === 'CS') ? program.channel.sid : program.channel.channel))
 					.replace('<title>',   program.title)
+					.replace('<fullTitle>', program.fullTitle)
 					.replace('<channelname>', program.channel.name)
 					.replace('<date>', dateFormat(new Date(program.start), "mm/dd"))
 					.replace('<starttime>', dateFormat(new Date(program.start), "h:MM"))
@@ -426,6 +429,7 @@ function prepRecord(program) {
 				.replace('<type>', program.channel.type)
 				.replace('<channel>', ((program.channel.type === 'CS') ? program.channel.sid : program.channel.channel))
 				.replace('<title>',   program.title)
+				.replace('<fullTitle>', program.fullTitle)
 				.replace('<channelname>', program.channel.name)
 				.replace('<date>', dateFormat(new Date(program.start), "mm/dd"))
 				.replace('<starttime>', dateFormat(new Date(program.start), "h:MM"))
