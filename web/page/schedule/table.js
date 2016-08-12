@@ -353,7 +353,7 @@
 				
 				var x = k;
 				
-				var posX   = (4 + x * (4 + linelen));
+				var posX   = (5 + x * (5 + linelen));
 				var width  = linelen;
 				
 				var ch = new sakura.ui.Container({
