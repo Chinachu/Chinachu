@@ -67,14 +67,14 @@ div.fullscreen {
 .color-white  { color: #ffffff !important; }
 .color-warning{ color: rgb(191,0,41) !important; }
 
-.color-cat-anime { color: #e04caf !important; }
-.color-cat-information { color: #26d49d !important; }
-.color-cat-news { color: #8bda1a !important; }
-.color-cat-sports { color: #26b3d1 !important; }
-.color-cat-variety { color: #dcd213 !important; }
-.color-cat-drama { color: #de8a31 !important; }
-.color-cat-music { color: #2848d1 !important; }
-.color-cat-cinema { color: #6e25db !important; }
+.color-cat-anime { color: #d652d6 !important; }
+.color-cat-information { color: #e2519c !important; }
+.color-cat-news { color: #d4d436 !important; }
+.color-cat-sports { color: #6f6fff !important; }
+.color-cat-variety { color: #2dcbcb !important; }
+.color-cat-drama { color: #dd5a5a !important; }
+.color-cat-music { color: #50d950 !important; }
+.color-cat-cinema { color: #e2994b !important; }
 .color-cat-etc { color: #888888 !important; }
 
 /* bg (background) */
@@ -105,15 +105,15 @@ div.fullscreen {
 	background-color: #ddd; }
 
 
-.bg-cat-anime { background: #fcbde1 !important; }
-.bg-cat-information { background: #bdfce8 !important; }
-.bg-cat-news { background: #d7fcbd !important; }
-.bg-cat-sports { background: #bdf1fc !important; }
-.bg-cat-variety { background: #fbfcbd !important; }
-.bg-cat-drama { background: #fce1c4 !important; }
-.bg-cat-music { background: #bdc9fc !important; }
-.bg-cat-cinema { background: #d6bdfc !important; }
-.bg-cat-etc { background: #eeeeee !important; }
+.bg-cat-anime { background: #ffe0ff !important; }
+.bg-cat-information { background: #ffe0f0 !important; }
+.bg-cat-news { background: #ffffe0 !important; }
+.bg-cat-sports { background: #e0e0ff !important; }
+.bg-cat-variety { background: #e0ffff !important; }
+.bg-cat-drama { background: #ffe0e0 !important; }
+.bg-cat-music { background: #e0ffe0 !important; }
+.bg-cat-cinema { background: #fff0e0 !important; }
+.bg-cat-etc { background: #f0f0f0 !important; }
 
 div.content-loading {
 	z-index         : 100;
@@ -449,6 +449,9 @@ div.middle {
 				
 				div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar {}
 				
+					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar .flagrate-checkbox {
+						color: white; }
+				
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > * {
 						vertical-align: inherit; }
 				
@@ -708,202 +711,6 @@ div.flagrate-grid > div > table > tbody > tr:nth-child(odd).flagrate-grid-row-se
 	background-color: rgba(179,0,95,0.40); }
 
 /* page */
-
-div#content-body > div#content-body-head {
-	position  : absolute;
-	height    : 25px;
-	top       : 0;
-	right     : 0;
-	left      : 0;
-	padding   : 0 10px;
-	background: #eee;
-	box-shadow: inset 0 1px 0 #fff, 0 0 5px rgba(0,0,0,0.15);
-	z-index   : 100; }
-	
-	div#content-body > div#content-body-head > a {
-		display         : block;
-		float           : left;
-		font-size       : 12px;
-		line-height     : 20px;
-		padding         : 3px 5px 2px 5px;
-		text-decoration : none;
-		color           : #555;
-		text-shadow     : 0 1px 0 #fff; }
-	
-	div#content-body > div#content-body-head > a:hover {
-		background-color: #fff; }
-	
-	div#content-body > div#content-body-head > a.selected {
-		background-color: #e5e5e5;
-		box-shadow      : inset 1px 1px 2px #aaa, inset -1px -1px 2px #aaa;
-		color           : black; }
-	
-	div#content-body > div#content-body-head > a.right {
-		float           : right; }
-		
-		div#content-body > div#content-body-head > a > span {
-			margin-left     : 2px;
-			font-size       : 10px;
-			line-height     : 15px;
-			text-shadow     : none;
-			color           : #999; }
-		
-		div#content-body > div#content-body-head > a > .sat {
-			color           : blue; }
-		
-		div#content-body > div#content-body-head > a > .sun {
-			color           : red; }
-		
-
-div#content-body > div#content-body-results {
-	z-index   : 0;
-	position  : absolute;
-	top       : 25px;
-	right     : 0;
-	/* right     : 200px; */
-	bottom    : 0;
-	left      : 0;
-	padding   : 10px;
-	overflow  : auto; }
-	
-	div#content-body > div#content-body-results > h2 {
-		padding  : 0;
-		margin   : 10px 0;
-		font-size: 18px;
-		font-weight: normal;
-		color    : #c24186; }
-	
-	div#content-body > div#content-body-results > div {
-		padding  : 5px;
-		margin   : 0 0 1px 20px;
-		font-size: 12px;
-		cursor   : pointer;
-		color    : #333; }
-	
-	div#content-body > div#content-body-results > div.detail {
-		padding  : 5px;
-		margin   : 0 0 5px 20px;
-		font-size: 12px;
-		cursor   : pointer;
-		color    : #333; }
-	
-	div#content-body > div#content-body-results > div:hover {
-		background: #eee;
-		color     : #c24186; }
-		
-		div#content-body > div#content-body-results > div > span {
-			padding: 0 5px;
-			margin : 0 5px 0 0; }
-		
-		div#content-body > div#content-body-results > div > span.cat,
-		div#content-body > div#content-body-results > div > span.stat {
-			background: #eee;
-			font-size : 10px; }
-		
-		div#content-body > div#content-body-results > div > span.stat {
-			color     : #c24186; }
-		
-		div#content-body > div#content-body-results > div.reserved > span.stat {
-			color     : white;
-			background: #c24186; }
-		
-		div#content-body > div#content-body-results > div.recording > span.stat {
-			color     : white;
-			background: red; }
-		
-		div#content-body > div#content-body-results > div > span.pgid {
-			font-size : 10px;
-			color     : #bbb; }
-		
-		div#content-body > div#content-body-results > div > span.datetime {
-			margin    : 0; }
-		
-		div#content-body > div#content-body-results > div > span.duration {
-			font-size : 10px;
-			margin    : 0 5px 0 0;
-			padding   : 0; }
-		
-		div#content-body > div#content-body-results > div > span.by.manual {
-			font-size : 10px;
-			background: #c24186;
-			color     : #fff; }
-		
-		div#content-body > div#content-body-results > div > span.channel {
-			font-size : 10px;
-			background: #eee;
-			color     : #777; }
-			
-			div#content-body > div#content-body-results > div > span.channel > span.type {
-				color       : #aaa;
-				margin-right: 2px; }
-		
-		div#content-body > div#content-body-results > div:hover > span.channel {
-			background: #ddd;
-			color     : #c24186; }
-		
-		div#content-body > div#content-body-results > div > div.desc {
-			margin   : 2px 0 0 70px;
-			font-size: 12px;
-			color    : #777; }
-
-div#content-body > div#content-body-grid {
-	z-index   : 0;
-	position  : absolute;
-	top       : 25px;
-	right     : 0;
-	bottom    : 0;
-	left      : 0;
-	padding   : 10px;
-	overflow  : auto; }
-
-div#content-body > div#content-body-form {
-	z-index   : 0;
-	position  : absolute;
-	top       : 25px;
-	right     : 0;
-	bottom    : 0;
-	left      : 0;
-	padding   : 10px;
-	overflow  : auto; }
-
-
-		
-		div#content-body > div#content-body-timetable-header > div {
-			position  : relative;
-			overflow  : hidden;
-			background: rgba(255,255,255,0.8);
-			color     : #000;
-			height    : 50px;
-			padding   : 5px 0 0 0;
-			text-align: center;
-			width     : 140px;
-			cursor    : pointer; }
-		
-		div#content-body > div#content-body-timetable-header > div:hover {
-			color     : orange; }
-	
-		div#content-body > div#content-body-timetable-header > div.channel-type-GR {
-			box-shadow: inset 5px 0 0 rgba(255,160,0,0.7); }
-	
-		div#content-body > div#content-body-timetable-header > div.channel-type-BS {
-			box-shadow: inset 5px 0 0 rgba(21,0,255,0.7); }
-	
-		div#content-body > div#content-body-timetable-header > div.channel-type-CS {
-			box-shadow: inset 5px 0 0 rgba(255,3,0,0.7); }
-	
-		div#content-body > div#content-body-timetable-header > div.channel-type-EX {
-			box-shadow: inset 5px 0 0 rgba(8,255,0,0.7); }
-			
-			div#content-body > div#content-body-timetable-header > div > .name {
-				margin-top : 6px;
-				font-size  : 12px;
-				font-weight: bold;
-				line-height: 20px; }
-			
-			div#content-body > div#content-body-timetable-header > div > .meta {
-				font-size  : 10px;
-				line-height: 18px;
-				white-space: nowrap; }
 
 div.dashboard-timelist {
 	position  : absolute;
@@ -1191,7 +998,7 @@ div.timetable > div.board {
 		position  : absolute;
 		left      : 0;
 		height    : 2px;
-		background: rgba(255,0,0,0.5); }
+		background: rgba(255,102,0,0.5); }
 	
 	div.timetable > div.board > div.cutline {
 		z-index     : 1;
@@ -1206,7 +1013,7 @@ div.timetable > div.board {
 		position    : absolute;
 		background  : #ccc;
 		cursor      : pointer;
-		box-shadow  : inset 0 0 0 1px rgba(25,25,25,0.2); }
+		box-shadow  : inset 0 1px 0 rgba(25,25,25,0.3); }
 	
 	div.timetable > div.board > div.rect:hover {
 		box-shadow  : inset 0 0 0 2px rgba(194,65,134,0.4); }
@@ -1230,8 +1037,8 @@ div.timetable > div.board {
 	
 	div.timetable > div.board > div.rect.spot {
 		z-index     : 1;
-		box-shadow  : inset 0 0 0 1px rgba(255,255,255,0.8),
-		              0 0 5px rgb(194,65,134); }
+		box-shadow  : inset 0 0 0 1px white,
+		              0 0 5px 2px rgba(255, 87, 145, 0.82); }
 		
 		div.timetable > div.board > div.rect > div {
 			position   : absolute;
@@ -1243,13 +1050,13 @@ div.timetable > div.board {
 			line-height: 1.3em;
 			white-space: normal;
 			word-break : break-all;
-			font-family: "Meiryo UI", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ",
+			font-family: "Yu Gothic", "Meiryo UI", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ",
 			             Meiryo, Osaka, "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
 			color      : #444; }
 		
 			div.timetable > div.board > div.rect > div > h4 {
 				margin   : 0 0 2px 0;
-				font-size: 12px; }
+				font-size: 11px; }
 		
 			div.timetable > div.board > div.rect > div > div {
 				display: block;
@@ -1278,7 +1085,8 @@ div.timetable > div.board {
 			div.timetable > div.board > div.rect > div > span {
 				display: block;
 				margin-left: 12px;
-				color    : rgba(0,0,0,0.7);
+				color    : #5f5f5f;
+				font-weight: 500;
 				font-size: 11px; }
 
 			div.timetable > div.board > div.rect:hover > div > h4 {
@@ -1379,15 +1187,16 @@ div.timetable > div.head {
 		position   : absolute;
 		color      : #bbb;
 		font-size  : 12px;
-		font-weight: bold;
+		font-weight: normal;
+		text-align : center;
 		cursor     : pointer;
 		overflow   : hidden;
 		top        : 0;
 		bottom     : 0;
 		padding-top: 3px;
 		line-height: 2em;
-		background : rgba(25,25,25,0.7);
-		box-shadow : 4px 0 0 rgba(25,25,25,0.7); }
+		background : rgba(25,25,25,0.8);
+		box-shadow : 5px 0 0 rgba(25,25,25,0.7); }
 	
 	div.timetable > div.head > div:hover {
 		color      : #fff; }
