@@ -298,7 +298,7 @@ var transaction = new Promise(function(resolve, reject){
 	} else {
 		resolve();
 	}
-}).then(function() {
+}).then(function(resolve, reject) {
 	// 動作モード
 	switch (opts.get('mode')) {
 		// 検索
