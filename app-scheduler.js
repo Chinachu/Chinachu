@@ -1276,13 +1276,13 @@ Promise.resolve()
 })
 .then(function() {
 	if (config.schedulerMirakurunPath && channels.length === 0) {
-		util.log('WARNING: 30秒後にリトライします');
+		util.log('WARNING: 120秒後にリトライします');
 		setTimeout(function() {
 			return new Promise(function(resolve, reject) {
 				// チャンネル情報が空であり、かつMirakurun 設定がある場合は参照
 				getChannelsFromMirakurun(resolve, reject, config.schedulerMirakurunPath);
 			});
-		}, 30000);
+		}, 120000);
 	}
 })
 .then(function() {
