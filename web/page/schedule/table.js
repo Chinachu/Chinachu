@@ -305,6 +305,7 @@
 			var isScrolling = false;
 			this.data.scrollStart = [0, 0];
 			this.data.scrollEnd   = [0, 0];
+			this.data.scrollDelta = [0, 0];
 			this.data.target      = null;
 			
 			var unitlen = this.unitlen = 50;
