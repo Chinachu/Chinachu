@@ -1008,7 +1008,7 @@ function getEpg() {
 				// プロセスタイムアウト
 				execRecCmd(function () {
 					recProc.kill('SIGTERM');
-				}, 1000 * (config.schedulerEpgRecordTime || 60), '[' + i + '] KILLWAIT');
+				}, config.schedulerEpgRecordTime || 1000 * 60, '[' + i + '] KILLWAIT');
 			
 				// キャンセル時
 				var isCancelled = false;
