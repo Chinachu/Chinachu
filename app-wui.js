@@ -721,9 +721,7 @@ function iosAddEventListner(io, eventName) {
 function ioAddListener(server, isOpen) {
 	var io = socketio.listen(server);
 
-	io.enable('browser client minification');
-	io.set('log level', 1);
-	io.set('transports', ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
+	io.set('transports', ['polling', 'websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
 	io.sockets.on('connection', isOpen ? ioOpenServer : ioServer);
 
 	// listen event

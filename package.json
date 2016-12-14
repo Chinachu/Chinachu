@@ -33,7 +33,7 @@
     "mkdirp": "~0.3.5",
     "mtwitter": "~1.5.2",
     "opts": "~1.2.2",
-    "socket.io": "~0.9.16",
+    "socket.io": "~1.4.5",
     "string": "~1.5.1",
     "swagger-client": "github:kanreisa/swagger-js#feature/unix-domain-socket",
     "xml2js": "~0.2.8"
