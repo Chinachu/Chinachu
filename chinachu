@@ -16,7 +16,7 @@ fi
 shopt -s extglob
 
 # variables
-NODE_VER=4.5.0
+NODE_VER=6.9.2
 
 main () {
   local SELF_PATH DIR SYM
@@ -88,16 +88,12 @@ chinachu_installer () {
   local PS3 item cmd
   PS3="what do you install? > "
   select item in \
-    "Auto (full)" "Auto (fast)" "submodule" "Node.js Environment" "Node.js Modules" \
-    "epgdump" "ffmpeg"
+    "Auto (full)" "submodule" "Node.js Environment" "Node.js Modules" "ffmpeg"
   do
     echo "selected: ${item}"
     case $item in
       "Auto (full)" )
         cmd="chinachu_installer_auto_full"
-        ;;
-      "Auto (fast)" )
-        cmd="chinachu_installer_auto_fast"
         ;;
       "submodule" )
         cmd="chinachu_installer_submodule"
@@ -107,9 +103,6 @@ chinachu_installer () {
         ;;
       "Node.js Modules" )
         cmd="chinachu_installer_node_modules"
-        ;;
-      "epgdump" )
-        cmd="chinachu_installer_epgdump"
         ;;
       "ffmpeg" )
         cmd="chinachu_installer_ffmpeg"
@@ -128,17 +121,8 @@ chinachu_installer_auto_full () {
   chinachu_installer_submodule
   chinachu_installer_node
   chinachu_installer_node_modules
-  chinachu_installer_epgdump
   chinachu_installer_ffmpeg
   
-  return 0
-}
-
-chinachu_installer_auto_fast () {
-  chinachu_installer_submodule
-  chinachu_installer_node
-  chinachu_installer_node_modules
-
   return 0
 }
 
@@ -174,29 +158,6 @@ chinachu_installer_node_modules () {
   npm update
 
   echo "done."
-  
-  return 0
-}
-
-chinachu_installer_epgdump () {
-  remove_dir "$USR_DIR/src/epgdump"
-  ensure_dir "$USR_DIR/src/epgdump"
-  
-  local EPGDUMP_TB="https://github.com/stz2012/epgdump/archive/master.tar.gz"
-  
-  echo "Installing epgdump from $EPGDUMP_GIT"
-  wget -O - $EPGDUMP_TB | tar zxvf - -C $USR_DIR/src/epgdump
-  cd "$USR_DIR/src/epgdump/epgdump-master"
-  
-  make || fail "couldn't make epgdump"
-  
-  cp epgdump $USR_DIR/bin/
-  
-  cd $CHINACHU_DIR
-  
-  remove_dir "$USR_DIR/src/epgdump"
-  
-  echo "epgdump --> done."
   
   return 0
 }

@@ -1,7 +1,7 @@
 {
   "name": "chinachu",
-  "description": "An open source EPG digital video recorder system for Linux.",
-  "version": "0.0.1",
+  "description": "Most Lovely DVR Software in Japan.",
+  "version": "0.9.5-gamma.0",
   "private": true,
   "homepage": "https://chinachu.moe/",
   "author": {
@@ -30,6 +30,7 @@
     "hoard": "~0.1.5",
     "http-auth": "^2.2.8",
     "mdns-js": "^0.5.0",
+    "mirakurun": "^2.0.0-rc.0",
     "mkdirp": "~0.3.5",
     "mtwitter": "~1.5.2",
     "opts": "~1.2.2",
@@ -47,6 +48,6 @@
     "test": "mocha -R spec"
   },
   "engines": {
-    "node": ">=0.12.0"
+    "node": ">=6.9.0"
   }
 }
