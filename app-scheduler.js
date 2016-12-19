@@ -35,31 +35,10 @@ const mirakurun = new (require("mirakurun").default)();
 // 引数
 opts.parse([
 	{
-		short: 'f',
-		long: 'force',
-		description: '全てのデータを破棄して再取得します',
-		value: false,
-		required: false
-	},
-	{
 		short: 's',
 		long: 'simulation',
 		description: 'シミュレーション。実際には保存されません',
 		value: false,
-		required: false
-	},
-	{
-		short: 'ch',
-		long: 'channel',
-		description: '指定したチャンネルのみ取得します',
-		value: true,
-		required: false
-	},
-	{
-		short: 'l',
-		long: 'load',
-		description: '指定したTSをch引数で指定したチャンネルに取り込みます',
-		value: true,
 		required: false
 	}
 ], true);
@@ -69,6 +48,7 @@ const pkg = require("./package.json");
 const config = require(CONFIG_FILE);
 const rules = JSON.parse(fs.readFileSync(RULES_FILE, { encoding: 'utf8' }) || '[]');
 let reserves = null;//まだ読み込まない
+let tuners = null;
 
 // Mirakurun Client
 const mirakurunPath = config.mirakurunPath || config.schedulerMirakurunPath || "http+unix://%2Fvar%2Frun%2Fmirakurun.sock/";
@@ -191,8 +171,8 @@ function scheduler() {
 
 	var typeNum = {};
 
-	config.tuners.forEach(function (tuner) {
-		tuner.types.forEach(function (type) {
+	tuners.forEach(tuner => {
+		tuner.types.forEach(type => {
 			if (typeof typeNum[type] === 'undefined') {
 				typeNum[type] = 1;
 			} else {
@@ -281,7 +261,7 @@ function scheduler() {
 	// check conflict
 	var conflictCount = 0;
 	var tunerThreads  = [];
-	for (i = 0; i < config.tuners.length; i++) {
+	for (i = 0; i < tuners.length; i++) {
 		tunerThreads.push([]);
 	}
 	for (i = 0; i < matches.length; i++) {
@@ -291,8 +271,8 @@ function scheduler() {
 
 		a.isConflict = true;
 
-		for (k = 0; k < config.tuners.length; k++) {
-			if (config.tuners[k].types.indexOf(a.channel.type) !== -1) {
+		for (k = 0; k < tuners.length; k++) {
+			if (tuners[k].types.indexOf(a.channel.type) !== -1) {
 				var aIsConflictInTuner = false;
 				for (l = 0; l < tunerThreads[k].length; l++) {
 					if (!((tunerThreads[k][l].end <= a.start) || (tunerThreads[k][l].start >= a.end))) {
@@ -572,6 +552,14 @@ function getEpgFromMirakurun(path) {
 				mirakurunProgramsToLegacyPrograms(channel, programs);
 			});
 
+			return mirakurun.getTuners();
+		})
+		.then(_tuners => {
+
+			tuners = _tuners;
+
+			util.log('Mirakurun -> tuners: ' + tuners.length);
+
 			writeOut(channels, scheduler);
 		});
 }
@@ -638,20 +626,16 @@ isRunning(running => {
 		process.on('exit', () => deletePidFile());
 
 		// EPGデータを取得または番組表を読み込む
-		if (opts.get('f') || schedule.length === 0) {
-			if (config.epgStartCommand) {
-				const commandProcess = child_process.spawnSync(config.epgStartCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
-				util.log('SPAWN: ' + config.epgStartCommand + ' (pid=' + commandProcess.pid + ')');
-			}
+		if (config.epgStartCommand) {
+			const commandProcess = child_process.spawnSync(config.epgStartCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
+			util.log('SPAWN: ' + config.epgStartCommand + ' (pid=' + commandProcess.pid + ')');
+		}
 
-			getEpgFromMirakurun(mirakurunPath);
+		getEpgFromMirakurun(mirakurunPath);
 
-			if (config.epgEndCommand) {
-				const commandProcess = child_process.spawn(config.epgEndCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
-				util.log('SPAWN: ' + config.epgEndCommand + ' (pid=' + commandProcess.pid + ')');
-			}
-		} else {
-			scheduler();
+		if (config.epgEndCommand) {
+			const commandProcess = child_process.spawn(config.epgEndCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
+			util.log('SPAWN: ' + config.epgEndCommand + ' (pid=' + commandProcess.pid + ')');
 		}
 	}
 });
