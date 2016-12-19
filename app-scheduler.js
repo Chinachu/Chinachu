@@ -1,24 +1,24 @@
 /*!
  *  Chinachu Task Scheduler (chinachu-scheduler)
  *
- *  Copyright (c) 2012 Yuki KAN and Chinachu Project Contributors
+ *  Copyright (c) 2016 Yuki KAN and Chinachu Project Contributors
  *  https://chinachu.moe/
 **/
-/*jslint node:true, nomen:true, plusplus:true, regexp:true, vars:true, continue:true */
 'use strict';
 
-var PID_FILE = __dirname + '/data/scheduler.pid';
+const PID_FILE = __dirname + '/data/scheduler.pid';
 
-var CONFIG_FILE         = __dirname + '/config.json';
-var RULES_FILE          = __dirname + '/rules.json';
-var RESERVES_DATA_FILE  = __dirname + '/data/reserves.json';
-var SCHEDULE_DATA_FILE  = __dirname + '/data/schedule.json';
+const CONFIG_FILE = __dirname + '/config.json';
+const RULES_FILE = __dirname + '/rules.json';
+const RESERVES_DATA_FILE = __dirname + '/data/reserves.json';
+const SCHEDULE_DATA_FILE = __dirname + '/data/schedule.json';
 
 // 標準モジュールのロード
-var path          = require('path');
-var fs            = require('fs');
-var util          = require('util');
-var child_process = require('child_process');
+const path = require('path');
+const url = require("url");
+const fs = require('fs');
+const util = require('util');
+const child_process = require('child_process');
 
 // ディレクトリチェック
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
@@ -27,59 +27,80 @@ if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./w
 }
 
 // 追加モジュールのロード
-var Swagger    = require('swagger-client');
-var opts       = require('opts');
-var xml2js     = require('xml2js');
-var xmlParser  = new xml2js.Parser();
-var dateFormat = require('dateformat');
-var chinachu   = require('chinachu-common');
+const opts = require('opts');
+const dateFormat = require('dateformat');
+const chinachu = require('chinachu-common');
+const mirakurun = new (require("mirakurun").default)();
 
 // 引数
 opts.parse([
 	{
-		short      : 'f',
-		long       : 'force',
+		short: 'f',
+		long: 'force',
 		description: '全てのデータを破棄して再取得します',
-		value      : false,
-		required   : false
+		value: false,
+		required: false
 	},
 	{
-		short      : 's',
-		long       : 'simulation',
+		short: 's',
+		long: 'simulation',
 		description: 'シミュレーション。実際には保存されません',
-		value      : false,
-		required   : false
+		value: false,
+		required: false
 	},
 	{
-		short      : 'ch',
-		long       : 'channel',
+		short: 'ch',
+		long: 'channel',
 		description: '指定したチャンネルのみ取得します',
-		value      : true,
-		required   : false
+		value: true,
+		required: false
 	},
 	{
-		short      : 'l',
-		long       : 'load',
+		short: 'l',
+		long: 'load',
 		description: '指定したTSをch引数で指定したチャンネルに取り込みます',
-		value      : true,
-		required   : false
+		value: true,
+		required: false
 	}
 ], true);
 
 // 設定の読み込み
-var config   = require(CONFIG_FILE);
-var rules    = JSON.parse(fs.readFileSync(RULES_FILE, { encoding: 'utf8' }) || '[]');
-var reserves = null;//まだ読み込まない
+const pkg = require("./package.json");
+const config = require(CONFIG_FILE);
+const rules = JSON.parse(fs.readFileSync(RULES_FILE, { encoding: 'utf8' }) || '[]');
+let reserves = null;//まだ読み込まない
 
-// チャンネルリスト
-var channels = JSON.parse(JSON.stringify(config.channels));
+// Mirakurun Client
+const mirakurunPath = config.mirakurunPath || config.schedulerMirakurunPath || "http+unix://%2Fvar%2Frun%2Fmirakurun.sock/";
+
+if (/(?:\/|\+)unix:/.test(mirakurunPath) === true) {
+	const standardFormat = /^http\+unix:\/\/([^\/]+)(\/?.*)$/;
+	const legacyFormat = /^http:\/\/unix:([^:]+)(:?.*)$/;
+
+	if (standardFormat.test(mirakurunPath) === true) {
+		mirakurun.socketPath = mirakurunPath.replace(standardFormat, "$1").replace(/%2F/g, "/");
+		mirakurun.basePath = path.join(mirakurunPath.replace(standardFormat, "$2"), mirakurun.basePath);
+	} else {
+		mirakurun.socketPath = mirakurunPath.replace(legacyFormat, "$1");
+		mirakurun.basePath = path.join(mirakurunPath.replace(legacyFormat, "$2"), mirakurun.basePath);
+	}
+} else {
+	const urlObject = url.parse(mirakurunPath);
+	mirakurun.host = urlObject.hostname;
+	mirakurun.port = urlObject.port;
+	mirakurun.basePath = path.join(urlObject.pathname, mirakurun.basePath);
+}
+
+mirakurun.userAgent = `Chinachu/${pkg.version} (scheduler)`;
+
+console.info(mirakurun);
 
 // スケジュール
 var schedule = [];
 if (fs.existsSync(SCHEDULE_DATA_FILE)) {
 	try {
 		schedule = JSON.parse(fs.readFileSync(SCHEDULE_DATA_FILE, { encoding: 'utf8' }));
-		
+
 		if (schedule instanceof Array === false) {
 			util.log('WARNING: `' + SCHEDULE_DATA_FILE + '`の内容が不正です');
 			schedule = [];
@@ -88,27 +109,6 @@ if (fs.existsSync(SCHEDULE_DATA_FILE)) {
 		util.log('WARNING: `' + SCHEDULE_DATA_FILE + '`のロードに失敗しました');
 		schedule = [];
 	}
-}
-
-// 録画コマンドのシリアライズ
-var operRecCmdSpan  = config.operRecCmdSpan || 0;
-if (operRecCmdSpan < 0) {
-	operRecCmdSpan = 0;
-}
-var recCmdLastTime = new Date().getTime();
-function execRecCmd(cmd, timeout, msg) {
-	if (timeout > 0) {
-		setTimeout(execRecCmd, timeout, cmd, 0, msg);
-		return;
-	}
-	var t = operRecCmdSpan - (new Date().getTime() - recCmdLastTime);
-	if (t > 0) {
-		util.log(msg + ': ' + t + 'ms');
-		setTimeout(execRecCmd, t, cmd, 0, msg);
-		return;
-	}
-	cmd();
-	recCmdLastTime = new Date().getTime();
 }
 
 // PID file operation
@@ -122,13 +122,13 @@ function deletePidFile() {
 
 // scheduler is running?
 function isRunning(callback) {
-	
+
 	if (fs.existsSync(PID_FILE) === true) {
 		var pid = fs.readFileSync(PID_FILE, { encoding: 'utf8' });
 		pid = pid.trim();
-		
+
 		child_process.exec('ps h -p ' + pid, function (err, stdout) {
-			
+
 			if (stdout === '') {
 				deletePidFile();
 				callback(false);
@@ -139,31 +139,31 @@ function isRunning(callback) {
 	} else {
 		callback(false);
 	}
-	
+
 	return void 0;
 }
 
 // (function) remake reserves
 function outputReserves() {
 	util.log('WRITE: ' + RESERVES_DATA_FILE);
-	
+
 	var array = [];
-	
+
 	reserves.forEach(function (reserve) {
 		if (reserve.end < new Date().getTime()) { return; }
-		
+
 		array.push(reserve);
 	});
-	
+
 	fs.writeFileSync(RESERVES_DATA_FILE, JSON.stringify(array));
 }
 
 // scheduler
 function scheduler() {
-	
+
 	var i, j, k, l, a;
 	var commandProcess;
-	
+
 	util.log('RUNNING SCHEDULER.');
 
 	// schedulerStartフック
@@ -173,7 +173,7 @@ function scheduler() {
 			util.log('SPAWN: ' + config.schedulerStartCommand + ' (pid=' + commandProcess.pid + ')');
 		}
 	}
-	
+
 	// IDが重複しているかチェックするだけ
 	var idMap = {};
 	schedule.forEach(function (ch) {
@@ -186,11 +186,11 @@ function scheduler() {
 			}
 		});
 	});
-	
+
 	reserves = JSON.parse(fs.readFileSync(RESERVES_DATA_FILE, { encoding: 'utf8' }) || '[]');//読み込む
-	
+
 	var typeNum = {};
-	
+
 	config.tuners.forEach(function (tuner) {
 		tuner.types.forEach(function (type) {
 			if (typeof typeNum[type] === 'undefined') {
@@ -200,12 +200,12 @@ function scheduler() {
 			}
 		});
 	});
-	
+
 	util.log('TUNERS: ' + JSON.stringify(typeNum));
-	
+
 	// matching
 	var matches = [];
-	
+
 	schedule.forEach(function (ch) {
 		ch.programs.forEach(function (p) {
 			if (chinachu.isMatchedProgram(rules, p, config.normalizationForm)) {
@@ -213,7 +213,7 @@ function scheduler() {
 			}
 		});
 	});
-	
+
 	reserves.forEach(function (reserve) {
 		var i, l;
 		if (reserve.isManualReserved) {
@@ -245,39 +245,39 @@ function scheduler() {
 			return;
 		}
 	});
-	
+
 	// sort
 	matches.sort(function (a, b) {
 		return a.start - b.start;
 	});
-	
+
 	// duplicates
 	var duplicateCount = 0;
 	for (i = 0; i < matches.length; i++) {
 		a = matches[i];
-		
+
 		for (j = 0; j < matches.length; j++) {
 			var b = matches[j];
-			
+
 			if (b.isDuplicate || b.isSkip) { continue; }
-			
+
 			if (a.id === b.id) { continue; }
 			if (a.channel.type !== b.channel.type) { continue; }
 			if (a.channel.channel !== b.channel.channel) { continue; }
 			if (a.start !== b.start) { continue; }
 			if (a.end !== b.end) { continue; }
 			if (a.title !== b.title) { continue; }
-			
+
 			// 最終的にsidの若い方を選択させる
 			if (parseInt(a.channel.sid, 10) < parseInt(b.channel.sid, 10)) { continue; }
-			
+
 			util.log('DUPLICATE: ' + a.id + ' ' + dateFormat(new Date(a.start), 'isoDateTime') + ' [' + a.channel.name + '] ' + a.title);
 			a.isDuplicate = true;
-			
+
 			++duplicateCount;
 		}
 	}
-	
+
 	// check conflict
 	var conflictCount = 0;
 	var tunerThreads  = [];
@@ -290,7 +290,7 @@ function scheduler() {
 		if (a.isDuplicate || a.isSkip) { continue; }
 
 		a.isConflict = true;
-		
+
 		for (k = 0; k < config.tuners.length; k++) {
 			if (config.tuners[k].types.indexOf(a.channel.type) !== -1) {
 				var aIsConflictInTuner = false;
@@ -300,7 +300,7 @@ function scheduler() {
 						break;
 					}
 				}
-				
+
 				if (aIsConflictInTuner) {
 					continue;
 				} else {
@@ -310,12 +310,12 @@ function scheduler() {
 				}
 			}
 		}
-		
+
 		if (!a.isConflict) {
 			continue;
 		} else {
 			util.log('!CONFLICT: ' + a.id + ' ' + dateFormat(new Date(a.start), 'isoDateTime') + ' [' + a.channel.name + '] ' + a.title);
-			
+
 			++conflictCount;
 			// conflict フック
 			if (config.conflictCommand) {
@@ -324,17 +324,17 @@ function scheduler() {
 			}
 		}
 	}
-	
+
 	// reserve
 	reserves = [];
 	var reservedCount = 0;
 	var skipCount     = 0;
 	for (i = 0; i < matches.length; i++) {
 		a = matches[i];
-		
+
 		if (!a.isDuplicate) {
 			reserves.push(a);
-			
+
 			if (a.isSkip) {
 				util.log('!!!SKIP: ' + a.id + ' ' + dateFormat(new Date(a.start), 'isoDateTime') + ' [' + a.channel.name + '] ' + a.title);
 				++skipCount;
@@ -346,7 +346,7 @@ function scheduler() {
 			}
 		}
 	}
-	
+
 	// ruleにもしあればreserveにrecordedFormatを追加
 	reserves.forEach(function (reserve) {
 		rules.forEach(function (rule) {
@@ -355,14 +355,14 @@ function scheduler() {
 			}
 		});
 	});
-	
+
 	// results
 	util.log('MATCHES: ' + matches.length.toString(10));
 	util.log('DUPLICATES: ' + duplicateCount.toString(10));
 	util.log('CONFLICTS: ' + conflictCount.toString(10));
 	util.log('SKIPS: ' + skipCount.toString(10));
 	util.log('RESERVES: ' + reservedCount.toString(10));
-	
+
 	if (!opts.get('s')) {
 		outputReserves();
 		// schedulerEnd フック
@@ -371,61 +371,59 @@ function scheduler() {
 			util.log('SPAWN: ' + config.schedulerEndCommand + ' (pid=' + commandProcess.pid + ')');
 		}
 	}
-	
+
 	// プロセス終了
 	process.exit(0);
 }
 
 // (function) program converter
 function convertPrograms(p, ch) {
-	var programs = [];
-	
-	var i, l;
-	for (i = 0, l = p.length; i < l; i++) {
-		var j, m;
-		var c = p[i];
-		
-		if (c.$.channel !== ch.id || !c.title[0]._) {
+	const programs = [];
+
+	for (let i = 0, l = p.length; i < l; i++) {
+		const c = p[i];
+
+		if (c.title === "") {
 			continue;
 		}
-		
-		var title = c.title[0]._;
-		
+
+		let title = c.title;
+
 		title = title
 			.replace(/【.{1,2}】/g, '')
 			.replace(/\[.\]/g, '')
 			.replace(/[【「（#＃♯第]+[0-9０-９零一壱壹弌二弐貮貳三参參弎四肆五伍六陸七柒漆八捌九玖十拾廿卄]+[話回】」）]*/g, '');
-		
-		if (c.category[1]._ === 'anime') {
+
+		if (c.category === 'anime') {
 			title = title.replace(/(?:TV|ＴＶ)?アニメ(?:イズム)?「([^「」]+)」/g, '$1')
 				.replace(/([^場版])「.+」/g, '$1');
 		}
-		
+
 		title = title.trim();
-		
-		var desc = c.desc[0]._ || '';
-		
-		var subtitle = '';
-		if (c.title[0]._.match(/[^版]「([^「」]+)」/) !== null) {
-			subtitle = c.title[0]._.match(/[^版]「([^「」]+)」/)[1];
+
+		const desc = c.detail;
+
+		let subtitle = '';
+		if (c.title.match(/[^版]「([^「」]+)」/) !== null) {
+			subtitle = c.title.match(/[^版]「([^「」]+)」/)[1];
 		} else if (desc.match(/「([^「」]+)」/) !== null) {
 			subtitle = desc.match(/「([^「」]+)」/)[1];
 		} else if (desc.match(/『([^『』]+)』/) !== null) {
 			subtitle = desc.match(/『([^『』]+)』/)[1];
 		}
-		
-		var flags = [];
-		var flagsSource = c.title[0]._
+
+		const flags = [];
+		const flagsSource = c.title
 			.replace(/【/g, '[')
 			.replace(/】/g, ']')
 			.replace(/\[無料\]/g, '[無]');
-		var matchedFlags = (flagsSource.match(/\[(.)\]/g) || []);
-		for (j = 0, m = matchedFlags.length; j < m; j++) {
+		const matchedFlags = (flagsSource.match(/\[(.)\]/g) || []);
+		for (let j = 0, m = matchedFlags.length; j < m; j++) {
 			flags.push(matchedFlags[j].match(/(?:【|\[)(.)(?:】|\])/)[1]);
 		}
-		
+
 		var episodeNumber = null;
-		var episodeNumberMatch = (c.title[0]._ + ' ' + desc).match(/[「（#＃♯第]+[0-9０-９零一壱壹弌二弐貮貳三参參弎四肆五伍六陸七柒漆八捌九玖十拾廿卄]+[話回」）]*|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
+		var episodeNumberMatch = (c.title + ' ' + desc).match(/[「（#＃♯第]+[0-9０-９零一壱壹弌二弐貮貳三参參弎四肆五伍六陸七柒漆八捌九玖十拾廿卄]+[話回」）]*|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
 		if (episodeNumberMatch !== null) {
 			var episodeNumberString = episodeNumberMatch[0];
 
@@ -486,50 +484,25 @@ function convertPrograms(p, ch) {
 		if (episodeNumber === null && flags.indexOf('新') !== -1) {
 			episodeNumber = 1;
 		}
-		
-		var startTime, endTime;
-		if (c.startAt) {
-			startTime = c.startAt;
-			endTime   = c.startAt + c.duration;
-		} else {
-			var tcRegex   = /^(.{4})(.{2})(.{2})(.{2})(.{2})(.{2}).+$/;
-			var startDate = new Date(c.$.start.replace(tcRegex, '$1/$2/$3 $4:$5:$6'));
-			var endDate   = new Date(c.$.stop.replace(tcRegex, '$1/$2/$3 $4:$5:$6'));
-			startTime = startDate.getTime();
-			endTime   = endDate.getTime();
-		}
-		
-		// 番組ID (v1.3)
-		var programId = '';
-		programId += ch.id.toLowerCase().replace('_', '');
-		programId += '-';
-		programId += parseInt(c.$.event_id, 10).toString(36);
-		
-		var programData = {
-			id        : programId,
-			channel   : ch,
-			category  : c.category[1]._,
-			title     : title,
-			subTitle  : subtitle,
-			fullTitle : c.title[0]._,
-			detail    : desc,
-			episode   : episodeNumber,
-			start     : startTime,
-			end       : endTime,
-			seconds   : ((endTime - startTime) / 1000),
-			flags     : flags
-		};
-		
+
+		// オブジェクト作成
+		const programData = c;
+		programData.channel = ch;
+		programData.title = title;
+		programData.subTitle = subtitle;
+		programData.episode = episodeNumber;
+		programData.flags = flags;
+
 		programs.push(programData);
 	}
-	
+
 	return programs;
 }
 
 function writeOut(s, callback) {
-		
+
 	schedule = s;
-	
+
 	schedule.sort(function (a, b) {
 		if (a.n === b.n) {
 			return a.sid - b.sid;
@@ -546,683 +519,61 @@ function writeOut(s, callback) {
 	callback();
 }
 
-// EPGデータを取得
-function getEpg() {
-	
-	util.log('GETTING EPG.');
-	
-	// リトライ回数
-	var retryCount = (typeof config.schedulerGetEpgRetryCount === 'undefined') ? 3 : config.schedulerGetEpgRetryCount;
-	
-	// 仮
-	var s = [];
-	var c = [];
-	var r = [];
-	
-	var get = function (i, c, callback) {
-		
-		var j, m;
-		
-		var residue = c;
-		
-		var reuse = function () {
-			
-			var chs = [];
-			
-			// 古いスケジュールから探してくる
-			var j, m;
-			for (j = 0, m = schedule.length; j < m; j++) {
-				if (schedule[j].n === i) {
-					chs.push(schedule[j]);
-				}
-			}
-			
-			// あれば使う
-			if (chs.length !== 0) { s = s.concat(chs); }
-		};
-		
-		var retry = function () {
-			
-			--residue;
-			
-			// 取得あきらめる
-			if (residue <= 0 || opts.get('l')) {
-				reuse();
-				
-				// おわり
-				util.log('[' + i + '] -- (give up)');
-				callback();
-				
-				return;
-			}
-			
-			setTimeout(get, 3000, i, residue, callback);
-			util.log('[' + i + '] -- (retrying, residue=' + residue + ')');
-		};
-		
-		var channel = channels[i];
-		
-		util.log('[' + i + '] ' + JSON.stringify(channel));
-		
-		// チェック
-		switch (channel.type) {
-		case 'GR':
-			// 特にない
-			break;
-		
-		case 'BS':
-			for (j = 0, m = s.length; m > j; j++) {
-				if (s[j].channel === channel.channel) {
-					// 取得済み
-					util.log('[' + i + '] -- (pass)');
-					callback();
-					
-					return;
-				}
-			}
-			
-			break;
-		
-		case 'CS':
-		case 'EX':
-			for (j = 0, m = s.length; m > j; j++) {
-				if ((s[j].channel === channel.channel) && (s[j].sid === channel.sid)) {
-					// 取得済み
-					util.log('[' + i + '] -- (pass)');
-					callback();
-					
-					return;
-				}
-			}
-			
-			break;
-		
-		default:
-			// todo
-			// 知らないタイプ
-			util.log('[' + i + '] -- (unknown)');
-			callback();
-			
-			return;
-		}//<-- switch
-		
-		// ch限定
-		if (opts.get('ch')) {
-			if (opts.get('ch') !== channel.channel) {
-				reuse();
-				callback();
-				
-				return;
-			}
-		}
-		
-		var recPath = config.temporaryDir + 'chinachu-tmp-' + new Date().getTime().toString(36) + '.m2ts';
-		
-		// epgdump
-		var dumpEpg = function () {
-			
-			// epgdump
-			var epgdumpCmd = [
-				'epgdump',
-				(function () {
-					switch (channel.type) {
-					case 'GR':
-						return 'none';
-					case 'BS':
-						return '/BS';
-					//case 'CS':
-					//case 'EX':
-					default:
-						return '/CS';
-					}
-				}()),
-				recPath,
-				'-'
-			].join(' ');
-			
-			var epgdumpProc = child_process.exec(epgdumpCmd, { maxBuffer: 104857600 }, function (err, stdout, stderr) {
-				
-				// 一時録画ファイル削除
-				fs.unlinkSync(recPath);
-				util.log('UNLINK: ' + recPath);
-				
-				if (err !== null) {
-					util.log('[' + i + '] EPG: 不明なエラー');
-					util.log(err);
-					retry();
-					
-					return;
-				}
-				
-				try {
-					// epgdumpのXMLをパース
-					xmlParser.parseString(stdout, function (err, result) {
-						
-						if (err) {
-							util.log('[' + i + '] EPG: パースに失敗');
-							util.log(err);
-							retry();
-							
-							return;
-						}
-						
-						if (result === null) {
-							util.log('[' + i + '] EPG: パースに失敗 (result=null)');
-							retry();
-							
-							return;
-						}
-
-						if (result.tv.channel === undefined) {
-							util.log('[' + i + '] EPG: データが空 (result.tv.channel is undefined)');
-							retry();
-
-							return;
-						}
-						
-						if (!result.tv.channel[0]['display-name'] || !result.tv.channel[0]['display-name'][0] || !result.tv.channel[0]['display-name'][0]._) {
-							util.log('[' + i + '] EPG: データが不正 (display-name is incorrect)');
-							retry();
-							
-							return;
-						}
-						
-						switch (channel.type) {
-						case 'GR':
-							result.tv.channel.forEach(function (a) {
-								
-								var ch = {
-									n      : i,
-									type   : channel.type,
-									channel: channel.channel,
-									name   : a['display-name'][0]._,
-									id     : a.$.id,
-									sid    : a.service_id[0]
-								};
-								
-								ch.programs = convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
-								
-								s.forEach(function (c) {
-									c.programs.forEach(function (p) {
-										var j;
-										for (j = 0; j < ch.programs.length; j++) {
-											if (c.n === ch.n) {
-												if (p.id.split('-')[1] === ch.programs[j].id.split('-')[1]) {
-													ch.programs.splice(j, 1);
-												}
-											}
-										}
-									});
-								});
-								
-								if (ch.programs.length !== 0) {
-									s.push(ch);
-								}
-								
-								util.log('[' + i + '] ' + 'CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' + ch.id + ' (sid=' + ch.sid + ') ' + '(programs=' + ch.programs.length.toString(10) + ')' + ' - ' + ch.name);
-							});
-							
-							break;
-						
-						case 'BS':
-							result.tv.channel.forEach(function (a) {
-								
-								var isFound = false;
-								
-								var j;
-								for (j = 0; channels.length > j; j++) {
-									if ((channels[j].type === 'BS') && (channels[j].channel === a.service_id[0])) {
-										isFound = true;
-										break;
-									}
-								}
-								
-								var k;
-								for (k = 0; k < s.length; k++) {
-									if (s[k].n === j) {
-										isFound = false;
-									}
-								}
-								
-								if (isFound === false) { return; }
-								
-								var ch = {
-									n      : j,
-									type   : channel.type,
-									channel: a.service_id[0],
-									name   : a['display-name'][0]._,
-									id     : a.$.id,
-									sid    : a.service_id[0]
-								};
-								
-								ch.programs = convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
-								
-								s.push(ch);
-								
-								util.log('[' + i + '] ' + 'CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' + ch.id + ' (sid=' + ch.sid + ') ' + '(programs=' + ch.programs.length.toString(10) + ')' + ' - ' + ch.name);
-							});
-							
-							break;
-						
-						case 'CS':
-							result.tv.channel.forEach(function (a) {
-								
-								var isFound = false;
-								
-								var j;
-								for (j = 0; channels.length > j; j++) {
-									if ((channels[j].type === 'CS') && (channels[j].sid === a.service_id[0])) {
-										isFound = true;
-										break;
-									}
-								}
-								
-								var k;
-								for (k = 0; k < s.length; k++) {
-									if (s[k].n === j) {
-										isFound = false;
-									}
-								}
-								
-								if (isFound === false) { return; }
-								
-								var ch = {
-									n      : j,
-									type   : channel.type,
-									channel: channels[j].channel,
-									name   : a['display-name'][0]._,
-									id     : a.$.id,
-									sid    : a.service_id[0]
-								};
-								
-								ch.programs = convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
-								
-								s.push(ch);
-								
-								util.log('[' + i + '] ' + 'CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' + ch.id + ' (sid=' + ch.sid + ') ' + '(programs=' + ch.programs.length.toString(10) + ')' + ' - ' + ch.name);
-							});
-							
-							break;
-						
-						case 'EX':
-							result.tv.channel.forEach(function (a) {
-								
-								var isFound = false;
-								
-								var j;
-								for (j = 0; channels.length > j; j++) {
-									if ((channels[j].type === 'EX') && (channels[j].sid === a.service_id[0])) {
-										isFound = true;
-										break;
-									}
-								}
-								
-								var k;
-								for (k = 0; k < s.length; k++) {
-									if (s[k].n === j) {
-										isFound = false;
-									}
-								}
-								
-								if (isFound === false) { return; }
-								
-								var ch = {
-									n      : j,
-									type   : channel.type,
-									channel: channels[j].channel,
-									name   : a['display-name'][0]._,
-									id     : a.$.id,
-									sid    : a.service_id[0]
-								};
-								
-								ch.programs = convertPrograms(result.tv.programme, JSON.parse(JSON.stringify(ch)));
-								
-								s.push(ch);
-								
-								util.log('[' + i + '] ' + 'CHANNEL: ' + ch.type + '-' + ch.channel + ' ... ' + ch.id + ' (sid=' + ch.sid + ') ' + '(programs=' + ch.programs.length.toString(10) + ')' + ' - ' + ch.name);
-							});
-							
-							break;
-						
-						default:
-							// todo
-								
-						}//<-- switch
-						
-						util.log('[' + i + '] -- (ok)');
-						callback();
-					});
-				} catch (e) {
-					util.log('[' + i + '] EPG: エラー (' + e + ')');
-					retry();
-				}
-			});
-			util.log('[' + i + '] EXEC: epgdump (pid=' + epgdumpProc.pid + ')');
-		};//<-- dumpEpg
-		
-		if (opts.get('ch') && opts.get('l')) {
-			var copied = false;
-			
-			var done = function (err) {
-				if (copied === false) {
-					copied = true;
-					
-					if (err) {
-						util.log('[' + i + '] ERROR: 一時ファイルの作成に失敗しました');
-						retry();
-						
-						return;
-					}
-					
-					dumpEpg();
-				}
-			};
-			
-			var load  = opts.get('l');
-			if (!fs.existsSync(load)) {
-				util.log('[' + i + '] WARNING: 指定したファイルが見つかりません');
-				retry();
-				
-				return;
-			}
-			
-			var fstat = fs.statSync(load);
-			
-			var readStream = fs.createReadStream(load, {
-				start: Math.max(fstat.size - 1000 * 1000 * 100, 0),
-				end  : fstat.size
-			});
-			readStream.on('error', function (err) {
-				done(err);
-			});
-			
-			var writeStream = fs.createWriteStream(recPath);
-			writeStream.on('error', function (err) {
-				done(err);
-			});
-			writeStream.on('close', function () {
-				done();
-			});
-			
-			readStream.pipe(writeStream);
-		} else {
-			// チューナーを選ぶ
-			var tuner = chinachu.getFreeTunerSync(config.tuners, channel.type, true, 0);
-			
-			// チューナーが見つからない
-			if (tuner === null) {
-				util.log('[' + i + '] WARNING: 利用可能なチューナーが見つかりませんでした (存在しないかロックされています)');
-				retry();
-				
-				return;
-			}
-			
-			// チューナーをロック
-			try {
-				chinachu.lockTunerSync(tuner, 0);
-			} catch (e) {
-				util.log('[' + i + '] WARNING: チューナー(' + tuner.n + ')のロックに失敗しました');
-				retry();
-				
-				return;
-			}
-			util.log('[' + i + '] LOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
-			
-			var unlockTuner = function () {
-				
-				// チューナーのロックを解除
-				try {
-					chinachu.unlockTunerSync(tuner, true);
-					util.log('[' + i + '] UNLOCK: ' + tuner.name + ' (n=' + tuner.n + ')');
-				} catch (e) {
-					util.log(e);
-				}
-			};
-			
-			var recCmd = tuner.command.replace('<channel>', channel.channel);
-			recCmd = recCmd.replace('<type>', channel.type);
-			
-			// recpt1用
-			recCmd = recCmd.replace(' --b25', '').replace(' --strip', '').replace('<sid>', 'epg');
-
-			execRecCmd(function () {
-				// 録画プロセスを生成
-				var recProc = child_process.spawn(recCmd.split(' ')[0], recCmd.replace(/[^ ]+ /, '').split(' '));
-				chinachu.writeTunerPidSync(tuner, recProc.pid, 0);
-				util.log('[' + i + '] SPAWN: ' + recCmd + ' (pid=' + recProc.pid + ')');
-			
-				// 一時ファイルへの書き込みストリームを作成
-				var recFile = fs.createWriteStream(recPath);
-				util.log('[' + i + '] STREAM: ' + recPath);
-			
-				// ts出力
-				recProc.stdout.pipe(recFile);
-			
-				// ログ出力
-				recProc.stderr.on('data', function (data) {
-					util.log('[' + i + '] #' + (recCmd.split(' ')[0] + ': ' + data).replace(/\n/g, ' ').trim());
-				});
-			
-				var removeListeners;
-			
-				// プロセスタイムアウト
-				execRecCmd(function () {
-					recProc.kill('SIGTERM');
-				}, 1000 * (config.schedulerEpgRecordTime || 60), '[' + i + '] KILLWAIT');
-			
-				// キャンセル時
-				var isCancelled = false;
-				var onCancel = function () {
-				
-					isCancelled = true;
-					recProc.kill('SIGTERM');
-				};
-			
-				removeListeners = function () {
-				
-					process.removeListener('exit', onCancel);
-					recProc.removeAllListeners('exit');
-				};
-			
-				// 終了シグナル時処理
-				process.on('exit', onCancel);
-			
-				recProc.once('exit', function () {
-				
-					// リスナー削除
-					removeListeners();
-
-					// チューナーのロックを解除
-					unlockTuner();
-
-					if (isCancelled) {
-						// 一時録画ファイル削除
-						fs.unlinkSync(recPath);
-					
-						// 終了
-						process.exit();
-					} else {
-						dumpEpg();
-					}
-				});
-			}, 0, '[' + i + '] RECWAIT');
-		}//<-- if
-	};//<-- get()
-	
-	var isFinished = false;
-	
-	var tick = function _tick() {
-		
-		var i, j, l, m, ch, isTarget;
-		
-		// 取得すべきチャンネルリスト
-		var chs = [];
-		
-		// 未取得のチャンネルを探す
-		for (i = 0, l = channels.length; i < l; i++) {
-			ch = channels[i];// このチャンネルは
-			ch.n = i;// numbering
-			
-			isTarget = true;// 対象か？
-			
-			// 取得済みスケジュールループ
-			for (j = 0, m = c.length; j < m; j++) {
-				if (c[j] === i) {
-					isTarget = false;// 違った
-					break;
-				}
-			}
-			
-			if (isTarget) { chs.push(ch); }// 取得すべし
-		}
-		
-		// 終わるか？
-		if (chs.length === 0 && r.length === 0 && !isFinished) {
-			isFinished = true;
-			
-			writeOut(s, scheduler);
-			
-			return;
-		}
-		
-		var onGot = function (channelNumber) {
-			setTimeout(function () {
-				r.splice(r.indexOf(channelNumber), 1);
-				tick();
-			}, 250);
-		};
-		
-		// 取得開始処理
-		for (i = 0, l = chs.length; i < l; i++) {
-			ch = chs[i];
-			
-			if (!opts.get('ch') && !opts.get('l') && chinachu.getFreeTunerSync(config.tuners, ch.type, true, 0) === null) {
-				continue;
-			}
-			
-			if (ch.type !== 'GR') {
-				isTarget = true;
-				
-				for (j = 0, m = r.length; j < m; j++) {
-					if (channels[r[j]].type === ch.type) {
-						isTarget = false;
-						break;
-					}
-				}
-				
-				if (!isTarget) { continue; }
-			}
-			
-			c.push(ch.n);
-			r.push(ch.n);
-			get(ch.n, retryCount, onGot.bind(null, ch.n));
-			
-			if (ch.type === 'GR') {
-				setTimeout(tick, 200);
-			}
-		}
-		
-		util.log('STATUS: ' + util.inspect(
-			{
-				'completed': s.length,
-				'waiting'  : chs.length,
-				'worked'   : c.length,
-				'running'  : r.length
-			}
-		));
-	};
-	tick();
-}//<-- getEpg()
-
 // experimental
 function getEpgFromMirakurun(path) {
 
 	child_process.execSync('renice -n 19 -p ' + process.pid);
-	
-	if (/^http:\/\/unix:/.test(path) === true) {
-		path = 'http+unix://' + path.split(':')[2].replace(/\//g, '%2F') + path.split(':')[3];
-	}
-	
+
 	util.log('GETTING EPG from Mirakurun.');
-	
+
 	// new schedule
 	const s = [];
-	
-	const client = new Swagger({
-		url: path + 'api/docs',
-		success: () => {
-			
+
+	let channels = [];
+
+	mirakurun.getServices()
+		.then(services => {
+
 			util.log('Mirakurun is OK.');
-			
-			client.services.getServices({}, (res) => {
-				
-				const services = res.obj;
-				
-				util.log('Mirakurun -> services: ' + services.length);
-				
-				client.programs.getPrograms({}, (res) => {
-					
-					const programs = res.obj;
-					
-					util.log('Mirakurun -> programs: ' + programs.length);
-					
-					channels.forEach((channel, i) => {
-						
-						const newType = channel.type === 'EX' ? 'SKY' : channel.type;
-						
-						if (channel.sid || (!channel.sid && channel.type === 'BS')) {
-							let service;
-							
-							if (channel.sid) {
-								service = services.find(sv => sv.serviceId == channel.sid && sv.channel.channel === channel.channel);
-							} else {
-								service = services.find(sv => sv.serviceId == channel.channel);
-							}
-							
-							if (!service) {
-								return;
-							}
-							
-							const ch = {
-								n      : i,
-								type   : channel.type,
-								channel: channel.channel,
-								name   : service.name,
-								id     : channel.type + '_' + service.serviceId,
-								sid    : service.serviceId.toString(10)
-							};
-							
-							mirakurunProgramsToLegacyPrograms(ch, service, programs);
-							
-							s.push(ch);
-						} else {
-							services.forEach(service => {
-							
-								if (service.channel.type !== newType || service.channel.channel !== channel.channel) {
-									return;
-								}
-								
-								const ch = {
-									n      : i,
-									type   : channel.type,
-									channel: channel.channel,
-									name   : service.name,
-									id     : channel.type + '_' + service.serviceId,
-									sid    : service.serviceId.toString(10)
-								};
-								
-								mirakurunProgramsToLegacyPrograms(ch, service, programs);
-								
-								s.push(ch);
-							});
-						}
-					});
-					
-					writeOut(s, scheduler);
-				});
-			})
-		}
-	});
+			util.log('Mirakurun -> services: ' + services.length);
+
+			channels = services.map((service, i) => {
+				return {
+					type: service.channel.type,
+					channel: service.channel.channel,
+					name: service.name,
+					id: service.id,
+					sid: service.serviceId,
+					nid: service.networkId,
+					hasLogoData: service.hasLogoData
+				};
+			});
+
+			const channelOrder = ["GR", "BS", "CS", "SKY"];
+			channels.sort((a, b) => {
+				if (a.type === b.type) {
+					return a.sid - b.sid;
+				} else {
+					return channelOrder.indexOf(a.type) - channelOrder.indexOf(b.type);
+				}
+			});
+
+			for (let i = 0, l = channels.length; i < l; i++) {
+				channels[i].n = i;
+			}
+
+			return mirakurun.getPrograms();
+		})
+		.then(programs => {
+
+			util.log('Mirakurun -> programs: ' + programs.length);
+
+			channels.forEach(channel => {
+				mirakurunProgramsToLegacyPrograms(channel, programs);
+			});
+
+			writeOut(channels, scheduler);
+		});
 }
 
 const genreTable = {
@@ -1234,65 +585,69 @@ const genreTable = {
 	0x5: "variety",
 	0x6: "cinema",
 	0x7: "anime",
-	// しょうがない
-	0x8: "information",
-	0x9: "cinema",
-	0xA: "etc",
-	0xB: "etc",
+	0x8: "documentary",// new
+	0x9: "theater",// new
+	0xA: "hobby",// new
+	0xB: "welfare",// new
 	0xC: "etc",
 	0xD: "etc",
 	0xE: "etc",
 	0xF: "etc"
 };
 
-function mirakurunProgramsToLegacyPrograms(ch, service, programs) {
-	
-	const programme = programs
-		.filter(program => program.networkId === service.networkId && program.serviceId === service.serviceId)
-		.map(program => ({
-			$: {
-				event_id: program.eventId,
-				channel: ch.id
-			},
-			title: [{ _: program.name || '' }],
-			desc: [{ _: program.description || '' }],
-			category: [, { _: program.genres && genreTable[program.genres[0].lv1] }],
+function mirakurunProgramsToLegacyPrograms(ch, programs) {
 
-			startAt: program.startAt,
-			duration: program.duration
-		}));
+	const programme = programs
+		.filter(program => program.networkId === ch.nid && program.serviceId === ch.sid)
+		.map(program => {
+
+			const ret = {
+				id: program.id.toString(36),
+				category: program.genres && genreTable[program.genres[0].lv1],
+				title: program.name || "",
+				fullTitle: program.name || "",
+				detail: program.description || "",
+				start: program.startAt,
+				end: program.startAt + program.duration,
+				seconds: program.duration / 1000
+			};
+
+			if (program.extended) {
+				for (let key in program.extended) {
+					ret.detail += `\n◇${key}\n${program.extended[key]}`;
+				}
+
+				ret.detail = ret.detail.trim();
+			}
+
+			return ret;
+		});
 
 	ch.programs = convertPrograms(programme, JSON.parse(JSON.stringify(ch)));
 }
 
 // 既に実行中か
-isRunning(function (running) {
+isRunning(running => {
+
 	if (running) {
 		console.error('ERROR: Scheduler is already running.');
 		process.exit(1);
 	} else {
 		createPidFile();
-		
-		process.on('exit', function () {
-			deletePidFile();
-		});
-		
+
+		process.on('exit', () => deletePidFile());
+
 		// EPGデータを取得または番組表を読み込む
 		if (opts.get('f') || schedule.length === 0) {
-			var commandProcess;
 			if (config.epgStartCommand) {
-				commandProcess = child_process.spawnSync(config.epgStartCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
+				const commandProcess = child_process.spawnSync(config.epgStartCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
 				util.log('SPAWN: ' + config.epgStartCommand + ' (pid=' + commandProcess.pid + ')');
 			}
-			
-			if (config.schedulerMirakurunPath) {
-				getEpgFromMirakurun(config.schedulerMirakurunPath);
-			} else {
-				getEpg();
-			}
-			
+
+			getEpgFromMirakurun(mirakurunPath);
+
 			if (config.epgEndCommand) {
-				commandProcess = child_process.spawn(config.epgEndCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
+				const commandProcess = child_process.spawn(config.epgEndCommand, [process.pid, RULES_FILE, RESERVES_DATA_FILE, SCHEDULE_DATA_FILE]);
 				util.log('SPAWN: ' + config.epgEndCommand + ' (pid=' + commandProcess.pid + ')');
 			}
 		} else {
