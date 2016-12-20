@@ -1,46 +1,46 @@
 /*!
  *  Chinachu WebUI Server Service (chinachu-wui)
  *
- *  Copyright (c) 2012 Yuki KAN and Chinachu Project Contributors
+ *  Copyright (c) 2016 Yuki KAN and Chinachu Project Contributors
  *  https://chinachu.moe/
 **/
-/*jslint node:true, nomen:true, plusplus:true, regexp:true, vars:true, continue:true, bitwise:true */
 'use strict';
 
-var CONFIG_FILE         = __dirname + '/config.json';
-var RULES_FILE          = __dirname + '/rules.json';
-var RESERVES_DATA_FILE  = __dirname + '/data/reserves.json';
-var SCHEDULE_DATA_FILE  = __dirname + '/data/schedule.json';
-var RECORDING_DATA_FILE = __dirname + '/data/recording.json';
-var RECORDED_DATA_FILE  = __dirname + '/data/recorded.json';
-var OPERATOR_LOG_FILE   = __dirname + '/log/operator';
-var WUI_LOG_FILE        = __dirname + '/log/wui';
-var SCHEDULER_LOG_FILE  = __dirname + '/log/scheduler';
+const CONFIG_FILE = __dirname + '/config.json';
+const RULES_FILE = __dirname + '/rules.json';
+const RESERVES_DATA_FILE = __dirname + '/data/reserves.json';
+const SCHEDULE_DATA_FILE = __dirname + '/data/schedule.json';
+const RECORDING_DATA_FILE = __dirname + '/data/recording.json';
+const RECORDED_DATA_FILE = __dirname + '/data/recorded.json';
+const OPERATOR_LOG_FILE = __dirname + '/log/operator';
+const WUI_LOG_FILE = __dirname + '/log/wui';
+const SCHEDULER_LOG_FILE = __dirname + '/log/scheduler';
 
 // Load Config
-var config = require(CONFIG_FILE);
+const config = require(CONFIG_FILE);
 
 // Modules
-var path          = require('path');
-var fs            = require('fs');
-var util          = require('util');
-var child_process = require('child_process');
-var url           = require('url');
-var querystring   = require('querystring');
-var vm            = require('vm');
-var os            = require('os');
-var zlib          = require('zlib');
-var events        = require('events');
-var dns           = require('dns');
-var http          = require('http');
-var https         = require('https');
-var auth          = require('http-auth');
-var socketio      = require('socket.io');
-var chinachu      = require('chinachu-common');
-var S             = require('string');
-var geoip         = require('geoip-lite');
-var UPnPServer    = require('chinachu-upnp-server');
-var mdns          = require('mdns-js');
+const path = require('path');
+const fs = require('fs');
+const util = require('util');
+const child_process = require('child_process');
+const url = require('url');
+const querystring = require('querystring');
+const vm = require('vm');
+const os = require('os');
+const zlib = require('zlib');
+const events = require('events');
+const dns = require('dns');
+const http = require('http');
+const https = require('https');
+const auth = require('http-auth');
+const socketio = require('socket.io');
+const chinachu = require('chinachu-common');
+const S = require('string');
+const geoip = require('geoip-lite');
+const UPnPServer = require('chinachu-upnp-server');
+const mdns = require('mdns-js');
+const mirakurun = new (require("mirakurun").default)();
 
 // Directory Checking
 if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./web/')) {
@@ -49,19 +49,19 @@ if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./w
 }
 
 // SIGQUIT
-process.on('SIGQUIT', function () {
-	setTimeout(function () {
+process.on('SIGQUIT', () => {
+	setTimeout(() => {
 		serverMdns && serverMdns.stop()
 		openServerMdns && openServerMdns.stop()
 		// Wait stopping mDNS service
-		setTimeout(function() {
+		setTimeout(() => {
 			process.exit(0);
 		}, 1000);
 	}, 0);
 });
 
 // Uncaught Exception
-process.on('uncaughtException', function (err) {
+process.on('uncaughtException', err => {
 
 	if (err.toString() === 'Error: read ECONNRESET') {
 		util.log('ECONNRESET');
@@ -71,17 +71,42 @@ process.on('uncaughtException', function (err) {
 	console.error('uncaughtException: ' + err);
 });
 
+// Mirakurun Client
+const mirakurunPath = config.mirakurunPath || config.schedulerMirakurunPath || "http+unix://%2Fvar%2Frun%2Fmirakurun.sock/";
+
+if (/(?:\/|\+)unix:/.test(mirakurunPath) === true) {
+	const standardFormat = /^http\+unix:\/\/([^\/]+)(\/?.*)$/;
+	const legacyFormat = /^http:\/\/unix:([^:]+)(:?.*)$/;
+
+	if (standardFormat.test(mirakurunPath) === true) {
+		mirakurun.socketPath = mirakurunPath.replace(standardFormat, "$1").replace(/%2F/g, "/");
+		mirakurun.basePath = path.join(mirakurunPath.replace(standardFormat, "$2"), mirakurun.basePath);
+	} else {
+		mirakurun.socketPath = mirakurunPath.replace(legacyFormat, "$1");
+		mirakurun.basePath = path.join(mirakurunPath.replace(legacyFormat, "$2"), mirakurun.basePath);
+	}
+} else {
+	const urlObject = url.parse(mirakurunPath);
+	mirakurun.host = urlObject.hostname;
+	mirakurun.port = urlObject.port;
+	mirakurun.basePath = path.join(urlObject.pathname, mirakurun.basePath);
+}
+
+mirakurun.userAgent = `Chinachu/${pkg.version} (wui)`;
+mirakurun.priority = recordingPriority;
+
+console.info(mirakurun);
+
 // etc.
-var timer = {};
-var emptyFunction = function () {};
-var serverMdns, openServerMdns;
-var status = {
+const timer = {};
+const emptyFunction = function () {};
+const status = {
 	connectedCount: 0,
 	feature: {
-		previewer   : !!config.wuiPreviewer,
-		streamer    : !!config.wuiStreamer,
-		filer       : !!config.wuiFiler,
-		configurator: !!config.wuiConfigurator,
+		previewer: true,
+		streamer: true,
+		filer: true,
+		configurator: true,
 		normalizationForm: config.normalizationForm
 	},
 	system: {
@@ -89,11 +114,11 @@ var status = {
 	},
 	operator: {
 		alive: false,
-		pid  : null
+		pid: null
 	},
 	wui: {
 		alive: false,
-		pid  : null
+		pid: null
 	}
 };
 
@@ -117,8 +142,8 @@ if (tlsEnabled) {
 }
 
 // Basic Auth
-var basic = null;
-var basicAuthEnabled = config.wuiUsers && (config.wuiUsers.length > 0);
+let basic = null;
+const basicAuthEnabled = config.wuiUsers && (config.wuiUsers.length > 0);
 if (basicAuthEnabled) {
 	basic = auth.basic({
 		realm: 'Authentication.'
@@ -128,7 +153,7 @@ if (basicAuthEnabled) {
 }
 
 // Open Server
-var openServerEnabled = config.wuiOpenServer === true;
+const openServerEnabled = config.wuiOpenServer === true;
 
 var rules     = [];
 var schedule  = [];
@@ -137,7 +162,8 @@ var recording = [];
 var recorded  = [];
 
 // Init HTTP Server
-var server, openServer, httpOpenServer, httpServer, httpServerMain;
+let server, openServer, httpOpenServer;
+let serverMdns, openServerMdns;
 
 if (tlsEnabled) {
 	if (basicAuthEnabled) {
@@ -151,29 +177,33 @@ if (tlsEnabled) {
 	} else {
 		server = http.createServer(httpServer);
 	}
-
-	console.error('**SELF-REGULATION WARNING**: If you want to access from outside of LAN, Please activate TLS.');
 }
-server.timeout = 240000;
-server.listen(config.wuiPort || 10772, config.wuiHost || '::', function () {
-	util.log((tlsEnabled ? 'HTTPS' : 'HTTP') + ' Server Listening on ' + util.inspect(server.address()));
-	if (config.wuiMdnsAdvertisement === true) {
-		// Start mDNS advertisement
-		serverMdns = mdns.createAdvertisement(mdns.tcp(tlsEnabled ? '_https' : '_http'), config.wuiPort || 10772, {
-			name: 'Chinachu on ' + os.hostname(),
-			host: os.hostname(),
-			txt: {
-				txtvers: '1',
-				'Version': 'beta',
-				'Password': basicAuthEnabled
-			}
-		});
-		serverMdns.start();
-		util.log((tlsEnabled ? 'HTTPS' : 'HTTP') + ' Server mDNS advertising started.');
-	}
-});
 
-// EXPERIMENTAL: Open Server for Access from LAN.
+if (config.wuiPort) {
+	server.timeout = 240000;
+
+	server.listen(config.wuiPort, config.wuiHost || '0.0.0.0', function () {
+		util.log((tlsEnabled ? 'HTTPS' : 'HTTP') + ' Server Listening on ' + util.inspect(server.address()));
+		if (config.wuiMdnsAdvertisement === true) {
+			// Start mDNS advertisement
+			serverMdns = mdns.createAdvertisement(mdns.tcp(tlsEnabled ? '_https' : '_http'), config.wuiPort, {
+				name: 'Chinachu on ' + os.hostname(),
+				host: os.hostname(),
+				txt: {
+					txtvers: '1',
+					'Version': 'gamma',
+					'Password': basicAuthEnabled
+				}
+			});
+			serverMdns.start();
+			util.log((tlsEnabled ? 'HTTPS' : 'HTTP') + ' Server mDNS advertising started.');
+		}
+	});
+
+	console.error('**DEPRECATION WARNING**: please remove `wuiPort` and use `wuiOpenServer` instead.');
+}
+
+// Open Server for Access from LAN.
 if (openServerEnabled) {
 	openServer = http.createServer(httpServer);
 	openServer.timeout = 0;
@@ -187,7 +217,7 @@ if (openServerEnabled) {
 					host: os.hostname(),
 					txt: {
 						txtvers: '1',
-						'Version': 'beta',
+						'Version': 'gamma',
 						'Password': false
 					}
 				});
@@ -559,9 +589,7 @@ function httpServerMain(req, res, query) {
 
 			if (acceptEncoding.match(/deflate/)) {
 				encoding = 'deflate';
-			}/* else if (acceptEncoding.match(/gzip/)) {
-				encoding = 'gzip';
-			}*/
+			}
 
 			if (req.headers['user-agent'] && req.headers['user-agent'].match(/Trident/)) {
 				encoding = '';
@@ -578,6 +606,7 @@ function httpServerMain(req, res, query) {
 				Buffer       : Buffer,
 				zlib         : zlib,
 				chinachu     : chinachu,
+				mirakurun    : mirakurun,
 				config       : config,
 				define: {
 					CONFIG_FILE        : CONFIG_FILE,
@@ -703,7 +732,6 @@ function httpServerMain(req, res, query) {
 //
 // socket.io server
 //
-var ioOpenServer, ioServer, ioServerMain, ioServerSocketOnDisconnect;
 
 var ios = new events.EventEmitter();
 ios.setMaxListeners(0);
@@ -806,7 +834,7 @@ if (config.wuiDLNAServerEnabled === true) {
 		logLevel: 'TRACE',
 		ssdpLog: true,
 		ssdpLogLevel: 'DEBUG',
-		name: 'Chinachu (beta)',
+		name: 'Chinachu (gamma)',
 		httpPort: 20773,
 		uuid: '49ee272d-f140-4cf0-a8cf-b7caa23ff772'
 	}, [
@@ -916,8 +944,6 @@ function processChecker() {
 					status.operator.alive = false;
 					status.operator.pid   = null;
 				} else {
-					//stdout = S(stdout.trim()).collapseWhitespace().s;
-
 					status.operator.alive = true;
 					status.operator.pid   = parseInt(pid, 10);
 				}
@@ -945,8 +971,6 @@ function processChecker() {
 					status.wui.alive = false;
 					status.wui.pid   = null;
 				} else {
-					//stdout = S(stdout.trim()).collapseWhitespace().s;
-
 					status.wui.alive = true;
 					status.wui.pid   = parseInt(pid, 10);
 				}
