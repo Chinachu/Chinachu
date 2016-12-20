@@ -1,6 +1,15 @@
 language: node_js
+
 node_js:
   - "6.9.1"
+
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
 
 before_install:
   - wget http://www.tortall.net/projects/yasm/releases/yasm-1.3.0.tar.gz
