@@ -1,87 +1,27 @@
 {
   "recordedDir" : "./recorded/",
-  "temporaryDir": "/tmp/",
-  
+
   "wuiUsers": [
-    "akari:bakuhatsu"
+    "chinachu:yoshikawa"
   ],
   "wuiAllowCountries": ["JP"],
-  
-  "wuiPort"             : 10772,
-  "wuiHost"             : "::",
-  "wuiTlsKeyPath"       : null,
-  "wuiTlsCertPath"      : null,
-  "wuiOpenServer"       : false,
-  "wuiOpenPort"         : 20772,
-  "wuiXFF"              : false,
-  "wuiPreviewer"        : true,
-  "wuiStreamer"         : true,
-  "wuiFiler"            : true,
-  "wuiConfigurator"     : true,
+
+  "wuiPort": null,
+  "wuiHost": "0.0.0.0",
+  "wuiTlsKeyPath": null,
+  "wuiTlsCertPath": null,
+  "wuiTlsRequestCert": false,
+  "wuiTlsRejectUnauthorized": true,
+  "wuiTlsCaPath": null,
+  "wuiOpenServer": true,
+  "wuiOpenPort": 20772,
+  "wuiXFF": false,
+  "wuiDLNAServerEnabled": false,
   "wuiMdnsAdvertisement": true,
 
-  "recordedFormat": "[<date:yymmdd-HHMM>][<type><channel>][<tuner>]<title>.m2ts",
-  
-  "tuners": [
-    {
-      "name"        : "PT3-S1",
-      "isScrambling": false,
-      "types"       : [ "BS", "CS" ],
-      "command"     : "recpt1 --device /dev/pt3video0 --b25 --strip --sid <sid> <channel> - -"
-    },
-    {
-      "name"        : "PT3-S2",
-      "isScrambling": false,
-      "types"       : [ "BS", "CS" ],
-      "command"     : "recpt1 --device /dev/pt3video1 --b25 --strip --sid <sid> <channel> - -"
-    },
-    {
-      "name"        : "PT3-T1",
-      "isScrambling": false,
-      "types"       : [ "GR" ],
-      "command"     : "recpt1 --device /dev/pt3video2 --b25 --strip --sid <sid> <channel> - -"
-    },
-    {
-      "name"        : "PT3-T2",
-      "isScrambling": false,
-      "types"       : [ "GR" ],
-      "command"     : "recpt1 --device /dev/pt3video3 --b25 --strip --sid <sid> <channel> - -"
-    },
-    {
-      "name"        : "FSUSB2",
-      "isScrambling": false,
-      "types"       : [ "GR" ],
-      "command"     : "recfsusb2n -b <channel> - -",
-      "noEpg"       : true
-    }
-  ],
-  
-  "channels": [
-    { "type": "GR", "channel": "16" },
-    { "type": "GR", "channel": "21" },
-    { "type": "GR", "channel": "22" },
-    { "type": "GR", "channel": "23" },
-    { "type": "GR", "channel": "24" },
-    { "type": "GR", "channel": "25" },
-    { "type": "GR", "channel": "26" },
-    { "type": "GR", "channel": "27" },
-    
-    { "type": "BS", "channel": "101" },
-    { "type": "BS", "channel": "102" },
-    { "type": "BS", "channel": "103" },
-    { "type": "BS", "channel": "141" },
-    { "type": "BS", "channel": "151" },
-    { "type": "BS", "channel": "161" },
-    { "type": "BS", "channel": "171" },
-    { "type": "BS", "channel": "181" },
-    { "type": "BS", "channel": "191" },
-    { "type": "BS", "channel": "192" },
-    { "type": "BS", "channel": "193" },
-    { "type": "BS", "channel": "200" },
-    { "type": "BS", "channel": "211" },
-    { "type": "BS", "channel": "222" },
-    
-    { "type": "CS", "channel": "CS4",  "sid": "100" },
-    { "type": "CS", "channel": "CS16", "sid": "333" }
-  ]
+  "recordedFormat": "[<date:yymmdd-HHMM>][<type><channel>][<channel-name>]<title>.m2ts",
+  "storageLowSpaceThresholdMB": 3000,
+  "storageLowSpaceAction": "remove",
+  "storageLowSpaceNotifyTo": null,
+  "storageLowSpaceCommand": ""
 }
