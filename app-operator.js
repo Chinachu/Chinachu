@@ -289,7 +289,7 @@ function prepRecord(program) {
 	util.log('PREPARE: ' + printProgram(program));
 
 	// set priority
-	mirakurun.priority = program.priority = program.priority || program.isConflict ? conflictedPriority : recordingPriority;
+	mirakurun.priority = program.priority = program.priority || (program.isConflict ? conflictedPriority : recordingPriority);
 
 	// get stream
 	mirakurun.getProgramStream(parseInt(program.id, 36), true)
