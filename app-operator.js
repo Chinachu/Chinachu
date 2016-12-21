@@ -232,7 +232,7 @@ function stopScheduler() {
 
 // スケジューラーを開始
 function startScheduler() {
-	if ((scheduler !== null) || (recording.length !== 0)) { return; }
+	if (scheduler !== null) { return; }
 
 	var output, finalize;
 
