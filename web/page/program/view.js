@@ -197,7 +197,7 @@ P = Class.create(P, {
 
 		var program = this.program;
 
-		this.view.content.className = 'bg-fog';
+		this.view.content.className = 'row';
 		this.view.content.update();
 
 		var titleHtml = program.flags.invoke('sub', /.+/, '<span class="flag #{0}">#{0}</span>').join('') + program.title;
@@ -353,7 +353,7 @@ P = Class.create(P, {
 			});
 		}
 
-		if (global.chinachu.status.feature.previewer && program._isRecording) {
+		/* if (global.chinachu.status.feature.previewer && program._isRecording) {
 			new Ajax.Request('./api/recording/' + program.id + '/preview.txt', {
 				method    : 'get',
 				parameters: {width: 640, height: 360, nonce: new Date().getTime()},
@@ -377,7 +377,7 @@ P = Class.create(P, {
 					this.app.view.mainBody.entity.style.backgroundImage = 'url(' + t.responseText + ')';
 				}.bind(this)
 			});
-		}
+		} */
 
 		return this;
 	}

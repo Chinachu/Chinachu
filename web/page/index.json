@@ -1,8 +1,8 @@
 {
 	"categoryIndex": ["dashboard", "schedule", "rules", "reserves", "recording", "recorded", "pref", "search"],
-	
+
 	"defaultCategory": "dashboard",
-	
+
 	"category": {
 		"dashboard": {
 			"icon"       : "./icons/home-medium.png",
@@ -16,19 +16,19 @@
 					"icon"      : "./icons/home-medium.png",
 					"nohead"    : true
 				},
-				
+
 				"status": {
 					"label": "Status",
 					"title": "System Status",
 					"icon" : "./icons/system-monitor.png"
 				},
-				
+
 				"log": {
 					"label": "Log",
 					"title": "System Log",
 					"icon" : "./icons/clock-history.png"
 				},
-				
+
 				"storage": {
 					"label": "Storage",
 					"title": "Storage Usage",
@@ -36,7 +36,7 @@
 				}
 			}
 		},
-		
+
 		"schedule": {
 			"icon"       : "./icons/calendar-medium.png",
 			"label"      : "schedule",
@@ -47,7 +47,7 @@
 					"title": "Timeline",
 					"icon" : "./icons/calendar-medium.png"
 				},
-				
+
 				"table": {
 					"label": "Schedule",
 					"title": "Schedule",
@@ -55,7 +55,7 @@
 				}
 			}
 		},
-		
+
 		"rules": {
 			"icon"       : "./icons/regular-expression.png",
 			"label"      : "rules",
@@ -68,7 +68,7 @@
 				}
 			}
 		},
-		
+
 		"reserves": {
 			"icon"       : "./icons/bookmarks.png",
 			"label"      : "reserves",
@@ -81,7 +81,7 @@
 				}
 			}
 		},
-		
+
 		"recording": {
 			"icon"       : "./icons/control-record-small.png",
 			"label"      : "recording",
@@ -94,7 +94,7 @@
 				}
 			}
 		},
-		
+
 		"recorded": {
 			"icon"       : "./icons/television-medium.png",
 			"label"      : "recorded",
@@ -112,7 +112,7 @@
 				}
 			}
 		},
-		
+
 		"search": {
 			"icon"       : "./icons/calendar-search-result.png",
 			"label"      : "search",
@@ -125,7 +125,7 @@
 				}
 			}
 		},
-		
+
 		"pref": {
 			"icon"       : "./icons/controller-d-pad.png",
 			"label"      : "preference",
@@ -139,7 +139,7 @@
 				}
 			}
 		},
-		
+
 		"program": {
 			"icon"       : "./icons/film.png",
 			"label"      : "program",
@@ -149,7 +149,7 @@
 					"title": "Program",
 					"icon" : "./icons/film.png"
 				},
-				
+
 				"watch": {
 					"label": "Watch",
 					"title": "Watch",

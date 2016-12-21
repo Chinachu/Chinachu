@@ -85,18 +85,9 @@ div.fullscreen {
 .bg-chinachu {
 	background-color: rgb(194,65,134); }
 
-.bg-fog {
-	background-color: rgba(255,255,255,0.2);
-	
-	background-image: linear-gradient(top, rgba(252,212,233,0.9), rgba(255,255,255,0.25));
-	background-image: -o-linear-gradient(top, rgba(252,212,233,0.9), rgba(255,255,255,0.25));
-	background-image: -moz-linear-gradient(top, rgba(252,212,233,0.9), rgba(255,255,255,0.25));
-	background-image: -webkit-linear-gradient(top, rgba(252,212,233,0.9), rgba(255,255,255,0.25));
-	background-image: -ms-linear-gradient(top, rgba(252,212,233,0.9), rgba(255,255,255,0.25)); }
-
 .bg-dark {
 	background-color: #2b2b2b; }
-	
+
 .bg-black {
 	background-color: #000;
 	color: #fff; }
@@ -124,7 +115,7 @@ div.content-loading {
 	left            : 0;
 	background-color: #aaa;
 	background-color: rgba(0,0,0,0.2); }
-	
+
 	div.content-loading > div {
 		position        : absolute;
 		top             : 50%;
@@ -141,7 +132,7 @@ div.content-loading {
 		                  -1px 1px 0 rgba(0,0,0,0.1),
 		                  1px -1px 0 rgba(0,0,0,0.1),
 		                  1px 1px 0 rgba(0,0,0,0.1); }
-		
+
 		div.content-loading > div > div {
 			height          : 8px;
 			background-color: #c24186; }
@@ -150,17 +141,15 @@ div.content-loading {
  *  main styles ----------------------------------------------------------------------------------------------------
 **/
 /* common */
-div.header,
+nav.header,
 div.middle,
 div.footer {
 	position        : absolute;
 	right           : 0;
 	left            : 0;
 	margin          : 0;
-	padding         : 0;
-	/* width           : 100%; */ }
+	padding         : 0; }
 
-div.header > div,
 div.middle > div,
 div.footer > div {
 	position        : absolute;
@@ -172,117 +161,83 @@ div.footer > div {
 	padding         : 0; }
 
 /* header */
-div.header {
-	top             : 0;
-	height          : 40px;
-	color           : #fff;
-	
-	background-image   : url(./chinachu.png);
-	background-repeat  : no-repeat;
-	background-position: 10px center;
-	padding            : 0 10px 0 50px; }
-	
-	div.header > a.button-reload {
-		border-radius   : 50%;
-		width           : 16px;
-		height          : 16px;
-		margin-right    : 6px;
-		padding         : 6px !important;
-		border          : none;
-		background-color: rgba(255,255,255,0.1);
-		box-shadow      : none;
-		text-shadow     : none;
-		background-position: center center !important;}
+nav.header {
+	position  : absolute;
+	top       : 0;
+	right     : 0;
+	left      : 0;
+	height    : 40px;
+	min-height: 40px;
+	color     : #fff;
+	background: rgb(194,65,134);
+	border    : 0;
+	padding   : 0 5 0 5px;
+	overflow  : visible; }
 
-	div.header > a.button-reload:hover {
-		background-color: rgba(255,255,255,0.3); }
+	div.navbar-header {
+		height: 40px; }
 
-	div.header > a.button-dent {
-		padding         : 1px 6px 0 6px;
-		line-height     : 39px;
-		font-size       : 11px;
-		border          : none;
-		background-color: transparent;
-		box-shadow      : none;
-		text-shadow     : none;
-		-webkit-transition: all 0.1s ease;
-		-moz-transition   : all 0.1s ease;
-		-ms-transition    : all 0.1s ease;
-		-o-transition     : all 0.1s ease;
-		transition        : all 0.1s ease; }
-	
-		div.header > a.button-dent > span {
-			color           : rgba(255,255,255,0.5);
-			font-size       : 10px;
-			margin-left     : 5px; }
-	
-	div.header > a.button-dent:hover {
-		background-color: rgba(194,65,134,0.5); }
-	
-	div.header > a.button-dent:first-child {
-		margin-left: 0; }
-	
-	div.header > a.button-dent.sakura-button.sakura-button-icon {
-		padding-left       : 23px;
-		background-position: 5px center;
-		background-repeat  : no-repeat; }
-	
-	div.header > a.button-dent.sakura-button.sakura-button-selected {
-		position        : relative;
-		text-shadow     : none !important;
-		background-color: rgb(179,0,95);
-		color           : #fff;
-		box-shadow      : none; }
-	
-	div.header > a.button-dent.sakura-button.category-search,
-	div.header > a.button-dent.sakura-button.category-pref {
-		float: right; }
+	a.navbar-brand {
+		height: 40px;
+		padding: 9px 15px;
+		font-size: 16px;
+		line-height: 16px;
+		color: rgba(255,255,255,0.6) !important;
+		text-shadow: 0 -1px 0 rgba(0,0,0,0.3);
+		cursor: default; }
 
-@media screen and (max-width: 680px){
-	div.header > a.button-dent.sakura-button.category-search,
-	div.header > a.button-dent.sakura-button.category-pref,
-	div.header > a.button-dent.sakura-button.category-manual {
-		overflow           : hidden;
-		width              : 0px;
-		white-space        : nowrap;
-		background-position: center center;
-		text-indent        : 100px; }
-}
+	a.navbar-brand i {
+		font-style: normal;
+		vertical-align: super;
+		font-size: 10px;
+		margin-left: 2px; }
 
-@media screen and (max-width: 600px){
-	div.header > a.button-dent.sakura-button.sakura-button-icon {
-		overflow           : hidden;
-		width              : 24px;
-		padding-left       : 0;
-		padding-right      : 0;
-		white-space        : nowrap;
-		background-position: center center;
-		text-indent        : 100px; }
-}
+	label.navbar-toggle {
+		margin: 5px 10px 0;
+		padding: 7px 8px;
+		height: 30px; }
 
-@media screen and (max-width: 430px){
-	div.header > a.button-action.sakura-button.sakura-button-icon {
-		overflow           : hidden;
-		width              : 24px;
-		padding-left       : 0;
-		padding-right      : 0;
-		white-space        : nowrap;
-		background-position: center center;
-		text-indent        : 100px; }
-}
+	#navbar-toggle-cbox:checked ~ .collapse {
+		display: block; }
 
-@media screen and (max-width: 400px){
-	div.header {
-		padding-left       : 10px;
-		background-image: none; }
-	
-	div.header > a.button-action.action-logout.sakura-button {
-		overflow           : hidden;
-		width              : 24px;
-		padding-left       : 0;
-		padding-right      : 0;
-		white-space        : nowrap;
-		text-indent        : 100px; }
+	#navbar-toggle-cbox {
+		display: none; }
+
+	nav.header > div#navbar {
+		background: rgb(194,65,134); }
+
+		div#navbar > ul.nav > li.selected {
+			background: rgb(179,0,95); }
+
+			div#navbar > ul.nav > li > a {
+				padding: 11px 10px 9px 10px;
+				line-height: 20px;
+				font-size: 13px;
+				color: rgba(255,255,255,0.8); }
+
+			div#navbar > ul.nav > li > a:hover {
+				color: rgba(255,255,255,1); }
+
+				div#navbar > ul.nav > li > a > span {
+					margin-right: 5px; }
+
+				div#navbar > ul.nav > li > a > i.badge {
+					margin-left: 4px;
+					padding: 0;
+					font-style: normal;
+					font-weight: 100;
+					font-size: 10px;
+					color: white;
+					background: none; }
+
+@media (min-width: 768px) {
+
+	div#navbar > ul.nav {
+		float: none; }
+
+		div#navbar > ul.nav > li.category-search,
+		div#navbar > ul.nav > li.category-pref {
+			float: right; }
 }
 
 /* middle */
@@ -290,36 +245,26 @@ div.middle {
 	top             : 40px;
 	bottom          : 0;
 	background-color: #fff; }
-	
+
 	div.middle > div {
 		position : absolute; }
-	
+
 	div.middle > div.side {
 		top      : 0;
 		left     : 0;
 		bottom   : 0;
 		width    : 140px;
-		overflow : hidden;
-		-webkit-transition: all 0.25s ease 0.25s;
-		-moz-transition   : all 0.25s ease 0.25s;
-		-ms-transition    : all 0.25s ease 0.25s;
-		-o-transition     : all 0.25s ease 0.25s;
-		transition        : all 0.25s ease 0.25s; }
-	
+		overflow : hidden; }
+
 	div.middle.extend > div.side {
 		width    : 40px; }
-	
+
 	div.middle.noside > div.side {
 		width    : 0; }
-		
+
 		div.middle > div.side > div {
-			position  : absolute;
-			-webkit-transition: all 0.25s ease 0.1s;
-			-moz-transition   : all 0.25s ease 0.1s;
-			-ms-transition    : all 0.25s ease 0.1s;
-			-o-transition     : all 0.25s ease 0.1s;
-			transition        : all 0.25s ease 0.1s; }
-		
+			position  : absolute; }
+
 		div.middle > div.side > div.side-body {
 			top       : 0;
 			right     : 0;
@@ -330,11 +275,11 @@ div.middle {
 			overflow-x: hidden;
 			overflow-y: auto;
 			background: #e0e0e0; }
-		
+
 		div.middle.extend > div.side > div.side-body {
 			top       : 0;
 			padding   : 5px 0; }
-			
+
 			div.middle > div.side > div.side-body > a.sakura-button {
 				display      : block;
 				border       : none;
@@ -349,34 +294,34 @@ div.middle {
 				border-bottom: 1px solid transparent;
 				box-shadow   : none;
 				white-space  : nowrap; }
-			
+
 			div.middle.extend > div.side > div.side-body > a.sakura-button {
 				text-indent  : 50px;
 				color        : transparent; }
-			
+
 			div.middle > div.side > div.side-body > a.sakura-button:hover {
 				color        : black; }
-			
+
 			div.middle > div.side > div.side-body > a.sakura-button.sakura-button-selected {
 				color            : #2b2b2b;
 				background-color : white;
 				border           : none; }
-	
+
 	div.middle > div.main {
 		top      : 0;
 		right    : 0;
 		bottom   : 0;
 		left     : 140px; }
-	
+
 	div.middle.extend > div.main {
 		left     : 40px; }
-	
+
 	div.middle.noside > div.main {
 		left     : 0; }
-		
+
 		div.middle > div.main > div {
 			position: absolute; }
-		
+
 		div.middle > div.main > div.main-head {
 			z-index   : 5;
 			top       : 0;
@@ -385,129 +330,128 @@ div.middle {
 			height    : 40px;
 			background: rgb(194,65,134);
 			color     : #fff;
-			overflow  : hidden;
-			-webkit-transition: all 0.25s ease 0.25s;
-			-moz-transition   : all 0.25s ease 0.25s;
-			-ms-transition    : all 0.25s ease 0.25s;
-			-o-transition     : all 0.25s ease 0.25s;
-			transition        : all 0.25s ease 0.25s; }
-		
+			overflow  : hidden; }
+
 		div.middle > div.main.nohead > div.main-head {
 			height    : 0;
 			color     : rgb(194,65,134); }
-		
+
 		div.middle > div.main > div.main-head.overline {
 			z-index      : 100;
 			box-shadow   : 0 4px 0 rgba(0,0,0,0.1); }
-			
+
 			div.middle > div.main > div.main-head > div.main-head-title {
 				margin: 10px 10px 0 10px; }
-				
+
 				div.middle > div.main > div.main-head > div.main-head-title > h1 {
 					margin     : 0;
 					line-height: 22px;
 					font-weight: normal;
 					font-size  : 19px; }
-					
+
 					div.middle > div.main > div.main-head > div.main-head-title > h1 > span.flag {
 						margin-right  : 4px;
 						font-size     : 12px;
 						background    : rgba(0,0,0,0.1);
 						vertical-align: top;
 						padding       : 0 2px; }
-					
+
+					div.middle > div.main > div.main-head > div.main-head-title > h1 > span.flag.skip {
+						background    : #777; }
+
+					div.middle > div.main > div.main-head > div.main-head-title > h1 > span.flag.manual {
+						background    : #2b2b2b; }
+
 					div.middle > div.main > div.main-head > div.main-head-title > h1 > span.subtitle {
 						font-size     : 14px;
 						background    : rgba(0,0,0,0.1);
 						color         : rgba(255,255,255,0.8);
 						vertical-align: top;
 						padding       : 0 5px; }
-					
+
 					div.middle > div.main > div.main-head > div.main-head-title > h1 > span.episode {
 						font-size     : 12px;
 						background    : rgba(255,255,255,0.8);
 						color         : rgb(194,65,134);
 						vertical-align: top;
 						padding       : 0 2px; }
-					
+
 					div.middle > div.main > div.main-head > div.main-head-title > h1 > span.id {
 						font-size     : 12px;
 						color         : rgba(255,255,255,0.5);
 						vertical-align: top;
 						padding       : 0 2px; }
-			
+
 			div.middle > div.main > div.main-head > div.main-head-toolbar {
 				position  : absolute;
 				top       : 0;
 				right     : 0;
 				bottom    : 0;
-				padding   : 10px;
+				padding   : 0 10px;
 				background: rgb(194,65,134);
 				box-shadow: -2px 0 0 rgba(194,65,134,0.7),
 				            -4px 0 0 rgba(194,65,134,0.7),
 				            -6px 0 0 rgba(194,65,134,0.7); }
-				
-				div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar {}
-				
+
+				div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar {
+					min-height: 40px;
+					height: 40px;
+					margin: 0; }
+
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar .flagrate-checkbox {
 						color: white; }
-				
+
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > * {
 						vertical-align: inherit; }
-				
+
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > hr {
 						width  : 0;
 						display: inline-block;
 						margin : 0 5px;
 						padding: 0;
 						border : none; }
-					
+
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button {
 						border     : none;
 						background : transparent no-repeat 5px center;
 						font-size  : 13px;
 						color      : inherit;
 						box-shadow : none;
-						line-height: 14px;
-						padding    : 2px 5px 1px 5px;
+						line-height: 15px;
+						padding    : 11px 5px 9px 5px;
 						border     : 2px solid transparent;
 						text-shadow: none;
-						
-						-webkit-transition: background 0.25s ease;
-						-moz-transition   : background 0.25s ease;
-						-ms-transition    : background 0.25s ease;
-						-o-transition     : background 0.25s ease;
-						transition        : background 0.25s ease; }
-					
+						transition : none; }
+
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button.day {
 						color: rgba(255,255,255,0.7); }
-					
+
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button.selected {
 						color: #fff;
 						background: rgba(179,0,95,0.25);
 						box-shadow: 0 3px 0 rgb(179,0,95); }
-					
+
 						div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button > span {
 							color         : #aaa;
 							font-size     : 10px;
 							line-height   : 10px;
 							vertical-align: top; }
-					
+
 						div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button:hover > span {
 							color         : #555; }
-					
+
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button.sakura-button-icon {
 						padding-left: 25px; }
-				
+
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button:hover {
 						background-color: rgba(0,0,0,0.2);
 						color           : #fff; }
-				
+
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button.sakura-button-disabled {
 						cursor          : default;
 						color           : #aaa;
 						opacity         : 0.5; }
-				
+
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button.sakura-button-disabled:hover {
 						background-color: transparent; }
 
@@ -523,9 +467,8 @@ div.middle {
 						white-space        : nowrap;
 						background-position: center center;
 						text-indent        : 100px; }
-						
+
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button:hover {
-						overflow           : visible;
 						width              : auto;
 						white-space        : nowrap;
 						background-position: 5px center;
@@ -536,7 +479,7 @@ div.middle {
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button-icon {
 						padding-left       : 20px !important; }
 }
-			
+
 			div.middle > div.main > div.main-head > div.clock {
 				position        : absolute;
 				top             : 6px;
@@ -546,7 +489,7 @@ div.middle {
 				font-size       : 18px;
 				line-height     : 18px;
 				padding         : 6px 10px 4px; }
-			
+
 			div.middle > div.main > div.main-head > div.clock::before {
 				content         : "";
 				top             : 100%;
@@ -556,25 +499,19 @@ div.middle {
 				border-top      : 3px solid rgba(0,0,0,0.5);
 				border-right    : 3px solid transparent;
 				border-bottom   : 3px solid transparent; }
-		
+
 		div.middle > div.main > div.main-body {
 			top     : 40px;
 			right   : 0;
 			bottom  : 0;
 			left    : 0;
 			overflow: auto;
-			-webkit-transition: all 0.25s ease 0.25s;
-			-moz-transition   : all 0.25s ease 0.25s;
-			-ms-transition    : all 0.25s ease 0.25s;
-			-o-transition     : all 0.25s ease 0.25s;
-			transition        : all 0.25s ease 0.25s; 
 			background-size    : cover;
-			background-position: center center;
-			background-image   : url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQIHWP4DwABAQEANl9ngAAAAABJRU5ErkJggg==); }
-			
+			background-position: center center; }
+
 		div.middle > div.main.nohead > div.main-body {
 			top     : 0; }
-		
+
 		div.middle > div.main > div.main-body.overline::after {
 			z-index   : 100;
 			height    : 4px;
@@ -585,8 +522,8 @@ div.middle {
 			right     : 0;
 			left      : 0;
 			background: rgba(0,0,0,0.15); }
-		
-			div.middle > div.main > div.main-body > div {
+
+			div.middle > div.main > div.main-body > div:not(.row) {
 				position: absolute;
 				top     : 0;
 				right   : 0;
@@ -594,29 +531,30 @@ div.middle {
 				left    : 0;
 				overflow: auto;
 				padding : 10px 10px 28px; }
-			
+
 			div.middle > div.main > div.main-body > div.loading {
 				background: no-repeat center center url(./loading-circular-2b2b2b-ffffff.gif); }
-			
+
 			div.middle > div.main > div.main-body > div.failure {
 				background: rgba(255,0,0,0.1); }
-				
+
 				div.middle > div.main > div.main-body > div > div.program-meta {
 					font-size    : 13px;
 					margin-bottom: 15px;
 					line-height  : 20px;
 					color        : #777; }
-					
+
 					div.middle > div.main > div.main-body > div > div.program-meta > span.dynamic-time.soon {
 						color       : green; }
-						
+
 					div.middle > div.main > div.main-body > div > div.program-meta > span.dynamic-time.now {
 						color       : red; }
-				
+
 				div.middle > div.main > div.main-body > div > div.program-detail {
 					font-size    : 16px;
 					margin-bottom: 15px;
-					line-height  : 25px; }
+					line-height  : 25px;
+					white-space  : pre-wrap; }
 
 /* footer */
 div.footer {
@@ -626,7 +564,7 @@ div.footer {
 	left            : auto;
 	height          : auto;
 	padding         : 0 10px; }
-	
+
 	div.footer > a.sakura-button {
 		margin-right    : 5px;
 		border          : none;
@@ -640,14 +578,14 @@ div.footer {
 		background-color: rgba(194,65,134,0.4);
 		box-shadow      : none;
 		text-shadow     : none }
-	
+
 	div.footer > a.sakura-button.sakura-button-icon {
 		padding-left    : 25px; }
-	
+
 	div.footer > a.sakura-button:hover {
 		color           : white;
 		background-color: rgba(194,65,134,1); }
-	
+
 	div.footer > a.sakura-button.sakura-button-selected {
 		color           : white;
 		background-color: rgba(194,65,134,1); }
@@ -658,7 +596,7 @@ div.footer {
 	border-color    : #000 !important;
 	border-color    : rgba(0, 0, 0, 0.5) !important;
 	background-color: #c24186 !important; }
-	
+
 	.hyperform button.selected > label {
 		color: #fff; }
 
@@ -675,11 +613,11 @@ div.footer {
 
 .hyperform div.slider > .slider-display {
 	color           : #c24186 !important; }
-	
+
 	.hyperform div.slider > .slider-base > .slider-fill {
 		background-image: none !important;
 		background-color: #c24186 !important; }
-		
+
 		.hyperform div.slider > .slider-base > .slider-fill > .slider-handle {
 			border-color    : #000 !important;
 			background-image: none !important;
@@ -803,7 +741,7 @@ div.dashboard-timelist[rel="3"]:last-child {
 	margin-bottom: 0; }
 }
 */
-	
+
 	div.dashboard-timelist > div.head {
 		position   : absolute;
 		top        : 20px;
@@ -817,13 +755,13 @@ div.dashboard-timelist[rel="3"]:last-child {
 		font-size  : 20px;
 		font-weight: normal;
 		color      : #444; }
-	
+
 	div.dashboard-timelist.recorded > div.head {
 		color      : #ddd; }
-	
+
 	div.dashboard-timelist.recording > div.head {
 		color      : #ab0022; }
-	
+
 	div.dashboard-timelist > div.main {
 		position   : absolute;
 		padding    : 0 0;
@@ -834,7 +772,7 @@ div.dashboard-timelist[rel="3"]:last-child {
 		left       : 10px;
 		overflow   : visible;
 		overflow-y : auto; }
-		
+
 		div.dashboard-timelist > div.main > a {
 			position       : relative;
 			display        : block;
@@ -849,25 +787,25 @@ div.dashboard-timelist[rel="3"]:last-child {
 			overflow       : visible;
 			border         : 1px solid transparent;
 			color          : rgba(0,0,0,0.8); }
-		
+
 		div.dashboard-timelist.recorded > div.main > a {
 			color          : rgba(255,255,255,0.8); }
-		
+
 		div.dashboard-timelist > div.main > a.skip {
 			opacity: 0.4; }
-		
+
 		div.dashboard-timelist > div.main > a.conflict {
 			opacity: 0.4; ;}
-		
+
 		div.dashboard-timelist > div.main > a:hover {
 			z-index        : 2;
 			background     : rgba(0,0,0,0.25);
 			color          : white; }
-			
+
 			div.dashboard-timelist > div.main > a > div.title {
 				overflow    : hidden;
 				margin      : 0 0 4px 0; }
-				
+
 				div.dashboard-timelist > div.main > a > div.title > span {
 					vertical-align  : top;
 					background-color: rgba(0,0,0,0.25);
@@ -877,19 +815,19 @@ div.dashboard-timelist[rel="3"]:last-child {
 					text-shadow     : none;
 					line-height     : 15px;
 					color           : #ddd !important; }
-				
+
 				div.dashboard-timelist > div.main > a > div.title > span[rel="新"] {
 					color           : #afa !important; }
-				
+
 				div.dashboard-timelist > div.main > a > div.title > span[rel="終"] {
 					color           : #faa !important; }
-				
+
 				div.dashboard-timelist > div.main > a > div.title > span[rel="再"] {
 					color           : #aaf !important; }
-				
+
 				div.dashboard-timelist > div.main > a:hover > div.title > span {
 					background-color: rgba(255,255,255,0.25); }
-				
+
 				div.dashboard-timelist > div.main > a > div.title > span.episode {
 					background : rgba(255,255,255,0.5);
 					padding    : 2px 4px 1px 3px;
@@ -898,19 +836,19 @@ div.dashboard-timelist[rel="3"]:last-child {
 					color      : #d02e54 !important;
 					font-weight: normal;
 					font-size  : 10px; }
-			
+
 			div.dashboard-timelist > div.main > a > span.dynamic-time {
 				color       : rgba(0,0,0,0.5);
 				font-size   : 11px;
 				font-weight : normal;
 				text-shadow : none; }
-				
+
 			div.dashboard-timelist > div.main > a > span.dynamic-time.soon {
 				color       : lightgreen; }
-				
+
 			div.dashboard-timelist > div.main > a > span.dynamic-time.now {
 				color       : orange; }
-			
+
 			div.dashboard-timelist > div.main > a > span.channel {
 				color       : rgba(0,0,0,0.5);
 				margin-left : 10px;
@@ -948,7 +886,7 @@ div.dashboard-timelist[rel="3"]:last-child {
 			line-height    : 15px;
 			font-size      : 11px;
 			margin-bottom  : 2px; }
-			
+
 			div.dashboard-timelist > div.main > a > div.dynamic-time {
 				font-size   : 10px; }
 }
@@ -956,7 +894,7 @@ div.dashboard-timelist[rel="3"]:last-child {
 @media screen and (max-width: 750px){
 		div.middle > div.main > div.main-body > div {
 			padding: 0; }
-	
+
 		div.dashboard-timelist,
 		div.dashboard-timelist > * {
 			position: relative !important;
@@ -969,7 +907,7 @@ div.dashboard-timelist[rel="3"]:last-child {
 			padding: 20px 10px;
 			box-sizing: border-box;
 			box-shadow: none !important; }
-	
+
 			div.dashboard-timelist > div.head {
 				position: relative !important;
 				padding: 0 0 10px 5px; }
@@ -992,14 +930,14 @@ div.timetable > div.board {
 	top        : 0;
 	left       : 20px;
 	overflow   : visible; }
-	
+
 	div.timetable > div.board > div.handline {
 		z-index   : 2;
 		position  : absolute;
 		left      : 0;
 		height    : 2px;
 		background: rgba(255,102,0,0.5); }
-	
+
 	div.timetable > div.board > div.cutline {
 		z-index     : 1;
 		position    : absolute;
@@ -1007,39 +945,39 @@ div.timetable > div.board {
 		bottom      : 0;
 		width       : 0;
 		border-right: 1px dashed rgba(255,0,0,0.5); }
-	
+
 	div.timetable > div.board > div.rect {
 		z-index     : 0;
 		position    : absolute;
 		background  : #ccc;
 		cursor      : pointer;
 		box-shadow  : inset 0 1px 0 rgba(25,25,25,0.3); }
-	
+
 	div.timetable > div.board > div.rect:hover {
 		box-shadow  : inset 0 0 0 2px rgba(194,65,134,0.4); }
-	
+
 	div.timetable > div.board > div.rect.reserved,
 	div.timetable > div.board > div.rect.recording {
 		background  : red !important; }
-	
+
 	div.timetable > div.board > div.rect.reserved:hover,
 	div.timetable > div.board > div.rect.recording:hover {
 		background  : white !important; }
-	
+
 	div.timetable > div.board > div.rect.skip {
 		background  : gray !important; }
-	
+
 	div.timetable > div.board > div.rect.conflict {
 		background  : gray !important; }
-	
+
 	div.timetable > div.board > div.rect.muted {
 		opacity     : 0.5 !important; }
-	
+
 	div.timetable > div.board > div.rect.spot {
 		z-index     : 1;
 		box-shadow  : inset 0 0 0 1px white,
 		              0 0 5px 2px rgba(255, 87, 145, 0.82); }
-		
+
 		div.timetable > div.board > div.rect > div {
 			position   : absolute;
 			top        : 2px;
@@ -1053,11 +991,11 @@ div.timetable > div.board {
 			font-family: "Yu Gothic", "Meiryo UI", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ",
 			             Meiryo, Osaka, "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
 			color      : #444; }
-		
+
 			div.timetable > div.board > div.rect > div > h4 {
 				margin   : 0 0 2px 0;
 				font-size: 11px; }
-		
+
 			div.timetable > div.board > div.rect > div > div {
 				display: block;
 				float: left;
@@ -1081,7 +1019,7 @@ div.timetable > div.board {
 
 				div.timetable > div.board > div.rect > div > div > span.終 {
 					background-color: #ff6161; }
-		
+
 			div.timetable > div.board > div.rect > div > span {
 				display: block;
 				margin-left: 12px;
@@ -1091,50 +1029,50 @@ div.timetable > div.board {
 
 			div.timetable > div.board > div.rect:hover > div > h4 {
 				color      : #000; }
-		
+
 			div.timetable > div.board > div.rect.reserved:not(:hover) > div > span,
 			div.timetable > div.board > div.rect.recording:not(:hover) > div > span {
 				color      : rgba(255,255,255,0.8); }
-		
+
 			div.timetable > div.board > div.rect.reserved:hover > div > h4,
 			div.timetable > div.board > div.rect.recording:hover > div > h4 {
 				color      : red; }
-		
+
 		div.timetable > div.board > div.rect.reserved > div,
 		div.timetable > div.board > div.rect.recording > div {
 			color      : white; }
-		
+
 		div.timetable > div.board > div.rect.recording > div {
 			font-weight: bold; }
-		
+
 		div.timetable > div.board > div.rect.skip:hover > div {
 			color      : gray;
 			text-shadow: none; }
-	
+
 	div.drawer > div.head {
 		padding   : 5px 10px;
 		background: rgba(255,255,255,0.9);
 		margin    : 0 0 10px 0;
 		text-align: center; }
-		
+
 		div.drawer > div.head > div.date {
 			text-align : center;
 			font-family: "Arial Black", Gadget, sans-serif;
 			font-size  : 18px;
 			line-height: 20px;
 			color      : #222; }
-			
+
 			div.drawer > div.head > div.date > small {
 				font-size  : 12px;
 				color      : #777;
 				margin-left: 2px;
 				line-height: 15px; }
-		
+
 		div.drawer > div.head > span.dynamic-time,
 		div.drawer > div.head > span.channel {
 			color    : #777;
 			font-size: 10px; }
-	
+
 	div.drawer > div.body {
 		overflow   : auto;
 		word-break : break-all;
@@ -1144,13 +1082,13 @@ div.timetable > div.board {
 		color      : #ccc;
 		font-family: "Meiryo UI", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ",
 		             Meiryo, Osaka, "ＭＳ Ｐゴシック", "MS PGothic", sans-serif; }
-		
+
 		div.drawer > div.body > div.title {
 			font-size  : 14px;
 			font-weight: bold;
 			margin     : 0 0 5px 0;
 			color      : white; }
-			
+
 			div.drawer > div.body > div.title > span[class*="bg-cat-"] {
 				font          : 10px normal "arial";
 				color         : rgba(0,0,0,0.7);
@@ -1158,18 +1096,18 @@ div.timetable > div.board {
 				vertical-align: middle;
 				border-radius : 1px;
 				padding       : 0 2px; }
-		
+
 		div.drawer > div.body > div.detail {
 			margin     : 0 0 5px 0; }
-		
+
 		div.drawer > div.body > div.id {
 			font-size  : 10px;
 			color      : #aaa;
 			font-family: Arial, Helvetica, sans-serif; }
-	
+
 	div.drawer > div.foot {
 		margin: 10px 0 0 0; }
-		
+
 		div.drawer > div.foot > button {
 			display: block;
 			width  : 100%; }
@@ -1182,7 +1120,7 @@ div.timetable > div.head {
 	height    : 30px;
 	padding-right: 2px;
 	overflow  : visible; }
-	
+
 	div.timetable > div.head > div {
 		position   : absolute;
 		color      : #bbb;
@@ -1197,7 +1135,7 @@ div.timetable > div.head {
 		line-height: 2em;
 		background : rgba(25,25,25,0.8);
 		box-shadow : 5px 0 0 rgba(25,25,25,0.7); }
-	
+
 	div.timetable > div.head > div:hover {
 		color      : #fff; }
 
@@ -1210,7 +1148,7 @@ div.timetable > div.timescale {
 	overflow  : hidden;
 	background: #444;
 	box-shadow: inset 1px 0 0 #222, -2px 0 0 rgba(0,0,0,0.1), inset -2px 0 0 #333; }
-	
+
 	div.timetable > div.timescale > button {
 		position   : absolute;
 		left       : 0;
@@ -1218,13 +1156,13 @@ div.timetable > div.timescale {
 		height     : 25px;
 		padding    : 0;
 		font-size  : 10px; }
-	
+
 	div.timetable > div.timescale > button.prev {
 		top: 0; }
-	
+
 	div.timetable > div.timescale > button.next {
 		bottom: 0; }
-	
+
 	div.timetable > div.timescale > div {
 		position   : absolute;
 		margin-top : 97px;
@@ -1232,19 +1170,19 @@ div.timetable > div.timescale {
 		font-size  : 10px;
 		font-family: monospace;
 		line-height: 10px; }
-	
+
 	div.timetable > div.timescale > div.long {
 		width      : 15px;
 		padding    : 4px 2px 4px 2px;
 		color      : #fff;
 		box-shadow : inset 0 2px 0 #000; }
-	
+
 	div.timetable > div.timescale > div.middle {
 		height     : 1px;
 		width      : 10px;
 		border-top : 1px solid #222;
 		background : white; }
-	
+
 	div.timetable > div.timescale > div.short {
 		height     : 1px;
 		width      : 5px;
@@ -1259,7 +1197,7 @@ div.timetable > div.timescale {
 	div.timetable > div.timescale > div.h5 {
 		border-color: #06f;
 		background  : #06f; }
-	
+
 	div.timetable > div.timescale > div.h6,
 	div.timetable > div.timescale > div.h7,
 	div.timetable > div.timescale > div.h8,
@@ -1267,20 +1205,20 @@ div.timetable > div.timescale {
 	div.timetable > div.timescale > div.h10 {
 		border-color: #0cf;
 		background  : #0cf; }
-	
+
 	div.timetable > div.timescale > div.h11,
 	div.timetable > div.timescale > div.h12,
 	div.timetable > div.timescale > div.h13,
 	div.timetable > div.timescale > div.h14 {
 		border-color: #f90;
 		background  : #f90; }
-	
+
 	div.timetable > div.timescale > div.h15,
 	div.timetable > div.timescale > div.h16,
 	div.timetable > div.timescale > div.h17 {
 		border-color: #f30;
 		background  : #f30; }
-	
+
 	div.timetable > div.timescale > div.h22,
 	div.timetable > div.timescale > div.h23,
 	div.timetable > div.timescale > div.h0,
@@ -1373,7 +1311,7 @@ div.video-container {
 	bottom          : 44px;
 	left            : 0px;
 	background-color: #000; }
-	
+
 	div.video-container > * {
 		width : 100%;
 		height: 100%; }
@@ -1386,7 +1324,7 @@ div.video-control {
 	left            : 0;
 	padding         : 10px 20px 10px;
 	text-align      : center; }
-	
+
 	div.video-control .seek {
 		width: -webkit-calc(100% - 470px) !important;
 		width: -moz-calc(100% - 470px) !important;
@@ -1412,3 +1350,6 @@ div.editor {
 	right      : 0;
 	bottom     : 0;
 	left       : 0; }
+
+.hyperform * {
+	box-sizing: initial; }

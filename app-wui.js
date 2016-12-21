@@ -17,6 +17,7 @@ const WUI_LOG_FILE = __dirname + '/log/wui';
 const SCHEDULER_LOG_FILE = __dirname + '/log/scheduler';
 
 // Load Config
+const pkg = require("./package.json");
 const config = require(CONFIG_FILE);
 
 // Modules
@@ -93,7 +94,7 @@ if (/(?:\/|\+)unix:/.test(mirakurunPath) === true) {
 }
 
 mirakurun.userAgent = `Chinachu/${pkg.version} (wui)`;
-mirakurun.priority = recordingPriority;
+mirakurun.priority = 0;
 
 console.info(mirakurun);
 

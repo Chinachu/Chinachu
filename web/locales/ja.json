@@ -11,17 +11,17 @@
   "CONFIG {0}"       : "{0}設定",
   "TO {0}"           : "{0}へ",
   "EXECUTE {0}"      : "{0}の実行",
-  
+
   "CONNECTED"   : "接続されました",
   "DISCONNECTED": "切断されました",
-  
+
   "VIEW"     : "ビュー",
   "CLOSE"    : "閉じる",
   "YESTERDAY": "昨日",
   "TOMORROW" : "明日",
   "SAVE"     : "保存",
-  
-  "DASHBOARD"                : "ダッシュボード",
+
+  "DASHBOARD"                : "ホーム",
   "TOP"                      : "トップ",
   "SYSTEM STATUS"            : "システムステータス",
   "SYSTEM LOG"               : "システムログ",
@@ -49,7 +49,7 @@
   "LIVE"                     : "ライブ",
   "FREE"                     : "空き",
   "USED BY OTHER PROGRAMS"   : "他のプログラムが使用",
-  
+
   "ADD"          : "追加",
   "COPY"         : "コピー",
   "EDIT"         : "編集",

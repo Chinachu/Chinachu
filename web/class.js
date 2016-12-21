@@ -1,9 +1,9 @@
 /*jslint browser:true, nomen:true, plusplus:true, regexp:true, vars:true */
 /*global $, Prototype, Ajax, Class, Element, sakura, flagrate, dateFormat */
 (function () {
-	
+
 	"use strict";
-	
+
 	// for debug
 	var PARAM = window.location.search.replace('?', '').toQueryParams();
 	var DEBUG = (PARAM.debug === 'on');
@@ -30,29 +30,29 @@
 	} else {
 		console = window.console;
 	}
-	
+
 	// global
 	var global = window.global;
-	
+
 	// chinachu global scope
 	if (typeof window.chinachu !== 'undefined') {
 		console.error('[conflict]', 'chinachu is already defined.');
-		
+
 		return false;
 	}
 	var chinachu = window.chinachu = {};
-	
+
 	console.info('[welcome]', 'initializing chinachu class.');
-	
+
 	// Objectをディープコピー
 	var objectCloner = chinachu.objectCloner = function _objectCloner(object) {
 		return Object.toJSON(object).evalJSON();
 	};
-	
+
 	// Dateオブジェクトを見やすい文字列に変換する
 	var dateToString = chinachu.dateToString = function _dateToString(date, type) {
 		var d = date;
-		
+
 		var dStr = [
 			d.getFullYear(),
 			(d.getMonth() + 1).toPaddedString(2),
@@ -61,28 +61,28 @@
 			d.getHours().toPaddedString(2),
 			d.getMinutes().toPaddedString(2)
 		].join(':');
-		
+
 		var dDelta = ((new Date().getTime() - d.getTime()) / 1000);
 		var dDeltaStr = '';
-		
+
 		if (dDelta < 0) {
 			dDelta -= dDelta * 2;
-			
+
 			if (dDelta < 60) {
 				dDeltaStr = 'after {0} seconds'.__([Math.round(dDelta) || '0']);
 			} else {
 				dDelta = dDelta / 60;
-				
+
 				if (dDelta < 60) {
 					dDeltaStr = 'after {0} minutes'.__([Math.round(dDelta * 10) / 10 || '0']);
 				} else {
 					dDelta = dDelta / 60;
-					
+
 					if (dDelta < 24) {
 						dDeltaStr = 'after {0} hours'.__([Math.round(dDelta * 10) / 10 || '0']);
 					} else {
 						dDelta = dDelta / 24;
-						
+
 						dDeltaStr = 'after {0} days'.__([Math.round(dDelta * 10) / 10 || '0']);
 					}
 				}
@@ -92,23 +92,23 @@
 				dDeltaStr = '{0} seconds ago'.__([Math.round(dDelta) || '0']);
 			} else {
 				dDelta = dDelta / 60;
-				
+
 				if (dDelta < 60) {
 					dDeltaStr = '{0} minutes ago'.__([Math.round(dDelta * 10) / 10 || '0']);
 				} else {
 					dDelta = dDelta / 60;
-					
+
 					if (dDelta < 24) {
 						dDeltaStr = '{0} hours ago'.__([Math.round(dDelta * 10) / 10 || '0']);
 					} else {
 						dDelta = dDelta / 24;
-						
+
 						dDeltaStr = '{0} days ago'.__([Math.round(dDelta * 10) / 10 || '0']);
 					}
 				}
 			}
 		}
-		
+
 		if (typeof type === 'undefined' || type === 'full') {
 			return dStr + ' (' + dDeltaStr + ')';
 		} else if (type === 'short') {
@@ -117,7 +117,7 @@
 			return dDeltaStr;
 		}
 	};
-	
+
 	// inputType
 	var formInputTypeChannels = {
 		create: function () {
@@ -173,13 +173,13 @@
 			this.element.disable();
 		}
 	};
-	
+
 	var util = chinachu.util = {};
-	
+
 	/** section: util
 	 * class util
 	**/
-	
+
 	/**
 	 *  util.scotify(program) -> String
 	 *  - program (Program Object): Program Data.
@@ -188,14 +188,14 @@
 	**/
 	util.scotify = function (program) {
 		var scot = '';
-		
+
 		scot = program.channel.name + ': ' + program.title +
 			' (' + dateToString(new Date(program.start), 'short') + ') ' +
 			'[chinachu://' + program.id + ']';
-		
+
 		return scot;
 	};
-	
+
 	/**
 	 *  util.getProgramById(programId) -> Program Object | null
 	 *  - programId (String): Program ID.
@@ -204,28 +204,28 @@
 	**/
 	util.getProgramById = function (id) {
 		var i, l, j, m;
-		
+
 		for (i = 0, l = global.chinachu.recorded.length; i < l; i++) {
 			if (global.chinachu.recorded[i].id === id) {
 				global.chinachu.recorded[i]._isRecorded = true;
 				return global.chinachu.recorded[i];
 			}
 		}
-		
+
 		for (i = 0, l = global.chinachu.recording.length; i < l; i++) {
 			if ((global.chinachu.recording[i].id === id) && (global.chinachu.recording[i].pid)) {
 				global.chinachu.recording[i]._isRecording = true;
 				return global.chinachu.recording[i];
 			}
 		}
-		
+
 		for (i = 0, l = global.chinachu.reserves.length; i < l; i++) {
 			if (global.chinachu.reserves[i].id === id) {
 				global.chinachu.reserves[i]._isReserves = true;
 				return global.chinachu.reserves[i];
 			}
 		}
-		
+
 		for (i = 0; i < global.chinachu.schedule.length; i++) {
 			for (j = 0, m = global.chinachu.schedule[i].programs.length; j < m; j++) {
 				if (global.chinachu.schedule[i].programs[j].id === id) {
@@ -233,10 +233,10 @@
 				}
 			}
 		}
-		
+
 		return null;
 	};
-	
+
 	/**
 	 *  util.getNextProgramById(programId) -> Program Object | null
 	 *  - programId (String): Program ID.
@@ -245,7 +245,7 @@
 	**/
 	util.getNextProgramById = function (id) {
 		var i, l, j, m;
-		
+
 		for (i = 0, l = global.chinachu.schedule.length; i < l; i++) {
 			for (j = 0, m = global.chinachu.schedule[i].programs.length; j < m; j++) {
 				if (global.chinachu.schedule[i].programs[j].id === id) {
@@ -255,10 +255,10 @@
 				}
 			}
 		}
-		
+
 		return null;
 	};
-	
+
 	/**
 	 *  util.getPrevProgramById(programId) -> Program Object | null
 	 *  - programId (String): Program ID.
@@ -267,29 +267,29 @@
 	**/
 	util.getPrevProgramById = function (id) {
 		var i, l, j, m;
-		
+
 		for (i = 0, l = global.chinachu.schedule.length; i < l; i++) {
 			for (j = 0, m = global.chinachu.schedule[i].programs.length; j < m; j++) {
 				if (global.chinachu.schedule[i].programs[j].id === id) {
 					if (j - 1 < 0) { return null; }
-					
+
 					if (typeof global.chinachu.schedule[i].programs[j - 1] !== 'undefined') {
 						return util.getProgramById(global.chinachu.schedule[i].programs[j - 1].id);
 					}
 				}
 			}
 		}
-		
+
 		return null;
 	};
-	
+
 	var api = chinachu.api = {};
-	
+
 	/** section: api
 	 * class chinachu.api.Client
 	**/
 	api.Client = Class.create({
-		
+
 		/**
 		 *  new chinachu.api.Client(parameter) -> chinachu.api.Client
 		 *  - parameter (Object)
@@ -303,43 +303,43 @@
 		**/
 		initialize: function _initApiClient(p) {
 			this.apiRoot = p.apiRoot || './';
-			
+
 			this.onCreateRequest   = p.onCreateRequest   || Prototype.emptyFunction;
 			this.onCompleteRequest = p.onCompleteRequest || Prototype.emptyFunction;
-			
+
 			this.requestCount = 0;
 			this.requestTable = [];
-			
+
 			this.optionalRequestHeaders = [];
 			this.optionalRequestParameter = {};
-			
+
 			return this;
 		},
-		
+
 		request: function _requestApiClient(url, p, retryCount) {
 			// 完全なURLかどうかを判定
 			if (url.match(/^http/) === null) {
 				url = this.apiRoot + url;
 			}
-			
+
 			var param  = p.param  || {};
 			var method = p.method || 'get';
-			
+
 			var requestHeaders = [
 				'X-Chinachu-Client-Version', '3'
 			].concat(this.optionalRequestHeaders);
-			
+
 			param = Object.extend(param, {
 				Count: param.Count || 0
 			});
-			
+
 			param = Object.extend(param, this.optionalRequestParameter);
-			
+
 			// インクリメント
 			++this.requestCount;
-			
+
 			retryCount  = retryCount || this.retryCount;
-			
+
 			var requestState = this.requestTable[this.requestCount] = {
 				id         : this.requestCount,
 				requestedAt: new Date().getTime(),
@@ -355,28 +355,28 @@
 				p          : p,
 				status     : 'init'
 			};
-			
+
 			var dummy = new Ajax.Request(url, {
 				method        : method,
 				requestHeaders: requestHeaders,
 				parameters    : Object.toJSON(param).replace(/%/g, '\\u0025'),
-				
+
 				// リクエスト作成時
 				onCreate: function _onCreateRequest(t) {
 					requestState.status    = 'create';
 					requestState.transport = t;
-					
+
 					console.log('api.Client', 'req#' + requestState.id, '(create)', '->', requestState.method, url.replace(this.apiRoot, ''), t);
-					
+
 					requestState.createdAt = new Date().getTime();
-					
+
 					if (p.onCreate) { p.onCreate(t); }
-					
+
 					this.onCreateRequest(t);
-					
+
 					document.fire('chinachu:api:client:request:create', requestState);
 				}.bind(this),
-				
+
 				// リクエスト完了時
 				onComplete: function _onCompleteRequest(t) {
 					requestState.status      = 'complete';
@@ -384,53 +384,53 @@
 					requestState.completedAt = new Date().getTime();
 					requestState.execution   = Math.round((t.getHeader('X-Sakura-Proxy-Microtime') || 0) / 1000);
 					requestState.latency     = requestState.completedAt - requestState.createdAt;
-					
+
 					var time = [requestState.execution, requestState.latency].join('|') + 'ms';
-					
+
 					console.log('api.Client', 'req#' + requestState.id, time, '<-', requestState.method, url.replace(this.apiRoot, ''), t.status, t.statusText, t);
-					
+
 					var res = t.responseJSON || {};
-					
+
 					// 結果を評価
 					var isSuccess = ((t.status >= 200) && (t.status < 300));
 					if (isSuccess) {
-						
+
 						// 成功コールバック
 						if (p.onSuccess) { p.onSuccess(t, res); }
 					}
-					
+
 					var isFailure = !isSuccess;
 					if (isFailure) {
-						
+
 						// 失敗コールバック
 						if (p.onFailure) { p.onFailure(t, res); }
 					}
-					
+
 					// 最後に完了時の処理を
 					if (p.onComplete) { p.onComplete(t, res); }
-					
+
 					this.onCompleteRequest(t, res);
-					
+
 					document.fire('chinachu:api:client:request:complete', requestState);
 				}.bind(this)
 			});
-			
+
 			return this;
 		}
 	});
-	
+
 	var ui = chinachu.ui = {};
-	
+
 	ui.ContentLoading = Class.create({
 		initialize: function (opt) {
 			if (!opt) { opt = {}; }
-			
+
 			this.progress   = 0;
 			this.target     = document.body;
 			this.onComplete = opt.onComplete || function _empty() {};
-			
+
 			this.create();
-			
+
 			return this;
 		},
 		create: function _draw() {
@@ -439,87 +439,87 @@
 				frame    : new Element('div'),
 				bar      : new Element('div')
 			};
-			
+
 			this.entity.container.insert(this.entity.frame);
 			this.entity.frame.insert(this.entity.bar);
-			
+
 			this.redraw();
-			
+
 			return this;
 		},
 		update: function _update(num) {
 			if (num >= 100) {
 				setTimeout(this.onComplete, 0);
-				
+
 				num = 100;
 			}
-			
+
 			this.progress = num;
-			
+
 			this.redraw();
-			
+
 			return this;
 		},
 		redraw: function _redraw() {
 			this.entity.bar.setStyle({width: this.progress.toString(10) + '%'});
-			
+
 			return this;
 		},
 		render: function _render(target) {
 			$(target.entity || target || this.target).insert({top: this.entity.container});
-			
+
 			return this;
 		},
 		remove: function _remove() {
 			this.entity.bar.remove();
 			this.entity.frame.remove();
 			this.entity.container.remove();
-			
+
 			this.entity.bar       = null;
 			this.entity.frame     = null;
 			this.entity.container = null;
-			
+
 			delete this.entity;
 			delete this.target;
 			delete this.progress;
-			
+
 			return true;
 		}
 	});
-	
+
 	ui.DynamicTime = Class.create(sakura.ui.Element, {
-		
+
 		init: function (opt) {
-			
+
 			this.tagName = opt.tagName || 'span';
-			
+
 			this.time  = opt.time;
 			this.timer = 0;
 			this.type  = opt.type || 'delta';
-			
+
 			return this;
 		},
-		
+
 		create: function () {
-			
+
 			var wait = 1;
-			
+
 			this.entity = this.entity || new Element(this.tagName, this.attr);
-			
+
 			if (this.id !== null) { this.entity.id = this.id; }
-			
+
 			if (this.style !== null) { this.entity.setStyle(this.style); }
-			
+
 			this.entity.className = 'dynamic-time';
-			
+
 			if (this.className !== null) { this.entity.addClassName(this.className); }
-			
+
 			this.entity.update(chinachu.dateToString(new Date(this.time), this.type));
-			
+
 			var delta = ((new Date().getTime() - this.time) / 1000);
-			
+
 			if (delta < 0) { delta -= delta * 2; }
-			
+
 			if (delta < 9600) { wait = 60 * 60; }
 			if (delta < 4800) { wait = 60 * 30; }
 			if (delta < 2400) { wait = 60 * 10; }
@@ -535,31 +535,31 @@
 			if (delta < 60) { wait = 10; }
 			if (delta < 30) { wait = 5; }
 			if (delta < 10) { wait = 1; }
-			
+
 			this.timer = setTimeout(this.create.bind(this), wait * 1000);
-			
+
 			return this;
 		},
-		
+
 		remove: function () {
-			
+
 			clearTimeout(this.timer);
-			
+
 			try {
 				this.entity.remove();
 				this.entity.fire('sakura:remove');
 			} catch (e) {
 				//console.debug(e);
 			}
-			
+
 			return this;
 		}
 	});
-	
+
 	ui.ExecuteScheduler = Class.create({
 		initialize: function () {
 			this.create();
-			
+
 			return this;
 		},
 		create: function () {
@@ -572,7 +572,7 @@
 						color   : '@orange',
 						onSelect: function (e, modal) {
 							this.button.disable();
-							
+
 							var dummy = new Ajax.Request('./api/scheduler.json', {
 								method    : 'put',
 								onComplete: function () {
@@ -608,19 +608,19 @@
 					}
 				]
 			});
-			
+
 			this.modal.show();
-			
+
 			return this;
 		}
 	});
-	
+
 	ui.Reserve = Class.create({
 		initialize: function _init(id) {
 			this.program = util.getProgramById(id);
-			
+
 			this.create();
-			
+
 			return this;
 		},
 		create: function _create() {
@@ -631,7 +631,7 @@
 				});
 			} else {
 				var buttons = [];
-				
+
 				buttons.push({
 					label   : '予約',
 					color   : '@red',
@@ -646,7 +646,7 @@
 							onSuccess: function () {
 								new flagrate.Modal({
 									title: '成功',
-									text : '予約しました。競合を確認するためスケジューラを実行することをお勧めします'
+									text : '予約しました。'
 								}).show();
 							},
 							onFailure: function (t) {
@@ -658,8 +658,8 @@
 						});
 					}.bind(this)
 				});
-				
-				if (this.program.channel.type === 'GR') {
+
+				if (false && this.program.channel.type === 'GR') {
 					buttons.push({
 						label   : '予約 (ワンセグ)',
 						color   : '@red',
@@ -677,7 +677,7 @@
 								onSuccess: function () {
 									new flagrate.Modal({
 										title: '成功',
-										text : '予約しました。スケジューラーを実行して競合を確認することをお勧めします'
+										text : '予約しました。'
 									}).show();
 								},
 								onFailure: function (t) {
@@ -690,14 +690,14 @@
 						}.bind(this)
 					});
 				}
-				
+
 				buttons.push({
 					label   : 'キャンセル',
 					onSelect: function (e, modal) {
 						modal.close();
 					}
 				});
-				
+
 				this.modal = new flagrate.Modal({
 					title   : '手動予約',
 					subtitle: this.program.title + ' #' + this.program.id,
@@ -705,19 +705,19 @@
 					buttons : buttons
 				});
 			}
-			
+
 			this.modal.show();
-			
+
 			return this;
 		}
 	});
-	
+
 	ui.Unreserve = Class.create({
 		initialize: function _init(id) {
 			this.program = util.getProgramById(id);
-			
+
 			this.create();
-			
+
 			return this;
 		},
 		create: function _create() {
@@ -737,7 +737,7 @@
 							color   : '@red',
 							onSelect: function (e, modal) {
 								e.targetButton.disable();
-								
+
 								var dummy = new Ajax.Request('./api/reserves/' + this.program.id + '.json', {
 									method    : 'delete',
 									onComplete: function () {
@@ -746,7 +746,7 @@
 									onSuccess: function () {
 										new flagrate.Modal({
 											title: '成功',
-											text : '予約を取り消しました。競合を解決するにはスケジューラを実行する必要があります'
+											text : '予約を取り消しました。'
 										}).show();
 									},
 									onFailure: function (t) {
@@ -767,19 +767,19 @@
 					]
 				});
 			}
-			
+
 			this.modal.show();
-			
+
 			return this;
 		}
 	});
-	
+
 	ui.Skip = Class.create({
 		initialize: function _init(id) {
 			this.program = util.getProgramById(id);
-			
+
 			this.create();
-			
+
 			return this;
 		},
 		create: function _create() {
@@ -799,7 +799,7 @@
 							color   : '@red',
 							onSelect: function (e, modal) {
 								e.targetButton.disable();
-								
+
 								var dummy = new Ajax.Request('./api/reserves/' + this.program.id + '/skip.json', {
 									method    : 'put',
 									onComplete: function () {
@@ -808,7 +808,7 @@
 									onSuccess: function () {
 										new flagrate.Modal({
 											title: '成功',
-											text : 'スキップを有効にしました。競合を解決するにはスケジューラを実行する必要があります'
+											text : 'スキップを有効にしました。'
 										}).show();
 									},
 									onFailure: function (t) {
@@ -829,19 +829,19 @@
 					]
 				});
 			}
-			
+
 			this.modal.show();
-			
+
 			return this;
 		}
 	});
-	
+
 	ui.Unskip = Class.create({
 		initialize: function _init(id) {
 			this.program = util.getProgramById(id);
-			
+
 			this.create();
-			
+
 			return this;
 		},
 		create: function _create() {
@@ -861,7 +861,7 @@
 							color   : '@red',
 							onSelect: function (e, modal) {
 								e.targetButton.disable();
-								
+
 								var dummy = new Ajax.Request('./api/reserves/' + this.program.id + '/unskip.json', {
 									method    : 'put',
 									onComplete: function () {
@@ -870,7 +870,7 @@
 									onSuccess: function () {
 										new flagrate.Modal({
 											title: '成功',
-											text : 'スキップを取り消しました。スケジューラーを実行して競合を確認することをお勧めします'
+											text : 'スキップを取り消しました。'
 										}).show();
 									},
 									onFailure: function (t) {
@@ -891,19 +891,19 @@
 					]
 				});
 			}
-			
+
 			this.modal.show();
-			
+
 			return this;
 		}
 	});
-	
+
 	ui.StopRecord = Class.create({
 		initialize: function _init(id) {
 			this.program = util.getProgramById(id);
-			
+
 			this.create();
-			
+
 			return this;
 		},
 		create: function _create() {
@@ -923,7 +923,7 @@
 							color   : '@red',
 							onSelect: function (e, modal) {
 								e.targetButton.disable();
-								
+
 								var dummy = new Ajax.Request('./api/recording/' + this.program.id + '.json', {
 									method    : 'delete',
 									onComplete: function () {
@@ -953,19 +953,19 @@
 					]
 				});
 			}
-			
+
 			this.modal.show();
-			
+
 			return this;
 		}
 	});
-	
+
 	ui.RemoveRecordedProgram = Class.create({
 		initialize: function _init(id) {
 			this.program = util.getProgramById(id);
-			
+
 			this.create();
-			
+
 			return this;
 		},
 		create: function _create() {
@@ -979,14 +979,14 @@
 					title   : '録画履歴の削除',
 					subtitle: this.program.title + ' #' + this.program.id,
 					text    : '録画履歴を削除すると、システムはこの番組の録画ファイルの場所を見失います。',
-	
+
 					buttons: [
 						{
 							label  : '削除',
 							color  : '@red',
 							onSelect: function (e, modal) {
 								e.targetButton.disable();
-								
+
 								var dummy = new Ajax.Request('./api/recorded/' + this.program.id + '.json', {
 									method    : 'delete',
 									onComplete: function () {
@@ -1016,26 +1016,26 @@
 					]
 				});
 			}
-			
+
 			this.modal.show();
-			
+
 			return this;
 		}
 	});
-	
+
 	ui.DownloadRecordedFile = Class.create({
 		initialize: function _init(id) {
 			window.open('./api/recorded/' + id + '/file.m2ts');
 			return this;
 		}
 	});
-	
+
 	ui.RemoveRecordedFile = Class.create({
 		initialize: function _init(id) {
 			this.program = util.getProgramById(id);
-			
+
 			this.create();
-			
+
 			return this;
 		},
 		create: function _create() {
@@ -1055,7 +1055,7 @@
 							color  : '@red',
 							onSelect: function (e, modal) {
 								e.targetButton.disable();
-								
+
 								var dummy = new Ajax.Request('./api/recorded/' + this.program.id + '/file.json', {
 									method    : 'delete',
 									onComplete: function () {
@@ -1068,13 +1068,13 @@
 										}).show();
 									},
 									onFailure: function (t) {
-										
+
 										var err = t.status;
-										
+
 										if (err === 410) {
 											err += ':既に削除されています';
 										}
-										
+
 										new flagrate.Modal({
 											title: '失敗',
 											text : '録画ファイルの削除に失敗しました (' + err + ')'
@@ -1092,17 +1092,17 @@
 					]
 				});
 			}
-			
+
 			this.modal.show();
-			
+
 			return this;
 		}
 	});
-	
+
 	ui.Cleanup = Class.create({
 		initialize: function _init() {
 			this.create();
-			
+
 			return this;
 		},
 		create: function _create() {
@@ -1115,7 +1115,7 @@
 						color  : '@red',
 						onSelect: function (e, modal) {
 							e.targetButton.disable();
-							
+
 							var dummy = new Ajax.Request('./api/recorded.json', {
 								method    : 'put',
 								onComplete: function () {
@@ -1144,28 +1144,28 @@
 					}
 				]
 			});
-			
+
 			this.modal.show();
-			
+
 			return this;
 		}
 	});
-	
+
 	ui.Streamer = Class.create({
 		initialize: function _init(id) {
-			
+
 			window.location.hash = '!/program/watch/id=' + id + '/';
-			
+
 			return this;
 		}
 	});
-	
+
 	ui.EditRule = Class.create({
 		initialize: function _init(ruleNum) {
 			this.num = ruleNum;
-			
+
 			this.create();
-			
+
 			return this;
 		},
 		create: function _create() {
@@ -1180,9 +1180,9 @@
 				new Ajax.Request('./api/rules/' + num + '.json', {
 					method   : 'get',
 					onSuccess: function (t) {
-						
+
 						var rule = t.responseJSON;
-						
+
 						var form = flagrate.createForm({
 							fields: [
 								{
@@ -1191,7 +1191,7 @@
 									input: {
 										type : 'checkboxes',
 										val  : rule.types,
-										items: ['GR', 'BS', 'CS', 'EX']
+										items: ['GR', 'BS', 'CS', 'SKY']
 									}
 								},
 								{
@@ -1212,7 +1212,7 @@
 									input: {
 										type : formInputTypeChannels,
 										style: { width: '100%' },
-										val  : rule.channels 
+										val  : rule.channels
 									}
 								},
 								{
@@ -1344,7 +1344,7 @@
 								}
 							]
 						});
-						
+
 						var modal = new flagrate.Modal({
 							title: 'ルール編集',
 							element: form.element,
@@ -1354,9 +1354,9 @@
 									color  : '@pink',
 									onSelect: function (e, modal) {
 										e.targetButton.disable();
-										
+
 										var query = form.getResult();
-										
+
 										if (!query.duration.min) {
 											delete query.duration.min;
 										}
@@ -1366,18 +1366,18 @@
 										if (!query.duration.min && !query.duration.max) {
 											delete query.duration;
 										}
-										
+
 										var i;
 										for (i in query) {
 											if (typeof query[i] === 'object' && query[i].length === 0) {
 												delete query[i];
 											}
 										}
-										
+
 										console.log(query);
-										
+
 										var xhr = new XMLHttpRequest();
-										
+
 										xhr.addEventListener('load', function () {
 											if (xhr.status === 200) {
 												flagrate.createModal({
@@ -1392,7 +1392,7 @@
 											}
 											modal.close();
 										});
-										
+
 										xhr.open('PUT', './api/rules/' + num + '.json');
 										xhr.setRequestHeader('Content-Type', 'application/json');
 										xhr.send(JSON.stringify(query));
@@ -1411,16 +1411,16 @@
 					}
 				});
 			}
-			
+
 			return this;
 		}
 	});
-	
+
 	ui.NewRule = Class.create({
 		initialize: function _init() {
-			
+
 			this.create();
-			
+
 			return this;
 		},
 		create: function _create() {
@@ -1428,7 +1428,7 @@
 				var modal = new flagrate.Modal({
 					title: 'エラー',
 					text : '不正なアクセスです。'
-				}).show(); 
+				}).show();
 			} else {
 				var form = flagrate.createForm({
 					fields: [
@@ -1437,7 +1437,7 @@
 							label: 'タイプ',
 							input: {
 								type : 'checkboxes',
-								items: ['GR', 'BS', 'CS', 'EX']
+								items: ['GR', 'BS', 'CS', 'SKY']
 							}
 						},
 						{
@@ -1578,7 +1578,7 @@
 						}
 					]
 				});
-				
+
 				var modal = flagrate.createModal({
 					title: '新規作成',
 					element: form.element,
@@ -1588,7 +1588,7 @@
 							color  : '@pink',
 							onSelect: function(e, modal) {
 								e.targetButton.disable();
-								
+
 								var query = form.getResult();
 
 								if (!query.duration.min) {
@@ -1641,17 +1641,17 @@
 					]
 				}).show();
 			}
-			
+
 			return this;
 		}
 	});
-	
+
 	ui.CreateRuleByProgram = Class.create({
 		initialize: function _init(id) {
 			this.program = util.getProgramById(id);
-			
+
 			this.create();
-			
+
 			return this;
 		},
 		create: function _create() {
@@ -1659,10 +1659,10 @@
 				var modal = new flagrate.Modal({
 					title: 'エラー',
 					text : '不正なアクセスです。'
-				}).show(); 
+				}).show();
 			} else {
 				var program = this.program;
-				
+
 				var form = flagrate.createForm({
 					fields: [
 						{
@@ -1670,7 +1670,7 @@
 							label: 'タイプ',
 							input: {
 								type : 'checkboxes',
-								items: ['GR', 'BS', 'CS', 'EX'],
+								items: ['GR', 'BS', 'CS', 'SKY'],
 								val  : [program.channel.type]
 							}
 						},
@@ -1815,7 +1815,7 @@
 						}
 					]
 				});
-				
+
 				var modal = flagrate.createModal({
 					title: '新規作成',
 					element: form.element,
@@ -1825,7 +1825,7 @@
 							color  : '@pink',
 							onSelect: function(e, modal) {
 								e.targetButton.disable();
-								
+
 								var query = form.getResult();
 
 								if (!query.duration.min) {
@@ -1878,9 +1878,9 @@
 					]
 				}).show();
 			}
-			
+
 			return this;
 		}
 	});
-	
+
 })();
