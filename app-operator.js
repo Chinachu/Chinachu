@@ -142,7 +142,7 @@ setInterval(() => {
 	for (let i = 0, l = reserves.length; i < l; i++) {
 		reservesChecker(reserves[i]);
 	}
-}, 3000);
+}, 1000 * 3);
 
 // 裏ループ
 setInterval(() => {
@@ -152,11 +152,11 @@ setInterval(() => {
 		scheduled = clock;
 	}
 
-	if (clock - stChecked > 1000 * 30) {
+	if (clock - stChecked > 1000 * 20) {
 		storageChecker();
 		stChecked = clock;
 	}
-}, 1000 * 10);
+}, 1000 * 6);
 
 // 予約時間チェック
 function reservesChecker(program) {
@@ -296,12 +296,18 @@ function prepRecord(program) {
 		.then(stream => doRecord(program, stream))
 		.catch(err => {
 
+			if (program._stream) {
+				// 既に録画開始
+				return;
+			}
+
 			util.log("ERROR: " + printProgram(program), err.req.path, err.statusCode, err.statusMessage);
 
+			// リトライ
 			setTimeout(() => {
 				recording.splice(recording.indexOf(program), 1);
 				fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));
-			}, 20000);
+			}, 5000);
 		});
 
 	recording.push(program);
@@ -459,6 +465,7 @@ function storageChecker() {
 
 		const freeMB = info.free / 1024 / 1024;
 		if (freeMB < storageLowSpaceThresholdMB) {
+			stChecked = 0;// すぐに再チェックするため
 			util.log(`ALERT: Storage Low Space! (${freeMB} MB < ${storageLowSpaceThresholdMB} MB)`);
 
 			// 1. 指定コマンド実行
