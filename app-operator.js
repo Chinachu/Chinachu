@@ -301,7 +301,11 @@ function prepRecord(program) {
 				return;
 			}
 
-			util.log("ERROR: " + printProgram(program), err.req.path, err.statusCode, err.statusMessage);
+			if (err.req) {
+				util.log("ERROR: " + printProgram(program), err.req.path, err.statusCode, err.statusMessage);
+			} else {
+				util.log("ERROR: " + printProgram(program), err.address, err.code);
+			}
 
 			// リトライ
 			setTimeout(() => {
