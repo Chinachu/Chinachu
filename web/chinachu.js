@@ -144,7 +144,7 @@
 		app.view.mainHead = new sakura.ui.Container({ className: 'main-head' }).render(app.view.main);
 		app.view.title    = new sakura.ui.Container({ className: 'main-head-title' }).render(app.view.mainHead).insert(app.pm.title);
 		app.view.toolbar  = new sakura.ui.Container({ className: 'main-head-toolbar' }).render(app.view.mainHead).insert(app.pm.toolbar);
-		app.view.mainBody = new sakura.ui.Container({ className: 'main-body container-fluid' }).render(app.view.main).insert(app.pm.content);
+		app.view.mainBody = new sakura.ui.Container({ className: 'main-body' }).render(app.view.main).insert(app.pm.content);
 		app.view.footer   = new sakura.ui.Navbar({ className: 'footer' }).render(app.view.body);
 
 		// ヘッダを作るよ
@@ -161,7 +161,10 @@
 			'<span class="icon-bar"></span>' +
 			'<span class="icon-bar"></span>'
 		).insertTo(navbarHeader);
-		flagrate.createElement("a", { "class": "navbar-brand" }).insert("Chinachu<i>γ</i>").insertTo(navbarHeader);
+		flagrate.createElement("a", {
+			"class": "navbar-brand",
+			href: "#!/dashboard/top/"
+		}).insert("Chinachu<i>γ</i>").insertTo(navbarHeader);
 
 		var navbar = flagrate.createElement("div", { id: "navbar", "class": "navbar-collapse collapse" }).insertTo(app.view.header);
 		var nav = flagrate.createElement("ul", { "class": "nav navbar-nav" }).insertTo(navbar);

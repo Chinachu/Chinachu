@@ -347,7 +347,8 @@ div.middle {
 					margin     : 0;
 					line-height: 22px;
 					font-weight: normal;
-					font-size  : 19px; }
+					font-size  : 19px;
+					white-space: nowrap; }
 
 					div.middle > div.main > div.main-head > div.main-head-title > h1 > span.flag {
 						margin-right  : 4px;
@@ -455,12 +456,12 @@ div.middle {
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button.sakura-button-disabled:hover {
 						background-color: transparent; }
 
-@media screen and (max-width: 880px){
+					@media screen and (max-width: 880px){
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button {
 						font-size  : 11px; }
-}
+					}
 
-@media screen and (max-width: 800px){
+					@media screen and (max-width: 800px){
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button {
 						overflow           : hidden;
 						width              : 0px;
@@ -473,12 +474,12 @@ div.middle {
 						white-space        : nowrap;
 						background-position: 5px center;
 						text-indent        : 0; }
-}
+					}
 
-@media screen and (max-width: 500px){
+					@media screen and (max-width: 500px){
 					div.middle > div.main > div.main-head > div.main-head-toolbar > div.navbar > a.sakura-button-icon {
 						padding-left       : 20px !important; }
-}
+					}
 
 			div.middle > div.main > div.main-head > div.clock {
 				position        : absolute;
@@ -523,7 +524,7 @@ div.middle {
 			left      : 0;
 			background: rgba(0,0,0,0.15); }
 
-			div.middle > div.main > div.main-body > div:not(.row) {
+			div.middle > div.main > div.main-body > div {
 				position: absolute;
 				top     : 0;
 				right   : 0;
@@ -532,29 +533,46 @@ div.middle {
 				overflow: auto;
 				padding : 10px 10px 28px; }
 
+			div.middle > div.main > div.main-body > div.ex {
+				padding : 0 0 28px;
+				background: #fafafa; }
+
 			div.middle > div.main > div.main-body > div.loading {
 				background: no-repeat center center url(./loading-circular-2b2b2b-ffffff.gif); }
 
 			div.middle > div.main > div.main-body > div.failure {
 				background: rgba(255,0,0,0.1); }
 
-				div.middle > div.main > div.main-body > div > div.program-meta {
+				div.middle > div.main > div.main-body div.program-meta {
 					font-size    : 13px;
-					margin-bottom: 15px;
+					margin       : 10px 0 15px;
 					line-height  : 20px;
 					color        : #777; }
 
-					div.middle > div.main > div.main-body > div > div.program-meta > span.dynamic-time.soon {
+					div.middle > div.main > div.main-body div.program-meta > span.dynamic-time.soon {
 						color       : green; }
 
-					div.middle > div.main > div.main-body > div > div.program-meta > span.dynamic-time.now {
+					div.middle > div.main > div.main-body div.program-meta > span.dynamic-time.now {
 						color       : red; }
 
-				div.middle > div.main > div.main-body > div > div.program-detail {
-					font-size    : 16px;
-					margin-bottom: 15px;
-					line-height  : 25px;
+				div.middle > div.main > div.main-body p.program-detail {
+					font-size    : 13px;
 					white-space  : pre-wrap; }
+
+				@media (min-width: 992px) {
+				div.middle > div.main > div.main-body p.program-detail {
+					overflow: auto;
+					height: calc(100vh - 400px); }
+				}
+
+				div.middle > div.main > div.main-body div.ex .row > div > img {
+					margin-top: 10px; }
+
+				@media (min-width: 992px) {
+				div.middle > div.main > div.main-body div.ex .row > div:last-child > img {
+					max-height: calc(100vh / 3 - 80px);
+					float: right; }
+				}
 
 /* footer */
 div.footer {
@@ -1353,3 +1371,41 @@ div.editor {
 
 .hyperform * {
 	box-sizing: initial; }
+
+/* ui:sakura-alert */
+div.sakura-alert {
+	margin-bottom   : 5px;
+	background-color: rgba(0,0,0,0.6);
+	color           : white; }
+
+.ex > div.sakura-alert {
+	margin-bottom: 0; }
+
+div.sakura-alert-white {
+	background-color: #fff;
+	color           : #555; }
+
+div.sakura-alert-info,
+div.sakura-alert-blue {
+	background-color: #6ba0de; }
+
+div.sakura-alert-caution,
+div.sakura-alert-yellow {
+	color           : #555;
+	background-color: #ffe881; }
+
+div.sakura-alert-warning,
+div.sakura-alert-red {
+	background-color: #d9534f; }
+
+div.sakura-alert-success,
+div.sakura-alert-green {
+	background-color: #61d67e; }
+
+	div.sakura-alert > div {
+		padding         : 8px 8px 7px;
+		border          : 2px solid transparent;
+		font-size       : 13px; }
+
+	div.sakura-alert > div:hover {
+		border-color    : transparent; }

@@ -32,8 +32,8 @@ P = Class.create(P, {
 		this.draw();
 
 		return this;
-	}
-	,
+	},
+
 	deinit: function() {
 
 		if (this.notFoundModal) setTimeout(function() { this.notFoundModal.close(); }.bind(this), 0);
@@ -45,15 +45,15 @@ P = Class.create(P, {
 		this.app.view.mainBody.entity.style.backgroundImage = '';
 
 		return this;
-	}
-	,
+	},
+
 	refresh: function() {
 
 		this.app.pm.realizeHash(true);
 
 		return this;
-	}
-	,
+	},
+
 	initToolbar: function _initToolbar() {
 
 		var program = this.program;
@@ -189,15 +189,15 @@ P = Class.create(P, {
 		}
 
 		return this;
-	}
-	,
+	},
+
 	draw: function() {
 
 		console.log(this.program);
 
 		var program = this.program;
 
-		this.view.content.className = 'row';
+		this.view.content.className = 'ex';
 		this.view.content.update();
 
 		var titleHtml = program.flags.invoke('sub', /.+/, '<span class="flag #{0}">#{0}</span>').join('') + program.title;
@@ -225,7 +225,7 @@ P = Class.create(P, {
 			if (program.isSkip) {
 				new sakura.ui.Alert({
 					title       : 'スキップ',
-					type        : 'blue',
+					type        : 'yellow',
 					body        : 'この番組は自動録画予約されましたがスキップするように設定されています',
 					disableClose: true
 				}).render(this.view.content);
@@ -233,14 +233,14 @@ P = Class.create(P, {
 				new sakura.ui.Alert({
 					title       : '競合',
 					type        : 'red',
-					body        : 'この番組は録画予約されていますが、競合のため録画されません',
+					body        : 'この番組は録画予約されていますが競合のため録画できない可能性があります',
 					disableClose: true
 				}).render(this.view.content);
 			} else {
 				new sakura.ui.Alert({
 					title       : '予約済',
 					type        : 'blue',
-					body        : 'この番組は録画予約済みです',
+					body        : 'この番組は録画予約されています',
 					disableClose: true
 				}).render(this.view.content);
 			}
@@ -255,14 +255,13 @@ P = Class.create(P, {
 			}).render(this.view.content);
 		}
 
-		if (program._isRecorded) {
-			new sakura.ui.Alert({
-				title       : '録画済',
-				type        : 'green',
-				body        : program.recorded,
-				disableClose: true
-			}).render(this.view.content);
-		}
+		// create layout grid
+		var container = flagrate.createElement("div", { "class": "container-fluid" }).insertTo(this.view.content);
+		var r1 = flagrate.createElement("div", { "class": "row" }).insertTo(container);
+		var r1L = flagrate.createElement("div", { "class": "col-md-8" }).insertTo(r1);
+		var r1R = flagrate.createElement("div", { "class": "col-md-4" }).insertTo(r1);
+		var r2 = flagrate.createElement("div", { "class": "row" }).insertTo(container);
+		var r2F = flagrate.createElement("div", { "class": "col-md-12" }).insertTo(r2);
 
 		var meta = new flagrate.Element('div', { 'class': 'program-meta' }).update(
 			' &ndash; ' +
@@ -271,7 +270,7 @@ P = Class.create(P, {
 			'<small><span class="bg-cat-' + program.category + '">' + program.category + '</span> / ' + program.channel.type + ': ' +
 			'<a href="#!/search/top/skip=1&chid=' + program.channel.id + '/">' + program.channel.name + '</a>' +
 			'</small>'
-		).insertTo(this.view.content);
+		).insertTo(r1L);
 
 		meta.insert({ top:
 			new chinachu.ui.DynamicTime({
@@ -281,45 +280,50 @@ P = Class.create(P, {
 			}).entity
 		});
 
-		new flagrate.Element('div', { 'class': 'program-detail' }).update(
+		// 番組情報
+		new flagrate.Element('p', { 'class': 'program-detail' }).update(
 			program.detail
-		).insertTo(this.view.content);
+				.stripScripts().escapeHTML()
+				.replace(/(https?:\/\/[\x21-\x7e]+)/gi, function (url) {
+					// リンク
+					return '<a href="' + url + '" target="_blank">' + url + '</a>';
+				})
+				.replace(/(ｈｔｔｐｓ?：／／[\uFF01-\uFF5E]+)/g, function (src) {
+					// 全角を半角に直してリンク
+					var url = src
+						.replace(/(.)/g, function (s) {
+							return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+						})
+						.stripScripts().stripTags();
+					return '<a href="' + url + '" target="_blank">' + src + '</a>';
+				})
+		).insertTo(r1L);
 
 		new sakura.ui.Alert({
 			title       : '完全なタイトル',
 			type        : 'white',
 			body        : program.fullTitle,
 			disableClose: true
-		}).render(this.view.content);
+		}).render(r1L);
 
 		if (program.command) {
 			new sakura.ui.Alert({
-				title       : '録画コマンド',
+				title       : '録画パラメーター',
 				type        : 'white',
 				body        : program.command,
 				disableClose: true
-			}).render(this.view.content);
-		}
-
-		if (program._isRecording) {
-			new sakura.ui.Alert({
-				title       : 'プロセスID',
-				type        : 'white',
-				body        : program.pid,
-				disableClose: true
-			}).render(this.view.content);
-		}
-
-		if (program.tuner) {
-			new sakura.ui.Alert({
-				title       : 'チューナー(番号)',
-				type        : 'white',
-				body        : program.tuner.name + ' (' + program.tuner.n + ')',
-				disableClose: true
-			}).render(this.view.content);
+			}).render(r1L);
 		}
 
 		if (program._isRecorded) {
+			var alertRecorded = new sakura.ui.Alert({
+				title       : '録画済',
+				type        : 'green',
+				body        : program.recorded,
+				disableClose: true
+			});
+			this.view.content.insert({ top: alertRecorded.entity });
+
 			new Ajax.Request('./api/recorded/' + program.id + '/file.json', {
 				method: 'get',
 				onSuccess: function(t) {
@@ -331,19 +335,37 @@ P = Class.create(P, {
 						type        : 'white',
 						body        : (t.responseJSON.size / 1024 / 1024 / 1024 / 1).toFixed(2) + 'GB',
 						disableClose: true
-					}).render(this.view.content);
+					}).render(r1L);
 
+					// 録画済みサムネイル
+					var imgurl = "./api/recorded/" + program.id + "/preview.jpg?width=480&height=270";
+
+					flagrate.createElement("img", {
+						"class": "img-thumbnail img-responsive",
+						src: imgurl + "&pos=3"
+					}).insertTo(r1R);
+
+					flagrate.createElement("img", {
+						"class": "img-thumbnail img-responsive",
+						src: imgurl + "&pos=" + Math.floor(program.seconds / 2)
+					}).insertTo(r1R);
+
+					flagrate.createElement("img", {
+						"class": "img-thumbnail img-responsive",
+						src: imgurl + "&pos=" + (program.seconds - 3)
+					}).insertTo(r1R);
 				}.bind(this),
 				onFailure: function(t) {
 
 					if (this.app.pm.p.id !== this.id) return;
 
 					if (t.status === 410) {
-						new sakura.ui.Alert({
+						var alert = new sakura.ui.Alert({
 							type        : 'red',
 							body        : 'この番組の録画ファイルは移動または削除されています',
 							disableClose: true
-						}).render(this.view.content);
+						});
+						alertRecorded.entity.insert({ after: alert.entity });
 
 						this.view.toolbar.one('remove-file').disable();
 						this.view.toolbar.one('download').disable();
@@ -353,31 +375,65 @@ P = Class.create(P, {
 			});
 		}
 
-		/* if (global.chinachu.status.feature.previewer && program._isRecording) {
-			new Ajax.Request('./api/recording/' + program.id + '/preview.txt', {
-				method    : 'get',
-				parameters: {width: 640, height: 360, nonce: new Date().getTime()},
-				onSuccess : function(t) {
+		if (program._isRecording) {
+			// 録画中サムネイル
+			var imgurl = "./api/recording/" + program.id + "/preview.jpg?width=480&height=270";
 
-					if (this.app.pm.p.id !== this.id) return;
-
-					this.app.view.mainBody.entity.style.backgroundImage = 'url(' + t.responseText + ')';
-				}.bind(this)
-			});
+			flagrate.createElement("img", {
+				"class": "img-thumbnail img-responsive",
+				src: imgurl
+			}).insertTo(r1R);
 		}
 
-		if (global.chinachu.status.feature.previewer && program._isRecorded) {
-			new Ajax.Request('./api/recorded/' + program.id + '/preview.txt', {
-				method    : 'get',
-				parameters: {width: 640, height: 360, pos: 32},
-				onSuccess : function(t) {
+		// pager
+		var nav = flagrate.createElement("nav").insertTo(r2F);
+		var pager = flagrate.createElement("ul", { "class": "pager" }).insertTo(nav);
+		var programs = null;
 
-					if (this.app.pm.p.id !== this.id) return;
+		if (program._isRecorded) {
+			programs = global.chinachu.recorded;
+		} else if (program._isRecording) {
+			programs = global.chinachu.recording;
+		} else if (program._isReserves) {
+			programs = global.chinachu.reserves;
+		}
 
-					this.app.view.mainBody.entity.style.backgroundImage = 'url(' + t.responseText + ')';
-				}.bind(this)
-			});
-		} */
+		if (programs !== null) {
+			var prev = null;
+			var next = null;
+
+			for (var i = 0, l = programs.length; i < l; i++) {
+				if (programs[i].id === program.id) {
+					if (i >= 0) {
+						prev = programs[i - 1];
+					}
+					if (i < l) {
+						next = programs[i + 1];
+					}
+					break;
+				}
+			}
+
+			var prevLi = flagrate.createElement("li", { "class": "previous" }).insertTo(pager);
+			var nextLi = flagrate.createElement("li", { "class": "next" }).insertTo(pager);
+
+			if (prev) {
+				flagrate.createElement("a", {
+					title: prev.fullTitle,
+					href: "#!/program/view/id=" + prev.id + "/"
+				})
+					.insert("<span>&larr;</span> " + prev.title)
+					.insertTo(prevLi);
+			}
+			if (next) {
+				flagrate.createElement("a", {
+					title: next.fullTitle,
+					href: "#!/program/view/id=" + next.id + "/"
+				})
+					.insert(next.title + " <span>&rarr;</span>")
+					.insertTo(nextLi);
+			}
+		}
 
 		return this;
 	}
