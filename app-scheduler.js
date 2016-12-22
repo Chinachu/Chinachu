@@ -522,7 +522,7 @@ function getEpgFromMirakurun(path) {
 					type: service.channel.type,
 					channel: service.channel.channel,
 					name: service.name,
-					id: service.id,
+					id: service.id.toString(32),
 					sid: service.serviceId,
 					nid: service.networkId,
 					hasLogoData: service.hasLogoData
