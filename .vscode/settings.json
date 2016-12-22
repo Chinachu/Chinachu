@@ -3,6 +3,6 @@
     "editor.formatOnType": false,
     "editor.autoClosingBrackets": true,
     "files.trimTrailingWhitespace": true,
-    "git.enabled": true,
+    "git.enabled": false,
     "git.autofetch": false
 }

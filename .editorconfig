@@ -9,7 +9,7 @@ indent_style = space
 indent_size = 4
 insert_final_newline = false
 
-[*.{js,css}]
+[*.{js,css,html}]
 indent_style = tab
 
 [*.{yml,json,sh}]
