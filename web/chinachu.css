@@ -695,6 +695,9 @@ div.flagrate-grid td.types,
 div.flagrate-grid td.categories {
 	text-overflow: unset; }
 
+div.flagrate-toolbar > div.flagrate-progress {
+	margin: 0 0 0 5px; }
+
 /* page */
 
 div.dashboard-timelist {
@@ -1364,7 +1367,7 @@ div.video-control {
 	right           : 0;
 	bottom          : 0;
 	left            : 0;
-	padding         : 10px 20px 10px;
+	padding         : 8px 20px 8px;
 	text-align      : center; }
 
 	div.video-control .seek {

@@ -124,7 +124,7 @@ function main(avinfo) {
 				tsize -= bitrate / 8 * (parseInt(d.ss, 10) - 2);
 			}
 			tsize = Math.floor(tsize);
-			
+
 			if (request.query.mode == 'download') {
 				var pi = path.parse(program.recorded);
 				response.setHeader('Content-disposition', 'attachment; filename*=UTF-8\'\'' + encodeURIComponent(pi.name + '.' + request.query.ext));
@@ -168,17 +168,17 @@ function main(avinfo) {
 
 			switch (request.type) {
 				case 'm2ts':
-					d.f      = 'mpegts';
+					d.f = 'mpegts';
 					break;
 				case 'mp4':
-					d.f      = 'mp4';
-					d['c:v'] = d['c:v'] || 'libx264';
+					d.f = 'mp4';
+					d['c:v'] = d['c:v'] || 'h264';
 					d['c:a'] = d['c:a'] || 'aac';
 					break;
 				case 'webm':
-					d.f      = 'webm';
-					d['c:v'] = d['c:v'] || 'libvpx';
-					d['c:a'] = d['c:a'] || 'libvorbis';
+					d.f = 'webm';
+					d['c:v'] = d['c:v'] || 'vp9';
+					d['c:a'] = null;
 					break;
 			}
 
@@ -192,7 +192,7 @@ function main(avinfo) {
 
 			if (d.t) { args.push('-t', d.t); }
 
-			args.push('-threads', 'auto');
+			args.push('-threads', '0');
 
 			if (d['c:v']) args.push('-c:v', d['c:v']);
 			if (d['c:a']) args.push('-c:a', d['c:a']);
@@ -212,14 +212,15 @@ function main(avinfo) {
 				args.push('-bufsize:a', audioBitrate * 8);
 			}
 
-			if (d['c:v'] === 'libx264') {
+			if (d['c:v'] === 'h264') {
 				args.push('-profile:v', 'baseline');
 				args.push('-preset', 'ultrafast');
 				args.push('-tune', 'fastdecode,zerolatency');
 			}
-			if (d['c:v'] === 'libvpx') {
+			if (d['c:v'] === 'vp9') {
 				args.push('-deadline', 'realtime');
-				args.push('-cpu-used', '-16');
+				args.push('-speed', '4');
+				args.push('-cpu-used', '-8');
 			}
 
 			if (d.f === 'mp4') {
