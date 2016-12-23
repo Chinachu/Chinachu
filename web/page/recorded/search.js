@@ -1,34 +1,34 @@
 P = Class.create(P, {
-	
+
 	init: function() {
-		
+
 		this.view.content.className = 'loading';
-		
+
 		this.initToolbar();
 		this.draw();
-		
+
 		this.onNotify = this.refresh.bindAsEventListener(this);
 		document.observe('chinachu:recorded', this.onNotify);
-		
+
 		return this;
 	}
 	,
 	deinit: function() {
-		
+
 		document.stopObserving('chinachu:recorded', this.onNotify);
-		
+
 		return this;
 	}
 	,
 	refresh: function() {
-		
+
 		this.app.pm.realizeHash(true);
-		
+
 		return this;
 	}
 	,
 	initToolbar: function _initToolbar() {
-		
+
 		this.view.toolbar.add({
 			key: 'search',
 			ui : new sakura.ui.Button({
@@ -37,17 +37,15 @@ P = Class.create(P, {
 				onClick: this.viewSearchModal.bind(this)
 			})
 		});
-		
+
 		return this;
 	}
 	,
 	draw: function() {
-		
+
 		this.view.content.className = '';
 		this.view.content.update();
-		
-		
-		
+
 		this.grid = new flagrate.Grid({
 			multiSelect  : false,
 			disableSelect: true,
@@ -62,15 +60,15 @@ P = Class.create(P, {
 					disableResize: true
 				},
 				{
+					key  : 'channel',
+					label: 'チャンネル',
+					width: 140
+				},
+				{
 					key  : 'category',
 					label: 'ジャンル',
 					width: 70,
 					align: 'center',
-				},
-				{
-					key  : 'channel',
-					label: 'ch',
-					width: 140
 				},
 				{
 					key  : 'title',
@@ -84,30 +82,29 @@ P = Class.create(P, {
 				{
 					key  : 'duration',
 					label: '長さ',
-					width: 50,
-					align: 'center',
+					width: 60
 				}
 			],
 			onClick: function(e, row) {
 				window.location.href = '#!/program/view/id=' + row.data.id + '/';
 			}.bind(this)
 		}).insertTo(this.view.content);
-		
+
 		if (!this.self.query.skip) {
 			this.viewSearchModal();
 		} else {
 			this.drawMain();
 		}
-		
+
 		return this;
 	}
 	,
 	drawMain: function() {
-		
+
 		var rows = [];
-		
+
 		var programs = [];
-		
+
 		var program;
 
 		// 正規化方法
@@ -129,11 +126,11 @@ P = Class.create(P, {
 
 		for (var i = 0, l = global.chinachu.recorded.length; i < l; i++) {
 			program = global.chinachu.recorded[i];
-			
-			if (this.self.query.pgid && this.self.query.pgid !== program.id) continue; 
-			if (this.self.query.chid && this.self.query.chid !== program.channel.id) continue; 
-			if (this.self.query.cat && this.self.query.cat !== program.category) continue; 
-			if (this.self.query.type && this.self.query.type !== program.channel.type) continue; 
+
+			if (this.self.query.pgid && this.self.query.pgid !== program.id) continue;
+			if (this.self.query.chid && this.self.query.chid !== program.channel.id) continue;
+			if (this.self.query.cat && this.self.query.cat !== program.category) continue;
+			if (this.self.query.type && this.self.query.type !== program.channel.type) continue;
 			if (nf) {
 				if (this.self.query.title && program.title.normalize(nf).match(query_title_norm) === null) continue;
 				if (this.self.query.desc && (!program.detail || program.detail.normalize(nf).match(query_desc_norm) === null)) continue;
@@ -142,34 +139,34 @@ P = Class.create(P, {
 				if (this.self.query.title && program.title.match(this.self.query.title) === null) continue;
 				if (this.self.query.desc && (!program.detail || program.detail.match(this.self.query.desc) === null)) continue;
 			}
-			
+
 			if (this.self.query.start || this.self.query.end) {
 				var ruleStart = parseInt(this.self.query.start || 0, 10);
 				var ruleEnd   = parseInt(this.self.query.end || 24, 10);
-				
+
 				var progStart = new Date(program.start).getHours();
 				var progEnd   = new Date(program.end).getHours();
-				
+
 				if (progStart > progEnd) {
 					progEnd += 24;
 				}
-				
+
 				if (ruleStart > ruleEnd) {
 					if ((ruleStart > progStart) && (ruleEnd < progEnd)) continue;
 				} else {
 					if ((ruleStart > progStart) || (ruleEnd < progEnd)) continue;
 				}
 			}
-			
+
 			programs.push(program);
 		}
-		
+
 		programs.sort(function(a, b) {
 			return a.start - b.start;
 		});
-		
+
 		programs.each(function(program, i) {
-			
+
 			var row = {
 				data: program,
 				cell: {
@@ -194,7 +191,7 @@ P = Class.create(P, {
 						onSelect: function() {
 							var left = (screen.width - 640) / 2;
 							var top  = (screen.height - 265) / 2;
-							
+
 							var tweetWindow = window.open(
 								'https://twitter.com/share?url=&text=' + encodeURIComponent(chinachu.util.scotify(program)),
 								'chinachu-tweet-' + program.id,
@@ -251,19 +248,19 @@ P = Class.create(P, {
 					}
 				]
 			};
-			
+
 			row.cell.type = {
 				sortAlt  : program.channel.type,
 				className: 'types',
-				html     : '<span class="' + program.channel.type + '">' + program.channel.type + '</span>'
+				html     : '<span class="label-type-' + program.channel.type + '">' + program.channel.type + '</span>'
 			};
-			
+
 			row.cell.category = {
 				sortAlt    : program.category,
 				className  : 'categories',
-				html       : '<span class="bg-cat-' + program.category + '">' + program.category + '</span>'
+				html       : '<span class="label-cat-' + program.category + '">' + program.category + '</span>'
 			};
-			
+
 			row.cell.channel = {
 				sortAlt    : program.channel.id,
 				text       : program.channel.name,
@@ -271,13 +268,13 @@ P = Class.create(P, {
 					title: program.channel.id
 				}
 			};
-			
+
 			var titleHtml = program.flags.invoke('sub', /.+/, '<span class="flag #{0}">#{0}</span>').join('') + program.title;
 			if (typeof program.episode !== 'undefined' && program.episode !== null) {
 				titleHtml += '<span class="episode">#' + program.episode + '</span>';
 			}
 			titleHtml += '<span class="id">#' + program.id + '</span>';
-			
+
 			row.cell.title = {
 				sortAlt    : program.title + (program.episode || 0).toString(36),
 				html       : titleHtml,
@@ -285,27 +282,27 @@ P = Class.create(P, {
 					title: program.detail
 				}
 			};
-			
+
 			row.cell.duration = {
 				sortAlt    : program.seconds,
 				text       : program.seconds / 60 + 'm'
 			};
-			
+
 			row.cell.datetime = {
 				sortAlt    : program.start,
 				text       : chinachu.dateToString(new Date(program.start))
 			};
-			
+
 			rows.push(row);
 		});
-		
+
 		this.grid.splice(0, null, rows);
-		
+
 		return this;
 	}
 	,
 	viewSearchModal: function() {
-		
+
 		var modal = new flagrate.Modal({
 			title  : '録画番組検索',
 			buttons: [
@@ -314,21 +311,21 @@ P = Class.create(P, {
 					color   : '@pink',
 					onSelect: function(e, modal) {
 						e.targetButton.disable();
-						
+
 						var result = viewSearchForm.result();
-						
+
 						this.self.query = Object.extend(this.self.query, result);
 						this.self.query.skip = 1;
-						
+
 						modal.close();
-						
+
 						window.location.hash = '!/recorded/search/' + Object.toQueryString(this.self.query) + '/';
 						//todo
 					}.bind(this)
 				}
 			]
 		}).show();
-		
+
 		var viewSearchForm = new Hyperform({
 			formWidth  : '100%',
 			labelWidth : '100px',
@@ -435,7 +432,7 @@ P = Class.create(P, {
 				}
 			]
 		}).render(modal.content);
-		
+
 		return this;
 	}
 });

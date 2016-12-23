@@ -1,9 +1,9 @@
 P = Class.create(P, {
-	
+
 	init: function() {
-		
+
 		this.view.content.className = 'loading';
-		
+
 		// Firefox あかん https://bugzilla.mozilla.org/show_bug.cgi?id=378962
 		if (/^[%A-Z0-9\.]+$/.test(this.self.query.title) === true) {
 			this.self.query.title = decodeURIComponent(this.self.query.title || '');
@@ -11,32 +11,32 @@ P = Class.create(P, {
 		if (/^[%A-Z0-9\.]+$/.test(this.self.query.desc) === true) {
 			this.self.query.desc = decodeURIComponent(this.self.query.desc || '');
 		}
-		
+
 		this.initToolbar();
 		this.draw();
-		
+
 		this.onNotify = this.refresh.bindAsEventListener(this);
 		document.observe('chinachu:schedule', this.onNotify);
-		
+
 		return this;
 	}
 	,
 	deinit: function() {
-		
+
 		document.stopObserving('chinachu:schedule', this.onNotify);
-		
+
 		return this;
 	}
 	,
 	refresh: function() {
-		
+
 		this.app.pm.realizeHash(true);
-		
+
 		return this;
 	}
 	,
 	initToolbar: function _initToolbar() {
-		
+
 		this.view.toolbar.add({
 			key: 'search',
 			ui : new sakura.ui.Button({
@@ -45,17 +45,15 @@ P = Class.create(P, {
 				onClick: this.viewSearchModal.bind(this)
 			})
 		});
-		
+
 		return this;
 	}
 	,
 	draw: function() {
-		
+
 		this.view.content.className = '';
 		this.view.content.update();
-		
-		
-		
+
 		this.grid = new flagrate.Grid({
 			multiSelect  : false,
 			disableSelect: true,
@@ -70,15 +68,15 @@ P = Class.create(P, {
 					disableResize: true
 				},
 				{
+					key  : 'channel',
+					label: 'チャンネル',
+					width: 140
+				},
+				{
 					key  : 'category',
 					label: 'ジャンル',
 					width: 70,
 					align: 'center',
-				},
-				{
-					key  : 'channel',
-					label: 'ch',
-					width: 140
 				},
 				{
 					key  : 'title',
@@ -92,17 +90,16 @@ P = Class.create(P, {
 				{
 					key  : 'duration',
 					label: '長さ',
-					width: 50,
-					align: 'center',
+					width: 60
 				}
 			],
 			onClick: function(e, row) {
 				window.location.href = '#!/program/view/id=' + row.data.id + '/';
 			},
 			onRendered: function() {
-				
-				this.self.query.page = this.grid.pagePosition;
-				
+
+				this.self.query.page = this.grid._pagePosition;
+
 				if (Prototype.Browser.Gecko) {
 					if (/^[%A-Z0-9]+$/.test(this.self.query.title) === false) {
 						this.self.query.title = encodeURIComponent(this.self.query.title);
@@ -110,7 +107,7 @@ P = Class.create(P, {
 					if (/^[%A-Z0-9]+$/.test(this.self.query.desc) === false) {
 						this.self.query.desc = encodeURIComponent(this.self.query.desc);
 					}
-					
+
 					location.hash = '!/search/top/' + Object.toQueryString(this.self.query) + '/';
 					this.app.pm._lastHash = location.hash.match(/^#(.+)$/)[1];
 				} else {
@@ -119,28 +116,28 @@ P = Class.create(P, {
 				}
 			}.bind(this)
 		}).insertTo(this.view.content);
-		
+
 		if (this.self.query.page) {
-			this.grid.pagePosition = parseInt(this.self.query.page, 10);
+			this.grid._pagePosition = parseInt(this.self.query.page, 10);
 		}
-		
+
 		if (!this.self.query.skip) {
 			this.viewSearchModal();
 		} else {
 			this.drawMain();
 		}
-		
+
 		return this;
 	}
 	,
 	drawMain: function() {
-		
+
 		var time = new Date().getTime();
-		
+
 		var rows = [];
-		
+
 		var programs = [];
-		
+
 		var program;
 
 		// 正規化方法
@@ -163,9 +160,9 @@ P = Class.create(P, {
 		for (var i = 0, l = global.chinachu.schedule.length; i < l; i++) {
 			for (var j = 0, m = global.chinachu.schedule[i].programs.length; j < m; j++) {
 				program = global.chinachu.schedule[i].programs[j];
-				
+
 				if (program.end < time) continue;
-				
+
 				if (this.self.query.pgid && this.self.query.pgid !== program.id) continue;
 				if (this.self.query.chid && this.self.query.chid !== program.channel.id) continue;
 				if (this.self.query.cat && this.self.query.cat !== program.category) continue;
@@ -178,35 +175,35 @@ P = Class.create(P, {
 					if (this.self.query.title && program.fullTitle.match(this.self.query.title) === null) continue;
 					if (this.self.query.desc && (!program.detail || program.detail.match(this.self.query.desc) === null)) continue;
 				}
-				
+
 				if (this.self.query.start || this.self.query.end) {
 					var ruleStart = parseInt(this.self.query.start || 0, 10);
 					var ruleEnd   = parseInt(this.self.query.end || 24, 10);
-					
+
 					var progStart = new Date(program.start).getHours();
 					var progEnd   = new Date(program.end).getHours();
-					
+
 					if (progStart > progEnd) {
 						progEnd += 24;
 					}
-					
+
 					if (ruleStart > ruleEnd) {
 						if ((ruleStart > progStart) && (ruleEnd < progEnd)) continue;
 					} else {
 						if ((ruleStart > progStart) || (ruleEnd < progEnd)) continue;
 					}
 				}
-				
+
 				programs.push(program);
 			}
 		}
-		
+
 		programs.sort(function(a, b) {
 			return a.start - b.start;
 		});
-		
+
 		programs.each(function(program, i) {
-			
+
 			var row = {
 				data: program,
 				cell: {
@@ -239,7 +236,7 @@ P = Class.create(P, {
 						onSelect: function() {
 							var left = (screen.width - 640) / 2;
 							var top  = (screen.height - 265) / 2;
-							
+
 							var tweetWindow = window.open(
 								'https://twitter.com/share?url=&text=' + encodeURIComponent(chinachu.util.scotify(program)),
 								'chinachu-tweet-' + program.id,
@@ -296,19 +293,19 @@ P = Class.create(P, {
 					}
 				]
 			};
-			
+
 			row.cell.type = {
 				sortAlt  : program.channel.type,
 				className: 'types',
-				html     : '<span class="' + program.channel.type + '">' + program.channel.type + '</span>'
+				html     : '<span class="label-type-' + program.channel.type + '">' + program.channel.type + '</span>'
 			};
-			
+
 			row.cell.category = {
 				sortAlt    : program.category,
 				className  : 'categories',
-				html       : '<span class="bg-cat-' + program.category + '">' + program.category + '</span>'
+				html       : '<span class="label-cat-' + program.category + '">' + program.category + '</span>'
 			};
-			
+
 			row.cell.channel = {
 				sortAlt    : program.channel.id,
 				text       : program.channel.name,
@@ -316,7 +313,7 @@ P = Class.create(P, {
 					title: program.channel.id
 				}
 			};
-			
+
 			var titleHtml = program.flags.invoke('sub', /.+/, '<span class="flag #{0}">#{0}</span>').join('') + program.title;
 			if (program.subTitle && program.title.indexOf(program.subTitle) === -1) {
 				titleHtml += '<span class="subtitle">' + program.subTitle + '</span>';
@@ -325,7 +322,7 @@ P = Class.create(P, {
 				titleHtml += '<span class="episode">#' + program.episode + '</span>';
 			}
 			titleHtml += '<span class="id">#' + program.id + '</span>';
-			
+
 			row.cell.title = {
 				sortAlt    : program.title,
 				html       : titleHtml,
@@ -333,27 +330,27 @@ P = Class.create(P, {
 					title: program.fullTitle + ' - ' + program.detail
 				}
 			};
-			
+
 			row.cell.duration = {
 				sortAlt    : program.seconds,
 				text       : program.seconds / 60 + 'm'
 			};
-			
+
 			row.cell.datetime = {
 				sortAlt    : program.start,
 				text       : chinachu.dateToString(new Date(program.start))
 			};
-			
+
 			rows.push(row);
 		});
-		
+
 		this.grid.splice(0, void 0, rows);
-		
+
 		return this;
 	}
 	,
 	viewSearchModal: function() {
-		
+
 		// Firefox あかん https://bugzilla.mozilla.org/show_bug.cgi?id=378962
 		if (/^[%A-Z0-9\.]+$/.test(this.self.query.title) === true) {
 			this.self.query.title = decodeURIComponent(this.self.query.title || '');
@@ -361,7 +358,7 @@ P = Class.create(P, {
 		if (/^[%A-Z0-9\.]+$/.test(this.self.query.desc) === true) {
 			this.self.query.desc = decodeURIComponent(this.self.query.desc || '');
 		}
-		
+
 		var modal = new flagrate.Modal({
 			title  : '番組検索',
 			buttons: [
@@ -370,25 +367,25 @@ P = Class.create(P, {
 					color   : '@pink',
 					onSelect: function(e, modal) {
 						e.targetButton.disable();
-						
+
 						var result = viewSearchForm.result();
-						
+
 						result.title = encodeURIComponent(result.title);
 						result.desc = encodeURIComponent(result.desc);
-						
+
 						this.self.query = Object.extend(this.self.query, result);
 						this.self.query.skip = 1;
 						this.self.query.page = 0;
-						
+
 						modal.close();
-						
+
 						window.location.hash = '!/search/top/' + Object.toQueryString(this.self.query) + '/';
 						//todo
 					}.bind(this)
 				}
 			]
 		}).show();
-		
+
 		var viewSearchForm = new Hyperform({
 			formWidth  : '100%',
 			labelWidth : '100px',
@@ -495,7 +492,7 @@ P = Class.create(P, {
 				}
 			]
 		}).render(modal.content);
-		
+
 		return this;
 	}
 });

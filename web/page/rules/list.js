@@ -1,34 +1,34 @@
 P = Class.create(P, {
-	
+
 	init: function() {
-		
+
 		this.view.content.className = 'loading';
-		
+
 		this.initToolbar();
 		this.draw();
-		
+
 		this.onNotify = this.refresh.bindAsEventListener(this);
 		document.observe('chinachu:rules', this.onNotify);
-		
+
 		return this;
 	}
 	,
 	deinit: function() {
-		
+
 		document.stopObserving('chinachu:rules', this.onNotify);
-		
+
 		return this;
 	}
 	,
 	refresh: function() {
-		
+
 		this.drawMain();
-		
+
 		return this;
 	}
 	,
 	initToolbar: function _initToolbar() {
-		
+
 		this.view.toolbar.add({
 			key: 'execute-scheduler',
 			ui : new sakura.ui.Button({
@@ -39,9 +39,9 @@ P = Class.create(P, {
 				}.bind(this)
 			})
 		});
-		
+
 		this.view.toolbar.add({ key: '--', ui: new sakura.ui.Element({ tagName: 'hr' }) });
-		
+
 		this.view.toolbar.add({
 			key: 'add',
 			ui : new sakura.ui.Button({
@@ -52,7 +52,7 @@ P = Class.create(P, {
 				}.bind(this)
 			})
 		});
-		
+
 		this.view.toolbar.add({
 			key: 'edit',
 			ui : new sakura.ui.Button({
@@ -63,7 +63,7 @@ P = Class.create(P, {
 				}.bind(this)
 			}).disable()
 		});
-		
+
 		/*this.view.toolbar.add({
 			key: 'copy',
 			ui : new sakura.ui.Button({
@@ -75,14 +75,14 @@ P = Class.create(P, {
 				}.bind(this)
 			}).disable()
 		});*/
-		
+
 		this.view.toolbar.add({
 			key: 'delete',
 			ui : new sakura.ui.Button({
 				label  : 'DELETE'.__(),
 				icon   : './icons/cross-script.png',
 				onClick: function() {
-					
+
 					var selected = this.grid.getSelectedRows();
 					var nums = [];
 					selected.each(function(row) {
@@ -91,7 +91,7 @@ P = Class.create(P, {
 					nums.sort(function (a, b) {
 						return a - b;
 					});
-					
+
 					var modal  = new flagrate.Modal({
 						title: 'ルール削除',
 						text : 'これらの ' + selected.length + ' ルールを削除します',
@@ -100,11 +100,11 @@ P = Class.create(P, {
 								label: '削除',
 								color: '@red',
 								onSelect: function(e, modal) {
-									
+
 									modal.buttons.each(function(a) {
 										a.button.disable();
 									});
-									
+
 									main();
 								}
 							},
@@ -116,32 +116,32 @@ P = Class.create(P, {
 							}
 						]
 					}).show();
-					
+
 					var main = function() {
-						
+
 						document.stopObserving('chinachu:rules', main);
-						
+
 						if (nums.length === 0) {
 							modal.close();
 							return;
 						}
-						
+
 						var num  = nums.pop();
 						console.log(num, nums);
-						
+
 						modal.content.updateText('ルール#' + num.toString(10) + ' を削除しています...');
-						
+
 						new Ajax.Request('./api/rules/' + num.toString(10) + '.json', {
 							method    : 'delete',
 							onComplete: function() {
 								document.observe('chinachu:rules', main);
 							},
 							onSuccess: function() {
-								
+
 								modal.content.updateText('ルール#' + num.toString(10) + ' を削除しました');
 							},
 							onFailure: function(t) {
-								
+
 								new flagrate.Modal({
 									title: '失敗',
 									text : 'ルール#' + num.toString(10) + ' の削除に失敗しました (' + t.status + ')'
@@ -152,16 +152,16 @@ P = Class.create(P, {
 				}.bind(this)
 			}).disable()
 		});
-		
+
 		return this;
 	}
 	,
 	updateToolbar: function() {
-		
+
 		if (!this.grid) return;
-		
+
 		var selected = this.grid.getSelectedRows();
-		
+
 		if (selected.length === 0) {
 			this.view.toolbar.one('edit').disable();
 			//this.view.toolbar.one('copy').disable();
@@ -177,10 +177,10 @@ P = Class.create(P, {
 	}
 	,
 	draw: function() {
-		
+
 		this.view.content.className = '';
 		this.view.content.update();
-		
+
 		this.grid = new flagrate.Grid({
 			multiSelect: true,
 			pagination : true,
@@ -259,18 +259,18 @@ P = Class.create(P, {
 				new chinachu.ui.EditRule(global.chinachu.rules.indexOf(row.data));
 			}.bind(this)
 		}).insertTo(this.view.content);
-		
+
 		this.drawMain();
-		
+
 		return this;
 	}
 	,
 	drawMain: function() {
-		
+
 		var rows = [];
-		
+
 		global.chinachu.rules.each(function(rule, i) {
-			
+
 			var row = {
 				data: rule,
 				cell: {
@@ -280,14 +280,14 @@ P = Class.create(P, {
 					}
 				}
 			};
-			
+
 			if (rule.isDisabled) row.className = 'disabled';
-			
+
 			if (rule.types) {
 				row.cell.types = {
 					sortKey  : rule.types[0],
 					className: 'types',
-					html     : rule.types.invoke('sub', /^(.{1}).*$/, '<span class="#{0}">#{1}</span>').join('')
+					html     : rule.types.invoke('sub', /^(.{1}).*$/, '<span class="label-type-#{0}">#{1}</span>').join('')
 				};
 			} else {
 				row.cell.types = {
@@ -296,12 +296,12 @@ P = Class.create(P, {
 					text     : 'any'
 				};
 			}
-			
+
 			if (rule.categories) {
 				row.cell.categories = {
 					sortKey    : rule.categories[0],
 					className  : 'categories',
-					html       : rule.categories.invoke('sub', /.+/, '<span class="bg-cat-#{0}">#{0}</span>').join(''),
+					html       : rule.categories.invoke('sub', /.+/, '<span class="label-cat-#{0}">#{0}</span>').join(''),
 					attribute  : { title: rule.categories.join(', ').truncate(256) }
 				};
 			} else {
@@ -311,7 +311,7 @@ P = Class.create(P, {
 					text     : 'any'
 				};
 			}
-			
+
 			if (rule.channels) {
 				row.cell.channels = {
 					text       : rule.channels.join(', '),
@@ -324,7 +324,7 @@ P = Class.create(P, {
 					text     : 'any'
 				};
 			}
-			
+
 			if (rule.ignore_channels) {
 				row.cell.ignore_channels = {
 					text       : rule.ignore_channels.join(', '),
@@ -337,7 +337,7 @@ P = Class.create(P, {
 					text     : 'none'
 				};
 			}
-			
+
 			if (rule.reserve_flags) {
 				row.cell.reserve_flags = {
 					text       : rule.reserve_flags.join(', '),
@@ -350,7 +350,7 @@ P = Class.create(P, {
 					text     : 'any'
 				};
 			}
-			
+
 			if (rule.ignore_flags) {
 				row.cell.ignore_flags = {
 					text       : rule.ignore_flags.join(', '),
@@ -363,7 +363,7 @@ P = Class.create(P, {
 					text     : 'none'
 				};
 			}
-			
+
 			if (rule.hour) {
 				row.cell.hour = {
 					sortKey  : rule.hour.start || 0,
@@ -376,7 +376,7 @@ P = Class.create(P, {
 					text     : 'all'
 				};
 			}
-			
+
 			if (rule.duration) {
 				row.cell.duration = {
 					sortKey  : rule.duration.min || 0,
@@ -392,7 +392,7 @@ P = Class.create(P, {
 					text     : 'all'
 				};
 			}
-			
+
 			if (rule.reserve_titles) {
 				row.cell.reserve_titles = {
 					text       : rule.reserve_titles.join(', '),
@@ -405,7 +405,7 @@ P = Class.create(P, {
 					text     : 'any'
 				};
 			}
-			
+
 			if (rule.ignore_titles) {
 				row.cell.ignore_titles = {
 					text       : rule.ignore_titles.join(', '),
@@ -418,7 +418,7 @@ P = Class.create(P, {
 					text     : 'none'
 				};
 			}
-			
+
 			if (rule.reserve_descriptions) {
 				row.cell.reserve_descriptions = {
 					text       : rule.reserve_descriptions.join(', '),
@@ -431,7 +431,7 @@ P = Class.create(P, {
 					text     : 'any'
 				};
 			}
-			
+
 			if (rule.ignore_descriptions) {
 				row.cell.ignore_descriptions = {
 					text       : rule.ignore_descriptions.join(', '),
@@ -457,14 +457,14 @@ P = Class.create(P, {
 					text     : 'default'
 				};
 			}
-			
+
 			rows.push(row);
 		});
-		
+
 		this.grid.splice(0, void 0, rows).each(function(row) {
 			this.grid.deselect(row);
 		}.bind(this));
-		
+
 		return this;
 	}
 });

@@ -591,7 +591,7 @@ function mirakurunProgramsToLegacyPrograms(ch, programs) {
 
 			const ret = {
 				id: program.id.toString(36),
-				category: program.genres && genreTable[program.genres[0].lv1],
+				category: program.genres ? genreTable[program.genres[0].lv1] : "etc",
 				title: program.name || "",
 				fullTitle: program.name || "",
 				detail: program.description || "",

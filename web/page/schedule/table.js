@@ -1,5 +1,3 @@
-/*jslint browser:true, vars:true, plusplus:true, nomen:true, continue:true, regexp:true, evil:true, white:true */
-/*global P:true, Prototype, Class, sakura, flagrate, $break, Ajax, $, $$, chinachu, global, dateFormat */
 (function () {
 	'use strict';
 
@@ -16,6 +14,7 @@
 
 			this.onNotify = this.refresh.bindAsEventListener(this);
 			document.observe('chinachu:schedule', this.onNotify);
+			document.observe('chinachu:reserves', this.onNotify);
 
 			return this;
 		},
@@ -23,6 +22,7 @@
 		deinit: function () {
 
 			document.stopObserving('chinachu:schedule', this.onNotify);
+			document.stopObserving('chinachu:reserves', this.onNotify);
 
 			this.tick = flagrate.emptyFunction;
 			this.draw = flagrate.emptyFunction;
@@ -221,8 +221,8 @@
 										type : 'checkboxes',
 										val  : JSON.parse(localStorage.getItem('schedule.visible.categories') || '["anime", "information", "news", "sports", "variety", "drama", "music", "cinema", "etc"]'),
 										items: [
-											'anime', 'information', 'news', 'sports',
-											'variety', 'drama', 'music', 'cinema', 'etc'
+											'anime', 'information', 'news', 'sports', 'variety', 'documentary',
+											'drama', 'music', 'cinema', 'theater', 'hobby', 'welfare', 'etc'
 										]
 									}
 								},
@@ -234,8 +234,8 @@
 										type : 'checkboxes',
 										val  : JSON.parse(localStorage.getItem('schedule.notify.categories') || '[]'),
 										items: [
-											'anime', 'information', 'news', 'sports',
-											'variety', 'drama', 'music', 'cinema', 'etc'
+											'anime', 'information', 'news', 'sports', 'variety', 'documentary',
+											'drama', 'music', 'cinema', 'theater', 'hobby', 'welfare', 'etc'
 										]
 									}
 								},
@@ -569,8 +569,8 @@
 
 				this.view.drawerBody.update();
 
-				this.view.drawerBody.insert('<div class="title"><span class="bg-cat-' + this.data.target.category + '">' + this.data.target.category + '</span>' + this.data.target.title + '</div>');
-				this.view.drawerBody.insert('<div class="detail">' + (this.data.target.detail || '') + '</div>');
+				this.view.drawerBody.insert('<div class="title"><span class="label-cat-' + this.data.target.category + '">' + this.data.target.category + '</span> ' + this.data.target.title + '</div>');
+				this.view.drawerBody.insert('<div class="detail">' + (this.data.target.detail || '').truncate(100) + '</div>');
 				this.view.drawerBody.insert('<div class="id">' + this.data.target.id + '</div>');
 
 				this.view.drawerFoot.update(
@@ -865,7 +865,7 @@
 								a.program.flags.invoke('sub', /.+/, '<span rel="' + a.id+ '" class="#{0}">#{0}</span>').join('')
 							)
 						).insert(
-							flagrate.createElement('span').insertText(a.program.detail)
+							flagrate.createElement('span').insertText(a.program.detail.truncate(200))
 						).insertTo(a._rect);
 
 						a._rect.title = a.program.fullTitle;

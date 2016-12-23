@@ -267,8 +267,9 @@ P = Class.create(P, {
 			' &ndash; ' +
 			dateFormat(new Date(program.end), 'HH:MM') +
 			' (' + (program.seconds / 60) + '分間)<br>' +
-			'<small><span class="bg-cat-' + program.category + '">' + program.category + '</span> / ' + program.channel.type + ': ' +
-			'<a href="#!/search/top/skip=1&chid=' + program.channel.id + '/">' + program.channel.name + '</a>' +
+			'<small><span class="label label-cat-' + program.category + '">' + program.category + '</span> ' +
+			'<span class="label label-type-' + program.channel.type + '">' + program.channel.type + ': ' +
+			'<a href="#!/search/top/skip=1&chid=' + program.channel.id + '/">' + program.channel.name + '</a></span>' +
 			'</small>'
 		).insertTo(r1L);
 
