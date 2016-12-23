@@ -209,6 +209,7 @@ P = Class.create(P, {
 				}.bind(this)
 			});
 		}
+
 		var modal = this.modal = new flagrate.Modal({
 			disableCloseByMask: true,
 			disableCloseButton: true,
@@ -223,13 +224,13 @@ P = Class.create(P, {
 			label     : 'M2TS',
 			value     : 'm2ts'
 		});
-
-		exts.push({
-			label     : 'MP4',
-			value     : 'mp4'
-		});
-
-		if (/Trident/.test(navigator.userAgent) === false) {
+		if (program._isRecorded) {
+			exts.push({
+				label     : 'MP4',
+				value     : 'mp4'
+			});
+		}
+		if (!Prototype.Browser.MobileSafari) {
 			exts.push({
 				label     : 'WebM',
 				value     : 'webm'
@@ -465,22 +466,13 @@ P = Class.create(P, {
 
 		// create video view
 
-		var imgurl = p.id + "/preview.jpg?width=480&height=270";
-
-		if (p._isRecorded) {
-			imgurl = "./api/recorded/" + imgurl;
-		} else {
-			imgurl = "./api/recording/" + imgurl;
-		}
-
 		var videoContainer = new flagrate.Element('div', {
 			'class': 'video-container'
 		}).insertTo(this.view.content);
 
 		var video = new flagrate.Element('video', {
 			autoplay: true,
-			controls: true,
-			poster: imgurl
+			controls: true
 		}).insertTo(videoContainer);
 
 		new flagrate.Element('source', {

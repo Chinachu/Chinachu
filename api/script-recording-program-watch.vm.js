@@ -59,15 +59,10 @@
 
 			switch (request.type) {
 				case 'm2ts':
-					d.f      = 'mpegts';
-					break;
-				case 'mp4':
-					d.f      = 'mp4';
-					d['c:v'] = d['c:v'] || 'h264';
-					d['c:a'] = d['c:a'] || 'aac';
+					d.f = 'mpegts';
 					break;
 				case 'webm':
-					d.f      = 'webm';
+					d.f = 'webm';
 					d['c:v'] = d['c:v'] || 'vp9';
 					d['c:a'] = null;
 					break;
@@ -80,7 +75,6 @@
 			if (d.ss) args.push('-ss', (parseInt(d.ss, 10) - 1) + '');
 
 			args.push('-re', '-i', (!d.ss) ? 'pipe:0' : program.recorded);
-			args.push('-ss', '2');
 
 			if (d.t) { args.push('-t', d.t); }
 
@@ -111,10 +105,6 @@
 				args.push('-deadline', 'realtime');
 				args.push('-speed', '4');
 				args.push('-cpu-used', '-8');
-			}
-
-			if (d.f === 'mp4') {
-				args.push('-movflags', 'frag_keyframe+empty_moov+faststart+default_base_moof');
 			}
 
 			args.push('-y', '-f', d.f, 'pipe:1');

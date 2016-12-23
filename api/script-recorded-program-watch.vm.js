@@ -131,38 +131,33 @@ function main(avinfo) {
 			}
 
 			// Ranges Support
-			var range = {};
-			if (request.type === 'mp4') {
-				range.start = parseInt(ibitrate / 8 * (parseInt(d.ss, 10) - 2), 10);
+			var range = {
+				start: parseInt(ibitrate / 8 * (parseInt(d.ss, 10) - 2), 10)
+			};
 
-				response.setHeader('Content-Length', tsize);
+			if (request.type === 'm2ts') {
+				if (request.headers.range) {
+					var bytes = request.headers.range.replace(/bytes=/, '').split('-');
+					var rStart = parseInt(bytes[0], 10);
+					var rEnd   = parseInt(bytes[1], 10) || tsize - 2;
 
-				response.head(200);
-			} else if (d.ss !== '2') {
-				range.start = parseInt(ibitrate / 8 * (parseInt(d.ss, 10) - 2), 10);
+					range.start = Math.round(rStart / bitrate * ibitrate);
+					range.end   = Math.round(rEnd / bitrate * ibitrate);
+					if (range.start > isize || range.end > isize) {
+						return response.error(416);
+					}
 
-				response.setHeader('Content-Length', tsize);
+					response.setHeader('Content-Range', 'bytes ' + rStart + '-' + rEnd + '/' + tsize);
+					response.setHeader('Content-Length', rEnd - rStart + 1);
 
-				response.head(200);
-			} else if (request.headers.range) {
-				var bytes = request.headers.range.replace(/bytes=/, '').split('-');
-				var rStart = parseInt(bytes[0], 10);
-				var rEnd   = parseInt(bytes[1], 10) || tsize - 2;
+					response.head(206);
+				} else {
+					response.setHeader('Accept-Ranges', 'bytes');
+					response.setHeader('Content-Length', tsize);
 
-				range.start = Math.round(rStart / bitrate * ibitrate);
-				range.end   = Math.round(rEnd / bitrate * ibitrate);
-				if (range.start > isize || range.end > isize) {
-					return response.error(416);
+					response.head(200);
 				}
-
-				response.setHeader('Content-Range', 'bytes ' + rStart + '-' + rEnd + '/' + tsize);
-				response.setHeader('Content-Length', rEnd - rStart + 1);
-
-				response.head(206);
 			} else {
-				response.setHeader('Accept-Ranges', 'bytes');
-				response.setHeader('Content-Length', tsize);
-
 				response.head(200);
 			}
 
@@ -187,8 +182,6 @@ function main(avinfo) {
 			if (!request.query.debug) args.push('-v', '0');
 
 			args.push('-i', 'pipe:0');
-
-			args.push('-ss', '2');
 
 			if (d.t) { args.push('-t', d.t); }
 
