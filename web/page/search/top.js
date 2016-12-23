@@ -400,8 +400,8 @@ P = Class.create(P, {
 							var array = [];
 
 							[
-								'anime', 'information', 'news', 'sports',
-								'variety', 'drama', 'music', 'cinema', 'etc'
+								'anime', 'information', 'news', 'sports', 'variety', 'documentary',
+								'drama', 'music', 'cinema', 'theater', 'hobby', 'welfare', 'etc'
 							].each(function(a) {
 								array.push({
 									label     : a,

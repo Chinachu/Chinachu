@@ -1201,8 +1201,8 @@
 										type : 'checkboxes',
 										val  : rule.categories,
 										items: [
-											'anime', 'information', 'news', 'sports',
-											'variety', 'drama', 'music', 'cinema', 'etc'
+											'anime', 'information', 'news', 'sports', 'variety', 'documentary',
+											'drama', 'music', 'cinema', 'theater', 'hobby', 'welfare', 'etc'
 										]
 									}
 								},
@@ -1446,8 +1446,8 @@
 							input: {
 								type : 'checkboxes',
 								items: [
-									'anime', 'information', 'news', 'sports',
-									'variety', 'drama', 'music', 'cinema', 'etc'
+									'anime', 'information', 'news', 'sports', 'variety', 'documentary',
+									'drama', 'music', 'cinema', 'theater', 'hobby', 'welfare', 'etc'
 								]
 							}
 						},
@@ -1680,8 +1680,8 @@
 							input: {
 								type : 'checkboxes',
 								items: [
-									'anime', 'information', 'news', 'sports',
-									'variety', 'drama', 'music', 'cinema', 'etc'
+									'anime', 'information', 'news', 'sports', 'variety', 'documentary',
+									'drama', 'music', 'cinema', 'theater', 'hobby', 'welfare', 'etc'
 								],
 								val  : [program.category]
 							}

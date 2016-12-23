@@ -963,9 +963,7 @@
 											var dummy = new chinachu.ui.Unreserve(a.program.id);
 										}
 									});
-								}
-
-								if (a.isSkip) {
+								} else if (a.isSkip) {
 									a._rect.addClassName('skip');
 									contextMenuItems.unshift({
 										label   : 'スキップの取消...',
