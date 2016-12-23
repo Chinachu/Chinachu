@@ -292,11 +292,7 @@ P = Class.create(P, {
 
 			row.cell.datetime = {
 				sortAlt    : program.start,
-				element    : new chinachu.ui.DynamicTime({
-					tagName: 'div',
-					type   : 'full',
-					time   : program.start
-				}).entity
+				text       : chinachu.dateToString(new Date(program.start))
 			};
 
 			rows.push(row);

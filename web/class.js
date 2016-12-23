@@ -504,7 +504,14 @@
 
 			var wait = 1;
 
-			this.entity = this.entity || new Element(this.tagName, this.attr);
+			if (this.entity) {
+				if (flagrate.Element.exists(this.entity) === false) {
+					this.remove();
+					return;
+				}
+			} else {
+				this.entity = new Element(this.tagName, this.attr);
+			}
 
 			if (this.id !== null) { this.entity.id = this.id; }
 
