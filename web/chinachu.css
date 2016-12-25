@@ -95,10 +95,10 @@ div.fullscreen {
 .label-cat-welfare { background-color: #51a6d6; color: white; }
 .label-cat-etc { background-color: #888888; color: white; }
 
-.label-type-GR { background-color: #e2dcdc; color: #380707 !important; }
-.label-type-BS { background-color: #c5caea; color: #0d1a6f !important; }
-.label-type-CS { background-color: #eccdcd; color: #691111 !important; }
-.label-type-SKY, .label-type-EX { background-color: #bcecf7; color: #0b4c5a !important; }
+.label-type-GR { background-color: #e2dcdc !important; color: #380707 !important; }
+.label-type-BS { background-color: #c5caea !important; color: #0d1a6f !important; }
+.label-type-CS { background-color: #eccdcd !important; color: #691111 !important; }
+.label-type-SKY, .label-type-EX { background-color: #bcecf7 !important; color: #0b4c5a !important; }
 
 .bg-cat-anime { background: #ffe0ff !important; }
 .bg-cat-information { background: #ffe0f0 !important; }
@@ -620,6 +620,7 @@ div.footer {
 		padding         : 5px 10px;
 		background-color: rgba(194,65,134,0.4);
 		box-shadow      : none;
+		box-sizing      : initial;
 		text-shadow     : none }
 
 	div.footer > a.sakura-button.sakura-button-icon {
