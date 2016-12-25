@@ -55,7 +55,7 @@ const mirakurunPath = config.mirakurunPath || config.schedulerMirakurunPath || "
 
 if (/(?:\/|\+)unix:/.test(mirakurunPath) === true) {
 	const standardFormat = /^http\+unix:\/\/([^\/]+)(\/?.*)$/;
-	const legacyFormat = /^http:\/\/unix:([^:]+)(:?.*)$/;
+	const legacyFormat = /^http:\/\/unix:([^:]+):?(.*)$/;
 
 	if (standardFormat.test(mirakurunPath) === true) {
 		mirakurun.socketPath = mirakurunPath.replace(standardFormat, "$1").replace(/%2F/g, "/");
