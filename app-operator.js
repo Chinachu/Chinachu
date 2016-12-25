@@ -13,6 +13,7 @@ const RECORDED_DATA_FILE  = __dirname + '/data/recorded.json';
 
 // 標準モジュールのロード
 const path = require('path');
+const url = require('url');
 const fs = require('fs');
 const util = require('util');
 const child_process = require('child_process');
