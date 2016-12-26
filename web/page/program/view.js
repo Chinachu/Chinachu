@@ -7,24 +7,16 @@ P = Class.create(P, {
 		this.program = chinachu.util.getProgramById(this.self.query.id);
 
 		this.onNotify = this.refresh.bindAsEventListener(this);
+		document.observe('chinachu:schedule', this.onNotify);
 		document.observe('chinachu:reserves', this.onNotify);
 		document.observe('chinachu:recording', this.onNotify);
 		document.observe('chinachu:recorded', this.onNotify);
 
 		if (this.program === null) {
-			this.notFoundModal = new flagrate.Modal({
-				title: '番組が見つかりません',
-				text : '番組が見つかりません',
-				buttons: [
-					{
-						label: 'ダッシュボード',
-						color: '@pink',
-						onSelect: function(e, modal) {
-							window.location.hash = '!/dashboard/top/';
-						}
-					}
-				]
-			}).show();
+			this.timer.notFound = setTimeout(function () {
+				window.location.hash = '!/dashboard/top/';
+			}, 3000);
+
 			return this;
 		}
 
@@ -36,8 +28,7 @@ P = Class.create(P, {
 
 	deinit: function() {
 
-		if (this.notFoundModal) setTimeout(function() { this.notFoundModal.close(); }.bind(this), 0);
-
+		document.stopObserving('chinachu:schedule', this.onNotify);
 		document.stopObserving('chinachu:reserves', this.onNotify);
 		document.stopObserving('chinachu:recording', this.onNotify);
 		document.stopObserving('chinachu:recorded', this.onNotify);
@@ -138,26 +129,13 @@ P = Class.create(P, {
 			this.view.toolbar.add({
 				key: null,
 				ui : new sakura.ui.Button({
-					label  : '履歴の削除',
-					icon   : './icons/eraser.png',
+					label  : '削除',
+					icon   : './icons/cross-script.png',
 					onClick: function() {
 						new chinachu.ui.RemoveRecordedProgram(program.id);
 					}
 				})
 			});
-
-			if (global.chinachu.status.feature.filer) {
-				this.view.toolbar.add({
-					key: 'remove-file',
-					ui : new sakura.ui.Button({
-						label  : 'ファイルの削除',
-						icon   : './icons/cross-script.png',
-						onClick: function() {
-							new chinachu.ui.RemoveRecordedFile(program.id);
-						}
-					})
-				});
-			}
 		}
 
 		if (program.recorded) {
@@ -368,7 +346,6 @@ P = Class.create(P, {
 						});
 						alertRecorded.entity.insert({ after: alert.entity });
 
-						this.view.toolbar.one('remove-file').disable();
 						this.view.toolbar.one('download').disable();
 						this.view.toolbar.one('streaming').disable();
 					}

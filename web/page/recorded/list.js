@@ -158,17 +158,10 @@ P = Class.create(P, {
 				},
 				menuItems: [
 					{
-						label   : '録画履歴の削除...',
-						icon    : './icons/eraser.png',
-						onSelect: function() {
-							new chinachu.ui.RemoveRecordedProgram(program.id);
-						}
-					},
-					{
-						label   : '録画ファイルの削除...',
+						label   : '削除...',
 						icon    : './icons/cross-script.png',
 						onSelect: function() {
-							new chinachu.ui.RemoveRecordedFile(program.id);
+							new chinachu.ui.RemoveRecordedProgram(program.id);
 						}
 					},
 					'------------------------------------------',

@@ -983,9 +983,9 @@
 				});
 			} else {
 				this.modal = new flagrate.Modal({
-					title   : '録画履歴の削除',
+					title   : '録画履歴とファイルの削除',
 					subtitle: this.program.title + ' #' + this.program.id,
-					text    : '録画履歴を削除すると、システムはこの番組の録画ファイルの場所を見失います。',
+					text    : '録画履歴とファイルを削除しますか？この操作は元に戻せません。',
 
 					buttons: [
 						{
@@ -994,7 +994,7 @@
 							onSelect: function (e, modal) {
 								e.targetButton.disable();
 
-								var dummy = new Ajax.Request('./api/recorded/' + this.program.id + '.json', {
+								new Ajax.Request('./api/recorded/' + this.program.id + '.json', {
 									method    : 'delete',
 									onComplete: function () {
 										modal.close();
@@ -1002,13 +1002,13 @@
 									onSuccess: function () {
 										new flagrate.Modal({
 											title: '成功',
-											text : '録画履歴の削除に成功しました'
+											text : '削除に成功しました'
 										}).show();
 									},
 									onFailure: function (t) {
 										new flagrate.Modal({
 											title: '失敗',
-											text : '録画履歴の削除に失敗しました (' + t.status + ')'
+											text : '削除に失敗しました (' + t.status + ')'
 										}).show();
 									}
 								});
@@ -1039,70 +1039,7 @@
 
 	ui.RemoveRecordedFile = Class.create({
 		initialize: function _init(id) {
-			this.program = util.getProgramById(id);
-
-			this.create();
-
-			return this;
-		},
-		create: function _create() {
-			if (this.program === null) {
-				this.modal = new flagrate.Modal({
-					title: 'エラー',
-					text : '番組が見つかりませんでした'
-				});
-			} else {
-				this.modal = new flagrate.Modal({
-					title: '録画ファイルの削除',
-					subtitle: this.program.title + ' #' + this.program.id,
-					text : '録画ファイルを削除します。これは復元できません。',
-					buttons: [
-						{
-							label  : '削除',
-							color  : '@red',
-							onSelect: function (e, modal) {
-								e.targetButton.disable();
-
-								var dummy = new Ajax.Request('./api/recorded/' + this.program.id + '/file.json', {
-									method    : 'delete',
-									onComplete: function () {
-										modal.close();
-									},
-									onSuccess: function () {
-										new flagrate.Modal({
-											title: '成功',
-											text : '録画ファイルの削除に成功しました'
-										}).show();
-									},
-									onFailure: function (t) {
-
-										var err = t.status;
-
-										if (err === 410) {
-											err += ':既に削除されています';
-										}
-
-										new flagrate.Modal({
-											title: '失敗',
-											text : '録画ファイルの削除に失敗しました (' + err + ')'
-										}).show();
-									}
-								});
-							}.bind(this)
-						},
-						{
-							label  : 'キャンセル',
-							onSelect: function (e, modal) {
-								modal.close();
-							}
-						}
-					]
-				});
-			}
-
-			this.modal.show();
-
-			return this;
+			return new ui.RemoveRecordedProgram(id);
 		}
 	});
 
