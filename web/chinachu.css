@@ -81,19 +81,19 @@ div.fullscreen {
 .color-cat-welfare { color: #51a6d6 !important; }
 .color-cat-etc { color: #888888 !important; }
 
-.label-cat-anime { background-color: #d652d6; color: white; }
-.label-cat-information { background-color: #e2519c; color: white; }
-.label-cat-news { background-color: #d4d436; color: white; }
-.label-cat-sports { background-color: #6f6fff; color: white; }
-.label-cat-variety { background-color: #2dcbcb; color: white; }
-.label-cat-drama { background-color: #dd5a5a; color: white; }
-.label-cat-music { background-color: #50d950; color: white; }
-.label-cat-cinema { background-color: #e2994b; color: white; }
-.label-cat-theater { background-color: #eaab68; color: white; }
-.label-cat-documentary { background-color: #d4c250; color: white; }
-.label-cat-hobby { background-color: #51bcd6; color: white; }
-.label-cat-welfare { background-color: #51a6d6; color: white; }
-.label-cat-etc { background-color: #888888; color: white; }
+.label-cat-anime { background-color: #d652d6 !important;; color: white !important;; }
+.label-cat-information { background-color: #e2519c !important;; color: white !important;; }
+.label-cat-news { background-color: #d4d436 !important;; color: white !important;; }
+.label-cat-sports { background-color: #6f6fff !important;; color: white !important;; }
+.label-cat-variety { background-color: #2dcbcb !important;; color: white !important;; }
+.label-cat-drama { background-color: #dd5a5a !important;; color: white !important;; }
+.label-cat-music { background-color: #50d950 !important;; color: white !important;; }
+.label-cat-cinema { background-color: #e2994b !important;; color: white !important;; }
+.label-cat-theater { background-color: #eaab68 !important;; color: white !important;; }
+.label-cat-documentary { background-color: #d4c250 !important;; color: white !important;; }
+.label-cat-hobby { background-color: #51bcd6 !important;; color: white !important;; }
+.label-cat-welfare { background-color: #51a6d6 !important;; color: white !important;; }
+.label-cat-etc { background-color: #888888 !important;; color: white !important;; }
 
 .label-type-GR { background-color: #e2dcdc !important; color: #380707 !important; }
 .label-type-BS { background-color: #c5caea !important; color: #0d1a6f !important; }
@@ -699,270 +699,151 @@ div.flagrate-grid td.categories {
 div.flagrate-toolbar > div.flagrate-progress {
 	margin: 0 0 0 5px; }
 
+div.flagrate-progress > div {
+	background-color: rgb(194,65,134); }
+
+button.flagrate-button > span > span.glyphicon {
+	margin-right: 4px;
+	line-height: 1;
+	font-family: 'Glyphicons Halflings'; }
+
 /* page */
 
-div.dashboard-timelist {
-	position  : absolute;
-	display   : block;
-	overflow  : visible;
-	margin    : 0; }
+button.toggle-channels {
+	margin: 10px;
+	background-color: #f7f7f7;
+	box-shadow: 1px 1px 1px #ddd, inset -2px -2px 0 rgba(0,0,0,0.15);
+	border-top-color: #ccc;
+	border-left-color: #ccc;
+	border-right-color: #999;
+	border-bottom-color: #999; }
 
-div.dashboard-timelist:first-child {
-	margin-left: 0; }
+button.toggle-channels.dent {
+	background-color: #eee;
+	box-shadow: inset 2px 2px 0 rgba(0,0,0,0.15);
+	border-top-color: #999;
+	border-left-color: #999;
+	border-right-color: #ccc;
+	border-bottom-color: #ccc; }
 
-div.dashboard-timelist.reserves {
-	top       : 0;
-	right     : 350px;
-	bottom    : 0;
-	left      : 0;
-	background: #eee; }
+div.channel-cards {
+	padding: 5px 10px;
+	margin-bottom: 10px;
+	background: #eee;
+	box-shadow: inset 0 3px 0 #ddd;
+	border-top: 1px solid #bbb;
+	border-bottom: 1px solid #ddd; }
 
-div.dashboard-timelist.reserves[rel="3"] {
-	top       : 150px; }
+	div.channel-cards div.channel-card {
+		position: relative;
+		margin: 10px 0;
+		overflow: hidden;
+		background: #f7f7f7;
+		border-radius: 3px; }
 
-div.dashboard-timelist.recording {
-	top       : 0;
-	right     : 350px;
-	height    : 150px;
-	left      : 0;
-	background: rgb(241, 225, 233); }
+		div.channel-cards div.channel-card > div.channel {
+			position: relative;
+			overflow: hidden;
+			line-height: 28px;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			padding: 0 80px 0 10px; }
 
-div.dashboard-timelist.recorded {
-	top       : 0;
-	right     : 0;
-	bottom    : 0;
-	width     : 350px;
-	box-shadow: inset 2px 0 0 #2b2b2b;
-	background: #444; }
+		div.channel-cards div.channel-card > div.channel.has-logo {
+			background-position: left center;
+			background-size: contain;
+			background-repeat: no-repeat;
+			padding-left: 55px; }
 
-/*
-div.dashboard-timelist[rel="2"] {
-	width     : 40%;
-	width     : -webkit-calc((100% - 5px) / 2);
-	width     :         calc((100% - 5px) / 2); }
+			div.channel-cards div.channel-card > div.channel > button.live {
+				position: absolute;
+				top: 0;
+				right: 0;
+				font-size: 11px;
+				background: rgba(255,255,255,0.25); }
 
-div.dashboard-timelist[rel="3"] {
-	width     : 30%;
-	width     : -webkit-calc((100% - 10px) / 3);
-	width     :         calc((100% - 10px) / 3); }
-*/
+		div.channel-cards div.channel-card > .flagrate-progress {
+			height: 2px; }
 
-/*
-div.dashboard-timelist[rel="4"] {
-	width     : 20%;
-	width     : -webkit-calc((100% - 15px) / 4);
-	width     :         calc((100% - 15px) / 4); }
+		div.channel-cards div.channel-card > button.program {
+			width: 100%;
+			height: 40px;
+			text-align: left; }
 
-*/
+			div.channel-cards div.channel-card > button.program > span > span {
+				padding: 0 2px;
+				margin-right: 4px;
+				border-radius: 2px;
+				font-size: 10px; }
 
-/*
-@media screen and (max-width: 880px){
-div.dashboard-timelist[rel="3"] {
-	width     : 40%;
-	width     : -webkit-calc((100% - 5px) / 2);
-	width     :         calc((100% - 5px) / 2);
-	height    : 50%;
-	height    : -webkit-calc((100% - 10px) / 2);
-	height    :         calc((100% - 10px) / 2);
-	margin-bottom: 10px; }
+			div.channel-cards div.channel-card > button.program > span > span:hover {
+				text-decoration: none !important; }
 
-div.dashboard-timelist[rel="3"]:nth-child(3) {
-	margin-bottom: 0; }
-}
+div.program-cards {
+	padding: 0 10px; }
 
-@media screen and (max-width: 600px){
-div.dashboard-timelist[rel="2"] {
-	width     : 100%;
-	height    : 50%;
-	height    : -webkit-calc((100% - 15px) / 2);
-	height    :         calc((100% - 15px) / 2);
-	margin    : 0 0 10px 0; }
+	div.program-cards ul > li.list-group-item.skip {
+		opacity: 0.5; }
 
-div.dashboard-timelist[rel="2"]:last-child {
-	margin-bottom: 0; }
+	div.program-cards ul > li.list-group-item.conflict {
+		color: red; }
 
-div.dashboard-timelist[rel="3"] {
-	width     : 100%;
-	height    : 30%;
-	height    : -webkit-calc((100% - 20px) / 3);
-	height    :         calc((100% - 20px) / 3);
-	margin    : 0 0 10px 0; }
+	div.program-cards ul > li.list-group-item:hover {
+		cursor: pointer;
+		background: #fafafa; }
 
-div.dashboard-timelist[rel="3"]:last-child {
-	margin-bottom: 0; }
-}
-*/
+	div.program-cards ul > li.list-group-item > div.title {
+		cursor: pointer;
+		margin-bottom: 5px;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		overflow: hidden; }
 
-	div.dashboard-timelist > div.head {
-		position   : absolute;
-		top        : 20px;
-		right      : 10px;
-		left       : 10px;
-		z-index    : 5;
-		padding    : 0;
-		margin     : 0;
-		height     : 30px;
-		line-height: 20px;
-		font-size  : 20px;
+	div.program-cards ul > li.list-group-item.skip > div.title {
+		text-decoration: line-through; }
+
+		div.program-cards ul > li.list-group-item > div.title > span {
+			vertical-align  : top;
+			background-color: #eee;
+			font-size       : 10px;
+			margin-right    : 2px;
+			padding         : 0 2px;
+			border-radius   : 2px; }
+
+		div.program-cards ul > li.list-group-item > div.title > span[rel="新"] {
+			color           : #23ab16; }
+
+		div.program-cards ul > li.list-group-item > div.title > span[rel="終"] {
+			color           : #d02e54; }
+
+		div.program-cards ul > li.list-group-item > div.title > span[rel="再"] {
+			color           : #951ac6; }
+
+		div.program-cards ul > li.list-group-item > div.title > span.episode {
+			background : #fff;
+			padding    : 2px 4px 1px 3px;
+			margin-left: 5px;
+			color      : #d02e54; }
+
+	div.program-cards ul > li.list-group-item > span.dynamic-time {
+		color       : #999;
+		font-size   : 11px;
+		margin-right: 5px; }
+
+	div.program-cards ul > li.list-group-item > span.dynamic-time.soon {
+		color       : #68e400; }
+
+	div.program-cards ul > li.list-group-item > span.dynamic-time.now {
+		color       : #c6a21a; }
+
+	div.program-cards ul > li.list-group-item > img {
+		display: block;
+		margin-bottom: 5px; }
+
+	div.program-cards ul > li.list-group-item > span.label {
+		font-size: 10px;
 		font-weight: normal;
-		color      : #444; }
-
-	div.dashboard-timelist.recorded > div.head {
-		color      : #ddd; }
-
-	div.dashboard-timelist.recording > div.head {
-		color      : #ab0022; }
-
-	div.dashboard-timelist > div.main {
-		position   : absolute;
-		padding    : 0 0;
-		margin     : 0;
-		top        : 50px;
-		right      : 10px;
-		bottom     : 10px;
-		left       : 10px;
-		overflow   : visible;
-		overflow-y : auto; }
-
-		div.dashboard-timelist > div.main > a {
-			position       : relative;
-			display        : block;
-			text-decoration: none;
-			word-break     : keep-all;
-			white-space    : nowrap;
-			line-height    : 16px;
-			font-size      : 12px;
-			font-weight    : bold;
-			padding        : 6px 5px 4px 5px;
-			margin         : 0 5px 5px 0;
-			overflow       : visible;
-			border         : 1px solid transparent;
-			color          : rgba(0,0,0,0.8); }
-
-		div.dashboard-timelist.recorded > div.main > a {
-			color          : rgba(255,255,255,0.8); }
-
-		div.dashboard-timelist > div.main > a.skip {
-			opacity: 0.4; }
-
-		div.dashboard-timelist > div.main > a.conflict {
-			opacity: 0.4; ;}
-
-		div.dashboard-timelist > div.main > a:hover {
-			z-index        : 2;
-			background     : rgba(0,0,0,0.25);
-			color          : white; }
-
-			div.dashboard-timelist > div.main > a > div.title {
-				overflow    : hidden;
-				margin      : 0 0 4px 0; }
-
-				div.dashboard-timelist > div.main > a > div.title > span {
-					vertical-align  : top;
-					background-color: rgba(0,0,0,0.25);
-					font-size       : 10px;
-					margin-right    : 2px;
-					padding         : 3px 3px 1px;
-					text-shadow     : none;
-					line-height     : 15px;
-					color           : #ddd !important; }
-
-				div.dashboard-timelist > div.main > a > div.title > span[rel="新"] {
-					color           : #afa !important; }
-
-				div.dashboard-timelist > div.main > a > div.title > span[rel="終"] {
-					color           : #faa !important; }
-
-				div.dashboard-timelist > div.main > a > div.title > span[rel="再"] {
-					color           : #aaf !important; }
-
-				div.dashboard-timelist > div.main > a:hover > div.title > span {
-					background-color: rgba(255,255,255,0.25); }
-
-				div.dashboard-timelist > div.main > a > div.title > span.episode {
-					background : rgba(255,255,255,0.5);
-					padding    : 2px 4px 1px 3px;
-					margin-left: 5px;
-					text-shadow: none;
-					color      : #d02e54 !important;
-					font-weight: normal;
-					font-size  : 10px; }
-
-			div.dashboard-timelist > div.main > a > span.dynamic-time {
-				color       : rgba(0,0,0,0.5);
-				font-size   : 11px;
-				font-weight : normal;
-				text-shadow : none; }
-
-			div.dashboard-timelist > div.main > a > span.dynamic-time.soon {
-				color       : lightgreen; }
-
-			div.dashboard-timelist > div.main > a > span.dynamic-time.now {
-				color       : orange; }
-
-			div.dashboard-timelist > div.main > a > span.channel {
-				color       : rgba(0,0,0,0.5);
-				margin-left : 10px;
-				font-size   : 10px;
-				font-weight : normal;
-				text-shadow : none; }
-
-			div.dashboard-timelist > div.main > a > div.flagrate-progress {
-				margin-top: 5px;
-				height: 2px; }
-
-				div.dashboard-timelist > div.main > a > div.flagrate-progress > div {
-					background-color: rgb(194,65,134); }
-
-@media screen and (min-width: 1000px){
-		div.dashboard-timelist.recording > div.main > a,
-		div.dashboard-timelist.reserves > div.main > a {
-			display        : inline-block;
-			width          : 45%;
-			width          : -webkit-calc((100% - 45px) / 2);
-			width          :         calc((100% - 45px) / 2); }
-}
-
-@media screen and (min-width: 1600px){
-		div.dashboard-timelist.recording > div.main > a,
-		div.dashboard-timelist.reserves > div.main > a {
-			display        : inline-block;
-			width          : 30%;
-			width          : -webkit-calc((100% - 70px) / 3);
-			width          :         calc((100% - 70px) / 3); }
-}
-
-@media screen and (max-height: 600px){
-		div.dashboard-timelist > div.main > a {
-			line-height    : 15px;
-			font-size      : 11px;
-			margin-bottom  : 2px; }
-
-			div.dashboard-timelist > div.main > a > div.dynamic-time {
-				font-size   : 10px; }
-}
-
-@media screen and (max-width: 750px){
-		div.middle > div.main > div.main-body > div {
-			padding: 0; }
-
-		div.dashboard-timelist,
-		div.dashboard-timelist > * {
-			position: relative !important;
-			width: 100% !important;
-			height: auto !important;
-			top: auto !important;
-			left: auto !important;
-			right: auto !important;
-			bottom: auto !important;
-			padding: 20px 10px;
-			box-sizing: border-box;
-			box-shadow: none !important; }
-
-			div.dashboard-timelist > div.head {
-				position: relative !important;
-				padding: 0 0 10px 5px; }
-}
+		padding: 0 2px; }
 
 div.timetable {
 	background: #555; }

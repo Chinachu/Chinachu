@@ -227,19 +227,6 @@
 									}
 								},
 								{
-									key: 'notifyCategories',
-									label: '通知ジャンル',
-									text: 'WUIを開いている時に番組放送開始を通知します',
-									input: {
-										type : 'checkboxes',
-										val  : JSON.parse(localStorage.getItem('schedule.notify.categories') || '[]'),
-										items: [
-											'anime', 'information', 'news', 'sports', 'variety', 'documentary',
-											'drama', 'music', 'cinema', 'theater', 'hobby', 'welfare', 'etc'
-										]
-									}
-								},
-								{
 									key  : 'hideChannels',
 									label: '隠すCH',
 									input: {
@@ -268,7 +255,6 @@
 										var result = form.getResult();
 
 										localStorage.setItem('schedule.visible.categories', JSON.stringify(result.categories));
-										localStorage.setItem('schedule.notify.categories', JSON.stringify(result.notifyCategories));
 										localStorage.setItem('schedule.hide.channels', JSON.stringify(result.hideChannels));
 
 										this.refresh();

@@ -3,5 +3,11 @@
     "script" : "channel-watch",
     "methods": ["get"],
     "types"  : ["xspf", "m2ts", "webm"]
+  },
+
+  "/:chid/logo": {
+    "script" : "channel-logo",
+    "methods": ["get"],
+    "types"  : ["png"]
   }
 }
