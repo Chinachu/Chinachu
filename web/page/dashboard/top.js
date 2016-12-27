@@ -83,6 +83,10 @@ P = Class.create(P, {
 
 	drawChannels: function () {
 
+		if (document.hidden) {
+			return;
+		}
+
 		if (localStorage.getItem("dashboard.showChannels") !== "yes") {
 			return this;
 		}
@@ -170,6 +174,10 @@ P = Class.create(P, {
 	},
 
 	drawRecording: function () {
+
+		if (document.hidden) {
+			return;
+		}
 
 		this.drawPrograms(
 			"RECORDING".__(),
