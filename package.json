@@ -37,7 +37,7 @@
     "nodemailer": "^2.7.0",
     "nodemailer-sendmail-transport": "^1.0.0",
     "opts": "~1.2.2",
-    "socket.io": "~0.9.16",
+    "socket.io": "^1.7.2",
     "string": "~1.5.1",
     "swagger-client": "github:kanreisa/swagger-js#feature/unix-domain-socket",
     "xml2js": "~0.2.8"
