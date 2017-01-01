@@ -612,6 +612,10 @@
 
 			var onMousedown = function (e) {
 
+				if (e.buttons !== 1) {
+					return;
+				}
+
 				e.preventDefault();
 				e.stopPropagation();
 
