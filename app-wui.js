@@ -743,17 +743,14 @@ function iosAddEventListner(io, eventName) {
 		for (i = 0, l = arguments.length; i < l; i++) {
 			args.push(arguments[i]);
 		}
-		io.sockets.emit.apply(io.sockets, [eventName].concat(args));
+		io.emit.apply(io, [eventName].concat(args));
 	});
 }
 
 function ioAddListener(server, isOpen) {
-	var io = socketio.listen(server);
+	var io = socketio(server);
 
-	io.enable('browser client minification');
-	io.set('log level', 1);
-	io.set('transports', ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
-	io.sockets.on('connection', isOpen ? ioOpenServer : ioServer);
+	io.on('connection', isOpen ? ioOpenServer : ioServer);
 
 	// listen event
 	iosAddEventListner(io, 'status');

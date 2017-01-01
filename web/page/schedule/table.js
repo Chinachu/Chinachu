@@ -219,7 +219,7 @@
 									label: '表示ジャンル',
 									input: {
 										type : 'checkboxes',
-										val  : JSON.parse(localStorage.getItem('schedule.visible.categories') || '["anime", "information", "news", "sports", "variety", "drama", "music", "cinema", "etc"]'),
+										val  : JSON.parse(localStorage.getItem('schedule.visible.categories') || '["anime", "information", "news", "sports", "variety", "drama", "music", "cinema", "theater", "hobby", "welfare", "documentary", "etc"]'),
 										items: [
 											'anime', 'information', 'news', 'sports', 'variety', 'documentary',
 											'drama', 'music', 'cinema', 'theater', 'hobby', 'welfare', 'etc'
@@ -297,7 +297,7 @@
 			var unitlen = this.unitlen = 50;
 			var linelen      = 140;
 			var types        = JSON.parse(window.localStorage.getItem('schedule.visible.types') || '["GR", "BS", "CS", "SKY"]');
-			var categories   = this.categories = JSON.parse(window.localStorage.getItem('schedule.visible.categories') || '["anime", "information", "news", "sports", "variety", "drama", "music", "cinema", "etc"]');
+			var categories   = this.categories = JSON.parse(window.localStorage.getItem('schedule.visible.categories') || '["anime", "information", "news", "sports", "variety", "drama", "theater", "hobby", "welfare", "documentary", "music", "cinema", "etc"]');
 			var hideChannels = JSON.parse(window.localStorage.getItem('schedule.hide.channels') || "[]");
 
 			var day = 0;
@@ -564,7 +564,7 @@
 						label   : '番組詳細',
 						color   : '@pink',
 						onSelect: function () {
-							window.location.hash = '!/program/view/id=' + this.data.target.id + '/';
+							location.hash = '!/program/view/id=' + this.data.target.id + '/';
 						}.bind(this)
 					})
 				);
@@ -573,21 +573,6 @@
 			//
 			// イベントとか
 			//
-			var onClick, onMousedown, onMousemove, onMouseup;
-
-			onClick = function (e) {
-
-				var targetId = e.target.getAttribute('rel') || (e.target.parentNode || e.target.parentElement).getAttribute('rel') || (e.target.parentNode.parentNode || e.target.parentElement.parentElement).getAttribute('rel') || null;
-
-				this.data.target = null;
-
-				if (targetId === null) {
-					return;
-				}
-
-				this.data.target = piece[targetId].program;
-			}.bind(this);
-
 			var onKeydown = function (e) {
 
 				var deltaX = 0;
@@ -601,9 +586,8 @@
 				if (this.data.target !== null) {
 					if (e.keyCode === 27) {
 						this.data.target = null;
+						viewDrawer();
 					}
-
-					viewDrawer();
 				}
 
 				this.data.scrollStat  = 0;
@@ -626,7 +610,11 @@
 				inertiaScroll();
 			}.bind(this);
 
-			onMousedown = function (e) {
+			var onMousedown = function (e) {
+
+				if (e.buttons !== 1) {
+					return;
+				}
 
 				e.preventDefault();
 				e.stopPropagation();
@@ -634,15 +622,23 @@
 				this.data.scrollStat  = [e.clientX, e.clientY].join(',');
 				this.data.scrollStart = this.data.scrollEnd = [e.clientX, e.clientY];
 
-				document.body.addEventListener('mousemove', onMousemove);
-				document.body.addEventListener('mouseup',   onMouseup);
+				window.addEventListener('pointermove', onMousemove, true);
+				window.addEventListener('pointerup',   onMouseup, true);
 
 				this.scroller();
+
+				var targetId = e.target.getAttribute('rel') || (e.target.parentNode || e.target.parentElement).getAttribute('rel') || (e.target.parentNode.parentNode || e.target.parentElement.parentElement).getAttribute('rel') || null;
+
+				if (targetId === null) {
+					this.data.target = null;
+				} else {
+					this.data.target = piece[targetId].program;
+				}
 			}.bind(this);
 
-			onMousemove = function (e) {
+			var onMousemove = function (e) {
 
-				if (e.which === 0) {
+				if (e.buttons === 0) {
 					onMouseup(e);
 					return;
 				}
@@ -655,17 +651,23 @@
 				this.scroller();
 			}.bind(this);
 
-			onMouseup = function (e) {
+			var onMouseup = function (e) {
 
 				e.preventDefault();
 				e.stopPropagation();
 
 				if (this.data.scrollStat === [e.clientX, e.clientY].join(',')) {
 
-					if (e.button === 2 || e.which === 3) {
+					if (e.buttons === 2) {
 						this.view.popoverDrawer.close();
 					} else {
-						setTimeout(viewDrawer, 25);
+						if (window.innerWidth < 640) {
+							if (this.data.target) {
+								location.hash = '!/program/view/id=' + this.data.target.id + '/';
+							}
+						} else {
+							setTimeout(viewDrawer, 25);
+						}
 					}
 				}
 
@@ -688,83 +690,22 @@
 					inertiaScroll();
 				}
 
-				document.body.removeEventListener('mousemove', onMousemove);
-				document.body.removeEventListener('mouseup',   onMouseup);
+				window.removeEventListener('pointermove', onMousemove, true);
+				window.removeEventListener('pointerup',   onMouseup, true);
 			}.bind(this);
 
-			var onTouchstart = function (e) {
-
-				this.data.scrollStat  = 0;
-				this.data.scrollStart = this.data.scrollEnd = [e.touches[0].pageX, e.touches[0].pageY];
-			}.bind(this);
-
-			var onTouchmove = function (e) {
-
-				e.preventDefault();
-				e.stopPropagation();
-
-				this.data.scrollStat = 1;
-				this.data.scrollEnd  = [e.touches[0].pageX, e.touches[0].pageY];
-
-				this.scroller();
-			}.bind(this);
-
-			var onTouchend = function (e) {
-
-				if (this.data.scrollStat === 0) {
-					onClick(e);
-					setTimeout(viewDrawer, 100);
-				}
-
-				if (
-					this.data.scrollDelta[0] !== 0 ||
-					this.data.scrollDelta[1] !== 0
-				) {
-					clearTimeout(this.timer.inertiaScroll);
-					var inertiaScroll = function () {
-						var x = this.data.scrollDelta[0] * 0.5;
-						var y = this.data.scrollDelta[1] * 0.5;
-
-						if ((x > 1 || x < -1) || (y > 1 || y < -1)) {
-							this.data.scrollEnd[0] += x;
-							this.data.scrollEnd[1] += y;
-							this.scroller();
-							this.timer.inertiaScroll = setTimeout(inertiaScroll, 25);
-						}
-					}.bind(this);
-					inertiaScroll();
-				}
-			}.bind(this);
-
-			if (Prototype.Browser.MobileSafari) {
-				this.view.content.addEventListener('touchstart', onTouchstart);
-				this.view.content.addEventListener('touchmove',  onTouchmove);
-				this.view.content.addEventListener('touchend',   onTouchend);
-			} else {
-				if (Prototype.Browser.WebKit) {
-					this.view.content.addEventListener('touchstart', onTouchstart);
-					this.view.content.addEventListener('touchmove',  onTouchmove);
-					this.view.content.addEventListener('touchend',   onTouchend);
-				}
-
-				this.view.content.addEventListener('click',     onClick);
-				this.view.content.addEventListener('mousedown', onMousedown);
-			}
+			this.view.content.addEventListener('pointerdown', onMousedown);
 
 			window.addEventListener('keydown', onKeydown);
-			var removeListenerOnUnload = function () {
+			var removeListenersOnUnload = function () {
 
-				this.view.content.removeEventListener('touchstart', onTouchstart);
-				this.view.content.removeEventListener('touchmove',  onTouchmove);
-				this.view.content.removeEventListener('touchend',   onTouchend);
-
-				this.view.content.removeEventListener('click',     onClick);
-				this.view.content.removeEventListener('mousedown', onMousedown);
+				this.view.content.removeEventListener('pointerdown', onMousedown);
 
 				window.removeEventListener('keydown', onKeydown);
-				document.stopObserving('sakurapanel:pm:unload', removeListenerOnUnload);
+
+				document.stopObserving('sakurapanel:pm:unload', removeListenersOnUnload);
 			}.bind(this);
-			document.observe('sakurapanel:pm:unload', removeListenerOnUnload);
+			document.observe('sakurapanel:pm:unload', removeListenersOnUnload);
 
 			if (!this.started) {
 				this.started = true;
@@ -861,14 +802,9 @@
 						if (a.isReserved)  { a._rect.addClassName('reserved'); }
 						if (a.isRecording) { a._rect.addClassName('recording'); }
 
-						if (Prototype.Browser.MobileSafari) {
-							clearTimeout(this.timer['appendChild_' + a.id]);
-							this.timer['appendChild_' + a.id] = setTimeout(function () {
-								this.view.board.appendChild(a._rect);
-							}.bind(this), 100);
-						} else {
-							this.view.board.appendChild(a._rect);
+						this.view.board.appendChild(a._rect);
 
+						if (!Prototype.Browser.MobileSafari) {
 							var contextMenuItems = [
 								{
 									label   : 'ルール作成...',
@@ -1000,14 +936,7 @@
 					}
 
 					if (a.isVisible === false) {
-						if (Prototype.Browser.MobileSafari) {
-							clearTimeout(this.timer['show_' + a.id]);
-							this.timer['show_' + a.id] = setTimeout(function () {
-								a._rect.style.display = '';
-							}.bind(this), 100);
-						} else {
-							a._rect.style.display = '';
-						}
+						a._rect.style.display = '';
 						a.isVisible = true;
 					}
 
@@ -1018,14 +947,7 @@
 					}
 				} else {
 					if (a._rect && a.isVisible === true) {
-						if (Prototype.Browser.MobileSafari) {
-							clearTimeout(this.timer['hide_' + a.id]);
-							this.timer['hide_' + a.id] = setTimeout(function () {
-								a._rect.style.display = 'none';
-							}.bind(this), 100);
-						} else {
-							a._rect.style.display = 'none';
-						}
+						a._rect.style.display = 'none';
 						a.isVisible = false;
 					}
 				}
