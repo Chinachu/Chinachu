@@ -249,11 +249,11 @@ chinachu_updater_main () {
   git gc
   
   while [ 1 ]; do
-    echo -n "Do you want to run chinachu installer (fast) [Y/n]? "
+    echo -n "Do you want to run chinachu installer (full) [Y/n]? "
     read line
     case ${line:-y} in
       [yY])
-        echo 2 | ./chinachu installer
+        echo 1 | ./chinachu installer
         break
         ;;
       [nN])
