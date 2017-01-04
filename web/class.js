@@ -705,10 +705,20 @@
 					}
 				});
 
+				var bitrate = 0;
+				if (this.program.channel.type === "GR") {
+					bitrate = 16.851;
+				} else if (this.program.channel.type === "SKY") {
+					bitrate = 8;
+				} else {
+					bitrate = 24;
+				}
+				var size = Math.round(this.program.seconds * bitrate / 8);
+
 				this.modal = new flagrate.Modal({
 					title   : '手動予約',
 					subtitle: this.program.title + ' #' + this.program.id,
-					text    : '予約しますか？',
+					text    : '予約しますか？ (目安容量: ' + size + ' MB)',
 					buttons : buttons
 				});
 			}
