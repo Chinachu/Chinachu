@@ -601,6 +601,9 @@ function mirakurunProgramsToLegacyPrograms(ch, programs) {
 			};
 
 			if (program.extended) {
+				ret.description = program.description;
+				ret.extra = program.extended;
+
 				for (let key in program.extended) {
 					ret.detail += `\n◇${key}\n${program.extended[key]}`;
 				}
