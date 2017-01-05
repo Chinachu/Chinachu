@@ -11,11 +11,20 @@
 			return;
 
 		case 'DELETE':
-			data.recording.forEach(a => {
+			if (!program.isManualReserved) {
+				const rp  = chinachu.getProgramById(program.id, data.reserves);
+				if (rp) {
+					rp.isSkip = true;
+					fs.writeFileSync(define.RESERVES_DATA_FILE, JSON.stringify(data.reserves));
+				}
+			}
+
+			/* data.recording.forEach(a => {
 				if (a.id === program.id) {
 					a.abort = true;
 				}
-			});
+			}); */
+			program.abort = true;
 			fs.writeFileSync(define.RECORDING_DATA_FILE, JSON.stringify(data.recording));
 
 			response.head(200);
