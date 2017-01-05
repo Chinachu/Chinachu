@@ -572,6 +572,14 @@ function chinachuStop() {
 		console.log('stop:');
 		console.log(JSON.stringify(target, null, '  '));
 
+		if (!target.isManualReserved) {
+			const rp  = chinachu.getProgramById(target.id, reserves);
+			if (rp) {
+				rp.isSkip = true;
+				fs.writeFileSync(RESERVES_DATA_FILE, JSON.stringify(reserves));
+			}
+		}
+
 		fs.writeFileSync(RECORDING_DATA_FILE, JSON.stringify(recording));
 
 		console.log('録画を停止しました。 ');
