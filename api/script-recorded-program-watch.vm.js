@@ -62,16 +62,16 @@ function main(avinfo) {
 			util.log('STREAMING: ' + request.url);
 
 			var d = {
-				ss   : request.query.ss     || '2', //start(seconds)
-				t    : request.query.t      || null,//duration(seconds)
-				s    : request.query.s      || null,//size(WxH)
-				f    : request.query.f      || null,//format
-				'c:v': request.query['c:v'] || null,//vcodec
-				'c:a': request.query['c:a'] || null,//acodec
-				'b:v': request.query['b:v'] || null,//bitrate
-				'b:a': request.query['b:a'] || null,//ab
-				ar   : request.query.ar     || null,//ar(Hz)
-				r    : request.query.r      || null//rate(fps)
+				ss   : request.query.ss     || '2',    //start(seconds)
+				t    : request.query.t      || null,   //duration(seconds)
+				s    : request.query.s      || null,   //size(WxH)
+				f    : request.query.f      || null,   //format
+				'c:v': request.query['c:v'] || 'copy', //vcodec
+				'c:a': request.query['c:a'] || 'copy', //acodec
+				'b:v': request.query['b:v'] || null,   //bitrate
+				'b:a': request.query['b:a'] || null,   //ab
+				ar   : request.query.ar     || null,   //ar(Hz)
+				r    : request.query.r      || null    //rate(fps)
 			};
 
 			if (parseInt(d.ss, 10) < 2) {
