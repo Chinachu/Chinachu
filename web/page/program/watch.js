@@ -132,7 +132,7 @@ P = Class.create(P, {
 
 						url += program.id + '/watch.' + d.ext + '?' + Object.toQueryString(d);
 
-						if (Prototype.Browser.Android) {
+						if (navigator.userAgent.indexOf('Android') >= 0) {
 							location.href = "intent://" + url + "#Intent;package=org.videolan.vlc;type=video;scheme=" + location.protocol.replace(':','') + ';end';
 						} else {
 							location.href = "vlc-x-callback://x-callback-url/stream?url=" + encodeURIComponent(location.protocol + '//' + url);
