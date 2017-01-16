@@ -45,7 +45,7 @@
 			util.log('[streamer] streaming: ' + program.recorded);
 
 			var d = {
-				ss   : request.query.ss     || '2',  //start(seconds)
+				ss   : request.query.ss     || null, //start(seconds)
 				t    : request.query.t      || null, //duration(seconds)
 				s    : request.query.s      || null, //size(WxH)
 				f    : request.query.f      || null, //format
