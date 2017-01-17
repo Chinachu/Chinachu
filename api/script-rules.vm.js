@@ -8,9 +8,14 @@
 		
 		case 'POST':
 			var newRule = request.query;
-			if (request.headers['content-type'].match(/^application\/json/) === null) {
-				response.error(400);
-			} else if (JSON.stringify(newRule) === '{}') {
+			if (typeof newRule === 'string') {
+				try {
+					newRule = JSON.parse(request.query);
+				} catch (e) {
+					return response.error(400);
+				}
+			}
+			if (JSON.stringify(newRule) === '{}') {
 				response.error(400);
 			} else {
 				if (newRule.isEnabled === false) {
