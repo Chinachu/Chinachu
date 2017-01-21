@@ -360,8 +360,8 @@ start () {
 stop () {
   echo -n "Stopping \${NAME}: "
   
-  PID=\`cat \$PIDFILE\`
   if [ -f \$PIDFILE ]; then
+    PID=\`cat \$PIDFILE\`
     PGID=\`ps -p \$PID -o pgrp | grep -v PGRP\`
     kill -QUIT -\`echo \$PGID\`
     echo "OK."
