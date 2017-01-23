@@ -31,18 +31,14 @@
 			
 			result.time = fs.statSync(define.SCHEDULER_LOG_FILE).mtime.getTime();
 			
-			var schedulerLog  = child_process.execSync('tail -n $\(tac "' + define.SCHEDULER_LOG_FILE + '" 2>/dev/null | grep -n -m 1 "RUNNING SCHEDULER." | cut -d : -f 1\) "' + define.SCHEDULER_LOG_FILE + '"', {
+			var schedulerLog  = child_process.execSync('/bin/bash -c \'sed "/RUNNING SCHEDULER\\./q" <\(nice -n 19 tac "' + define.SCHEDULER_LOG_FILE + '"\)\' 2>/dev/null', {
 				encoding: 'utf8'
 			});
 			
-			var lines = schedulerLog.split('\n').reverse();
+			var lines = schedulerLog.split('\n');
 			
 			for (var k = 0; k < lines.length; k++) {
 				var line = lines[k] || '';
-				
-				if (line.match('RUNNING SCHEDULER.') !== null) {
-					break;
-				}
 				
 				if ((line.match('CONFLICT:') !== null) || (line.match('RESERVE:') !== null)) {
 					var id = line.match(/(RESERVE|CONFLICT): ([a-z0-9-]+)/)[2];

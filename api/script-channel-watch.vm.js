@@ -40,19 +40,21 @@ Usushio では使わない
 		case 'webm':
 
 			var d = {
-				s    : request.query.s      || null,//size(WxH)
-				f    : request.query.f      || null,//format
-				'c:v': request.query['c:v'] || null,//vcodec
-				'c:a': request.query['c:a'] || null,//acodec
-				'b:v': request.query['b:v'] || null,//bitrate
-				'b:a': request.query['b:a'] || null,//ab
-				ar   : request.query.ar     || null,//ar(Hz)
-				r    : request.query.r      || null//rate(fps)
+				s    : request.query.s      || null, //size(WxH)
+				f    : request.query.f      || null, //format
+				'c:v': request.query['c:v'] || null, //vcodec
+				'c:a': request.query['c:a'] || null, //acodec
+				'b:v': request.query['b:v'] || null, //bitrate
+				'b:a': request.query['b:a'] || null, //ab
+				ar   : request.query.ar     || null, //ar(Hz)
+				r    : request.query.r      || null  //rate(fps)
 			};
 
 			switch (request.type) {
 				case 'm2ts':
 					d.f = 'mpegts';
+					d['c:v'] = d['c:v'] || 'copy';
+					d['c:a'] = d['c:a'] || 'copy';
 					break;
 				case 'webm':
 					d.f = 'webm';

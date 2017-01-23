@@ -98,12 +98,16 @@ P = Class.create(P, {
 						var d = this.d = this.form.getResult();
 						saveSettings(d);
 
-						var url = location.protocol + '//' + location.host + location.pathname.replace(/\/[^\/]*$/, '');
+						var url = location.host + location.pathname.replace(/\/[^\/]*$/, '');
 
 						url += '/api/channel/';
 						url += this.channelId + '/watch.' + d.ext + '?' + Object.toQueryString(d);
 
-						location.href = "vlc-x-callback://x-callback-url/stream?url=" + encodeURIComponent(url);
+						if (/Android/.test(navigator.userAgent) === true) {
+							location.href = "intent://" + url + "#Intent;package=org.videolan.vlc;type=video;scheme=" + location.protocol.replace(':','') + ';end';
+						} else {
+							location.href = "vlc-x-callback://x-callback-url/stream?url=" + encodeURIComponent(location.protocol + '//' + url);
+						}
 					}.bind(this));
 				}.bind(this)
 			});

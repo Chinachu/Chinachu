@@ -19,11 +19,6 @@
 				}
 			}
 
-			/* data.recording.forEach(a => {
-				if (a.id === program.id) {
-					a.abort = true;
-				}
-			}); */
 			program.abort = true;
 			fs.writeFileSync(define.RECORDING_DATA_FILE, JSON.stringify(data.recording));
 
