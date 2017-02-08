@@ -468,7 +468,7 @@ function storageChecker() {
 			return;
 		}
 
-		const freeMB = info.free / 1024 / 1024;
+		const freeMB = info.available / 1024 / 1024;
 		if (freeMB < storageLowSpaceThresholdMB) {
 			stChecked = 0;// すぐに再チェックするため
 			util.log(`ALERT: Storage Low Space! (${freeMB} MB < ${storageLowSpaceThresholdMB} MB)`);
