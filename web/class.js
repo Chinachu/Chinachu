@@ -53,11 +53,16 @@
 	var dateToString = chinachu.dateToString = function _dateToString(date, type) {
 		var d = date;
 
-		var dStr = [
-			d.getFullYear(),
-			(d.getMonth() + 1).toPaddedString(2),
-			d.getDate().toPaddedString(2)
-		].join('/') + ' ' + [
+		var dStr = (d.getMonth() + 1).toPaddedString(2) + "/" + d.getDate().toPaddedString(2);
+
+		if (d.getFullYear() !== new Date().getFullYear()) {
+			dStr = d.getFullYear().toString(10).slice(2) + "/" + dStr;
+		}
+
+		var weekDays = ["日", "月", "火", "水", "木", "金", "土"];
+		dStr += " (" + weekDays[d.getDay()] + ")";
+
+		dStr += ' ' + [
 			d.getHours().toPaddedString(2),
 			d.getMinutes().toPaddedString(2)
 		].join(':');
@@ -74,7 +79,7 @@
 				dDelta = dDelta / 60;
 
 				if (dDelta < 60) {
-					dDeltaStr = 'after {0} minutes'.__([Math.round(dDelta * 10) / 10 || '0']);
+					dDeltaStr = 'after {0} minutes'.__([Math.round(dDelta) || '0']);
 				} else {
 					dDelta = dDelta / 60;
 
@@ -83,7 +88,7 @@
 					} else {
 						dDelta = dDelta / 24;
 
-						dDeltaStr = 'after {0} days'.__([Math.round(dDelta * 10) / 10 || '0']);
+						dDeltaStr = 'after {0} days'.__([Math.round(dDelta) || '0']);
 					}
 				}
 			}
@@ -94,7 +99,7 @@
 				dDelta = dDelta / 60;
 
 				if (dDelta < 60) {
-					dDeltaStr = '{0} minutes ago'.__([Math.round(dDelta * 10) / 10 || '0']);
+					dDeltaStr = '{0} minutes ago'.__([Math.round(dDelta) || '0']);
 				} else {
 					dDelta = dDelta / 60;
 
@@ -103,14 +108,14 @@
 					} else {
 						dDelta = dDelta / 24;
 
-						dDeltaStr = '{0} days ago'.__([Math.round(dDelta * 10) / 10 || '0']);
+						dDeltaStr = '{0} days ago'.__([Math.round(dDelta) || '0']);
 					}
 				}
 			}
 		}
 
 		if (typeof type === 'undefined' || type === 'full') {
-			return dStr + ' (' + dDeltaStr + ')';
+			return dStr + ' [' + dDeltaStr + ']';
 		} else if (type === 'short') {
 			return dStr;
 		} else if (type === 'delta') {
