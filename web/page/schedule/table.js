@@ -830,26 +830,26 @@
 								'------------------------------------------',
 								{
 									label   : 'SCOT形式でコピー...',
-									onSelect: function (e) {
-										window.prompt('コピーしてください:', chinachu.util.scotify(a.program));
+									onSelect: function(e) {
+										chinachu.ui.copyStr(chinachu.util.scotify(a.program));
 									}
 								},
 								{
 									label   : 'IDをコピー...',
-									onSelect: function () {
-										window.prompt('コピーしてください:', a.program.id);
+									onSelect: function() {
+										chinachu.ui.copyStr(a.program.id);
 									}
 								},
 								{
 									label   : 'タイトルをコピー...',
-									onSelect: function () {
-										window.prompt('コピーしてください:', a.program.title);
+									onSelect: function() {
+										chinachu.ui.copyStr(a.program.title);
 									}
 								},
 								{
 									label   : '説明をコピー...',
-									onSelect: function () {
-										window.prompt('コピーしてください:', a.program.detail);
+									onSelect: function() {
+										chinachu.ui.copyStr(a.program.detail);
 									}
 								},
 								'------------------------------------------',
