@@ -248,25 +248,25 @@ P = Class.create(P, {
 					{
 						label   : 'SCOT形式でコピー...',
 						onSelect: function(e) {
-							window.prompt('コピーしてください:', chinachu.util.scotify(program));
+							chinachu.ui.copyStr(chinachu.util.scotify(program));
 						}
 					},
 					{
 						label   : 'IDをコピー...',
 						onSelect: function() {
-							window.prompt('コピーしてください:', program.id);
+							chinachu.ui.copyStr(program.id);
 						}
 					},
 					{
 						label   : 'タイトルをコピー...',
 						onSelect: function() {
-							window.prompt('コピーしてください:', program.title);
+							chinachu.ui.copyStr(program.title);
 						}
 					},
 					{
 						label   : '説明をコピー...',
 						onSelect: function() {
-							window.prompt('コピーしてください:', program.detail);
+							chinachu.ui.copyStr(program.detail);
 						}
 					},
 					'------------------------------------------',

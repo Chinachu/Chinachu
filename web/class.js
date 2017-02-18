@@ -1837,4 +1837,22 @@
 		}
 	});
 
+	ui.copyStr = function (string) {
+
+		var span = flagrate.createElement("span")
+			.insertText(string)
+			.insertTo(document.body);
+
+		var range = document.createRange();
+		range.selectNode(span);
+
+		var selection = window.getSelection()
+		selection.removeAllRanges();
+		selection.addRange(range);
+
+		document.execCommand("copy");
+
+		span.remove();
+	};
+
 })();
