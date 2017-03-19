@@ -470,16 +470,16 @@ function convertPrograms(p, ch) {
 			if (epinumStr !== "") {
 				epinumStr = epinumStr.match(/[0-9０-９]+/)[0];
 				epinumStr = epinumStr
-					.replace("０", "0")
-					.replace("１", "1")
-					.replace("２", "2")
-					.replace("３", "3")
-					.replace("４", "4")
-					.replace("５", "5")
-					.replace("６", "6")
-					.replace("７", "7")
-					.replace("８", "8")
-					.replace("９", "9");
+					.replace(/０/g, "0")
+					.replace(/１/g, "1")
+					.replace(/２/g, "2")
+					.replace(/３/g, "3")
+					.replace(/４/g, "4")
+					.replace(/５/g, "5")
+					.replace(/６/g, "6")
+					.replace(/７/g, "7")
+					.replace(/８/g, "8")
+					.replace(/９/g, "9");
 
 				epinum = parseInt(epinumStr, 10);
 			}
