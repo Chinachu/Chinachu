@@ -369,8 +369,6 @@ const epinumExRE = /[#＃♯][0-9０-９]{1,3}|[第][0-9０-９]{1,3}[話回]/;
 function convertPrograms(p, ch) {
 	const programs = [];
 
-	const flagTest = [];
-
 	for (const c of p) {
 		if (c.title === "") {
 			continue;
