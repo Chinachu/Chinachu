@@ -357,112 +357,138 @@ function scheduler() {
 }
 
 // (function) program converter
+const flagBracketsRE = /\[.{1,2}\]|【.】/g;
+const flagExtractRE = /(?:【|\[)(.{1,2})(?:】|\])/;
+const flagRE = /新|終|再|字|デ|解|無|二|S|SS|初|生|Ｎ|映|多|双/;
+const subtitleRE = /.{3,}([「【]([^」】]+)[」】]).*/;
+const subtitleExRE = /(?:[#＃♯][0-9０-９]{1,3}|[第][0-9０-９]{1,3}[話回])(?:[ 　「]+)([^「」]+)(?:[」]?)/;
+const subtitleExExRE = /[「【][^」】]+[」】]/g;
+const epinumRE = /[#＃♯][0-9０-９]{1,3}|[第][0-9０-９]{1,3}[話回]|（[0-9０-９]{1,3}）/g;
+const epinumExRE = /[#＃♯][0-9０-９]{1,3}|[第][0-9０-９]{1,3}[話回]/;
+
 function convertPrograms(p, ch) {
 	const programs = [];
 
-	for (let i = 0, l = p.length; i < l; i++) {
-		const c = p[i];
+	const flagTest = [];
 
+	for (const c of p) {
 		if (c.title === "") {
 			continue;
 		}
 
-		let title = c.title;
-
-		title = title
-			.replace(/【.{1,2}】/g, '')
-			.replace(/\[.\]/g, '')
-			.replace(/[【「（#＃♯第]+[0-9０-９零一壱壹弌二弐貮貳三参參弎四肆五伍六陸七柒漆八捌九玖十拾廿卄]+[話回】」）]*/g, '');
-
-		if (c.category === 'anime') {
-			title = title.replace(/(?:TV|ＴＶ)?アニメ(?:イズム)?「([^「」]+)」/g, '$1')
-				.replace(/([^場版])「.+」/g, '$1');
-		}
-
-		title = title.trim();
-
-		const desc = c.detail;
-
-		let subtitle = '';
-		if (c.title.match(/[^版]「([^「」]+)」/) !== null) {
-			subtitle = c.title.match(/[^版]「([^「」]+)」/)[1];
-		} else if (desc.match(/「([^「」]+)」/) !== null) {
-			subtitle = desc.match(/「([^「」]+)」/)[1];
-		} else if (desc.match(/『([^『』]+)』/) !== null) {
-			subtitle = desc.match(/『([^『』]+)』/)[1];
-		}
-
+		let title = "";
+		let subtitle = "";
+		let epinum = null;
 		const flags = [];
-		const flagsSource = c.title
-			.replace(/【/g, '[')
-			.replace(/】/g, ']')
-			.replace(/\[無料\]/g, '[無]');
-		const matchedFlags = (flagsSource.match(/\[(.)\]/g) || []);
-		for (let j = 0, m = matchedFlags.length; j < m; j++) {
-			flags.push(matchedFlags[j].match(/(?:【|\[)(.)(?:】|\])/)[1]);
+
+		// 理題 (title)
+		{
+			title = c.title.replace(flagBracketsRE, "");
+
+			const subtitle = title.match(subtitleRE);
+			if (subtitle) {
+				title = title.replace(subtitle[1], "");
+			}
+
+			const epinums = title.match(epinumRE);
+			if (epinums && epinums.length === 1) {
+				title = title.replace(subtitleExRE, "").replace(epinumRE, "");
+			}
+
+			title = title.trim();
 		}
 
-		var episodeNumber = null;
-		var episodeNumberMatch = (c.title + ' ' + desc).match(/[「（#＃♯第]+[0-9０-９零一壱壹弌二弐貮貳三参參弎四肆五伍六陸七柒漆八捌九玖十拾廿卄]+[話回」）]*|Episode ?[IⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫVX]+/);
-		if (episodeNumberMatch !== null) {
-			var episodeNumberString = episodeNumberMatch[0];
+		// 理題 (flag)
+		{
+			const flagsSource = c.title
+				.replace(/\[無料\]/g, '[無]');
 
-			episodeNumberString = episodeNumberString
-				.replace(/「|（|#|＃|♯|第|話|回|」|）/g, '')
-				.replace(/０|零/g, '0')
-				.replace(/４|Ⅳ|IV|ＩＶ/g, '4')
-				.replace(/８|Ⅷ|VIII|ＶＩＩＩ/g, '8')
-				.replace(/７|Ⅶ|VII|ＶＩＩ/g, '7')
-				.replace(/６|Ⅵ|VI|ＶＩ/g, '6')
-				.replace(/５|Ⅴ/g, '5')
-				.replace(/９|Ⅸ|IX|ＩＸ/g, '9')
-				.replace(/Ⅻ|XII|ＸＩＩ/g, '12')
-				.replace(/Ⅺ|XI|ＸＩ/g, '11')
-				.replace(/３|Ⅲ|III|ＩＩＩ/g, '3')
-				.replace(/２|Ⅱ|II|ＩＩ/g, '2')
-				.replace(/１|Ⅰ|I|Ｉ/g, '1')
-				.replace(/Ⅹ|X|Ｘ/g, '10')
-				.replace(/廿|卄/g, '二十')
-				.replace(/拾/g, '十')
-				.replace(/壱|壹|弌/g, '一')
-				.replace(/弐|貮|貳/g, '二')
-				.replace(/参|參|弎/g, '三')
-				.replace(/肆/g, '四')
-				.replace(/伍/g, '五')
-				.replace(/陸/g, '六')
-				.replace(/柒|漆/g, '七')
-				.replace(/捌/g, '八')
-				.replace(/玖/g, '九')
-				.replace(/二十一/g, '21')
-				.replace(/二十二/g, '22')
-				.replace(/二十三/g, '23')
-				.replace(/二十四/g, '24')
-				.replace(/二十/g, '20')
-				.replace(/十一/g, '11')
-				.replace(/十二/g, '12')
-				.replace(/十三/g, '13')
-				.replace(/十四/g, '14')
-				.replace(/十五/g, '15')
-				.replace(/十六/g, '16')
-				.replace(/十七/g, '17')
-				.replace(/十八/g, '18')
-				.replace(/十九/g, '19')
-				.replace(/十/g, '10')
-				.replace(/一/g, '1')
-				.replace(/二/g, '2')
-				.replace(/三/g, '3')
-				.replace(/四/g, '4')
-				.replace(/五/g, '5')
-				.replace(/六/g, '6')
-				.replace(/七/g, '7')
-				.replace(/八/g, '8')
-				.replace(/九/g, '9')
-				.trim();
-
-			episodeNumber = parseInt(episodeNumberString, 10);
+			const matchedFlags = flagsSource.match(flagBracketsRE) || [];
+			for (const matchedFlag of matchedFlags) {
+				const flag = matchedFlag.match(flagExtractRE)[1];
+				if (flagRE.test(flag) === true) {
+					flags.push(flag);
+				}
+			}
 		}
-		if (episodeNumber === null && flags.indexOf('新') !== -1) {
-			episodeNumber = 1;
+
+		// 理題 (subtitle)
+		{
+			const title = c.title.replace(flagBracketsRE, "");
+			const detail = c.detail.split("\n")[0];
+
+			const matchedSubtitleExInTitle = title.match(subtitleExRE);
+			if (matchedSubtitleExInTitle) {
+				subtitle = matchedSubtitleExInTitle[1];
+			}
+
+			if (subtitle === "") {
+				const matchedSubtitleExInDetail = detail.match(subtitleExRE);
+				if (matchedSubtitleExInDetail && matchedSubtitleExInDetail[1].length < 30) {
+					subtitle = matchedSubtitleExInDetail[1];
+				}
+			}
+
+			if (subtitle === "") {
+				const matchedSubtitleInTitle = title.match(subtitleRE);
+				if (matchedSubtitleInTitle) {
+					subtitle = matchedSubtitleInTitle[2];
+				}
+			}
+
+			if (subtitle === "") {
+				const matchedSubtitleExExInDetail = detail.match(subtitleExExRE);
+				if (matchedSubtitleExExInDetail && matchedSubtitleExExInDetail.length === 1) {
+					subtitle = matchedSubtitleExExInDetail[0];
+				}
+			}
+
+			if (subtitle !== "") {
+				subtitle = subtitle
+					.trim()
+					.replace(/^[「【]/, "")
+					.replace(/[」】]$/, "")
+					.trim();
+			}
+		}
+
+		// 理題 (epinum)
+		{
+			let epinumStr = "";
+
+			const matchedEpinumInTitle = c.title.match(epinumRE);
+			if (matchedEpinumInTitle) {
+				epinumStr = matchedEpinumInTitle[0];
+			}
+
+			if (epinumStr === "") {
+				const detail = c.detail.split("\n")[0];
+				const matchedEpinumExInDetail = detail.match(epinumExRE);
+				if (matchedEpinumExInDetail) {
+					epinumStr = matchedEpinumExInDetail[0];
+				}
+			}
+
+			if (epinumStr !== "") {
+				epinumStr = epinumStr.match(/[0-9０-９]+/)[0];
+				epinumStr = epinumStr
+					.replace("０", "0")
+					.replace("１", "1")
+					.replace("２", "2")
+					.replace("３", "3")
+					.replace("４", "4")
+					.replace("５", "5")
+					.replace("６", "6")
+					.replace("７", "7")
+					.replace("８", "8")
+					.replace("９", "9");
+
+				epinum = parseInt(epinumStr, 10);
+			}
+
+			if (epinum === null && flags.indexOf('新') !== -1) {
+				epinum = 1;
+			}
 		}
 
 		// オブジェクト作成
@@ -470,7 +496,7 @@ function convertPrograms(p, ch) {
 		programData.channel = ch;
 		programData.title = title;
 		programData.subTitle = subtitle;
-		programData.episode = episodeNumber;
+		programData.episode = epinum;
 		programData.flags = flags;
 
 		programs.push(programData);
