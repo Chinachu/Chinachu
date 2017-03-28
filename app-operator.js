@@ -66,6 +66,18 @@ const storageLowSpaceAction = config.storageLowSpaceAction || "remove"; // "none
 const storageLowSpaceNotifyTo = config.storageLowSpaceNotifyTo;// e-mail address
 const storageLowSpaceCommand = config.storageLowSpaceCommand || null;// command
 
+// setuid
+if (process.platform !== "win32") {
+	if (process.getuid() === 0) {
+		if (typeof config.uid === "string" || typeof config.uid === "number") {
+			process.setuid(config.uid);
+		} else {
+			console.error("[fatal] 'uid' required in config.");
+			process.exit(1);
+		}
+	}
+}
+
 // Mirakurun Client
 const mirakurunPath = config.mirakurunPath || config.schedulerMirakurunPath || "http+unix://%2Fvar%2Frun%2Fmirakurun.sock/";
 

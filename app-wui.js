@@ -72,6 +72,18 @@ process.on('uncaughtException', err => {
 	console.error('uncaughtException: ' + err);
 });
 
+// setuid
+if (process.platform !== "win32") {
+	if (process.getuid() === 0) {
+		if (typeof config.uid === "string" || typeof config.uid === "number") {
+			process.setuid(config.uid);
+		} else {
+			console.error("[fatal] 'uid' required in config.");
+			process.exit(1);
+		}
+	}
+}
+
 // Mirakurun Client
 const mirakurunPath = config.mirakurunPath || config.schedulerMirakurunPath || "http+unix://%2Fvar%2Frun%2Fmirakurun.sock/";
 
