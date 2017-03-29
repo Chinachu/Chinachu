@@ -69,6 +69,9 @@ const storageLowSpaceCommand = config.storageLowSpaceCommand || null;// command
 // setuid
 if (process.platform !== "win32") {
 	if (process.getuid() === 0) {
+		if (typeof config.gid === "string" || typeof config.gid === "number") {
+			process.setgid(config.gid);
+		}
 		if (typeof config.uid === "string" || typeof config.uid === "number") {
 			process.setuid(config.uid);
 		} else {
