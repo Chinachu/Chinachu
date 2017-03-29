@@ -1,7 +1,12 @@
 {
+  "uid": null,
+  "gid": "video",
   "mirakurunPath": "http+unix://%2Fvar%2Frun%2Fmirakurun.sock/",
 
   "recordedDir" : "./recorded/",
+
+  "vaapiEnabled": false,
+  "vaapiDevice": "/dev/dri/renderD128",
 
   "wuiUsers": [
     "chinachu:yoshikawa"

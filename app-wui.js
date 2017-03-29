@@ -6,6 +6,8 @@
 **/
 'use strict';
 
+process.env.PATH = `${__dirname}/usr/bin:${process.env.PATH}`;
+
 const CONFIG_FILE = __dirname + '/config.json';
 const RULES_FILE = __dirname + '/rules.json';
 const RESERVES_DATA_FILE = __dirname + '/data/reserves.json';
@@ -71,6 +73,21 @@ process.on('uncaughtException', err => {
 
 	console.error('uncaughtException: ' + err);
 });
+
+// setuid
+if (process.platform !== "win32") {
+	if (process.getuid() === 0) {
+		if (typeof config.gid === "string" || typeof config.gid === "number") {
+			process.setgid(config.gid);
+		}
+		if (typeof config.uid === "string" || typeof config.uid === "number") {
+			process.setuid(config.uid);
+		} else {
+			console.error("[fatal] 'uid' required in config.");
+			process.exit(1);
+		}
+	}
+}
 
 // Mirakurun Client
 const mirakurunPath = config.mirakurunPath || config.schedulerMirakurunPath || "http+unix://%2Fvar%2Frun%2Fmirakurun.sock/";

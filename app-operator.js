@@ -6,6 +6,8 @@
 **/
 'use strict';
 
+process.env.PATH = `${__dirname}/usr/bin:${process.env.PATH}`;
+
 const CONFIG_FILE = __dirname + '/config.json';
 const RESERVES_DATA_FILE  = __dirname + '/data/reserves.json';
 const RECORDING_DATA_FILE = __dirname + '/data/recording.json';
@@ -65,6 +67,21 @@ const storageLowSpaceThresholdMB = config.storageLowSpaceThresholdMB || 3000;// 
 const storageLowSpaceAction = config.storageLowSpaceAction || "remove"; // "none" | "stop" | "remove"
 const storageLowSpaceNotifyTo = config.storageLowSpaceNotifyTo;// e-mail address
 const storageLowSpaceCommand = config.storageLowSpaceCommand || null;// command
+
+// setuid
+if (process.platform !== "win32") {
+	if (process.getuid() === 0) {
+		if (typeof config.gid === "string" || typeof config.gid === "number") {
+			process.setgid(config.gid);
+		}
+		if (typeof config.uid === "string" || typeof config.uid === "number") {
+			process.setuid(config.uid);
+		} else {
+			console.error("[fatal] 'uid' required in config.");
+			process.exit(1);
+		}
+	}
+}
 
 // Mirakurun Client
 const mirakurunPath = config.mirakurunPath || config.schedulerMirakurunPath || "http+unix://%2Fvar%2Frun%2Fmirakurun.sock/";
