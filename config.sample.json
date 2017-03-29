@@ -4,6 +4,9 @@
 
   "recordedDir" : "./recorded/",
 
+  "vaapiEnabled": false,
+  "vaapiDevice": "/dev/dri/renderD128",
+
   "wuiUsers": [
     "chinachu:yoshikawa"
   ],

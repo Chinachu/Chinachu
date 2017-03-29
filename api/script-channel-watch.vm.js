@@ -67,18 +67,51 @@ Usushio では使わない
 
 			if (!request.query.debug) args.push('-v', '0');
 
+			if (config.vaapiEnabled === true) {
+				args.push("-vaapi_device", config.vaapiDevice);
+				args.push("-hwaccel", "vaapi");
+				args.push("-hwaccel_output_format", "yuv420p");
+			}
+
 			args.push('-re');
 			args.push('-i', 'pipe:0');
 			args.push('-threads', '0');
 
-			if (d['c:v']) args.push('-c:v', d['c:v']);
+			if (config.vaapiEnabled === true) {
+				let scale = "";
+				if (d.s) {
+					let [width, height] = d.s.split("x");
+					scale = `,scale_vaapi=w=${width}:h=${height}`;
+				}
+				args.push("-vf", `format=nv12|vaapi,hwupload,deinterlace_vaapi${scale}`);
+				args.push("-aspect", "16:9")
+			} else {
+				args.push('-filter:v', 'yadif');
+			}
+
+			if (d['c:v']) {
+				if (config.vaapiEnabled === true) {
+					if (d['c:v'] === "mpeg2video") {
+						d['c:v'] = "mpeg2_vaapi";
+					}
+					if (d['c:v'] === "h264") {
+						d['c:v'] = "h264_vaapi";
+					}
+					if (d['c:v'] === "vp9") {
+						d['c:v'] = "vp8_vaapi";
+					}
+				}
+				args.push('-c:v', d['c:v']);
+			}
 			if (d['c:a']) args.push('-c:a', d['c:a']);
 
-			if (d.s)  args.push('-s', d.s);
+			if (d.s) {
+				if (config.vaapiEnabled !== true) {
+					args.push('-s', d.s);
+				}
+			}
 			if (d.r)  args.push('-r', d.r);
 			if (d.ar) args.push('-ar', d.ar);
-
-			args.push('-filter:v', 'yadif');
 
 			if (d['b:v']) {
 				args.push('-b:v', d['b:v'], '-minrate:v', d['b:v'], '-maxrate:v', d['b:v']);
@@ -91,6 +124,10 @@ Usushio では使わない
 				args.push('-profile:v', 'baseline');
 				args.push('-preset', 'ultrafast');
 				args.push('-tune', 'fastdecode,zerolatency');
+			}
+			if (d['c:v'] === 'h264_vaapi') {
+				args.push('-profile', '77');
+				args.push('-level', '41');
 			}
 			if (d['c:v'] === 'vp9') {
 				args.push('-deadline', 'realtime');
