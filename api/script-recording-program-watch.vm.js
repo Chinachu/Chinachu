@@ -75,7 +75,7 @@
 			if (!request.query.debug) args.push('-v', '0');
 
 			if (config.vaapiEnabled === true) {
-				args.push("-vaapi_device", config.vaapiDevice);
+				args.push("-vaapi_device", config.vaapiDevice || '/dev/dri/renderD128');
 				args.push("-hwaccel", "vaapi");
 				args.push("-hwaccel_output_format", "yuv420p");
 			}
