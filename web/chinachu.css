@@ -1249,14 +1249,27 @@ div.video-control {
 	right           : 0;
 	bottom          : 0;
 	left            : 0;
-	padding         : 8px 20px 8px;
+	padding         : 8px 10px 8px;
 	text-align      : center; }
 
+	div.video-control > * {
+		height: 28px; }
+
+	div.video-control > span {
+		padding-top: 9px; }
+
+	div.video-control > button.flagrate-button {
+		font-family: "Glyphicons Halflings";
+		color: #388dd6; }
+
+	div.video-control > button.flagrate-button:hover {
+		color: black; }
+
 	div.video-control .seek {
-		width: -webkit-calc(100% - 470px) !important;
-		width: -moz-calc(100% - 470px) !important;
-		width: -ms-calc(100% - 470px) !important;
-		width: calc(100% - 470px) !important; }
+		width: -webkit-calc(100% - 450px) !important;
+		width: -moz-calc(100% - 450px) !important;
+		width: -ms-calc(100% - 450px) !important;
+		width: calc(100% - 450px) !important; }
 
 div.console {
 	position   : absolute;

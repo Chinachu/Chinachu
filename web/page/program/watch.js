@@ -455,16 +455,23 @@ P = Class.create(P, {
 			return r + '?' + q;
 		};
 
+		var getPreviewURI = function(pos) {
+
+			var r = location.protocol + '//' + location.host + location.pathname.replace(/\/[^\/]*$/, '');
+			r += '/api/' + (!!p._isRecording ? 'recording' : 'recorded') + '/' + p.id + '/preview.jpg';
+			var q = 'width=480&height=270&pos=' + pos;
+
+			return r + '?' + q;
+		};
+
 		var togglePlay = function() {
 
 			if (p._isRecording) return;
 
 			if (video.paused) {
 				video.play();
-				control.getElementByKey('play').setLabel('Pause');
 			} else {
 				video.pause();
-				control.getElementByKey('play').setLabel('Play');
 			}
 		};
 
@@ -475,8 +482,9 @@ P = Class.create(P, {
 		}).insertTo(this.view.content);
 
 		var video = new flagrate.Element('video', {
-			autoplay: true,
-			controls: true
+			autoplay: false,
+			controls: true,
+			poster: getPreviewURI(0)
 		}).insertTo(videoContainer);
 
 		new flagrate.Element('source', {
@@ -484,7 +492,32 @@ P = Class.create(P, {
 			type    : 'video/' + d.ext
 		}).insertTo(video);
 
-		video.addEventListener('click', togglePlay);
+		//debug
+		window.video = video;
+
+		video.onloadstart = function () {
+			control.getElementByKey('play').setLabelHTML('&#8987;');
+		};
+
+		video.oncanplay = function () {
+			if (video.paused) {
+				control.getElementByKey('play').setLabelHTML('&#57458;');
+			} else {
+				control.getElementByKey('play').setLabelHTML('&#57459;');
+			}
+		};
+
+		video.onpause = function () {
+			control.getElementByKey('play').setLabelHTML('&#57458;');
+			d.ss = seek.getValue() - 2;
+			console.log(d.ss);
+			video.src = getRequestURI();
+		};
+
+		video.onplay = function () {
+			video.poster = "";
+			control.getElementByKey('play').setLabelHTML('&#57459;');
+		};
 
 		video.volume = 1;
 
@@ -497,16 +530,16 @@ P = Class.create(P, {
 			items: [
 				{
 					key    : 'play',
-					element: new flagrate.Button({ label: 'Pause', onSelect: togglePlay})
+					element: new flagrate.Button({ labelHTML: '&#8987;', onSelect: togglePlay})
 				},
 				'--',
 				{
 					key    : 'fast-rewind',
-					element: new flagrate.Button({ label: '<<'})
+					element: new flagrate.Button({ labelHTML: '&#57457;'})
 				},
 				{
 					key    : 'fast-forward',
-					element: new flagrate.Button({ label: '>>'})
+					element: new flagrate.Button({ labelHTML: '&#57461;'})
 				},
 				'--',
 				{
@@ -545,6 +578,9 @@ P = Class.create(P, {
 
 			video.src = uri;
 			video.play();
+
+			lastTime = 0;
+			currentTime = d.ss * 1000;
 
 			setTimeout(function() {
 				seek.enable();
@@ -587,22 +623,25 @@ P = Class.create(P, {
 
 		seek.addEventListener('slide', seekSlideEvent);
 
+		var lastTime = 0;
+		var currentTime = 0;
+
 		var updateTime = function() {
 
 			if (seek.isEnabled() === false) return;
 
-			var current = 0;
+			if (lastTime && video.paused === false) {
+				currentTime += Date.now() - lastTime;
+			}
 
-			current = video.currentTime;
-
-			current += d.ss;
-
-			current = Math.floor(current);
+			var current = Math.floor(currentTime / 1000);
 
 			control.getElementByKey('played').updateText(
 				Math.floor(current / 60).toPaddedString(2) + ':' + (current % 60).toPaddedString(2)
 			);
 			seek.setValue(current);
+
+			lastTime = Date.now();
 		};
 
 		var updateLiveTime = function() {
@@ -624,7 +663,7 @@ P = Class.create(P, {
 		if (p._isRecording) {
 			this.timer.updateLiveTime = setInterval(updateLiveTime, 250);
 		} else {
-			this.timer.updateTime = setInterval(updateTime, 250);
+			this.timer.updateTime = setInterval(updateTime, 100);
 		}
 
 		return this;
