@@ -541,6 +541,29 @@ function getEpgFromMirakurun(path) {
 			util.log('Mirakurun is OK.');
 			util.log('Mirakurun -> services: ' + services.length);
 
+			const excludeServices = config.excludeServices || [];
+			for (let i = 0; i < services.length; i++) {
+				if (excludeServices.indexOf(services[i].id) !== -1) {
+					services.splice(i, 1);
+					i--;
+				}
+			}
+
+			util.log('Mirakurun -> services: ' + services.length + ' (excluded)');
+
+			const serviceOrder = config.serviceOrder || [];
+			let insertCount = 0;
+			serviceOrder.forEach((id) => {
+				const i = services.findIndex(service => service.id === id);
+				if (i !== -1) {
+					const [service] = services.splice(i, 1);
+					services.splice(insertCount, 0, service);
+					++insertCount;
+				}
+			});
+
+			util.log('Mirakurun -> sorted services: ' + insertCount);
+
 			channels = services.map((service, i) => {
 				return {
 					type: service.channel.type,
@@ -551,15 +574,6 @@ function getEpgFromMirakurun(path) {
 					nid: service.networkId,
 					hasLogoData: service.hasLogoData
 				};
-			});
-
-			const channelOrder = ["GR", "BS", "CS", "SKY"];
-			channels.sort((a, b) => {
-				if (a.type === b.type) {
-					return a.sid - b.sid;
-				} else {
-					return channelOrder.indexOf(a.type) - channelOrder.indexOf(b.type);
-				}
 			});
 
 			for (let i = 0, l = channels.length; i < l; i++) {
