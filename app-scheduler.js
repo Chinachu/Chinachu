@@ -541,6 +541,16 @@ function getEpgFromMirakurun(path) {
 			util.log('Mirakurun is OK.');
 			util.log('Mirakurun -> services: ' + services.length);
 
+			const excludeServices = config.excludeServices || [];
+			for (let i = 0; i < services.length; i++) {
+				if (excludeServices.indexOf(services[i].id) !== -1) {
+					services.splice(i, 1);
+					i--;
+				}
+			}
+
+			util.log('Mirakurun -> services: ' + services.length + ' (excluded)');
+
 			channels = services.map((service, i) => {
 				return {
 					type: service.channel.type,

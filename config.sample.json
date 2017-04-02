@@ -8,6 +8,16 @@
   "vaapiEnabled": false,
   "vaapiDevice": "/dev/dri/renderD128",
 
+  "excludeServices": [
+    3273701416,
+    3232728088,
+    3273901183,
+    3274201456,
+    3239123992,
+    3239123993,
+    3273601408
+  ],
+
   "wuiUsers": [
     "chinachu:yoshikawa"
   ],
