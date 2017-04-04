@@ -233,7 +233,10 @@ function main(avinfo) {
 			if (d.ar) args.push('-ar', d.ar);
 
 			if (d['b:v']) {
-				args.push('-b:v', d['b:v'], '-minrate:v', d['b:v'], '-maxrate:v', d['b:v']);
+				if (d['c:v'] !== 'vp8_vaapi') {
+					args.push('-b:v', d['b:v']);
+				}
+				args.push('-minrate:v', d['b:v'], '-maxrate:v', d['b:v']);
 				args.push('-bufsize:v', videoBitrate * 8);
 			}
 			if (d['b:a']) {
