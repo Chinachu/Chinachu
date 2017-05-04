@@ -40,6 +40,7 @@
   "wuiTlsCaPath": null,
   "wuiOpenServer": true,
   "wuiOpenPort": 20772,
+  "wuiOpenHost": "0.0.0.0",
   "wuiXFF": false,
   "wuiDLNAServerEnabled": false,
   "wuiMdnsAdvertisement": true,
