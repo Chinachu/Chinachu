@@ -113,7 +113,10 @@
 				}
 			}
 		}
-
+		
+		var weekDays = ["日", "月", "火", "水", "木", "金", "土"];
+		dStr += " [" + weekDays[d.getDay()] + "]";
+		
 		if (typeof type === 'undefined' || type === 'full') {
 			return dStr + ' [' + dDeltaStr + ']';
 		} else if (type === 'short') {
