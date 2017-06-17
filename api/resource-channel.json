@@ -2,7 +2,7 @@
   "/:chid/watch": {
     "script" : "channel-watch",
     "methods": ["get"],
-    "types"  : ["xspf", "m2ts", "webm"]
+    "types"  : ["xspf", "m3u8", "m2ts", "webm"]
   },
 
   "/:chid/logo": {

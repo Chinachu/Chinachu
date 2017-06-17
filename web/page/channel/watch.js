@@ -158,6 +158,28 @@ P = Class.create(P, {
 					}.bind(this));
 				}.bind(this)
 			});
+
+			buttons.push({
+				label  : 'M3U8',
+				color  : '@orange',
+				onSelect: function(e, modal) {
+
+					this.form.validate(function (success) {
+						if (!success) { return; }
+
+						var d = this.form.getResult();
+						saveSettings(d);
+
+						var url = d.prefix = location.protocol + '//' + location.host + location.pathname.replace(/\/[^\/]*$/, '');
+
+						d.prefix += '/api/channel/' + this.channelId + '/';
+						url += '/api/channel/';
+
+						url += this.channelId + '/watch.m3u8?' + Object.toQueryString(d);
+						location.href = url;
+					}.bind(this));
+				}.bind(this)
+			});
 		}
 
 		var modal = this.modal = new flagrate.Modal({

@@ -471,6 +471,7 @@ function httpServerMain(req, res, query) {
 		if (ext === 'asf') { type = 'video/x-ms-asf'; }
 		if (ext === 'json') { type = 'application/json; charset=utf-8'; }
 		if (ext === 'xspf') { type = 'application/xspf+xml'; }
+		if (ext === 'm3u8') { type = 'application/x-mpegurl'; }
 
 		var head = {
 			'Content-Type'             : type,

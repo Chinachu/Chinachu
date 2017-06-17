@@ -57,6 +57,22 @@ function main(avinfo) {
 			response.end();
 			return;
 
+        case 'm3u8':
+			response.setHeader('content-disposition', 'attachment; filename="' + channel.id + '.m3u8"');
+			response.head(200);
+
+			var ext    = request.query.ext || 'm2ts';
+			var prefix = request.query.prefix || '';
+
+			var target = prefix + 'watch.' + ext  + url.parse(request.url).search;
+
+			response.write("#EXTM3U\n");
+			response.write("##EXTINF:1000000," + channel.name + "\n");
+			response.write(target.replace(/&/g, '&amp;') + '\n');
+
+			response.end();
+			return;
+
 		case 'm2ts':
 		case 'webm':
 		case 'mp4':
