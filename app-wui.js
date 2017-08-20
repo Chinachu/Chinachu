@@ -37,13 +37,13 @@ const vm = require('vm');
 const os = require('os');
 const zlib = require('zlib');
 const events = require('events');
-const dns = require('dns');
 const http = require('http');
 const https = require('https');
 const auth = require('http-auth');
 const socketio = require('socket.io');
 const chinachu = require('chinachu-common');
 const S = require('string');
+const ip = require("ip");
 const geoip = require('geoip-lite');
 const UPnPServer = require('chinachu-upnp-server');
 const mdns = require('mdns-js');
@@ -231,24 +231,49 @@ if (config.wuiPort) {
 if (openServerEnabled) {
 	openServer = http.createServer(httpServer);
 	openServer.timeout = 0;
-	dns.lookup(os.hostname(), function (err, hostIp) {
-		openServer.listen(config.wuiOpenPort || 20772, config.wuiOpenHost || hostIp, function () {
-			util.log('HTTP Open Server Listening on ' + util.inspect(openServer.address()));
-			if (config.wuiMdnsAdvertisement === true) {
-				// Start mDNS advertisement
-				openServerMdns = mdns.createAdvertisement(mdns.tcp('_http'), config.wuiOpenPort || 20772, {
-					name: 'Chinachu Open Server on ' + os.hostname(),
-					host: os.hostname(),
-					txt: {
-						txtvers: '1',
-						'Version': 'gamma',
-						'Password': false
-					}
-				});
-				openServerMdns.start();
-				util.log('HTTP Open Server mDNS advertising started.');
-			}
+
+	let hostIp = config.wuiOpenHost;
+	if (!hostIp) {
+		const addresses = [];
+
+		const interfaces = os.networkInterfaces();
+		Object.keys(interfaces).forEach(k => {
+			interfaces[k]
+				.filter(a => {
+					return (
+						a.family === "IPv4" &&
+						a.internal === false &&
+						ip.isPrivate(a.address) === true
+					);
+				})
+				.forEach(a => addresses.push(a.address));
 		});
+
+		hostIp = addresses[0];
+
+		console.log("============================================================");
+		console.log("Detected Private IPv4:", addresses);
+		console.log("Selected Private IPv4 for Open Server:", addresses[0]);
+		console.log("NOTE: set `wuiOpenHost` to fix address for listen.");
+		console.log("============================================================");
+	}
+
+	openServer.listen(config.wuiOpenPort || 20772, hostIp, () => {
+		util.log('HTTP Open Server Listening on ' + util.inspect(openServer.address()));
+		if (config.wuiMdnsAdvertisement === true) {
+			// Start mDNS advertisement
+			openServerMdns = mdns.createAdvertisement(mdns.tcp('_http'), config.wuiOpenPort || 20772, {
+				name: 'Chinachu Open Server on ' + os.hostname(),
+				host: os.hostname(),
+				txt: {
+					txtvers: '1',
+					'Version': 'gamma',
+					'Password': false
+				}
+			});
+			openServerMdns.start();
+			util.log('HTTP Open Server mDNS advertising started.');
+		}
 	});
 }
 
