@@ -14,9 +14,13 @@ const RESERVES_DATA_FILE = __dirname + '/data/reserves.json';
 const SCHEDULE_DATA_FILE = __dirname + '/data/schedule.json';
 const RECORDING_DATA_FILE = __dirname + '/data/recording.json';
 const RECORDED_DATA_FILE = __dirname + '/data/recorded.json';
-const OPERATOR_LOG_FILE = __dirname + '/log/operator';
-const WUI_LOG_FILE = __dirname + '/log/wui';
 const SCHEDULER_LOG_FILE = __dirname + '/log/scheduler';
+
+const apps = require("./processes.json").apps;
+
+const WUI_LOG_FILE = !!process.env.pm_id ? apps[0].out_file : (__dirname + '/log/wui');
+const OPERATOR_LOG_FILE = !!process.env.pm_id ? apps[1].out_file : (__dirname + '/log/operator');
+const OPERATOR_PID_FILE = !!process.env.pm_id ? apps[1].pid_file : "/var/run/chinachu-operator.pid";
 
 // Load Config
 const pkg = require("./package.json");
@@ -33,13 +37,13 @@ const vm = require('vm');
 const os = require('os');
 const zlib = require('zlib');
 const events = require('events');
-const dns = require('dns');
 const http = require('http');
 const https = require('https');
 const auth = require('http-auth');
 const socketio = require('socket.io');
 const chinachu = require('chinachu-common');
 const S = require('string');
+const ip = require("ip");
 const geoip = require('geoip-lite');
 const UPnPServer = require('chinachu-upnp-server');
 const mdns = require('mdns-js');
@@ -227,24 +231,49 @@ if (config.wuiPort) {
 if (openServerEnabled) {
 	openServer = http.createServer(httpServer);
 	openServer.timeout = 0;
-	dns.lookup(os.hostname(), function (err, hostIp) {
-		openServer.listen(config.wuiOpenPort || 20772, config.wuiOpenHost || hostIp, function () {
-			util.log('HTTP Open Server Listening on ' + util.inspect(openServer.address()));
-			if (config.wuiMdnsAdvertisement === true) {
-				// Start mDNS advertisement
-				openServerMdns = mdns.createAdvertisement(mdns.tcp('_http'), config.wuiOpenPort || 20772, {
-					name: 'Chinachu Open Server on ' + os.hostname(),
-					host: os.hostname(),
-					txt: {
-						txtvers: '1',
-						'Version': 'gamma',
-						'Password': false
-					}
-				});
-				openServerMdns.start();
-				util.log('HTTP Open Server mDNS advertising started.');
-			}
+
+	let hostIp = config.wuiOpenHost;
+	if (!hostIp) {
+		const addresses = [];
+
+		const interfaces = os.networkInterfaces();
+		Object.keys(interfaces).forEach(k => {
+			interfaces[k]
+				.filter(a => {
+					return (
+						a.family === "IPv4" &&
+						a.internal === false &&
+						ip.isPrivate(a.address) === true
+					);
+				})
+				.forEach(a => addresses.push(a.address));
 		});
+
+		hostIp = addresses[0];
+
+		console.log("============================================================");
+		console.log("Detected Private IPv4:", addresses);
+		console.log("Selected Private IPv4 for Open Server:", addresses[0]);
+		console.log("NOTE: set `wuiOpenHost` to fix address for listen.");
+		console.log("============================================================");
+	}
+
+	openServer.listen(config.wuiOpenPort || 20772, hostIp, () => {
+		util.log('HTTP Open Server Listening on ' + util.inspect(openServer.address()));
+		if (config.wuiMdnsAdvertisement === true) {
+			// Start mDNS advertisement
+			openServerMdns = mdns.createAdvertisement(mdns.tcp('_http'), config.wuiOpenPort || 20772, {
+				name: 'Chinachu Open Server on ' + os.hostname(),
+				host: os.hostname(),
+				txt: {
+					txtvers: '1',
+					'Version': 'gamma',
+					'Password': false
+				}
+			});
+			openServerMdns.start();
+			util.log('HTTP Open Server mDNS advertising started.');
+		}
 	});
 }
 
@@ -637,7 +666,8 @@ function httpServerMain(req, res, query) {
 					RECORDED_DATA_FILE : RECORDED_DATA_FILE,
 					OPERATOR_LOG_FILE  : OPERATOR_LOG_FILE,
 					WUI_LOG_FILE       : WUI_LOG_FILE,
-					SCHEDULER_LOG_FILE : SCHEDULER_LOG_FILE
+					SCHEDULER_LOG_FILE : SCHEDULER_LOG_FILE,
+					OPERATOR_PID_FILE  : OPERATOR_PID_FILE
 				},
 				data: {
 					rules    : rules,
@@ -946,10 +976,10 @@ function processChecker() {
 
 	ios.emit('status', status);
 
-	var c = chinachu.createCountdown(2, chinachu.createTimeout(processChecker, 5000));
+	var c = chinachu.createCountdown(1, chinachu.createTimeout(processChecker, 5000));
 
-	if (fs.existsSync('/var/run/chinachu-operator.pid') === true) {
-		fs.readFile('/var/run/chinachu-operator.pid', function (err, pid) {
+	if (fs.existsSync(OPERATOR_PID_FILE) === true) {
+		fs.readFile(OPERATOR_PID_FILE, function (err, pid) {
 
 			if (err) { return c.tick(); }
 
@@ -971,33 +1001,6 @@ function processChecker() {
 	} else {
 		status.operator.alive = false;
 		status.operator.pid   = null;
-
-		c.tick();
-	}
-
-	if (fs.existsSync('/var/run/chinachu-wui.pid') === true) {
-		fs.readFile('/var/run/chinachu-wui.pid', function (err, pid) {
-
-			if (err) { return c.tick(); }
-
-			pid = pid.toString().trim();
-
-			child_process.exec('ps h -p ' + pid + ' -o %cpu,rss', function (err, stdout) {
-
-				if (stdout === '') {
-					status.wui.alive = false;
-					status.wui.pid   = null;
-				} else {
-					status.wui.alive = true;
-					status.wui.pid   = parseInt(pid, 10);
-				}
-
-				c.tick();
-			});
-		});
-	} else {
-		status.wui.alive = false;
-		status.wui.pid   = null;
 
 		c.tick();
 	}

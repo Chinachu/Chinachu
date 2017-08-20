@@ -18,4 +18,3 @@
 /usr/*
 /node
 /node_modules/*
-!/node_modules/chinachu-common
