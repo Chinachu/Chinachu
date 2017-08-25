@@ -192,6 +192,33 @@ P = Class.create(P, {
 					}.bind(this));
 				}.bind(this)
 			});
+
+			buttons.push({
+				label  : 'M3U8',
+				color  : '@orange',
+				onSelect: function(e, modal) {
+
+					this.form.validate(function (success) {
+						if (!success) { return; }
+
+						var d = this.form.getResult();
+						saveSettings(d);
+
+						var url = d.prefix = location.protocol + '//' + location.host + location.pathname.replace(/\/[^\/]*$/, '');
+
+						if (program._isRecording) {
+							d.prefix += '/api/recording/' + program.id + '/';
+							url += '/api/recording/';
+						} else {
+							d.prefix += '/api/recorded/' + program.id + '/';
+							url += '/api/recorded/';
+						}
+
+						url += program.id + '/watch.m3u8?' + Object.toQueryString(d);
+						location.href = url;
+					}.bind(this));
+				}.bind(this)
+			});
 		}
 
 		if (!Prototype.Browser.MobileSafari && !program._isRecording) {
