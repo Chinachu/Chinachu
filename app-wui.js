@@ -16,12 +16,6 @@ const RECORDING_DATA_FILE = __dirname + '/data/recording.json';
 const RECORDED_DATA_FILE = __dirname + '/data/recorded.json';
 const SCHEDULER_LOG_FILE = __dirname + '/log/scheduler';
 
-const apps = require("./processes.json").apps;
-
-const WUI_LOG_FILE = !!process.env.pm_id ? apps[0].out_file : (__dirname + '/log/wui');
-const OPERATOR_LOG_FILE = !!process.env.pm_id ? apps[1].out_file : (__dirname + '/log/operator');
-const OPERATOR_PID_FILE = !!process.env.pm_id ? apps[1].pid_file : "/var/run/chinachu-operator.pid";
-
 // Load Config
 const pkg = require("./package.json");
 const config = require(CONFIG_FILE);
@@ -54,6 +48,20 @@ if (!fs.existsSync('./data/') || !fs.existsSync('./log/') || !fs.existsSync('./w
 	console.error('FATAL: Current working directory is invalid.');
 	process.exit(1);
 }
+
+const apps = require("./processes.json").apps;
+
+const WUI_LOG_FILE = !!process.env.pm_id ? apps[0].out_file : (__dirname + '/log/wui');
+const OPERATOR_LOG_FILE = !!process.env.pm_id ? apps[1].out_file : (__dirname + '/log/operator');
+const OPERATOR_PID_FILE = (() => {
+	if (process.env.pm_id) {
+		const jlist = JSON.parse(child_process.execSync("pm2 jlist"));
+		const proc = jlist.find(_proc => _proc.name === "chinachu-operator");
+		return proc.pm2_env.pm_pid_path;
+	} else {
+		return "/var/run/chinachu-operator.pid";
+	}
+})();
 
 // SIGQUIT
 process.on('SIGQUIT', () => {
