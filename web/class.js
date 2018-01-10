@@ -132,6 +132,10 @@
 					var candidates = global.chinachu.schedule.pluck('id').concat(global.chinachu.schedule.pluck('channel'));
 
 					var i, l;
+					for (i = 0, l = global.chinachu.schedule.length; i < l; i++) {
+						candidates.push(global.chinachu.schedule[i]['type'] + '_' + global.chinachu.schedule[i]['sid']);
+					}
+
 					for (i = 0, l = candidates.length; i < l; i++) {
 						if (input.match(/^[a-z0-9_]+$/i) === null) {
 							candidates[i] = null;
