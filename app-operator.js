@@ -41,7 +41,7 @@ process.on('uncaughtException', (err) => {
 // 追加モジュールのロード
 const dateFormat = require('dateformat');
 const mkdirp = require('mkdirp');
-const Mtwitter = require('mtwitter');
+const Twitter = require('twitter');
 const disk = require('diskusage');
 const nodemailer = require("nodemailer");
 const sendmail = require("nodemailer-sendmail-transport");
@@ -126,7 +126,7 @@ if (!fs.existsSync(config.recordedDir)) {
 // Tweeter (Experimental)
 let tweeter, tweeterUpdater;
 if (config.operTweeter && config.operTweeterAuth && config.operTweeterFormat) {
-	tweeter = new Mtwitter({
+	tweeter = new Twitter({
 		consumer_key       : config.operTweeterAuth.consumerKey,
 		consumer_secret    : config.operTweeterAuth.consumerSecret,
 		access_token_key   : config.operTweeterAuth.accessToken,
