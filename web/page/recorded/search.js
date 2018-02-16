@@ -178,6 +178,14 @@ P = Class.create(P, {
 				},
 				menuItems: [
 					{
+						label   : '削除...',
+						icon    : './icons/cross-script.png',
+						onSelect: function() {
+							new chinachu.ui.RemoveRecordedProgram(program.id);
+						}
+					},
+					'------------------------------------------',
+					{
 						label   : 'ルール作成...',
 						icon    : './icons/regular-expression.png',
 						onSelect: function() {
