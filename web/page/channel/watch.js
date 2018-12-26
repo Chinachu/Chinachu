@@ -123,6 +123,14 @@ P = Class.create(P, {
 						var d = this.d = this.form.getResult();
 						saveSettings(d);
 
+						if (d.ext === 'm2ts') {
+							new flagrate.Modal({
+								title: 'エラー',
+								text : 'MPEG-2 TSコンテナの再生はサポートしていません。'
+							}).show();
+							return;
+						}
+
 						modal.close();
 						this.play();
 					}.bind(this));
@@ -164,7 +172,7 @@ P = Class.create(P, {
 
 		exts.push({
 			label     : 'M2TS',
-			value     : 'm3u8'
+			value     : 'm2ts'
 		});
 
 		exts.push({
@@ -207,7 +215,7 @@ P = Class.create(P, {
 						]
 					},
 					depends: [
-						{ key: "ext", val: "m3u8" }
+						{ key: "ext", val: "m2ts" }
 					]
 				},
 				{
@@ -269,7 +277,7 @@ P = Class.create(P, {
 						]
 					},
 					depends: [
-						{ key: 'ext', val: 'm3u8' }
+						{ key: 'ext', val: 'm2ts' }
 					]
 				},
 				{

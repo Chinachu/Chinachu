@@ -20,7 +20,7 @@ Usushio では使わない
 			response.setHeader('content-disposition', 'attachment; filename="' + channel.id + '.xspf"');
 			response.head(200);
 
-			var ext    = request.query.ext || 'm3u8';
+			var ext    = request.query.ext || 'm2ts';
 			var prefix = request.query.prefix || '';
 
 			var target = prefix + 'watch.' + ext  + url.parse(request.url).search;
@@ -36,7 +36,7 @@ Usushio では使わない
 			response.end();
 			return;
 
-		case 'm3u8':
+		case 'm2ts':
 		case 'webm':
 
 			var d = {
@@ -51,8 +51,8 @@ Usushio では使わない
 			};
 
 			switch (request.type) {
-				case 'm3u8':
-					d.f = 'segment';
+				case 'm2ts':
+					d.f = 'mpegts';
 					d['c:v'] = d['c:v'] || 'copy';
 					d['c:a'] = d['c:a'] || 'copy';
 					break;
