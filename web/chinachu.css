@@ -10,14 +10,12 @@ html, body {
 	right           : 0;
 	bottom          : 0;
 	left            : 0;
-	cursor          : url(pointer.cur), default;
 	background-color: rgb(194,65,134);
 	-webkit-text-size-adjust: none;
 	scrollbar-base-color    : #d67fae; }
 
 body, input {
-	font-family     : "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ",
-	                  Meiryo, Osaka, "ＭＳ Ｐゴシック", "MS PGothic", sans-serif; }
+	font-family     : "Yu Gothic",YuGothic,"Hiragino Kaku Gothic Pro","メイリオ", "Meiryo", "Osaka", "ＭＳ Ｐゴシック", "MS PGothic", "sans-serif"; }
 
 a {
 	cursor: pointer; }
