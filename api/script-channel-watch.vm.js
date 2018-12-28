@@ -98,7 +98,7 @@ Usushio では使わない
 						d['c:v'] = "h264_vaapi";
 					}
 					if (d['c:v'] === "vp9") {
-						d['c:v'] = "vp8_vaapi";
+						d['c:v'] = "vp9_vaapi";
 					}
 				}
 				args.push('-c:v', d['c:v']);
