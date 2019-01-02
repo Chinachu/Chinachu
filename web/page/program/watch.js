@@ -482,7 +482,7 @@ P = Class.create(P, {
 		}).insertTo(this.view.content);
 
 		var video = new flagrate.Element('video', {
-			autoplay: false,
+			autoplay: true,
 			controls: true,
 			poster: getPreviewURI(0)
 		}).insertTo(videoContainer);
@@ -577,7 +577,10 @@ P = Class.create(P, {
 			fastRewind.disable();
 
 			video.src = uri;
-			video.play();
+			try {
+				video.play();
+			} catch (e) {
+			}
 
 			lastTime = 0;
 			currentTime = d.ss * 1000;
