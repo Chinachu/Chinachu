@@ -612,18 +612,19 @@
 
 			var onMousedown = function (e) {
 
-				if (e.buttons !== 1) {
+				if (e.buttons !== 1 && e.buttons !== undefined) {
 					return;
 				}
 
 				e.preventDefault();
 				e.stopPropagation();
 
-				this.data.scrollStat  = [e.clientX, e.clientY].join(',');
-				this.data.scrollStart = this.data.scrollEnd = [e.clientX, e.clientY];
+				this.data.scrollStat  = [e.clientX || e.touches[0].clientX, e.clientY || e.touches[0].clientY].join(',');
+				this.data.scrollStart = this.data.scrollEnd = [e.clientX || e.touches[0].clientX, e.clientY || e.touches[0].clientY];
 
-				window.addEventListener('pointermove', onMousemove, true);
-				window.addEventListener('pointerup',   onMouseup, true);
+				window.addEventListener('ontouchend' in document ? 'touchmove' : 'pointermove', onMousemove, { passive: false });
+				window.addEventListener('ontouchend' in document ? 'touchend' : 'pointerup',   onMouseup, { passive: false });
+				// window.addEventListener('touchmove', onMousemove, true);
 
 				this.scroller();
 
@@ -646,7 +647,7 @@
 				e.preventDefault();
 				e.stopPropagation();
 
-				this.data.scrollEnd = [e.clientX, e.clientY];
+				if ('clientX' in e || 0 < e.touches.length) this.data.scrollEnd = [e.clientX || e.touches[0].clientX, e.clientY || e.touches[0].clientY];
 
 				this.scroller();
 			}.bind(this);
@@ -656,7 +657,7 @@
 				e.preventDefault();
 				e.stopPropagation();
 
-				if (this.data.scrollStat === [e.clientX, e.clientY].join(',')) {
+				if (this.data.scrollStat === [e.clientX || e.changedTouches[0].clientX, e.clientY || e.changedTouches[0].clientY].join(',')) {
 
 					if (e.buttons === 2) {
 						this.view.popoverDrawer.close();
@@ -690,16 +691,16 @@
 					inertiaScroll();
 				}
 
-				window.removeEventListener('pointermove', onMousemove, true);
-				window.removeEventListener('pointerup',   onMouseup, true);
+				window.removeEventListener('ontouchend' in document ? 'touchmove' : 'pointermove', onMousemove, { passive: false });
+				window.removeEventListener('ontouchend' in document ? 'touchend' : 'pointerup',   onMouseup, { passive: false });
 			}.bind(this);
 
-			this.view.content.addEventListener('pointerdown', onMousedown);
+			this.view.content.addEventListener('ontouchend' in document ? 'touchstart' : 'pointerdown', onMousedown);
 
 			window.addEventListener('keydown', onKeydown);
 			var removeListenersOnUnload = function () {
 
-				this.view.content.removeEventListener('pointerdown', onMousedown);
+				this.view.content.removeEventListener('ontouchend' in document ? 'touchstart' : 'pointerdown', onMousedown);
 
 				window.removeEventListener('keydown', onKeydown);
 

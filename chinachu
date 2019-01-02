@@ -16,7 +16,7 @@ fi
 shopt -s extglob
 
 # variables
-NODE_VER=6.11.2
+NODE_VER=10.15.0
 
 main () {
   local SELF_PATH DIR SYM
@@ -28,7 +28,7 @@ main () {
   SELF_PATH=$( cd -P -- "$(dirname -- "$SELF_PATH")" \
             && pwd -P \
             ) && SELF_PATH=$SELF_PATH/$(basename -- "$0")
-  
+
   # resolve symlinks
   while [ -h "$SELF_PATH" ]; do
     DIR=$(dirname -- "$SELF_PATH")
@@ -38,23 +38,23 @@ main () {
               && pwd \
               )/$(basename -- "$SYM")
   done
-  
+
   # path
   CHINACHU_DIR=$(dirname -- "$SELF_PATH")
   NAVE_DIR=${CHINACHU_DIR}/.nave
   NODE_PATH=${NAVE_DIR}/installed/${NODE_VER}/bin/node
   NPM_PATH=${NAVE_DIR}/installed/${NODE_VER}/bin/npm
   USR_DIR=${CHINACHU_DIR}/usr
-  
+
   export PATH=$USR_DIR/bin:${NAVE_DIR}/installed/${NODE_VER}/bin:$PATH
   export LD_LIBRARY_PATH=$USR_DIR/lib:$LD_LIBRARY_PATH
   export PKG_CONFIG_PATH=$USR_DIR/lib/pkgconfig
-  
+
   cd $CHINACHU_DIR
-  
+
   export CHINACHU_DIR
   export NAVE_DIR
-  
+
   local cmd="$1"
   shift
   case $cmd in
@@ -76,15 +76,15 @@ chinachu_installer () {
   ensure_dir "$USR_DIR"
   ensure_dir "$USR_DIR/src"
   ensure_dir "$USR_DIR/bin"
-  
+
   export CFLAGS="-O2 -w -pipe -march=native"
   export CXXFLAGS="-O2 -w -pipe -march=native"
   export MAKEFLAGS="-j $((`grep processor /proc/cpuinfo | wc -l` + 1)) -l 3"
-  
+
   echo "Chinachu Installer Menu:"
   echo "[!] These are installed under all ${CHINACHU_DIR}/..."
   echo "[!] Recommend the Auto installation."
-  
+
   local PS3 item cmd
   PS3="what do you install? > "
   select item in \
@@ -113,7 +113,7 @@ chinachu_installer () {
     esac
     $cmd && break
   done
-  
+
   return 0
 }
 
@@ -122,7 +122,7 @@ chinachu_installer_auto_full () {
   chinachu_installer_node
   chinachu_installer_node_modules
   chinachu_installer_ffmpeg
-  
+
   return 0
 }
 
@@ -136,7 +136,7 @@ chinachu_installer_submodule () {
 chinachu_installer_node () {
   remove_dir "$NAVE_DIR"
   ensure_dir "$NAVE_DIR"
-  
+
   echo "Installing Node using Nave..."
   wget -O - https://github.com/isaacs/nave/archive/v0.5.1.tar.gz | tar zxvf - -C $NAVE_DIR nave-0.5.1/nave.sh
   mv $NAVE_DIR/nave-0.5.1/nave.sh $NAVE_DIR/
@@ -145,20 +145,22 @@ chinachu_installer_node () {
   rm -fv ${NAVE_DIR}/node
   ln -sv $NODE_PATH ${NAVE_DIR}/node
   ln -sv $NPM_PATH ${NAVE_DIR}/npm
-  
+
   echo "done."
-  
+
   return 0
 }
 
 chinachu_installer_node_modules () {
+  remove_dir node_modules
+
   echo "Installing Node Modules using NPM..."
-  
+
   npm install
   npm update
 
   echo "done."
-  
+
   return 0
 }
 
@@ -174,7 +176,7 @@ chinachu_installer_ffmpeg () {
   else
     local FFMPEG_FN="ffmpeg-release-32bit-static"
   fi
-  
+
   local FFMPEG_XZ="http://johnvansickle.com/ffmpeg/releases/${FFMPEG_FN}.tar.xz"
 
   wget $FFMPEG_XZ
@@ -182,18 +184,18 @@ chinachu_installer_ffmpeg () {
 
   tar -xvf "${FFMPEG_FN}.tar" -C bin --strip-components 1
   rm -v "${FFMPEG_FN}.tar"
-  
+
   cd $CHINACHU_DIR
-  
+
   echo "Creating libav aliases..."
 
   rm -rfv "$USR_DIR/bin/avconv"
   rm -rfv "$USR_DIR/bin/avprobe"
   ln -sv "$USR_DIR/bin/ffmpeg" "$USR_DIR/bin/avconv"
   ln -sv "$USR_DIR/bin/ffprobe" "$USR_DIR/bin/avprobe"
-  
+
   echo "ffmpeg --> done."
-  
+
   return 0
 }
 
@@ -201,14 +203,14 @@ chinachu_updater () {
   if [ -e "/etc/init.d/chinachu-operator" ]; then
     /etc/init.d/chinachu-operator status
   fi
-  
+
   if [ -e "/etc/init.d/chinachu-wui" ]; then
     /etc/init.d/chinachu-wui status
   fi
-  
+
   git fetch
   git status
-  
+
   while [ 1 ]; do
     echo -n "Do you want to update [Y/n]? "
     read line
@@ -247,7 +249,7 @@ chinachu_updater_main () {
 
   git pull || fail "failed: git pull"
   git gc
-  
+
   while [ 1 ]; do
     echo -n "Do you want to run chinachu installer (full) [Y/n]? "
     read line
@@ -308,7 +310,7 @@ chinachu_service () {
 
 chinachu_service_initscript () {
   local name="$1"
-  
+
   cat <<EOF
 #!/bin/bash
 # /etc/
@@ -334,7 +336,7 @@ test -x \$DAEMON || exit 0
 
 start () {
   echo -n "Starting \${NAME}: "
-  
+
   if [ -f \$PIDFILE ]; then
     PID=\`cat \$PIDFILE\`
     if [ -z "\`ps axf | grep \${PID} | grep -v grep\`" ]; then
@@ -344,22 +346,22 @@ start () {
       exit
     fi
   fi
-  
+
   PID=\$(su \$USER -c "exec \$DAEMON \$DAEMON_OPTS < /dev/null > /dev/null 2>&1 & echo \\\$!")
-  
+
   if [ -z \$PID ]; then
     echo "Failed!"
     exit
   else
     echo \$PID > \$PIDFILE
   fi
-  
+
   echo "OK."
 }
 
 stop () {
   echo -n "Stopping \${NAME}: "
-  
+
   if [ -f \$PIDFILE ]; then
     PID=\`cat \$PIDFILE\`
     PGID=\`ps -p \$PID -o pgrp | grep -v PGRP\`
@@ -408,24 +410,24 @@ esac
 exit 0
 
 EOF
-  
+
   return 0
 }
 
 chinachu_service_execute () {
   local name="$1"
-  
+
   if ! [ -f "config.json" ]; then
     cp -v config.sample.json config.json
   fi
-  
+
   if ! [ -f "rules.json" ]; then
     cp -v rules.sample.json rules.json
   fi
-  
+
   ensure_dir log
   ensure_dir data
-  
+
   node app-${name}.js > /dev/stdout 2>&1 | tee -a ./log/${name}
   return ${PIPESTATUS[0]}
 }
@@ -472,9 +474,9 @@ chinachu_reserve () {
   if [ ! "$1" ]; then
     fail "Usage: reserve <pgid>"
   fi
-  
+
   node app-cli.js -mode reserve -id "$@" || fail "couldn't reserve $1"
-  
+
   while [ 1 ]; do
     echo -n "Run a scheduler [Y/n]? "
     read line
@@ -494,7 +496,7 @@ chinachu_unreserve () {
   if [ ! "$1" ]; then
     fail "Usage: unreserve <pgid>"
   fi
-  
+
   node app-cli.js -mode unreserve -id "$@" || fail "couldn't unreserve $1"
 }
 
@@ -518,7 +520,7 @@ chinachu_stop () {
   if [ ! "$1" ]; then
     fail "Usage: stop <pgid>"
   fi
-  
+
   node app-cli.js -mode stop -id "$@" || fail "couldn't stop $1"
 }
 
@@ -530,7 +532,7 @@ chinachu_enrule () {
   if [ ! "$1" ]; then
     fail "Usage: enrule <ruleid>"
   fi
-  
+
   node app-cli.js -mode rule --enable -n "$@" && return 0
 }
 
@@ -538,7 +540,7 @@ chinachu_disrule () {
   if [ ! "$1" ]; then
     fail "Usage: disrule <ruleid>"
   fi
-  
+
   node app-cli.js -mode rule --disable -n "$@" && return 0
 }
 
@@ -546,7 +548,7 @@ chinachu_rmrule () {
   if [ ! "$1" ]; then
     fail "Usage: rmrule <ruleid>"
   fi
-  
+
   node app-cli.js -mode rule --remove -n "$@" && return 0
 }
 
@@ -568,7 +570,7 @@ chinachu_recorded () {
 
 chinachu_cleanup () {
   echo "Clean-up the recorded list."
-  
+
   while [ 1 ]; do
     echo -n "Do you want to continue [Y/n]? "
     read line
@@ -591,7 +593,7 @@ chinachu_test () {
   if [ ! "$1" ]; then
     fail "Usage: test <app> [options]"
   fi
-  
+
   ${USR_DIR}/bin/"$@" && return 0
 }
 

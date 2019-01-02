@@ -17,3 +17,7 @@ indent_size = 2
 
 [{package,typings}.json]
 end_of_line = lf
+
+[chinachu]
+indent_size = 2
+end_of_line = lf

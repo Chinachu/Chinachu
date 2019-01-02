@@ -277,7 +277,7 @@ if (opts.get('mini') || opts.get('maxi')) {
 	};
 }
 
-if (opts.get('sid'))    rule.sid                  = opts.get('sid');
+if (opts.get('sid'))    rule.sid                  = Number(opts.get('sid'));
 if (opts.get('type'))   rule.types                = opts.get('type').split(',');
 if (opts.get('ch'))     rule.channels             = opts.get('ch').split(',');
 if (opts.get('^ch'))    rule.ignore_channels      = opts.get('^ch').split(',');
