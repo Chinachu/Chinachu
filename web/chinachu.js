@@ -15,22 +15,6 @@
 		apiRoot: app.def.apiRoot
 	});
 
-	// エラートラップ
-	window.onerror = function _errorTrap(mes, file, num) {
-		console.error('[!] ERROR:', mes, file, num);
-
-		if (!DEBUG) {
-			app.notify.create({
-				title  : 'ERROR: ' + file + ':' + num,
-				message: mes,
-				timeout: 0,
-				onClick: function() {
-					window.location.reload();
-				}
-			});
-		}
-	};
-
 	app.socket = io.connect(window.location.protocol + '//' + window.location.host, {
 		connectTimeout: 3000,
 		path: window.location.pathname.replace(/[^\/]*$/g, '') + 'socket.io',
