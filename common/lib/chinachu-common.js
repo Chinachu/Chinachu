@@ -278,7 +278,9 @@ exports.programMatchesRule = function (rule, program, nf, fullTitle_norm, detail
 	if (rule.channels) {
 		if (rule.channels.indexOf(program.channel.id) === -1) {
 			if (rule.channels.indexOf(program.channel.channel) === -1) {
-				return false;
+				if (rule.channels.indexOf(program.channel.type+'_'+program.channel.sid) === -1) {
+					return false;
+				}
 			}
 		}
 	}
@@ -289,6 +291,9 @@ exports.programMatchesRule = function (rule, program, nf, fullTitle_norm, detail
 			return false;
 		}
 		if (rule.ignore_channels.indexOf(program.channel.channel) !== -1) {
+			return false;
+		}
+		if (rule.ignore_channels.indexOf(program.channel.type+'_'+program.channel.sid) !== -1) {
 			return false;
 		}
 	}
