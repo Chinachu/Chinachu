@@ -357,8 +357,8 @@ function scheduler() {
 }
 
 // (function) program converter
-const flagBracketsRE = /\[.{1,2}\]|【.】/g;
-const flagExtractRE = /(?:【|\[)(.{1,2})(?:】|\])/;
+const flagBracketsRE = /\[.{1,2}\]|【.】|\(.{1,2}\)/g;
+const flagExtractRE = /(?:【|\[|\()(.{1,2})(?:】|\]|\))/;
 const flagRE = /新|終|再|字|デ|解|無|二|S|SS|初|生|Ｎ|映|多|双/;
 const subtitleRE = /.{3,}([「【]([^」】]+)[」】]).*/;
 const subtitleExRE = /(?:[#＃♯][0-9０-９]{1,3}|[第][0-9０-９]{1,3}[話回])(?:[ 　「]+)([^「」]+)(?:[」]?)/;
