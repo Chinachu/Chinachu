@@ -420,7 +420,11 @@ function doRecord(program, stream) {
 		delete program.pid;
 		for (let i = 0, l = recorded.length; i < l; i++) {
 			if (recorded[i].id === program.id) {
-				recorded[i].id = recorded[i].id.replace(/^([^\-]+)\-(.+)$/, '$1-_$2');
+				if (recorded[i].recorded === program.recorded) {
+					recorded.splice(i, 1);
+				} else {
+					recorded[i].id = recorded[i].id.replace(/^([^\-]+)\-(.+)$/, '$1-_$2');
+				}
 				break;
 			}
 		}
