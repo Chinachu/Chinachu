@@ -423,7 +423,7 @@ function doRecord(program, stream) {
 				if (recorded[i].recorded === program.recorded) {
 					recorded.splice(i, 1);
 				} else {
-					recorded[i].id = recorded[i].id.replace(/^([^\-]+)\-(.+)$/, '$1-_$2');
+					recorded[i].id += '-' + recorded[i].start.toString(36);
 				}
 				break;
 			}
