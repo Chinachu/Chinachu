@@ -171,11 +171,22 @@
 			pref: "cog",
 			search: "search"
 		};
+		var hotkeyMap = {
+			dashboard: "H",
+			schedule: "S",
+			rules: "R",
+			reserves: "E",
+			recording: "C",
+			recorded: "O",
+			pref: "P",
+			search: "F"
+		};
 
 		app.pm.index.categoryIndex.each(function(categoryName, i) {
 			flagrate.createElement("li", { "class": "category-" + categoryName }).insert(
 				flagrate.createElement("a", {
 					id: "category-" + categoryName + "-a",
+					title: categoryName.__() + " (" + hotkeyMap[categoryName] + ")",
 					href: "#!/" + categoryName + "/" + app.pm.index.category[categoryName].defaultPage + "/"
 				})
 					.insert('<span class="glyphicon glyphicon-' + glyphiconMap[categoryName] + '"></span>')
@@ -186,6 +197,13 @@
 				flagrate.createElement("i", { "class": "badge", id: "category-" + categoryName + "-badge" })
 					.insertTo($("category-" + categoryName + "-a"));
 			}
+
+			// ホットキー
+			sakura.shortcut.add(hotkeyMap[categoryName], function () {
+				window.location.hash = "!/" + categoryName + "/" + app.pm.index.category[categoryName].defaultPage + "/";
+			}, {
+				protectInput: true
+			});
 		});
 
 		//
@@ -368,6 +386,17 @@
 
 	document.observe('chinachu:reserves', function (e) {
 		$("category-reserves-badge").update(e.memo.length.toString(10));
+		var hasConflict = false;
+		e.memo.forEach(function (p) {
+			if (p.isConflict) {
+				hasConflict = true;
+			}
+		});
+		if (hasConflict) {
+			$("category-reserves-a").addClassName("warning");
+		} else {
+			$("category-reserves-a").removeClassName("warning");
+		}
 	});
 
 	var socketOnSchedule = function _socketOnSchedule(data) {

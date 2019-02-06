@@ -243,6 +243,21 @@ nav.header {
 			div#navbar > ul.nav > li > a:hover {
 				color: rgba(255,255,255,1); }
 
+			div#navbar > ul.nav > li > a.warning::after {
+				display: inline-block;
+				content: "!";
+				text-align: center;
+				width: 13px;
+				height: 15px;
+				line-height: 17px;
+				font-size: 13px;
+				font-weight: bold;
+				border-radius: 2px;
+				margin-left: 2px;
+				color: white;
+				box-shadow: 0 0 2px 0 white;
+				background: rgb(177, 20, 20); }
+
 				div#navbar > ul.nav > li > a > span {
 					margin-right: 5px; }
 
@@ -1230,6 +1245,14 @@ td > div > span.id {
 
 .flagrate-modal > div > div {
 	max-width: 500px; }
+
+.flagrate-modal-visible form.flagrate-form {
+	margin-left : 12px;
+	margin-right: 12px;
+	pointer-events: none; }
+
+.flagrate-modal-visible div.flagrate-form-field-input {
+	pointer-events: all; }
 
 div.video-container {
 	position        : absolute;

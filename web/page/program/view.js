@@ -23,10 +23,22 @@ P = Class.create(P, {
 		this.initToolbar();
 		this.draw();
 
+		// ホットキー
+		sakura.shortcut.add("Left", function () {
+			try { $("program-view-link-to-prev").click(); } catch (e) {}
+		});
+		sakura.shortcut.add("Right", function () {
+			try { $("program-view-link-to-next").click(); } catch (e) {}
+		});
+
 		return this;
 	},
 
 	deinit: function() {
+
+		// ホットキー
+		sakura.shortcut.remove("Left");
+		sakura.shortcut.remove("Right");
 
 		document.stopObserving('chinachu:schedule', this.onNotify);
 		document.stopObserving('chinachu:reserves', this.onNotify);
@@ -397,6 +409,7 @@ P = Class.create(P, {
 
 			if (prev) {
 				flagrate.createElement("a", {
+					id: "program-view-link-to-prev",
 					title: prev.fullTitle,
 					href: "#!/program/view/id=" + prev.id + "/"
 				})
@@ -405,12 +418,17 @@ P = Class.create(P, {
 			}
 			if (next) {
 				flagrate.createElement("a", {
+					id: "program-view-link-to-next",
 					title: next.fullTitle,
 					href: "#!/program/view/id=" + next.id + "/"
 				})
 					.insert(next.title + " <span>&rarr;</span>")
 					.insertTo(nextLi);
 			}
+
+			flagrate.createElement("p", {
+				className: "muted"
+			}).insert("ホットキー [ページ移動]: <code>←</code> / <code>→</code>").insertTo(r2F);
 		}
 
 		return this;
