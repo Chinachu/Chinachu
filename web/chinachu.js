@@ -368,6 +368,17 @@
 
 	document.observe('chinachu:reserves', function (e) {
 		$("category-reserves-badge").update(e.memo.length.toString(10));
+		var hasConflict = false;
+		e.memo.forEach(function (p) {
+			if (p.isConflict) {
+				hasConflict = true;
+			}
+		});
+		if (hasConflict) {
+			$("category-reserves-a").addClassName("warning");
+		} else {
+			$("category-reserves-a").removeClassName("warning");
+		}
 	});
 
 	var socketOnSchedule = function _socketOnSchedule(data) {
