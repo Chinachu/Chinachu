@@ -41,7 +41,6 @@
   "wuiOpenServer": true,
   "wuiOpenPort": 20772,
   "wuiXFF": false,
-  "wuiDLNAServerEnabled": false,
   "wuiMdnsAdvertisement": true,
 
   "recordedFormat": "[<date:yymmdd-HHMM>][<type><channel>][<channel-name>]<title>.m2ts",
