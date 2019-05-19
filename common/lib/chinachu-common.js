@@ -11,7 +11,7 @@ var fs         = require('fs');
 var crypto     = require('crypto');
 var dateFormat = require('dateformat');
 var child_process = require('child_process');
-var string = require('string');
+var string = require('@chezearth/string');
 
 var execSync   = function (command) {
 	try {

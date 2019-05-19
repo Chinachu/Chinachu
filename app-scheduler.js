@@ -599,6 +599,11 @@ function getEpgFromMirakurun(path) {
 			util.log('Mirakurun -> tuners: ' + tuners.length);
 
 			writeOut(channels, scheduler);
+		})
+		.catch(e => {
+
+			util.log('Mirakurun -> Error:');
+			console.error(e);
 		});
 }
 

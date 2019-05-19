@@ -36,10 +36,8 @@ const https = require('https');
 const auth = require('http-auth');
 const socketio = require('socket.io');
 const chinachu = require('chinachu-common');
-const S = require('string');
 const ip = require("ip");
 const geoip = require('geoip-lite');
-const UPnPServer = require('chinachu-upnp-server');
 const mdns = require('mdns-js');
 const mirakurun = new (require("mirakurun").default)();
 
@@ -878,25 +876,6 @@ function ioServerMain(socket) {
 function ioServerSocketOnDisconnect(socket) {
 	--status.connectedCount;
 	ios.emit('status', status);
-}
-
-//
-// EXPERIMENTAL: DLNA Server
-//
-if (config.wuiDLNAServerEnabled === true) {
-	var dlnaServer = new UPnPServer({
-		log: true,
-		logLevel: 'TRACE',
-		ssdpLog: true,
-		ssdpLogLevel: 'DEBUG',
-		name: 'Chinachu (gamma)',
-		httpPort: 20773,
-		uuid: '49ee272d-f140-4cf0-a8cf-b7caa23ff772'
-	}, [
-		path.resolve(config.recordedDir)
-	]);
-
-	dlnaServer.start();
 }
 
 // ファイル更新監視: ./data/rules.json

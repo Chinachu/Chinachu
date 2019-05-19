@@ -15,14 +15,17 @@
     "url": "https://github.com/kanreisa/Chinachu.git"
   },
   "licenses": [
-  {
-    "type": "MIT",
-    "url": "https://github.com/kanreisa/Chinachu/blob/master/LICENSE"
-  }],
+    {
+      "type": "MIT",
+      "url": "https://github.com/kanreisa/Chinachu/blob/master/LICENSE"
+    }
+  ],
   "bugs": {
     "url": "https://github.com/kanreisa/Chinachu/issues"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@chezearth/string": "^3.3.4-2"
+  },
   "devDependencies": {},
   "engines": {
     "node": ">=0.8.0"
