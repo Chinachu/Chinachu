@@ -171,7 +171,13 @@ chinachu_installer_ffmpeg () {
   cd $USR_DIR
 
   MACHINE=`uname -m`
-  if [ ${MACHINE} == "x86_64" ]; then
+  if [ ${MACHINE} == "aarch64" ] || [ ${MACHINE} == "arm64" ] || [ ${MACHINE} == "armv8l" ]; then
+    local FFMPEG_FN="ffmpeg-release-arm64-static"
+  elif [ ${MACHINE} == "armhf" ] || [ ${MACHINE} == "armv7l" ]; then
+    local FFMPEG_FN="ffmpeg-release-armhf-static"
+  elif [ `echo ${MACHINE} | grep 'arm'` ]; then
+    local FFMPEG_FN="ffmpeg-release-armel-static"
+  elif [ ${MACHINE} == "x86_64" ]; then
     local FFMPEG_FN="ffmpeg-release-amd64-static"
   else
     local FFMPEG_FN="ffmpeg-release-i686-static"
