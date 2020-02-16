@@ -58,7 +58,6 @@ function main(avinfo) {
 			return;
 
 		case 'm2ts':
-		case 'webm':
 		case 'mp4':
 			util.log('STREAMING: ' + request.url);
 
@@ -135,6 +134,7 @@ function main(avinfo) {
 			var range = {
 				start: parseInt(ibitrate / 8 * (parseInt(d.ss, 10) - 2), 10)
 			};
+			range.start = range.start - (range.start % 188);
 
 			if (request.type === 'm2ts') {
 				if (request.headers.range) {
@@ -172,11 +172,6 @@ function main(avinfo) {
 					d.f = 'mp4';
 					d['c:v'] = d['c:v'] || 'h264';
 					d['c:a'] = d['c:a'] || 'aac';
-					break;
-				case 'webm':
-					d.f = 'webm';
-					d['c:v'] = d['c:v'] || 'vp9';
-					d['c:a'] = null;
 					break;
 			}
 
@@ -216,9 +211,6 @@ function main(avinfo) {
 					if (d['c:v'] === "h264") {
 						d['c:v'] = "h264_vaapi";
 					}
-					if (d['c:v'] === "vp9") {
-						d['c:v'] = "vp8_vaapi";
-					}
 				}
 				args.push('-c:v', d['c:v']);
 			}
@@ -233,9 +225,7 @@ function main(avinfo) {
 			if (d.ar) args.push('-ar', d.ar);
 
 			if (d['b:v']) {
-				if (d['c:v'] !== 'vp8_vaapi') {
-					args.push('-b:v', d['b:v']);
-				}
+				args.push('-b:v', d['b:v']);
 				args.push('-minrate:v', d['b:v'], '-maxrate:v', d['b:v']);
 				args.push('-bufsize:v', videoBitrate * 8);
 			}
@@ -252,11 +242,6 @@ function main(avinfo) {
 			if (d['c:v'] === 'h264_vaapi') {
 				args.push('-profile', '77');
 				args.push('-level', '41');
-			}
-			if (d['c:v'] === 'vp9') {
-				args.push('-deadline', 'realtime');
-				args.push('-speed', '4');
-				args.push('-cpu-used', '-8');
 			}
 
 			if (d.f === 'mp4') {

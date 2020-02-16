@@ -35,6 +35,10 @@ P = Class.create(P, {
 	,
 	deinit: function() {
 
+		if (this.video) {
+			this.video.src = "";
+		}
+
 		if (this.modal) setTimeout(function() { this.modal.close(); }.bind(this), 0);
 
 		document.stopObserving('chinachu:recording', this.onNotify);
@@ -86,9 +90,12 @@ P = Class.create(P, {
 
 		var buttons = [];
 
-		if (Prototype.Browser.MobileSafari) {
+		var video = document.createElement("video");
+		var canPlayVideo = video.canPlayType('video/webm; codecs="vp8, vorbis"') === "probably";
+
+		if (/Android|iPhone|iPad/.test(navigator.userAgent) === true || canPlayVideo === false) {
 			buttons.push({
-				label  : '再生',
+				label  : '再生 (VLC)',
 				color  : '@pink',
 				onSelect: function(e, modal) {
 
@@ -176,8 +183,8 @@ P = Class.create(P, {
 		});
 
 		exts.push({
-			label     : 'WebM',
-			value     : 'webm'
+			label     : 'MP4',
+			value     : 'mp4'
 		});
 
 		this.form = flagrate.createForm({
@@ -216,42 +223,6 @@ P = Class.create(P, {
 					},
 					depends: [
 						{ key: "ext", val: "m2ts" }
-					]
-				},
-				{
-					pointer: '/c:v',
-					label: '映像コーデック',
-					input: {
-						type: 'radios',
-						isRequired: true,
-						val: "vp9",
-						items: [
-							{
-								label: 'VP9',
-								value: 'vp9'
-							}
-						]
-					},
-					depends: [
-						{ key: 'ext', val: 'webm' }
-					]
-				},
-				{
-					pointer: '/c:v',
-					label: '映像コーデック',
-					input: {
-						type: 'radios',
-						isRequired: true,
-						val: "h264",
-						items: [
-							{
-								label: 'H.264',
-								value: 'h264'
-							}
-						]
-					},
-					depends: [
-						{ key: 'ext', val: 'mp4' }
 					]
 				},
 				{
@@ -390,31 +361,33 @@ P = Class.create(P, {
 			return r + '?' + q;
 		}.bind(this);
 
-		var togglePlay = function() {
-			if (video.paused) {
-				video.play();
-				control.getElementByKey('play').setLabel('Pause');
-			} else {
-				video.pause();
-				control.getElementByKey('play').setLabel('Play');
-			}
-		};
-
 		// create video view
 
 		var videoContainer = new flagrate.Element('div', {
 			'class': 'video-container'
 		}).insertTo(this.view.content);
 
-		var video = new flagrate.Element('video', {
+		var video = this.video = new flagrate.Element('video', {
 			src: getRequestURI(),
 			autoplay: true,
-			controls: true
+			controls: false
 		}).insertTo(videoContainer);
 
-		video.addEventListener('click', togglePlay);
+		// debug
+		window.video = video;
 
-		//video.load();
+		video.onloadstart = function () {
+			control.getElementByKey("status").update("Loading...");
+		};
+
+		video.onpause = function () {
+			control.getElementByKey("status").update("Stopped");
+		};
+
+		video.onplay = function () {
+			control.getElementByKey("status").update("Live");
+		};
+
 		video.volume = 1;
 
 		// create control view
@@ -423,10 +396,9 @@ P = Class.create(P, {
 			className: 'video-control',
 			items: [
 				{
-					key    : 'play',
-					element: new flagrate.Button({ label: 'Pause', onSelect: togglePlay})
+					key: "status",
+					element: new flagrate.Element("span").insert("...")
 				},
-				'--',
 				{
 					key    : 'vol',
 					element: new flagrate.Slider({ value: 10, max: 10 })

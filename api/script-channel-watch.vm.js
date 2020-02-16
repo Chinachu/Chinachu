@@ -37,7 +37,7 @@ Usushio では使わない
 			return;
 
 		case 'm2ts':
-		case 'webm':
+		case 'mp4':
 
 			var d = {
 				s    : request.query.s      || null, //size(WxH)
@@ -56,10 +56,10 @@ Usushio では使わない
 					d['c:v'] = d['c:v'] || 'copy';
 					d['c:a'] = d['c:a'] || 'copy';
 					break;
-				case 'webm':
-					d.f = 'webm';
-					d['c:v'] = d['c:v'] || 'vp9';
-					d['c:a'] = null;
+				case 'mp4':
+					d.f = 'mp4';
+					d['c:v'] = d['c:v'] || 'h264';
+					d['c:a'] = d['c:a'] || 'aac';
 					break;
 			}
 
@@ -97,9 +97,6 @@ Usushio では使わない
 					if (d['c:v'] === "h264") {
 						d['c:v'] = "h264_vaapi";
 					}
-					if (d['c:v'] === "vp9") {
-						d['c:v'] = "vp8_vaapi";
-					}
 				}
 				args.push('-c:v', d['c:v']);
 			}
@@ -114,9 +111,7 @@ Usushio では使わない
 			if (d.ar) args.push('-ar', d.ar);
 
 			if (d['b:v']) {
-				if (d['c:v'] !== 'vp8_vaapi') {
-					args.push('-b:v', d['b:v']);
-				}
+				args.push('-b:v', d['b:v']);
 				args.push('-minrate:v', d['b:v'], '-maxrate:v', d['b:v']);
 			}
 			if (d['b:a']) {
@@ -132,10 +127,9 @@ Usushio では使わない
 				args.push('-profile', '77');
 				args.push('-level', '41');
 			}
-			if (d['c:v'] === 'vp9') {
-				args.push('-deadline', 'realtime');
-				args.push('-speed', '4');
-				args.push('-cpu-used', '-8');
+
+			if (d.f === 'mp4') {
+				args.push('-movflags', 'frag_keyframe+empty_moov+faststart+default_base_moof');
 			}
 
 			args.push('-y', '-f', d.f, 'pipe:1');

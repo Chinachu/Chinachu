@@ -35,6 +35,10 @@ P = Class.create(P, {
 	,
 	deinit: function() {
 
+		if (this.video) {
+			this.video.src = "";
+		}
+
 		if (this.modal) setTimeout(function() { this.modal.close(); }.bind(this), 0);
 
 		document.stopObserving('chinachu:recording', this.onNotify);
@@ -110,9 +114,12 @@ P = Class.create(P, {
 
 		var buttons = [];
 
-		if (Prototype.Browser.MobileSafari) {
+		var video = document.createElement("video");
+		var canPlayVideo = video.canPlayType('video/webm; codecs="vp8, vorbis"') === "probably";
+
+		if (/Android|iPhone|iPad/.test(navigator.userAgent) === true || canPlayVideo === false) {
 			buttons.push({
-				label  : '再生',
+				label  : '再生 (VLC)',
 				color  : '@pink',
 				onSelect: function(e, modal) {
 
@@ -228,16 +235,10 @@ P = Class.create(P, {
 			label     : 'M2TS',
 			value     : 'm2ts'
 		});
-		if (program._isRecorded) {
+		if (canPlayVideo === true) {
 			exts.push({
 				label     : 'MP4',
 				value     : 'mp4'
-			});
-		}
-		if (!Prototype.Browser.MobileSafari) {
-			exts.push({
-				label     : 'WebM',
-				value     : 'webm'
 			});
 		}
 
@@ -277,42 +278,6 @@ P = Class.create(P, {
 					},
 					depends: [
 						{ key: "ext", val: "m2ts" }
-					]
-				},
-				{
-					pointer: '/c:v',
-					label: '映像コーデック',
-					input: {
-						type: 'radios',
-						isRequired: true,
-						val: "vp9",
-						items: [
-							{
-								label: 'VP9',
-								value: 'vp9'
-							}
-						]
-					},
-					depends: [
-						{ key: 'ext', val: 'webm' }
-					]
-				},
-				{
-					pointer: '/c:v',
-					label: '映像コーデック',
-					input: {
-						type: 'radios',
-						isRequired: true,
-						val: "h264",
-						items: [
-							{
-								label: 'H.264',
-								value: 'h264'
-							}
-						]
-					},
-					depends: [
-						{ key: 'ext', val: 'mp4' }
 					]
 				},
 				{
@@ -455,15 +420,6 @@ P = Class.create(P, {
 			return r + '?' + q;
 		};
 
-		var getPreviewURI = function(pos) {
-
-			var r = location.protocol + '//' + location.host + location.pathname.replace(/\/[^\/]*$/, '');
-			r += '/api/' + (!!p._isRecording ? 'recording' : 'recorded') + '/' + p.id + '/preview.jpg';
-			var q = 'width=480&height=270&pos=' + pos;
-
-			return r + '?' + q;
-		};
-
 		var togglePlay = function() {
 
 			if (p._isRecording) return;
@@ -481,18 +437,12 @@ P = Class.create(P, {
 			'class': 'video-container'
 		}).insertTo(this.view.content);
 
-		var video = new flagrate.Element('video', {
-			autoplay: true,
+		var video = this.video = new flagrate.Element('video', {
 			controls: true,
-			poster: getPreviewURI(0)
+			src: getRequestURI()
 		}).insertTo(videoContainer);
 
-		new flagrate.Element('source', {
-			src     : getRequestURI(),
-			type    : 'video/' + d.ext
-		}).insertTo(video);
-
-		//debug
+		// debug
 		window.video = video;
 
 		video.onloadstart = function () {
@@ -500,6 +450,7 @@ P = Class.create(P, {
 		};
 
 		video.oncanplay = function () {
+			video.play();
 			if (video.paused) {
 				control.getElementByKey('play').setLabelHTML('&#57458;');
 			} else {
@@ -510,8 +461,6 @@ P = Class.create(P, {
 		video.onpause = function () {
 			control.getElementByKey('play').setLabelHTML('&#57458;');
 			d.ss = seek.getValue() - 2;
-			console.log(d.ss);
-			video.src = getRequestURI();
 		};
 
 		video.onplay = function () {
@@ -520,8 +469,6 @@ P = Class.create(P, {
 		};
 
 		video.volume = 1;
-
-		video.play();
 
 		// create control view
 
@@ -576,20 +523,20 @@ P = Class.create(P, {
 			fastForward.disable();
 			fastRewind.disable();
 
-			video.src = uri;
-			try {
-				video.play();
-			} catch (e) {
-			}
+			video.pause();
+			video.src = "";
 
-			lastTime = 0;
-			currentTime = d.ss * 1000;
+			setTimeout(function() {
+				video.src = uri;
+				lastTime = 0;
+				currentTime = d.ss * 1000;
+			}, 500);
 
 			setTimeout(function() {
 				seek.enable();
 				fastForward.enable();
 				fastRewind.enable();
-			}, 1000);
+			}, 2000);
 		};
 
 		var seekValue = function(value) {
@@ -612,6 +559,8 @@ P = Class.create(P, {
 
 
 		if (p._isRecording) {
+			fastForward.disable();
+			fastRewind.disable();
 			seek.disable();
 			control.getElementByKey('play').updateText('Live');
 			control.getElementByKey('play').disable();
