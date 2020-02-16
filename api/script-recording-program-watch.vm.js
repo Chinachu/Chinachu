@@ -38,7 +38,6 @@
 			return;
 
 		case 'm2ts':
-		case 'webm':
 		case 'mp4':
 			response.head(200);
 
@@ -63,10 +62,10 @@
 					d['c:v'] = d['c:v'] || 'copy';
 					d['c:a'] = d['c:a'] || 'copy';
 					break;
-				case 'webm':
-					d.f = 'webm';
-					d['c:v'] = d['c:v'] || 'vp9';
-					d['c:a'] = null;
+				case 'mp4':
+					d.f = 'mp4';
+					d['c:v'] = d['c:v'] || 'h264';
+					d['c:a'] = d['c:a'] || 'aac';
 					break;
 			}
 
@@ -108,9 +107,6 @@
 					if (d['c:v'] === "h264") {
 						d['c:v'] = "h264_vaapi";
 					}
-					if (d['c:v'] === "vp9") {
-						d['c:v'] = "vp8_vaapi";
-					}
 				}
 				args.push('-c:v', d['c:v']);
 			}
@@ -143,10 +139,9 @@
 				args.push('-profile', '77');
 				args.push('-level', '41');
 			}
-			if (d['c:v'] === 'vp9') {
-				args.push('-deadline', 'realtime');
-				args.push('-speed', '4');
-				args.push('-cpu-used', '-8');
+
+			if (d.f === 'mp4') {
+				args.push('-movflags', 'frag_keyframe+empty_moov+faststart+default_base_moof');
 			}
 
 			args.push('-y', '-f', d.f, 'pipe:1');

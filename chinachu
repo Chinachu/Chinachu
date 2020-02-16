@@ -172,12 +172,12 @@ chinachu_installer_ffmpeg () {
 
   MACHINE=`uname -m`
   if [ ${MACHINE} == "x86_64" ]; then
-    local FFMPEG_FN="ffmpeg-release-amd64-static"
+    local FFMPEG_FN="ffmpeg-4.1.4-amd64-static"
   else
-    local FFMPEG_FN="ffmpeg-release-i686-static"
+    local FFMPEG_FN="ffmpeg-4.1.4-i686-static"
   fi
 
-  local FFMPEG_XZ="https://johnvansickle.com/ffmpeg/releases/${FFMPEG_FN}.tar.xz"
+  local FFMPEG_XZ="https://johnvansickle.com/ffmpeg/old-releases/${FFMPEG_FN}.tar.xz"
 
   wget -O ${FFMPEG_FN}.tar.xz $FFMPEG_XZ
   xz -dv "${FFMPEG_FN}.tar.xz"
