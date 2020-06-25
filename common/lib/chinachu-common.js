@@ -8,6 +8,7 @@
 'use strict';
 
 var fs         = require('fs');
+var path       = require('path');
 var crypto     = require('crypto');
 var dateFormat = require('dateformat');
 var child_process = require('child_process');
@@ -207,6 +208,14 @@ exports.formatRecordedName = function (program, name) {
 		// category
 		if (a.match(/^category$/) !== null) { return program.category; }
 	});
+
+	var info = path.parse(name);
+	var limit = 255 - Buffer.byteLength(info.ext);
+	var basename = info.name;
+	while (Buffer.byteLength(basename) > limit) {
+		basename = basename.slice(0, -1);
+	}
+	name = path.join(info.dir, basename + info.ext);
 
 	return name;
 };
