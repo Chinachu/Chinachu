@@ -1,8 +1,4 @@
 {
     "editor.renderWhitespace": "all",
-    "editor.formatOnType": false,
-    "editor.autoClosingBrackets": true,
-    "files.trimTrailingWhitespace": true,
-    "git.enabled": false,
-    "git.autofetch": false
+    "files.trimTrailingWhitespace": true
 }
