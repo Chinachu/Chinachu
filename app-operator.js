@@ -256,8 +256,8 @@ function startScheduler() {
 
 	var output, finalize;
 
-	scheduler = child_process.spawn('node', [ 'app-scheduler.js' ]);
-	util.log('SPAWN: node app-scheduler.js (pid=' + scheduler.pid + ')');
+	scheduler = child_process.spawn('./chinachu', [ 'update' ]);
+	util.log('SPAWN: ./chinachu update (pid=' + scheduler.pid + ')');
 
 	// ログ用
 	output = fs.createWriteStream('./log/scheduler', { flags: 'a' });
