@@ -497,9 +497,9 @@ function storageChecker() {
 			util.log(`ALERT: Storage Low Space! (${freeMB} MB < ${storageLowSpaceThresholdMB} MB)`);
 
 			// 1. 指定コマンド実行
-			if (config.storageLowSpaceCommand) {
-				const command = child_process.spawn(config.storageLowSpaceCommand);
-				util.log('SPAWN: ' + config.storageLowSpaceCommand + ' (pid=' + command.pid + ')');
+			if (storageLowSpaceCommand) {
+				const command = child_process.spawn(storageLowSpaceCommand);
+				util.log('SPAWN: ' + storageLowSpaceCommand + ' (pid=' + command.pid + ')');
 			}
 
 			// 2. アクション
