@@ -34,7 +34,7 @@
     "mirakurun": "^3.4.1",
     "mkdirp": "~0.3.5",
     "mtwitter": "^1.6.4",
-    "nodemailer": "^2.7.0",
+    "nodemailer": "^6.4.16",
     "nodemailer-sendmail-transport": "^1.0.0",
     "opts": "^1.2.7",
     "socket.io": "^2.3.0",
