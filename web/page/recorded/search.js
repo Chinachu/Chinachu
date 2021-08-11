@@ -386,7 +386,7 @@ P = Class.create(P, {
 						items: (function() {
 							var array = [];
 
-							['GR', 'BS', 'CS', 'EX'].each(function(a) {
+							['GR', 'BS', 'CS', 'SKY'].each(function(a) {
 								array.push({
 									label     : a,
 									value     : a,
