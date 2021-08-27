@@ -101,10 +101,10 @@ P = Class.create(P, {
 				this.self.query.page = this.grid._pagePosition;
 
 				if (Prototype.Browser.Gecko) {
-					if (/^[%A-Z0-9]+$/.test(this.self.query.title) === false) {
+					if (typeof this.self.query.title !== 'undefined' && /^[%A-Z0-9]+$/.test(this.self.query.title) === false) {
 						this.self.query.title = encodeURIComponent(this.self.query.title);
 					}
-					if (/^[%A-Z0-9]+$/.test(this.self.query.desc) === false) {
+					if (typeof this.self.query.desc !== 'undefined' && /^[%A-Z0-9]+$/.test(this.self.query.desc) === false) {
 						this.self.query.desc = encodeURIComponent(this.self.query.desc);
 					}
 
