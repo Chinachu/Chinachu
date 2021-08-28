@@ -96,7 +96,7 @@ P = Class.create(P, {
 
 		var unitlen = this.unitlen = 25;
 		var linelen      = 25;
-		var types        = eval(window.localStorage.getItem('schedule-param-types') || "['GR','BS','CS','EX']");
+		var types        = eval(window.localStorage.getItem('schedule-param-types') || "['GR','BS','CS','SKY']");
 		var categories = this.categories = eval(window.localStorage.getItem('schedule-param-categories') || "['anime', 'information', 'news', 'sports', 'variety', 'drama', 'music', 'cinema', 'etc']");
 		var hideChannels = eval(window.localStorage.getItem('schedule-param-hide-channels') || "[]");
 
