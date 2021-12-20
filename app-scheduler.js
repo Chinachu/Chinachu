@@ -388,7 +388,8 @@ function convertPrograms(p, ch) {
 		// 理題 (flag)
 		{
 			const flagsSource = c.title
-				.replace(/\[無料\]/g, "[無]");
+				.replace(/\[無料\]/g, "[無]")
+				.replace(/\[生放送\]/g, "[生]");
 
 			const matchedFlags = flagsSource.match(flagBracketsRE) || [];
 			for (const matchedFlag of matchedFlags) {
