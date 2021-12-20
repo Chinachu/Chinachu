@@ -93,7 +93,7 @@ if (fs.existsSync(SCHEDULE_DATA_FILE)) {
 
 // PID file operation
 function createPidFile() {
-	fs.writeFileSync(PID_FILE, process.pid);
+	fs.writeFileSync(PID_FILE, process.pid.toString(10));
 }
 
 function deletePidFile() {
@@ -360,6 +360,7 @@ function scheduler() {
 const flagBracketsRE = /\[.{1,2}\]|【.】|\(.{1,2}\)/g;
 const flagExtractRE = /(?:【|\[|\()(.{1,2})(?:】|\]|\))/;
 const flagRE = /新|終|再|字|デ|解|無|二|S|SS|初|生|Ｎ|映|多|双/;
+const flagUniRE = /🈟|🈡|🈞|🈑|🈓|🈖|🈚|🈔|🅂|🅍|🈠|🈢|🄽|🈙|🈕|🈒/g;
 const subtitleRE = /.{3,}([「【]([^」】]+)[」】]).*/;
 const subtitleExRE = /(?:[#＃♯][0-9０-９]{1,3}|[第][0-9０-９]{1,3}[話回])(?:[ 　「]+)([^「」]+)(?:[」]?)/;
 const subtitleExExRE = /[「【][^」】]+[」】]/g;
@@ -377,36 +378,32 @@ function convertPrograms(p, ch) {
 		let title = "";
 		let subtitle = "";
 		let epinum = null;
-		const flags = [];
+		const flags = new Set();
 
 		// 理題 (title)
 		{
-			title = c.title.replace(flagBracketsRE, "");
-
-			const subtitle = title.match(subtitleRE);
-			if (subtitle) {
-				title = title.replace(subtitle[1], "");
-			}
-
-			const epinums = title.match(epinumRE);
-			if (epinums && epinums.length === 1) {
-				title = title.replace(subtitleExRE, "").replace(epinumRE, "");
-			}
-
-			title = title.trim();
+			title = c.title.replace(flagBracketsRE, "").replace(flagUniRE, "").trim();
 		}
 
 		// 理題 (flag)
 		{
 			const flagsSource = c.title
-				.replace(/\[無料\]/g, '[無]');
+				.replace(/\[無料\]/g, "[無]");
 
 			const matchedFlags = flagsSource.match(flagBracketsRE) || [];
 			for (const matchedFlag of matchedFlags) {
 				const flag = matchedFlag.match(flagExtractRE)[1];
 				if (flagRE.test(flag) === true) {
-					flags.push(flag);
+					flags.add(flag);
 				}
+			}
+		}
+
+		// 理題 (flag) Unicode ARIB外字対応
+		{
+			const matchedFlags = c.title.match(flagUniRE) || [];
+			for (const matchedFlag of matchedFlags) {
+				flags.add(matchedFlag.normalize("NFKC"));
 			}
 		}
 
@@ -484,7 +481,7 @@ function convertPrograms(p, ch) {
 				epinum = parseInt(epinumStr, 10);
 			}
 
-			if (epinum === null && flags.indexOf('新') !== -1) {
+			if (epinum === null && flags.has('新') !== -1) {
 				epinum = 1;
 			}
 		}
@@ -495,7 +492,7 @@ function convertPrograms(p, ch) {
 		programData.title = title;
 		programData.subTitle = subtitle;
 		programData.episode = epinum;
-		programData.flags = flags;
+		programData.flags = [...flags];
 
 		programs.push(programData);
 	}
