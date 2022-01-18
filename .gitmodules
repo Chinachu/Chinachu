@@ -1,6 +1,6 @@
 [submodule "web/lib/ace"]
 	path = web/lib/ace
-	url = git://github.com/ajaxorg/ace-builds.git
+	url = https://github.com/ajaxorg/ace-builds
 [submodule "web/lib/d3"]
 	path = web/lib/d3
 	url = https://github.com/mbostock/d3
